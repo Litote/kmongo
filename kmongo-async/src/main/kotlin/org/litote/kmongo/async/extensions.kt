@@ -79,6 +79,15 @@ inline fun <reified T : Any> MongoDatabase.runCommand(command: String, noinline 
 //*******
 
 /**
+ * Create a new MongoCollection instance with a different default class to cast any documents returned from the database into..
+ *
+ * @param NewTDocument the default class to cast any documents returned from the database into.
+ * @return a new MongoCollection instance with the different default class
+ */
+inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument>
+        = withDocumentClass(NewTDocument::class.java)
+
+/**
  * Counts the number of documents in the collection according to the given options.
 
  * @param filter   the query filter
@@ -115,7 +124,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
  * @param  filter the query filter
  * @return the find iterable interface
  */
-fun <T> MongoCollection<T>.find(filter: String = EMPTY_BSON): FindIterable<T>
+fun <T> MongoCollection<T>.find(filter: String): FindIterable<T>
         = find(toBson(filter))
 
 /**
@@ -172,7 +181,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.mapReduce(mapFunction: Str
  * @throws com.mongodb.MongoCommandException      returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.insertOne(document: String, callback: (Void?, Throwable?) -> Unit)
+inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String, noinline callback: (Void?, Throwable?) -> Unit)
         = insertOne(document, InsertOneOptions(), callback)
 
 /**
@@ -187,8 +196,8 @@ fun <T> MongoCollection<T>.insertOne(document: String, callback: (Void?, Throwab
  * @throws com.mongodb.MongoCommandException      returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.insertOne(document: String, options: InsertOneOptions, callback: (Void?, Throwable?) -> Unit)
-        = withDocumentClass(BsonDocument::class.java).insertOne(toBson(document) as BsonDocument, options, callback)
+inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String, options: InsertOneOptions, noinline callback: (Void?, Throwable?) -> Unit)
+        = withDocumentClass<BsonDocument>().insertOne(toBson(document) as BsonDocument, options, callback)
 
 
 /**
@@ -204,6 +213,20 @@ fun <T> MongoCollection<T>.insertOne(document: String, options: InsertOneOptions
  */
 fun <T> MongoCollection<T>.deleteOne(filter: String, callback: (DeleteResult?, Throwable?) -> Unit)
         = deleteOne(toBson(filter), callback)
+
+/**
+ * Removes at most one document from the [org.bson.types.ObjectId] parameterr.  If no documents match, the collection is not
+ * modified.
+
+ * @param id   the object id
+ * @param callback the callback passed the result of the remove one operation
+ *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+fun <T> MongoCollection<T>.deleteOne(id: ObjectId, callback: (DeleteResult?, Throwable?) -> Unit)
+        = deleteOne("{_id:${id.json}}", callback)
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -260,7 +283,7 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: Up
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T> MongoCollection<T>.updateOne(filter: String, update: Any, callback: (UpdateResult?, Throwable?) -> Unit)
-        = updateOne(toBson(filter), toBson("{\$set:${update.json}}"), UpdateOptions(), callback)
+        = updateOne(filter, "{\$set:${update.json}}", UpdateOptions(), callback)
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -284,8 +307,17 @@ fun <T> MongoCollection<T>.updateMany(filter: String, update: String, options: U
  * @param options  the options to apply to the operation
  * @param callback the callback passed the document that was removed.  If no documents matched the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndDeleteOptions = FindOneAndDeleteOptions(), callback: (T?, Throwable?) -> Unit)
+fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndDeleteOptions, callback: (T?, Throwable?) -> Unit)
         = findOneAndDelete(toBson(filter), options, callback)
+
+/**
+ * Atomically find a document and remove it.
+
+ * @param filter   the query filter to find the document with
+ * @param callback the callback passed the document that was removed.  If no documents matched the query filter, then null will be returned
+ */
+fun <T> MongoCollection<T>.findOneAndDelete(filter: String, callback: (T?, Throwable?) -> Unit)
+        = findOneAndDelete(filter, FindOneAndDeleteOptions(), callback)
 
 /**
  * Atomically find a document and replace it.
@@ -298,8 +330,21 @@ fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndD
  *                    property, this will either be the document as it was before the update or as it is after the update.  If no
  *                    documents matched the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, options: FindOneAndReplaceOptions = FindOneAndReplaceOptions(), callback: (T?, Throwable?) -> Unit)
+fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, options: FindOneAndReplaceOptions, callback: (T?, Throwable?) -> Unit)
         = findOneAndReplace(toBson(filter), replacement, options, callback)
+
+/**
+ * Atomically find a document and replace it.
+
+ * @param filter      the query filter to apply the the replace operation
+ * @param replacement the replacement document
+ *
+ * @param callback    the callback passed the document that was replaced.  Depending on the value of the `returnDocument`
+ *                    property, this will either be the document as it was before the update or as it is after the update.  If no
+ *                    documents matched the query filter, then null will be returned
+ */
+fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, callback: (T?, Throwable?) -> Unit)
+        = findOneAndReplace(filter, replacement, FindOneAndReplaceOptions(), callback)
 
 /**
  * Atomically find a document and update it.
@@ -312,8 +357,21 @@ fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, opt
  *                 this will either be the document as it was before the update or as it is after the update.  If no documents matched
  *                  the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, options: FindOneAndUpdateOptions = FindOneAndUpdateOptions(), callback: (T?, Throwable?) -> Unit)
+fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, options: FindOneAndUpdateOptions, callback: (T?, Throwable?) -> Unit)
         = findOneAndUpdate(toBson(filter), toBson(update), options, callback)
+
+/**
+ * Atomically find a document and update it.
+
+ * @param filter   a document describing the query filter
+ * @param update   a document describing the update. The update to apply must include only update operators.
+ *
+ * @param callback the callback passed the document that was updated.  Depending on the value of the `returnOriginal` property,
+ *                 this will either be the document as it was before the update or as it is after the update.  If no documents matched
+ *                  the query filter, then null will be returned
+ */
+fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, callback: (T?, Throwable?) -> Unit)
+        = findOneAndUpdate(filter, update, FindOneAndUpdateOptions(), callback)
 
 //*******
 //DistinctIterable extension methods
