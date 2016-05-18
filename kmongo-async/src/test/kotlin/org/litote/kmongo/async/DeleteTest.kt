@@ -38,7 +38,10 @@ class DeleteTest : KMongoAsyncBaseTest() {
     }
 
     @After
-    fun tearDown() = dropCollection<Friend>()
+    fun after() {
+        waitToComplete()
+        dropCollection<Friend>()
+    }
 
     @Test
     fun canDeleteASpecificDocument() {
@@ -52,12 +55,10 @@ class DeleteTest : KMongoAsyncBaseTest() {
                 }
             })
         })
-        waitToComplete()
     }
 
     @Test
     fun canDeleteByObjectId() {
-        /* given */
         col.insertOne("{ _id:{$oid:'47cc67093475061e3d95369d'}, name:'John'}", { r, t ->
             col.deleteOne(ObjectId("47cc67093475061e3d95369d"), { r, t ->
                 col.count({ c, t ->
@@ -67,7 +68,6 @@ class DeleteTest : KMongoAsyncBaseTest() {
                 })
             })
         })
-        waitToComplete()
     }
 
     @Test
@@ -81,6 +81,5 @@ class DeleteTest : KMongoAsyncBaseTest() {
                 })
             })
         })
-        waitToComplete()
     }
 }

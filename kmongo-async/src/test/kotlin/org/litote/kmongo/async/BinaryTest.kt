@@ -40,8 +40,10 @@ class BinaryTest : KMongoAsyncBaseTest() {
     }
 
     @After
-    fun tearDown()
-            = dropCollection<BinaryFriend>()
+    fun after() {
+        waitToComplete()
+        dropCollection<BinaryFriend>()
+    }
 
     @Test
     fun testUpdate() {
@@ -59,7 +61,6 @@ class BinaryTest : KMongoAsyncBaseTest() {
                 })
             })
         })
-        waitToComplete()
     }
 
     @Test
@@ -74,8 +75,6 @@ class BinaryTest : KMongoAsyncBaseTest() {
                 asyncTest { assertEquals(expected, r) }
             })
         })
-
-        waitToComplete()
     }
 
 
@@ -88,8 +87,6 @@ class BinaryTest : KMongoAsyncBaseTest() {
                 asyncTest { assertNull(r) }
             })
         })
-
-        waitToComplete()
     }
 
     @Test
@@ -111,8 +108,6 @@ class BinaryTest : KMongoAsyncBaseTest() {
                 })
             })
         })
-
-        waitToComplete()
     }
 
 }

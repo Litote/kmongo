@@ -36,7 +36,10 @@ class CountTest : KMongoAsyncBaseTest() {
     }
 
     @After
-    fun tearDown() = dropCollection<Friend>()
+    fun after() {
+        waitToComplete()
+        dropCollection<Friend>()
+    }
 
     fun newFriend(): Friend {
         return Friend("John", "22 Wall Street Avenue")
@@ -52,7 +55,6 @@ class CountTest : KMongoAsyncBaseTest() {
                 }
             }
         })
-        waitToComplete()
     }
 
     @Test
@@ -65,7 +67,6 @@ class CountTest : KMongoAsyncBaseTest() {
                 }
             })
         })
-        waitToComplete()
     }
 
     @Test
@@ -78,7 +79,6 @@ class CountTest : KMongoAsyncBaseTest() {
                 }
             })
         })
-        waitToComplete()
     }
 
 }

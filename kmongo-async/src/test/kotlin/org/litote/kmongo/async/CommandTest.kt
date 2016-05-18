@@ -20,7 +20,7 @@ import org.bson.Document
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.litote.kmongo.KUtil
+import org.litote.kmongo.KMongoUtil
 import org.litote.kmongo.async.model.Friend
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -48,7 +48,10 @@ class CommandTest : KMongoAsyncBaseTest() {
     }
 
     @After
-    fun tearDown() = dropCollection<Friend>()
+    fun after() {
+        waitToComplete()
+        dropCollection<Friend>()
+    }
 
     @Test
     fun canRunACommand() {
@@ -58,8 +61,6 @@ class CommandTest : KMongoAsyncBaseTest() {
                 assertEquals(1.0, r!!.get("ok"))
             }
         })
-
-        waitToComplete()
     }
 
     @Test
@@ -72,13 +73,11 @@ class CommandTest : KMongoAsyncBaseTest() {
                 }
             })
         })
-
-        waitToComplete()
     }
 
     @Test
     fun canRunAGeoNearCommand() {
-        col.createIndex(KUtil.toBson("{loc:'2d'}"), { r, t ->
+        col.createIndex(KMongoUtil.toBson("{loc:'2d'}"), { r, t ->
             col.insertOne("{loc:{lat:48.690833,lng:9.140556}, name:'Paris'}", { r, t ->
                 database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}", { r, t ->
                     asyncTest {
@@ -90,21 +89,17 @@ class CommandTest : KMongoAsyncBaseTest() {
                 })
             })
         })
-
-        waitToComplete()
     }
 
     @Test
     fun canRunAnEmptyResultCommand() {
-        col.createIndex(KUtil.toBson("{loc:'2d'}"), { r, t ->
+        col.createIndex(KMongoUtil.toBson("{loc:'2d'}"), { r, t ->
             database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}", { r, t ->
                 asyncTest {
                     assertTrue { r!!.results.isEmpty() }
                 }
             })
         })
-
-        waitToComplete()
     }
 
 }

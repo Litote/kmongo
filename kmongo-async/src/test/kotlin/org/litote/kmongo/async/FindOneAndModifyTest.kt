@@ -45,7 +45,10 @@ class FindOneAndModifyTest : KMongoAsyncBaseTest() {
     }
 
     @After
-    fun tearDown() = dropCollection<Friend>()
+    fun after() {
+        waitToComplete()
+        dropCollection<Friend>()
+    }
 
     @Test
     fun canFindAndUpdateOne() {
@@ -61,7 +64,6 @@ class FindOneAndModifyTest : KMongoAsyncBaseTest() {
                         })
                     })
                 })
-        waitToComplete()
     }
 
     @Test
@@ -78,7 +80,6 @@ class FindOneAndModifyTest : KMongoAsyncBaseTest() {
                         })
                     })
                 })
-        waitToComplete()
     }
 
     @Test
@@ -96,7 +97,6 @@ class FindOneAndModifyTest : KMongoAsyncBaseTest() {
                         })
                     })
                 })
-        waitToComplete()
     }
 
     @Test
@@ -111,7 +111,6 @@ class FindOneAndModifyTest : KMongoAsyncBaseTest() {
             }
 
         })
-        waitToComplete()
     }
 
     @Test
@@ -126,6 +125,5 @@ class FindOneAndModifyTest : KMongoAsyncBaseTest() {
             }
 
         })
-        waitToComplete()
     }
 }

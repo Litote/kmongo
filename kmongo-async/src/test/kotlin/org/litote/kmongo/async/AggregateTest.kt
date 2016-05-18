@@ -58,7 +58,8 @@ class AggregateTest : KMongoAsyncBaseTest() {
     }
 
     @After
-    fun tearDown() {
+    fun after() {
+        waitToComplete()
         dropCollection<Friend>()
         dropCollection<Article>()
     }
@@ -71,7 +72,6 @@ class AggregateTest : KMongoAsyncBaseTest() {
                     t?.printStackTrace()
                     asyncTest { assertEquals(3, l!!.size) }
                 }
-        waitToComplete()
     }
 
 
@@ -85,7 +85,6 @@ class AggregateTest : KMongoAsyncBaseTest() {
                         assertTrue (l.all { it.tags.contains("virus") })
                     }
                 }
-        waitToComplete()
     }
 
     @Test
@@ -99,7 +98,6 @@ class AggregateTest : KMongoAsyncBaseTest() {
                         assertEquals ("World War Z", l.first().title)
                     }
                 }
-        waitToComplete()
     }
 
     @Test
@@ -112,7 +110,6 @@ class AggregateTest : KMongoAsyncBaseTest() {
                         assertEquals ("World War Z", l.first().title)
                     }
                 }
-        waitToComplete()
     }
 
     @Test
@@ -124,7 +121,6 @@ class AggregateTest : KMongoAsyncBaseTest() {
                         assertEquals(1, l!!.size)
                     }
                 }
-        waitToComplete()
     }
 
     @Test
@@ -136,7 +132,6 @@ class AggregateTest : KMongoAsyncBaseTest() {
                         assertTrue(t is MongoCommandException)
                     }
                 }
-        waitToComplete()
     }
 
     @Test
@@ -149,7 +144,6 @@ class AggregateTest : KMongoAsyncBaseTest() {
                         assertTrue (l.all { it._id != null })
                     }
                 }
-        waitToComplete()
     }
 
 

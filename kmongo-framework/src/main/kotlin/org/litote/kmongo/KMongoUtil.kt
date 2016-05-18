@@ -21,12 +21,13 @@ import org.bson.codecs.DecoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
+import org.bson.types.ObjectId
 import org.litote.kmongo.jackson.ObjectMapperFactory
 
 /**
  *
  */
-object KUtil {
+object KMongoUtil {
 
     val EMPTY_BSON = "{}"
 
@@ -34,7 +35,7 @@ object KUtil {
             = if (json == EMPTY_BSON) BsonDocument() else BsonDocument.parse(json)
 
     fun toBson(o: Any): Bson
-    //TODO o -> Bson directly
+            //TODO o -> Bson directly
             = toBson(toExtendedJson(o))
 
     fun toBsonList(json: Array<out String>, codecRegistry: CodecRegistry): List<Bson>
@@ -45,11 +46,17 @@ object KUtil {
         json.map { toBson(it) }
     }
 
-    fun toExtendedJson(a : Any) : String
-    = ObjectMapperFactory.extendedJsonMapper.writeValueAsString(a)
+    fun toExtendedJson(a: Any): String
+            = ObjectMapperFactory.extendedJsonMapper.writeValueAsString(a)
 
     private fun isJsonArray(json: String)
             = json.trim().startsWith('[')
+
+    fun idFilter(id: ObjectId)
+            = "{_id:${toExtendedJson(id)}}"
+
+    fun setPojoModifier(pojo: Any)
+            = "{\$set:${toExtendedJson(pojo)}}"
 
 
 }

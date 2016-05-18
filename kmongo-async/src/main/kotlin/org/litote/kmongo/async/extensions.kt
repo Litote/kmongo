@@ -33,10 +33,12 @@ import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
 import org.bson.types.ObjectId
-import org.litote.kmongo.KUtil
-import org.litote.kmongo.KUtil.EMPTY_BSON
-import org.litote.kmongo.KUtil.toBson
-import org.litote.kmongo.KUtil.toBsonList
+import org.litote.kmongo.KMongoUtil
+import org.litote.kmongo.KMongoUtil.EMPTY_BSON
+import org.litote.kmongo.KMongoUtil.idFilter
+import org.litote.kmongo.KMongoUtil.setPojoModifier
+import org.litote.kmongo.KMongoUtil.toBson
+import org.litote.kmongo.KMongoUtil.toBsonList
 
 
 //*******
@@ -143,7 +145,7 @@ fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_BSON, callback: (T?, T
  * @param callback a callback that is passed the first item or null
  */
 fun <T> MongoCollection<T>.findOne(id: ObjectId, callback: (T?, Throwable?) -> Unit)
-        = findOne("{_id:${id.json}}", callback)
+        = findOne(idFilter(id), callback)
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
@@ -215,7 +217,7 @@ fun <T> MongoCollection<T>.deleteOne(filter: String, callback: (DeleteResult?, T
         = deleteOne(toBson(filter), callback)
 
 /**
- * Removes at most one document from the [org.bson.types.ObjectId] parameterr.  If no documents match, the collection is not
+ * Removes at most one document from the [org.bson.types.ObjectId] parameter.  If no documents match, the collection is not
  * modified.
 
  * @param id   the object id
@@ -226,7 +228,7 @@ fun <T> MongoCollection<T>.deleteOne(filter: String, callback: (DeleteResult?, T
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T> MongoCollection<T>.deleteOne(id: ObjectId, callback: (DeleteResult?, Throwable?) -> Unit)
-        = deleteOne("{_id:${id.json}}", callback)
+        = deleteOne(idFilter(id), callback)
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -244,6 +246,20 @@ fun <T> MongoCollection<T>.deleteMany(filter: String, callback: (DeleteResult?, 
 /**
  * Replace a document in the collection according to the specified arguments.
 
+ * @param id          the object id
+ * @param replacement the replacement document
+ * @param callback    the callback passed the result of the replace one operation
+ * *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+fun <T> MongoCollection<T>.replaceOne(id: ObjectId, replacement: T, callback: (UpdateResult?, Throwable?) -> Unit)
+        = replaceOne(idFilter(id), replacement, UpdateOptions(), callback)
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+
  * @param filter      the query filter to apply to the replace operation
  * @param replacement the replacement document
  * @param options     the options to apply to the replace operation
@@ -253,8 +269,22 @@ fun <T> MongoCollection<T>.deleteMany(filter: String, callback: (DeleteResult?, 
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions = UpdateOptions(), callback: (UpdateResult?, Throwable?) -> Unit)
+fun <T> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
         = replaceOne(toBson(filter), replacement, options, callback)
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+
+ * @param filter      the query filter to apply to the replace operation
+ * @param replacement the replacement document
+ * @param callback    the callback passed the result of the replace one operation
+ * *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+fun <T> MongoCollection<T>.replaceOne(filter: String, replacement: T, callback: (UpdateResult?, Throwable?) -> Unit)
+        = replaceOne(toBson(filter), replacement, UpdateOptions(), callback)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -283,7 +313,35 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: Up
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T> MongoCollection<T>.updateOne(filter: String, update: Any, callback: (UpdateResult?, Throwable?) -> Unit)
-        = updateOne(filter, "{\$set:${update.json}}", UpdateOptions(), callback)
+        = updateOne(filter, setPojoModifier(update), UpdateOptions(), callback)
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+
+ * @param id        the object id
+ * @param update    a document describing the update. The update to apply must include only update operators.
+ * @param callback  the callback passed the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: String, callback: (UpdateResult?, Throwable?) -> Unit)
+        = updateOne(idFilter(id), update, UpdateOptions(), callback)
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+
+ * @param id        the object id
+ * @param update    the new updated object
+ * @param callback  the callback passed the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: Any, callback: (UpdateResult?, Throwable?) -> Unit)
+        = updateOne(idFilter(id), setPojoModifier(update), UpdateOptions(), callback)
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -297,8 +355,22 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: Any, callback: (Upd
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateMany(filter: String, update: String, options: UpdateOptions = UpdateOptions(), callback: (UpdateResult?, Throwable?) -> Unit)
+fun <T> MongoCollection<T>.updateMany(filter: String, update: String, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
         = updateMany(toBson(filter), toBson(update), options, callback)
+
+/**
+ * Update all documents in the collection according to the specified arguments.
+
+ * @param filter   a document describing the query filter
+ * @param update   a document describing the update. The update to apply must include only update operators.
+ * @param callback the callback passed the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+fun <T> MongoCollection<T>.updateMany(filter: String, update: String, callback: (UpdateResult?, Throwable?) -> Unit)
+        = updateMany(filter, update, UpdateOptions(), callback)
 
 /**
  * Atomically find a document and remove it.
@@ -486,5 +558,5 @@ fun <TResult> MongoIterable<TResult>.toList(callback: (List<TResult>?, Throwable
 //*******
 
 val Any.json: String
-    get() = KUtil.toExtendedJson(this)
+    get() = KMongoUtil.toExtendedJson(this)
 

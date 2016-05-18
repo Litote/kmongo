@@ -52,6 +52,5 @@ class JsonExtensionTest {
         data.a = "b"
         assertEquals("{\"a\":\"b\"}", data.json)
     }
-
 }
 

@@ -39,7 +39,10 @@ class FindOneTest : KMongoAsyncBaseTest() {
     }
 
     @After
-    fun tearDown() = dropCollection<Friend>()
+    fun after() {
+        waitToComplete()
+        dropCollection<Friend>()
+    }
 
     @Test
     fun canFindOne() {
@@ -61,8 +64,6 @@ class FindOneTest : KMongoAsyncBaseTest() {
                         asyncTest { assertEquals("John", friend!!.name) }
                     }
                 })
-
-        waitToComplete()
     }
 
     @Test
@@ -75,8 +76,6 @@ class FindOneTest : KMongoAsyncBaseTest() {
                         asyncTest { assertEquals(john._id, friend!!._id) }
                     })
                 })
-
-        waitToComplete()
     }
 
     @Test
@@ -91,8 +90,6 @@ class FindOneTest : KMongoAsyncBaseTest() {
                         asyncTest { assertEquals(id, friend!!._id) }
                     })
                 })
-
-        waitToComplete()
     }
 
     @Test
@@ -106,8 +103,6 @@ class FindOneTest : KMongoAsyncBaseTest() {
                         asyncTest { assertEquals(id, friend!!._id) }
                     })
                 })
-
-        waitToComplete()
     }
 
     @Test
@@ -116,8 +111,6 @@ class FindOneTest : KMongoAsyncBaseTest() {
             r, t ->
             asyncTest { assertNull(r) }
         })
-
-        waitToComplete()
     }
 
     @Test
@@ -130,7 +123,5 @@ class FindOneTest : KMongoAsyncBaseTest() {
                         asyncTest { assertEquals("John", friend!!.name) }
                     })
                 })
-
-        waitToComplete()
     }
 }

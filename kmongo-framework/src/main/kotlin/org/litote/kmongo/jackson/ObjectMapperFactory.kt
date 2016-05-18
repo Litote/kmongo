@@ -29,6 +29,7 @@ object ObjectMapperFactory {
         return ObjectMapper()
                 .registerModule(KotlinModule())
                 .registerModule(ExtendedJsonModule())
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
     }
 
     fun createBsonObjectMapper(): ObjectMapper {
