@@ -15,10 +15,7 @@
  */
 package org.litote.kmongo.async
 
-import com.mongodb.async.client.MongoCollection
 import org.bson.Document
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.KMongoUtil
 import org.litote.kmongo.async.model.Friend
@@ -28,7 +25,7 @@ import kotlin.test.assertTrue
 /**
  *
  */
-class CommandTest : KMongoAsyncBaseTest() {
+class CommandTest : KMongoAsyncBaseTest<Friend>() {
 
     class LocationResult(val results: List<Location>)
 
@@ -39,19 +36,6 @@ class CommandTest : KMongoAsyncBaseTest() {
     }
 
     class NestedLocation(var name: String? = null)
-
-    lateinit var col: MongoCollection<Friend>
-
-    @Before
-    fun before() {
-        col = getCollection<Friend>()
-    }
-
-    @After
-    fun after() {
-        waitToComplete()
-        dropCollection<Friend>()
-    }
 
     @Test
     fun canRunACommand() {

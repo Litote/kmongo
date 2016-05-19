@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo.async.model
+
+package org.litote.kmongo
 
 import org.bson.types.ObjectId
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 /**
- *
+
  */
-data class Friend(var name: String?, val address: String?, val _id: ObjectId? = null, val coordinate: Coordinate? = null) {
+class KMongoUtilTest {
 
-    constructor(name: String) : this(name, null, null)
+    class Obj(var _id: ObjectId = ObjectId())
 
-    constructor(name: String?, coordinate: Coordinate) : this(name, null, null, coordinate)
-
-    constructor(_id: ObjectId, name: String) : this(name, null, _id)
+    @Test
+    fun extractId() {
+        val id = ObjectId()
+        assertEquals(id, KMongoUtil.extractId(Obj(id), Obj::class))
+    }
 }

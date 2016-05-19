@@ -16,9 +16,6 @@
 
 package org.litote.kmongo.async
 
-import com.mongodb.async.client.MongoCollection
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.exists
 import org.litote.kmongo.async.model.Coordinate
@@ -29,21 +26,9 @@ import kotlin.test.assertTrue
 /**
  *
  */
-class DistinctTest : KMongoAsyncBaseTest() {
+class DistinctTest : KMongoAsyncBaseTest<Friend>() {
 
     val wallStreetAvenue = "22 Wall Street Avenue"
-    lateinit var col: MongoCollection<Friend>
-
-    @Before
-    fun before() {
-        col = getCollection<Friend>()
-    }
-
-    @After
-    fun after() {
-        waitToComplete()
-        dropCollection<Friend>()
-    }
 
     @Test
     fun distinctOnStringEntities() {

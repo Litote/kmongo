@@ -35,8 +35,9 @@ import org.bson.BsonDocument
 import org.bson.types.ObjectId
 import org.litote.kmongo.KMongoUtil
 import org.litote.kmongo.KMongoUtil.EMPTY_BSON
+import org.litote.kmongo.KMongoUtil.extractId
 import org.litote.kmongo.KMongoUtil.idFilter
-import org.litote.kmongo.KMongoUtil.setPojoModifier
+import org.litote.kmongo.KMongoUtil.setModifier
 import org.litote.kmongo.KMongoUtil.toBson
 import org.litote.kmongo.KMongoUtil.toBsonList
 
@@ -260,6 +261,19 @@ fun <T> MongoCollection<T>.replaceOne(id: ObjectId, replacement: T, callback: (U
 /**
  * Replace a document in the collection according to the specified arguments.
 
+ * @param replacement the document to replace - must have an non null id
+ * @param callback    the callback passed the result of the replace one operation
+ * *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T, noinline callback: (UpdateResult?, Throwable?) -> Unit)
+        = replaceOne(idFilter(extractId(replacement, T::class)), replacement, UpdateOptions(), callback)
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+
  * @param filter      the query filter to apply to the replace operation
  * @param replacement the replacement document
  * @param options     the options to apply to the replace operation
@@ -305,7 +319,7 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: Up
  * Update a single document in the collection according to the specified arguments.
 
  * @param filter   a document describing the query filter
- * @param update   the new updated object
+ * @param update   the new updated object - only non null fields are updated
  * @param callback the callback passed the result of the update one operation
  *
  * @throws com.mongodb.MongoWriteException        returned via the callback
@@ -313,7 +327,7 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: Up
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T> MongoCollection<T>.updateOne(filter: String, update: Any, callback: (UpdateResult?, Throwable?) -> Unit)
-        = updateOne(filter, setPojoModifier(update), UpdateOptions(), callback)
+        = updateOne(filter, setModifier(update), UpdateOptions(), callback)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -332,16 +346,30 @@ fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: String, callback: (Up
 /**
  * Update a single document in the collection according to the specified arguments.
 
- * @param id        the object id
- * @param update    the new updated object
+ * @param target  the new updated object - must have an non null id - only non null fields are updated
  * @param callback  the callback passed the result of the update one operation
  *
  * @throws com.mongodb.MongoWriteException        returned via the callback
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: Any, callback: (UpdateResult?, Throwable?) -> Unit)
-        = updateOne(idFilter(id), setPojoModifier(update), UpdateOptions(), callback)
+inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, noinline callback: (UpdateResult?, Throwable?) -> Unit) {
+    return updateOne(idFilter(extractId(target, T::class)), setModifier(target), UpdateOptions(), callback)
+}
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+
+ * @param id        the object id
+ * @param update    the new updated object - only non null fields are updated
+ * @param callback  the callback passed the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+fun <T : Any> MongoCollection<T>.updateOne(id: ObjectId, update: T, callback: (UpdateResult?, Throwable?) -> Unit)
+        = updateOne(idFilter(id), setModifier(update), UpdateOptions(), callback)
 
 /**
  * Update all documents in the collection according to the specified arguments.

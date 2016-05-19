@@ -16,14 +16,10 @@
 
 package org.litote.kmongo.async
 
-import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.FindOneAndUpdateOptions
-import com.mongodb.client.model.ReturnDocument
 import com.mongodb.client.model.ReturnDocument.AFTER
 import org.bson.Document
 import org.bson.types.ObjectId
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
@@ -35,20 +31,7 @@ import kotlin.test.assertNull
 /**
  *
  */
-class FindOneAndModifyTest : KMongoAsyncBaseTest() {
-
-    lateinit var col: MongoCollection<Friend>
-
-    @Before
-    fun before() {
-        col = getCollection<Friend>()
-    }
-
-    @After
-    fun after() {
-        waitToComplete()
-        dropCollection<Friend>()
-    }
+class FindOneAndModifyTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canFindAndUpdateOne() {

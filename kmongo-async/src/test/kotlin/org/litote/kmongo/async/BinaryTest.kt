@@ -15,34 +15,28 @@
  */
 package org.litote.kmongo.async
 
-import com.mongodb.async.client.MongoCollection
 import org.bson.types.Binary
-import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.binary
 import org.litote.kmongo.MongoOperator.type
+import org.litote.kmongo.async.BinaryTest.BinaryFriend
+import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class BinaryTest : KMongoAsyncBaseTest() {
+class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
 
     data class BinaryFriend(val _id: Binary, var name: String = "none")
 
     lateinit var friendId: Binary
-    lateinit var col: MongoCollection<BinaryFriend>
+
+    override fun getDefaultCollectionClass(): KClass<BinaryFriend> = BinaryFriend::class
 
     @Before
-    fun setUp() {
+    fun setup() {
         friendId = Binary("kmongo".toByteArray())
-        col = getCollection<BinaryFriend>()
-    }
-
-    @After
-    fun after() {
-        waitToComplete()
-        dropCollection<BinaryFriend>()
     }
 
     @Test

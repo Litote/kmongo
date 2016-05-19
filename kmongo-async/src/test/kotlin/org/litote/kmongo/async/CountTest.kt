@@ -15,9 +15,6 @@
  */
 package org.litote.kmongo.async
 
-import com.mongodb.async.client.MongoCollection
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.exists
 import org.litote.kmongo.async.model.Friend
@@ -26,20 +23,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class CountTest : KMongoAsyncBaseTest() {
-
-    lateinit var col: MongoCollection<Friend>
-
-    @Before
-    fun before() {
-        col = getCollection<Friend>()
-    }
-
-    @After
-    fun after() {
-        waitToComplete()
-        dropCollection<Friend>()
-    }
+class CountTest : KMongoAsyncBaseTest<Friend>() {
 
     fun newFriend(): Friend {
         return Friend("John", "22 Wall Street Avenue")

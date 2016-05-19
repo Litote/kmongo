@@ -23,6 +23,8 @@ import org.bson.conversions.Bson
 import org.bson.json.JsonReader
 import org.bson.types.ObjectId
 import org.litote.kmongo.jackson.ObjectMapperFactory
+import kotlin.reflect.KClass
+import kotlin.reflect.memberProperties
 
 /**
  *
@@ -46,8 +48,8 @@ object KMongoUtil {
         json.map { toBson(it) }
     }
 
-    fun toExtendedJson(a: Any): String
-            = ObjectMapperFactory.extendedJsonMapper.writeValueAsString(a)
+    fun toExtendedJson(obj: Any): String
+            = ObjectMapperFactory.extendedJsonMapper.writeValueAsString(obj)
 
     private fun isJsonArray(json: String)
             = json.trim().startsWith('[')
@@ -55,8 +57,11 @@ object KMongoUtil {
     fun idFilter(id: ObjectId)
             = "{_id:${toExtendedJson(id)}}"
 
-    fun setPojoModifier(pojo: Any)
-            = "{\$set:${toExtendedJson(pojo)}}"
+    fun setModifier(obj: Any)
+            = "{\$set:${toExtendedJson(obj)}}"
 
+    fun extractId(obj: Any, clazz: KClass<*>): ObjectId {
+        return (clazz.memberProperties.find { "_id" == it.name }!!)(obj) as ObjectId
+    }
 
 }

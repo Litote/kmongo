@@ -16,10 +16,7 @@
 
 package org.litote.kmongo.async
 
-import com.mongodb.async.client.MongoCollection
 import org.bson.types.ObjectId
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.oid
 import org.litote.kmongo.async.model.Friend
@@ -28,20 +25,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class DeleteTest : KMongoAsyncBaseTest() {
-
-    lateinit var col: MongoCollection<Friend>
-
-    @Before
-    fun before() {
-        col = getCollection<Friend>()
-    }
-
-    @After
-    fun after() {
-        waitToComplete()
-        dropCollection<Friend>()
-    }
+class DeleteTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canDeleteASpecificDocument() {

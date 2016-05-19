@@ -24,27 +24,27 @@ import org.litote.kmongo.MongoOperator.and
 import org.litote.kmongo.MongoOperator.limit
 import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.MongoOperator.project
+import org.litote.kmongo.async.AggregateTest.Article
 import org.litote.kmongo.async.model.Friend
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class AggregateTest : KMongoAsyncBaseTest() {
+class AggregateTest : KMongoAsyncBaseTest<Article>() {
 
     data class Article(val title: String, val author: String, val tags: List<String>) {
 
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())
     }
 
-    lateinit var col: MongoCollection<Article>
     lateinit var friendCol: MongoCollection<Friend>
 
     @Before
-    fun setUp() {
+    fun setup() {
         val count = CountDownLatch(6)
 
-        col = getCollection<Article>()
         col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"), { r, t -> count.countDown() })
         col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"), { r, t -> count.countDown() })
         col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"), { r, t -> count.countDown() })
@@ -58,11 +58,12 @@ class AggregateTest : KMongoAsyncBaseTest() {
     }
 
     @After
-    fun after() {
-        waitToComplete()
+    fun tearDown() {
+        super.after()
         dropCollection<Friend>()
-        dropCollection<Article>()
     }
+
+    override fun getDefaultCollectionClass(): KClass<Article> = Article::class
 
     @Test
     fun canAggregate() {
