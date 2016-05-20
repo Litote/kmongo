@@ -30,7 +30,8 @@
     <description>Mongo shell query and object mapping for Kotlin</description>
 
     <modules>
-        <module>kmongo-framework</module>
+        <module>kmongo-shared</module>
+        <module>kmongo</module>
         <module>kmongo-async</module>
     </modules>
 
@@ -66,6 +67,7 @@
             <version>${kotlin.version}</version>
         </dependency>
 
+        <!-- TODO remove this -->
         <dependency>
             <groupId>fr.javatic.mongo</groupId>
             <artifactId>mongo-jackson-codec</artifactId>
@@ -157,13 +159,25 @@
         <dependencies>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-framework</artifactId>
+                <artifactId>kmongo-shared</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-shared</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver-async</artifactId>
+                <version>${mongo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
                 <version>${mongo.version}</version>
             </dependency>
         </dependencies>

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo.async
+
+package org.litote.kmongo
 
 import java.io.IOException
 import java.net.DatagramSocket
@@ -22,9 +23,13 @@ import java.net.Socket
 import java.net.UnknownHostException
 
 /**
+ * Picks up a port number from the ephemeral port range.
+ * http://en.wikipedia.org/wiki/Ephemeral_port
  *
+ * @author Alexandre Dutra
+ * @see https://github.com/bguerout/jongo
  */
-object RandomPortNumberGenerator {
+internal object RandomPortNumberGenerator {
 
     private val MAX_PORT_NUMBER = 61000
     private val MIN_PORT_NUMBER = 49152

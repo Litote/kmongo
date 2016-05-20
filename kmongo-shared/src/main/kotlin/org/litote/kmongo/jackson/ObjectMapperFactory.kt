@@ -20,10 +20,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import de.undercouch.bson4jackson.BsonParser
+import org.bson.codecs.configuration.CodecProvider
 
 object ObjectMapperFactory {
 
-    val extendedJsonMapper : ObjectMapper = createExtendedJsonObjectMapper()
+    val extendedJsonMapper: ObjectMapper = createExtendedJsonObjectMapper()
+    val jacksonCodecProvider: CodecProvider = JacksonCodecProvider(createBsonObjectMapper())
 
     private fun createExtendedJsonObjectMapper(): ObjectMapper {
         return ObjectMapper()

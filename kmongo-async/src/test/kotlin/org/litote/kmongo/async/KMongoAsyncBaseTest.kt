@@ -32,7 +32,7 @@ abstract class KMongoAsyncBaseTest<T : Any> {
 
     companion object {
 
-        val mongoClient = EmbeddedMongo.instance
+        val mongoClient = AsyncTestClient.instance
 
         lateinit var database: MongoDatabase
 

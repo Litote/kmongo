@@ -26,26 +26,24 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>kmongo-async</artifactId>
-    <name>KMongo async</name>
-    <description>KMongo async classes</description>
+    <artifactId>kmongo-shared</artifactId>
+    <name>KMongo shared classes</name>
+    <description>Shared classes between sync and async module</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-shared</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-async</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-shared</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

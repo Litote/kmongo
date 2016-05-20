@@ -140,7 +140,7 @@ fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_BSON, callback: (T?, T
         = find(filter).first(callback)
 
 /**
- * Finds the document that match the [org.bson.types.ObjectId] parameter.
+ * Finds the document that match the [ObjectId] parameter.
 
  * @param id       the object id
  * @param callback a callback that is passed the first item or null
@@ -218,7 +218,7 @@ fun <T> MongoCollection<T>.deleteOne(filter: String, callback: (DeleteResult?, T
         = deleteOne(toBson(filter), callback)
 
 /**
- * Removes at most one document from the [org.bson.types.ObjectId] parameter.  If no documents match, the collection is not
+ * Removes at most one document from the [ObjectId] parameter.  If no documents match, the collection is not
  * modified.
 
  * @param id   the object id
