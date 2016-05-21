@@ -64,4 +64,7 @@ object KMongoUtil {
         return (clazz.memberProperties.find { "_id" == it.name }!!)(obj) as ObjectId
     }
 
+    fun defaultCollectionName(clazz: KClass<*>) : String
+        = clazz.simpleName!!.toLowerCase()
+
 }

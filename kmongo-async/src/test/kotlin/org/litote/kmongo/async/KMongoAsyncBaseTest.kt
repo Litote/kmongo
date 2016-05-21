@@ -20,6 +20,7 @@ import com.mongodb.async.client.MongoDatabase
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
+import org.litote.kmongo.KMongoUtil.defaultCollectionName
 import org.litote.kmongo.async.model.Friend
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
@@ -41,31 +42,26 @@ abstract class KMongoAsyncBaseTest<T : Any> {
         }
 
         inline fun <reified T : Any> getCollection(): MongoCollection<T>
-                = database.getCollection<T>(toCollectionName<T>())
+                = database.getCollection<T>()
 
         fun <T : Any> getCollection(clazz: KClass<T>): MongoCollection<T>
-                = database.getCollection(toCollectionName(clazz), clazz.java)
+                = database.getCollection(defaultCollectionName(clazz), clazz.java)
 
         inline fun <reified T : Any> dropCollection()
-                = dropCollection { toCollectionName<T>() }
+                = dropCollection (defaultCollectionName(T::class))
 
         fun dropCollection(clazz: KClass<*>)
-                = dropCollection { -> toCollectionName(clazz) }
+                = dropCollection (defaultCollectionName(clazz))
 
-        fun dropCollection(nameFunction: () -> String) {
+        fun dropCollection(collectionName: String) {
             val count = CountDownLatch(1)
-            dropCollection (nameFunction.invoke(), { r, t -> count.countDown() })
+            dropCollection (collectionName, { r, t -> count.countDown() })
             count.await(1, SECONDS)
         }
 
         fun dropCollection(collectionName: String, callback: (Void?, Throwable?) -> Unit)
                 = database.getCollection(collectionName).drop(callback)
 
-        inline fun <reified T : Any> toCollectionName()
-                = toCollectionName(T::class)
-
-        fun toCollectionName(clazz: KClass<*>)
-                = clazz.simpleName!!.toLowerCase()
 
     }
 
