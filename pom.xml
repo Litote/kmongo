@@ -52,7 +52,8 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <surefire.version>2.19.1</surefire.version>
+        <plugin.surefire.version>2.19.1</plugin.surefire.version>
+        <plugin.jar.version>2.6</plugin.jar.version>
     </properties>
 
     <dependencies>
@@ -220,7 +221,7 @@
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.version}</version>
+                <version>${plugin.surefire.version}</version>
                 <configuration>
                     <forkMode>once</forkMode>
                     <useSystemClassLoader>false</useSystemClassLoader>
