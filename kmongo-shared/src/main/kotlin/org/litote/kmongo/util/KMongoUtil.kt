@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo
+
+package org.litote.kmongo.util
 
 import org.bson.BsonDocument
 import org.bson.codecs.BsonArrayCodec

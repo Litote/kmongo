@@ -17,7 +17,7 @@ package org.litote.kmongo.async
 
 import org.bson.Document
 import org.junit.Test
-import org.litote.kmongo.KMongoUtil
+import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.async.model.Friend
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

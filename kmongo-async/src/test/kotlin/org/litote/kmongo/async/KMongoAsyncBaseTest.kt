@@ -20,7 +20,7 @@ import com.mongodb.async.client.MongoDatabase
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
-import org.litote.kmongo.KMongoUtil.defaultCollectionName
+import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
 import org.litote.kmongo.async.model.Friend
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS

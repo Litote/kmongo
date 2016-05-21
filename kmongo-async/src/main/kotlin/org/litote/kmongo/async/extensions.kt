@@ -33,14 +33,14 @@ import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
 import org.bson.types.ObjectId
-import org.litote.kmongo.KMongoUtil
-import org.litote.kmongo.KMongoUtil.EMPTY_BSON
-import org.litote.kmongo.KMongoUtil.defaultCollectionName
-import org.litote.kmongo.KMongoUtil.extractId
-import org.litote.kmongo.KMongoUtil.idFilter
-import org.litote.kmongo.KMongoUtil.setModifier
-import org.litote.kmongo.KMongoUtil.toBson
-import org.litote.kmongo.KMongoUtil.toBsonList
+import org.litote.kmongo.util.KMongoUtil
+import org.litote.kmongo.util.KMongoUtil.EMPTY_BSON
+import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
+import org.litote.kmongo.util.KMongoUtil.extractId
+import org.litote.kmongo.util.KMongoUtil.idFilter
+import org.litote.kmongo.util.KMongoUtil.setModifier
+import org.litote.kmongo.util.KMongoUtil.toBson
+import org.litote.kmongo.util.KMongoUtil.toBsonList
 
 
 //*******

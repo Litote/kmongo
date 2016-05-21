@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.util
 
 import org.bson.types.ObjectId
 import org.junit.Assert.assertEquals
