@@ -13,33 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo.async
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+package org.litote.kmongo.model
 
 /**
  *
  */
-class TestContext {
-
-    val lock = CountDownLatch(1)
-    var error: Throwable? = null
-
-    fun test(testToRun: () -> Unit) {
-        try {
-            testToRun()
-        } catch(t: Throwable) {
-            error = t
-            throw t
-        } finally {
-            lock.countDown()
-        }
-    }
-
-    fun waitToComplete() {
-        assert(lock.await(10, TimeUnit.SECONDS))
-        val err = error
-        if(err != null) throw err
-    }
+data class ExposableFriend(val _id: String, val name: String) {
 }

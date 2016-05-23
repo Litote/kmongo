@@ -21,8 +21,9 @@ import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
-import org.litote.kmongo.async.model.Friend
+import org.litote.kmongo.model.Friend
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.reflect.KClass
 
@@ -30,6 +31,29 @@ import kotlin.reflect.KClass
  *
  */
 abstract class KMongoAsyncBaseTest<T : Any> {
+
+    class TestContext {
+
+        val lock = CountDownLatch(1)
+        var error: Throwable? = null
+
+        fun test(testToRun: () -> Unit) {
+            try {
+                testToRun()
+            } catch(t: Throwable) {
+                error = t
+                throw t
+            } finally {
+                lock.countDown()
+            }
+        }
+
+        fun waitToComplete() {
+            assert(lock.await(10, TimeUnit.SECONDS))
+            val err = error
+            if(err != null) throw err
+        }
+    }
 
     companion object {
 

@@ -13,10 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo.async.model
+
+package org.litote.kmongo
+
+import com.mongodb.MongoClient
 
 /**
  *
  */
-data class Coordinate( val lat: Int, val lng : Int) {
+object TestClient {
+
+    val instance: MongoClient by lazy {
+        createClient(EmbeddedMongo.mongodProcess.config.net().port)
+    }
+
+    private fun createClient(port: Int): MongoClient {
+        val mongo = KMongo.createClient("mongodb://127.0.0.1:$port")
+        //mongo.setWriteConcern(WriteConcern.FSYNC_SAFE)
+        return mongo
+    }
 }

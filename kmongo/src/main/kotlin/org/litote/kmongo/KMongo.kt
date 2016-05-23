@@ -39,8 +39,8 @@ object KMongo {
      * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      */
-    fun mongoClient(objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = mongoClient(ServerAddress(), objectMappingCodecProvider)
+    fun createClient(objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+            = createClient(ServerAddress(), objectMappingCodecProvider)
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node.
@@ -49,8 +49,8 @@ object KMongo {
      * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      */
-    fun mongoClient(host: String, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = mongoClient(ServerAddress(host), objectMappingCodecProvider)
+    fun createClient(host: String, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+            = createClient(ServerAddress(host), objectMappingCodecProvider)
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node (default port).
@@ -60,8 +60,8 @@ object KMongo {
      * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      */
-    fun mongoClient(host: String, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = mongoClient(ServerAddress(host), options, objectMappingCodecProvider)
+    fun createClient(host: String, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+            = createClient(ServerAddress(host), options, objectMappingCodecProvider)
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node.
@@ -71,8 +71,8 @@ object KMongo {
      * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      */
-    fun mongoClient(host: String, port: Int, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = mongoClient(ServerAddress(host, port), objectMappingCodecProvider)
+    fun createClient(host: String, port: Int, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+            = createClient(ServerAddress(host, port), objectMappingCodecProvider)
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node
@@ -82,8 +82,8 @@ object KMongo {
      * @see com.mongodb.ServerAddress
      * @return the mongo client
      */
-    fun mongoClient(addr: ServerAddress, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = mongoClient(addr, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
+    fun createClient(addr: ServerAddress, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+            = createClient(addr, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node and a list of credentials
@@ -95,8 +95,8 @@ object KMongo {
      *
      * @see com.mongodb.ServerAddress
      */
-    fun mongoClient(addr: ServerAddress, credentialsList: List<MongoCredential>, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = mongoClient(addr, credentialsList, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
+    fun createClient(addr: ServerAddress, credentialsList: List<MongoCredential>, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+            = createClient(addr, credentialsList, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
 
     /**
      * Creates a Mongo instance based on a (single) mongo node using a given ServerAddress and default options.
@@ -108,7 +108,7 @@ object KMongo {
      *
      * @see com.mongodb.ServerAddress
      */
-    fun mongoClient(addr: ServerAddress, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+    fun createClient(addr: ServerAddress, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
             = MongoClient(addr, createOptions(objectMappingCodecProvider, options))
 
     /**
@@ -122,7 +122,7 @@ object KMongo {
      *
      * @see com.mongodb.ServerAddress
      */
-    fun mongoClient(addr: ServerAddress, credentialsList: List<MongoCredential>, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+    fun createClient(addr: ServerAddress, credentialsList: List<MongoCredential>, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
             = MongoClient(addr, credentialsList, createOptions(objectMappingCodecProvider, options))
 
     /**
@@ -142,8 +142,8 @@ object KMongo {
      *
      * @see com.mongodb.ServerAddress
      */
-    fun mongoClient(seeds: List<ServerAddress>, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = mongoClient(seeds, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
+    fun createClient(seeds: List<ServerAddress>, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+            = createClient(seeds, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
 
     /**
      *
@@ -164,8 +164,8 @@ object KMongo {
      *
      * @see com.mongodb.ServerAddress
      */
-    fun mongoClient(seeds: List<ServerAddress>, credentialsList: List<MongoCredential>, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = mongoClient(seeds, credentialsList, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
+    fun createClient(seeds: List<ServerAddress>, credentialsList: List<MongoCredential>, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+            = createClient(seeds, credentialsList, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
 
     /**
      *
@@ -186,7 +186,7 @@ object KMongo {
      *
      * @see com.mongodb.ServerAddress
      */
-    fun mongoClient(seeds: List<ServerAddress>, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+    fun createClient(seeds: List<ServerAddress>, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
             = MongoClient(seeds, createOptions(objectMappingCodecProvider, options))
 
     /**
@@ -209,7 +209,7 @@ object KMongo {
      *
      * @see com.mongodb.ServerAddress
      */
-    fun mongoClient(seeds: List<ServerAddress>, credentialsList: List<MongoCredential>, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+    fun createClient(seeds: List<ServerAddress>, credentialsList: List<MongoCredential>, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
             = MongoClient(seeds, credentialsList, createOptions(objectMappingCodecProvider, options))
 
     /**
@@ -221,7 +221,7 @@ object KMongo {
      * @return the mongo client
      * @throws MongoException if theres a failure
      */
-    fun mongoClient(uri: MongoClientURI, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+    fun createClient(uri: MongoClientURI, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
             = MongoClient(MongoClientURI(uri.uri,
             MongoClientOptions.builder(uri.options)
                     .codecRegistry(createRegistry(objectMappingCodecProvider, uri.options.codecRegistry))))

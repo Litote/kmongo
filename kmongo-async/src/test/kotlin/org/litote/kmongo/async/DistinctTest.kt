@@ -18,8 +18,8 @@ package org.litote.kmongo.async
 
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.exists
-import org.litote.kmongo.async.model.Coordinate
-import org.litote.kmongo.async.model.Friend
+import org.litote.kmongo.model.Coordinate
+import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 

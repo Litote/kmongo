@@ -23,8 +23,8 @@ import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
-import org.litote.kmongo.async.model.ExposableFriend
-import org.litote.kmongo.async.model.Friend
+import org.litote.kmongo.model.ExposableFriend
+import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 

@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.litote.kmongo.model
 
-package org.litote.kmongo.async.model
+import org.bson.types.ObjectId
 
 /**
  *
  */
-data class ExposableFriend(val _id: String, val name: String) {
+data class Friend(var name: String?, val address: String?, val _id: ObjectId? = null, val coordinate: Coordinate? = null) {
+
+    constructor(name: String) : this(name, null, null)
+
+    constructor(name: String?, coordinate: Coordinate) : this(name, null, null, coordinate)
+
+    constructor(_id: ObjectId, name: String) : this(name, null, _id)
 }

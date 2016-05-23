@@ -25,7 +25,7 @@ import org.litote.kmongo.MongoOperator.limit
 import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.MongoOperator.project
 import org.litote.kmongo.async.AggregateTest.Article
-import org.litote.kmongo.async.model.Friend
+import org.litote.kmongo.model.Friend
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass

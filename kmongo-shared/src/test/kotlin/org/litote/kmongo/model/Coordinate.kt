@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo.async.model
-
-import org.bson.types.ObjectId
+package org.litote.kmongo.model
 
 /**
  *
  */
-data class Friend(var name: String?, val address: String?, val _id: ObjectId? = null, val coordinate: Coordinate? = null) {
-
-    constructor(name: String) : this(name, null, null)
-
-    constructor(name: String?, coordinate: Coordinate) : this(name, null, null, coordinate)
-
-    constructor(_id: ObjectId, name: String) : this(name, null, _id)
+data class Coordinate( val lat: Int, val lng : Int) {
 }
