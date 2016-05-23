@@ -36,7 +36,7 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
             col.updateMany("{name:'John'}", "{$unset:{name:1}}") { r, t ->
                 col.count("{name:{$exists:true}}", { r, t ->
                     asyncTest {
-                        assertEquals(r, r)
+                        assertEquals(0, r)
                     }
                 })
             }

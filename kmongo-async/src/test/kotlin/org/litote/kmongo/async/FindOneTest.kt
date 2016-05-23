@@ -66,7 +66,6 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
     fun canFindOneWithObjectIdInQuery() {
         val id = ObjectId()
         val john = Friend(id, "John")
-        println(john)
         col.insertOne(john,
                 { r, t ->
                     col.findOne("{_id:${id.json}}", {
@@ -103,7 +102,6 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
                 { r, t ->
                     col.withReadPreference(ReadPreference.primaryPreferred()).findOne("{name:'John'}", {
                         friend, throwable ->
-                        throwable?.printStackTrace()
                         asyncTest { assertEquals("John", friend!!.name) }
                     })
                 })

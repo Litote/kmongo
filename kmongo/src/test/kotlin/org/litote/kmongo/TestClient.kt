@@ -28,7 +28,7 @@ object TestClient {
     }
 
     private fun createClient(port: Int): MongoClient {
-        val mongo = KMongo.createClient("mongodb://127.0.0.1:$port")
+        val mongo = KMongo.createClient("127.0.0.1:$port")
         return mongo
     }
 }

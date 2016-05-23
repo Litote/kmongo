@@ -17,8 +17,8 @@ package org.litote.kmongo.async
 
 import org.bson.Document
 import org.junit.Test
-import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.model.Friend
+import org.litote.kmongo.util.KMongoUtil
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -80,7 +80,7 @@ class CommandTest : KMongoAsyncBaseTest<Friend>() {
         col.createIndex(KMongoUtil.toBson("{loc:'2d'}"), { r, t ->
             database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}", { r, t ->
                 asyncTest {
-                    assertTrue { r!!.results.isEmpty() }
+                    assertTrue (r!!.results.isEmpty())
                 }
             })
         })
