@@ -22,11 +22,10 @@ import com.mongodb.MongoClientOptions
 import com.mongodb.MongoClientURI
 import com.mongodb.MongoCredential
 import com.mongodb.ServerAddress
-import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistries.fromProviders
 import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.bson.codecs.configuration.CodecRegistry
-import org.litote.kmongo.jackson.ObjectMapperFactory.jacksonCodecProvider
+import org.litote.kmongo.util.KMongoConfiguration.jacksonCodecProvider
 
 /**
  * Main object used to create a [MongoClient] instance.
@@ -36,80 +35,73 @@ object KMongo {
     /**
      * Creates an instance based on a (single) mongodb node (localhost, default port).
      *
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      */
-    fun createClient(objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(ServerAddress(), objectMappingCodecProvider)
+    fun createClient(): MongoClient
+            = createClient(ServerAddress())
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node.
 
      * @param host server to connect to in format host[:port]
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      */
-    fun createClient(host: String, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(ServerAddress(host), objectMappingCodecProvider)
+    fun createClient(host: String): MongoClient
+            = createClient(ServerAddress(host))
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node (default port).
 
      * @param host    server to connect to in format host[:port]
      * @param options default query options
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      */
-    fun createClient(host: String, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(ServerAddress(host), options, objectMappingCodecProvider)
+    fun createClient(host: String, options: MongoClientOptions): MongoClient
+            = createClient(ServerAddress(host), options)
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node.
 
      * @param host the database's host address
      * @param port the port on which the database is running
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      */
-    fun createClient(host: String, port: Int, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(ServerAddress(host, port), objectMappingCodecProvider)
+    fun createClient(host: String, port: Int): MongoClient
+            = createClient(ServerAddress(host, port))
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node
 
      * @param addr the database address
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @see com.mongodb.ServerAddress
      * @return the mongo client
      */
-    fun createClient(addr: ServerAddress, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(addr, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
+    fun createClient(addr: ServerAddress): MongoClient
+            = createClient(addr, MongoClientOptions.Builder().build())
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node and a list of credentials
 
      * @param addr            the database address
      * @param credentialsList the list of credentials used to authenticate all connections
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      *
      * @see com.mongodb.ServerAddress
      */
-    fun createClient(addr: ServerAddress, credentialsList: List<MongoCredential>, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(addr, credentialsList, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
+    fun createClient(addr: ServerAddress, credentialsList: List<MongoCredential>): MongoClient
+            = createClient(addr, credentialsList, MongoClientOptions.Builder().build())
 
     /**
      * Creates a Mongo instance based on a (single) mongo node using a given ServerAddress and default options.
 
      * @param addr    the database address
      * @param options default options
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      *
      * @see com.mongodb.ServerAddress
      */
-    fun createClient(addr: ServerAddress, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = MongoClient(addr, createOptions(objectMappingCodecProvider, options))
+    fun createClient(addr: ServerAddress, options: MongoClientOptions): MongoClient
+            = MongoClient(addr, configureOptions(options))
 
     /**
      * Creates a Mongo instance based on a (single) mongo node using a given ServerAddress and default options.
@@ -117,13 +109,12 @@ object KMongo {
      * @param addr            the database address
      * @param credentialsList the list of credentials used to authenticate all connections
      * @param options         default options
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      *
      * @see com.mongodb.ServerAddress
      */
-    fun createClient(addr: ServerAddress, credentialsList: List<MongoCredential>, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = MongoClient(addr, credentialsList, createOptions(objectMappingCodecProvider, options))
+    fun createClient(addr: ServerAddress, credentialsList: List<MongoCredential>, options: MongoClientOptions): MongoClient
+            = MongoClient(addr, credentialsList, configureOptions(options))
 
     /**
      *
@@ -137,13 +128,12 @@ object KMongo {
 
      * @param seeds Put as many servers as you can in the list and the system will figure out the rest.  This can either be a list of mongod
      *              servers in the same replica set or a list of mongos servers in the same sharded cluster.
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      *
      * @see com.mongodb.ServerAddress
      */
-    fun createClient(seeds: List<ServerAddress>, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(seeds, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
+    fun createClient(seeds: List<ServerAddress>): MongoClient
+            = createClient(seeds, MongoClientOptions.Builder().build())
 
     /**
      *
@@ -159,13 +149,12 @@ object KMongo {
      *                        of mongod servers in the same replica set or a list of mongos servers in the same sharded cluster.
      *
      * @param credentialsList the list of credentials used to authenticate all connections
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      *
      * @see com.mongodb.ServerAddress
      */
-    fun createClient(seeds: List<ServerAddress>, credentialsList: List<MongoCredential>, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(seeds, credentialsList, MongoClientOptions.Builder().build(), objectMappingCodecProvider)
+    fun createClient(seeds: List<ServerAddress>, credentialsList: List<MongoCredential>): MongoClient
+            = createClient(seeds, credentialsList, MongoClientOptions.Builder().build())
 
     /**
      *
@@ -181,13 +170,12 @@ object KMongo {
      *                mongod servers in the same replica set or a list of mongos servers in the same sharded cluster.
      *
      * @param options default options
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      *
      * @see com.mongodb.ServerAddress
      */
-    fun createClient(seeds: List<ServerAddress>, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = MongoClient(seeds, createOptions(objectMappingCodecProvider, options))
+    fun createClient(seeds: List<ServerAddress>, options: MongoClientOptions): MongoClient
+            = MongoClient(seeds, configureOptions(options))
 
     /**
      *
@@ -204,32 +192,28 @@ object KMongo {
      *
      * @param credentialsList the list of credentials used to authenticate all connections
      * @param options         default options
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      *
      * @see com.mongodb.ServerAddress
      */
-    fun createClient(seeds: List<ServerAddress>, credentialsList: List<MongoCredential>, options: MongoClientOptions, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = MongoClient(seeds, credentialsList, createOptions(objectMappingCodecProvider, options))
+    fun createClient(seeds: List<ServerAddress>, credentialsList: List<MongoCredential>, options: MongoClientOptions): MongoClient
+            = MongoClient(seeds, credentialsList, configureOptions(options))
 
     /**
      * Creates a Mongo described by a URI. If only one address is used it will only connect to that node, otherwise it will discover all
      * nodes.
 
      * @param uri the URI
-     * @param objectMappingCodecProvider the object mapping codec provider
      * @return the mongo client
      * @throws MongoException if theres a failure
      */
-    fun createClient(uri: MongoClientURI, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
+    fun createClient(uri: MongoClientURI): MongoClient
             = MongoClient(MongoClientURI(uri.uri,
-            MongoClientOptions.builder(uri.options)
-                    .codecRegistry(createRegistry(objectMappingCodecProvider, uri.options.codecRegistry))))
+            MongoClientOptions.builder(uri.options).codecRegistry(configureRegistry(uri.options.codecRegistry))))
 
-    private fun createOptions(objectMappingCodecProvider: CodecProvider, clientOptions: MongoClientOptions): MongoClientOptions
-            = MongoClientOptions.builder(clientOptions).codecRegistry(
-            createRegistry(objectMappingCodecProvider, clientOptions.codecRegistry)).build()
+    private fun configureOptions(clientOptions: MongoClientOptions): MongoClientOptions
+            = MongoClientOptions.builder(clientOptions).codecRegistry(configureRegistry(clientOptions.codecRegistry)).build()
 
-    private fun createRegistry(objectMappingCodecProvider: CodecProvider, codecRegistry: CodecRegistry = getDefaultCodecRegistry())
-            = fromRegistries(codecRegistry, fromProviders(objectMappingCodecProvider))
+    private fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry())
+            = fromRegistries(codecRegistry, fromProviders(jacksonCodecProvider))
 }

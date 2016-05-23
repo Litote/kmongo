@@ -24,9 +24,8 @@ import com.mongodb.connection.ConnectionPoolSettings
 import com.mongodb.connection.ServerSettings
 import com.mongodb.connection.SocketSettings
 import com.mongodb.connection.SslSettings
-import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistries
-import org.litote.kmongo.jackson.ObjectMapperFactory.jacksonCodecProvider
+import org.litote.kmongo.util.KMongoConfiguration.jacksonCodecProvider
 
 /**
  *  Main object used to create a [MongoClient] instance.
@@ -36,25 +35,22 @@ object KMongo {
     /**
      * Creates a new client with the default connection string "mongodb://localhost".
      *
-     * @param objectMappingCodecProvider the object mapping codec provider
-     *
      * @return the client
      */
-    fun createClient(objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(ConnectionString("mongodb://localhost"), objectMappingCodecProvider)
+    fun createClient(): MongoClient
+            = createClient(ConnectionString("mongodb://localhost"))
 
     /**
      * Create a new client with the given client settings.
      *
      * @param settings the settings
-     * @param objectMappingCodecProvider the object mapping codec provider
      *
      * @return the client
      */
-    fun createClient(settings: MongoClientSettings, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient {
+    fun createClient(settings: MongoClientSettings): MongoClient {
         val codecRegistry = CodecRegistries.fromRegistries(
                 settings.codecRegistry,
-                CodecRegistries.fromProviders(objectMappingCodecProvider))
+                CodecRegistries.fromProviders(jacksonCodecProvider))
         return MongoClients.create(
                 MongoClientSettings.builder(settings)
                         .codecRegistry(codecRegistry).build())
@@ -64,29 +60,26 @@ object KMongo {
      * Create a new client with the given connection string.
      *
      * @param connectionString the connection
-     * @param objectMappingCodecProvider the object mapping codec provider
      *
      * @return the client
      */
-    fun createClient(connectionString: String, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient
-            = createClient(ConnectionString(connectionString), objectMappingCodecProvider)
+    fun createClient(connectionString: String): MongoClient
+            = createClient(ConnectionString(connectionString))
 
     /**
      * Create a new client with the given connection string.
 
      * @param connectionString the settings
-     * @param objectMappingCodecProvider the object mapping codec provider
      *
      * @return the client
      */
-    fun createClient(connectionString: ConnectionString, objectMappingCodecProvider: CodecProvider = jacksonCodecProvider): MongoClient {
+    fun createClient(connectionString: ConnectionString): MongoClient {
         return createClient(MongoClientSettings.builder()
                 .clusterSettings(ClusterSettings.builder().applyConnectionString(connectionString).build())
                 .connectionPoolSettings(ConnectionPoolSettings.builder().applyConnectionString(connectionString).build())
                 .serverSettings(ServerSettings.builder().build())
                 .credentialList(connectionString.credentialList)
                 .sslSettings(SslSettings.builder().applyConnectionString(connectionString).build())
-                .socketSettings(SocketSettings.builder().applyConnectionString(connectionString).build()).build(),
-                objectMappingCodecProvider)
+                .socketSettings(SocketSettings.builder().applyConnectionString(connectionString).build()).build())
     }
 }

@@ -30,7 +30,6 @@ object AsyncTestClient {
 
     private fun createClient(port: Int): MongoClient {
         val mongo = KMongo.createClient("mongodb://127.0.0.1:$port")
-        //mongo.setWriteConcern(WriteConcern.FSYNC_SAFE)
         return mongo
     }
 }

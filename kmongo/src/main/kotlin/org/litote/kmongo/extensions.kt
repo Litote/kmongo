@@ -32,9 +32,8 @@ import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
-import org.bson.conversions.Bson
 import org.bson.types.ObjectId
-import org.litote.kmongo.util.KMongoUtil.EMPTY_BSON
+import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
 import org.litote.kmongo.util.KMongoUtil.extractId
 import org.litote.kmongo.util.KMongoUtil.idFilter
@@ -131,7 +130,7 @@ fun <T> MongoCollection<T>.count(filter: String, options: CountOptions): Long
  * @return an iterable of distinct values
  */
 inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctIterable<TResult>
-        = distinct(fieldName, EMPTY_BSON)
+        = distinct(fieldName, EMPTY_JSON)
 
 
 /**
@@ -152,9 +151,26 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
  * @param filter the query filter
  * @return the find iterable interface
  */
-fun <T> MongoCollection<T>.find(filter: Bson): FindIterable<T>
+fun <T> MongoCollection<T>.find(filter: String): FindIterable<T>
         = find(toBson(filter))
 
+/**
+ * Finds the first document that match the filter in the collection.
+ *
+ * @param filter the query filter
+ * @return the first item returned or null
+ */
+fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T?
+        = find(filter).first()
+
+/**
+ * Finds the document that match the [ObjectId] parameter.
+ *
+ * @param id       the object id
+ * @return the first item returned or null
+ */
+fun <T> MongoCollection<T>.findOne(id: ObjectId): T?
+        = findOne(idFilter(id))
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.

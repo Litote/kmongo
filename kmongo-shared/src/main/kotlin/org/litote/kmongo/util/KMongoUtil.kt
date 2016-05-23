@@ -23,7 +23,6 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
 import org.bson.types.ObjectId
-import org.litote.kmongo.jackson.ObjectMapperFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.memberProperties
 
@@ -32,10 +31,10 @@ import kotlin.reflect.memberProperties
  */
 object KMongoUtil {
 
-    val EMPTY_BSON = "{}"
+    val EMPTY_JSON = "{}"
 
     fun toBson(json: String): Bson
-            = if (json == EMPTY_BSON) BsonDocument() else BsonDocument.parse(json)
+            = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
 
     fun toBson(o: Any): Bson
             //TODO o -> Bson directly
@@ -50,7 +49,7 @@ object KMongoUtil {
     }
 
     fun toExtendedJson(obj: Any): String
-            = ObjectMapperFactory.extendedJsonMapper.writeValueAsString(obj)
+            = KMongoConfiguration.extendedJsonMapper.writeValueAsString(obj)
 
     private fun isJsonArray(json: String)
             = json.trim().startsWith('[')
@@ -65,7 +64,7 @@ object KMongoUtil {
         return (clazz.memberProperties.find { "_id" == it.name }!!)(obj) as ObjectId
     }
 
-    fun defaultCollectionName(clazz: KClass<*>) : String
-        = clazz.simpleName!!.toLowerCase()
+    fun defaultCollectionName(clazz: KClass<*>): String
+            = KMongoConfiguration.defaultCollectionNameBuilder.invoke(clazz)
 
 }

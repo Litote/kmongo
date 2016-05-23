@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo.jackson
+
+package org.litote.kmongo.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.bson.codecs.Codec
 import org.bson.codecs.configuration.CodecProvider
-import org.bson.codecs.configuration.CodecRegistry
+import org.litote.kmongo.jackson.ObjectMapperFactory
+import kotlin.reflect.KClass
 
-internal class JacksonCodecProvider(val bsonObjectMapper: ObjectMapper) : CodecProvider {
+/**
+ * Used
+ */
+object KMongoConfiguration {
 
-    override fun <T> get(type: Class<T>, registry: CodecRegistry): Codec<T> {
-        return JacksonCodec(bsonObjectMapper, registry, type)
-    }
+    var extendedJsonMapper: ObjectMapper = ObjectMapperFactory.extendedJsonMapper
+    var jacksonCodecProvider: CodecProvider = ObjectMapperFactory.jacksonCodecProvider
+    var defaultCollectionNameBuilder: (KClass<*>) -> String = { it.simpleName!!.toLowerCase() }
 }

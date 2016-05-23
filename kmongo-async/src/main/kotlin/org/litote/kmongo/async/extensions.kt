@@ -34,7 +34,7 @@ import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
 import org.bson.types.ObjectId
 import org.litote.kmongo.util.KMongoUtil
-import org.litote.kmongo.util.KMongoUtil.EMPTY_BSON
+import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
 import org.litote.kmongo.util.KMongoUtil.extractId
 import org.litote.kmongo.util.KMongoUtil.idFilter
@@ -108,7 +108,7 @@ inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): 
  * @param filter   the query filter
  * @param callback the callback passed the number of documents in the collection
  */
-fun <T> MongoCollection<T>.count(filter: String = EMPTY_BSON, callback: (Long?, Throwable?) -> Unit)
+fun <T> MongoCollection<T>.count(filter: String, callback: (Long?, Throwable?) -> Unit)
         = count(filter, CountOptions(), callback)
 
 /**
@@ -117,9 +117,19 @@ fun <T> MongoCollection<T>.count(filter: String = EMPTY_BSON, callback: (Long?, 
  * @param filter   the query filter
  * @param callback the callback passed the number of documents in the collection
  */
-fun <T> MongoCollection<T>.count(filter: String = EMPTY_BSON, options: CountOptions, callback: (Long?, Throwable?) -> Unit)
+fun <T> MongoCollection<T>.count(filter: String, options: CountOptions, callback: (Long?, Throwable?) -> Unit)
         = count(toBson(filter), options, callback)
 
+
+/**
+ * Gets the distinct values of the specified field name.
+ *
+ * @param fieldName   the field name
+ * @param <TResult>   the target type of the iterable
+ * @return an iterable of distinct values
+ */
+inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctIterable<TResult>
+        = distinct(fieldName, EMPTY_JSON)
 
 /**
  * Gets the distinct values of the specified field name.
@@ -129,7 +139,7 @@ fun <T> MongoCollection<T>.count(filter: String = EMPTY_BSON, options: CountOpti
  * @param <TResult>   the target type of the iterable
  * @return an iterable of distinct values
  */
-inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String, filter: String = EMPTY_BSON): DistinctIterable<TResult>
+inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String, filter: String): DistinctIterable<TResult>
         = distinct(fieldName, toBson(filter), TResult::class.java)
 
 /**
@@ -147,7 +157,7 @@ fun <T> MongoCollection<T>.find(filter: String): FindIterable<T>
  * @param filter the query filter
  * @param callback a callback that is passed the first item or null
  */
-fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_BSON, callback: (T?, Throwable?) -> Unit)
+fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON, callback: (T?, Throwable?) -> Unit)
         = find(filter).first(callback)
 
 /**
