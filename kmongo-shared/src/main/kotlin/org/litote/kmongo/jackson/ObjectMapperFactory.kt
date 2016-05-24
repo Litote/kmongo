@@ -39,6 +39,7 @@ internal object ObjectMapperFactory {
         bsonFactory.enable(BsonParser.Feature.HONOR_DOCUMENT_LENGTH)
 
         return ObjectMapper(bsonFactory)
+                .registerModule(de.undercouch.bson4jackson.BsonModule())
                 .registerModule(KotlinModule())
                 .registerModule(BsonModule())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

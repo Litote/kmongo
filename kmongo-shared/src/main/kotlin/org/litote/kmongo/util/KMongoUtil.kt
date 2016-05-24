@@ -36,17 +36,14 @@ object KMongoUtil {
     fun toBson(json: String): Bson
             = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
 
-    fun toBson(o: Any): Bson
-            //TODO o -> Bson directly
-            = toBson(toExtendedJson(o))
-
     fun toBsonList(json: Array<out String>, codecRegistry: CodecRegistry): List<Bson>
-            = if (json.size == 1 && isJsonArray(json[0])) {
-        BsonArrayCodec(codecRegistry).decode(JsonReader(json[0]), DecoderContext.builder().build())
-                .map { it as BsonDocument }
-    } else {
-        json.map { toBson(it) }
-    }
+            =
+            if (json.size == 1 && isJsonArray(json[0])) {
+                BsonArrayCodec(codecRegistry).decode(JsonReader(json[0]), DecoderContext.builder().build())
+                        .map { it as BsonDocument }
+            } else {
+                json.map { toBson(it) }
+            }
 
     fun toExtendedJson(obj: Any): String
             = KMongoConfiguration.extendedJsonMapper.writeValueAsString(obj)

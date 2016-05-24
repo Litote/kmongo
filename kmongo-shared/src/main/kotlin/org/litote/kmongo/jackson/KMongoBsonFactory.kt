@@ -21,7 +21,11 @@ import de.undercouch.bson4jackson.BsonConstants
 import de.undercouch.bson4jackson.BsonFactory
 import de.undercouch.bson4jackson.BsonGenerator
 import de.undercouch.bson4jackson.BsonParser
+import de.undercouch.bson4jackson.types.Timestamp
+import org.bson.BsonTimestamp
 import org.bson.types.Binary
+import org.bson.types.MaxKey
+import org.bson.types.MinKey
 import org.bson.types.ObjectId
 import java.io.InputStream
 import java.io.OutputStream
@@ -52,6 +56,28 @@ internal class KMongoBsonFactory : BsonFactory() {
             flushBuffer()
         }
 
+        fun writeBsonTimestamp(timestamp: BsonTimestamp) {
+            _writeArrayFieldNameIfNeeded()
+            _verifyValueWrite("write timestamp")
+            _buffer.putByte(_typeMarker, BsonConstants.TYPE_TIMESTAMP)
+            _buffer.putInt(timestamp.getInc())
+            _buffer.putInt(timestamp.getTime())
+            flushBuffer()
+        }
+
+        fun writeMinKey() {
+            _writeArrayFieldNameIfNeeded()
+            _verifyValueWrite("write min key")
+            _buffer.putByte(_typeMarker, BsonConstants.TYPE_MINKEY)
+            flushBuffer()
+        }
+
+        fun writeMaxKey() {
+            _writeArrayFieldNameIfNeeded()
+            _verifyValueWrite("write max key")
+            _buffer.putByte(_typeMarker, BsonConstants.TYPE_MAXKEY)
+            flushBuffer()
+        }
     }
 
     private class KMongoBsonParser(ctxt: IOContext, jsonFeatures: Int, bsonFeatures: Int, inputStream: InputStream) : BsonParser(ctxt, jsonFeatures, bsonFeatures, inputStream) {
@@ -61,18 +87,15 @@ internal class KMongoBsonFactory : BsonFactory() {
             if (embedded is de.undercouch.bson4jackson.types.ObjectId) {
                 return convertToNativeObjectId(embedded)
             }
-            //TODO
-            /*
             if (embedded is Timestamp) {
                 return convertToBSONTimestamp(embedded)
-            } */
+            }
             return embedded
         }
 
-        /*
         private fun convertToBSONTimestamp(ts: Timestamp): Any {
-            return BSONTimestamp(ts.time, ts.inc)
-        } */
+            return BsonTimestamp(ts.time, ts.inc)
+        }
 
         private fun convertToNativeObjectId(id: de.undercouch.bson4jackson.types.ObjectId): org.bson.types.ObjectId {
             return org.bson.types.ObjectId.createFromLegacyFormat(id.time, id.machine, id.inc)
