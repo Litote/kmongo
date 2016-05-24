@@ -30,6 +30,14 @@
     <name>KMongo shared classes</name>
     <description>Shared classes between sync and async module</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
