@@ -36,6 +36,7 @@
     </modules>
 
     <properties>
+        <!-- dependencies -->
         <kotlin.version>1.0.2</kotlin.version>
         <mongo.version>3.2.2</mongo.version>
         <jackson.version>2.7.4</jackson.version>
@@ -46,15 +47,16 @@
         <sl4j.version>1.7.21</sl4j.version>
         <junit.version>4.12</junit.version>
 
-        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
-
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
+        <!-- plugins -->
         <plugin.surefire.version>2.19.1</plugin.surefire.version>
         <plugin.jar.version>2.6</plugin.jar.version>
         <plugin.source.version>3.0.0</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
+
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
@@ -215,6 +217,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>${plugin.release.version}</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
             </plugin>
         </plugins>
     </build>
