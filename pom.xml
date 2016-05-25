@@ -54,6 +54,7 @@
         <plugin.surefire.version>2.19.1</plugin.surefire.version>
         <plugin.jar.version>2.6</plugin.jar.version>
         <plugin.source.version>3.0.0</plugin.source.version>
+        <plugin.release.version>2.5.3</plugin.release.version>
     </properties>
 
     <dependencies>
@@ -209,8 +210,18 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${plugin.release.version}</version>
+            </plugin>
         </plugins>
     </build>
+
+    <scm>
+        <developerConnection>scm:git:git@github.com:Litote/kmongo.git</developerConnection>
+    </scm>
 
     <inceptionYear>2016</inceptionYear>
     <organization>
