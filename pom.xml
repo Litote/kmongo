@@ -53,6 +53,7 @@
 
         <plugin.surefire.version>2.19.1</plugin.surefire.version>
         <plugin.jar.version>2.6</plugin.jar.version>
+        <plugin.source.version>3.0.0</plugin.source.version>
     </properties>
 
     <dependencies>
@@ -157,6 +158,8 @@
     </dependencyManagement>
 
     <build>
+        <sourceDirectory>${sourceDirectory}</sourceDirectory>
+        <testSourceDirectory>${testSourceDirectory}</testSourceDirectory>
         <plugins>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -169,11 +172,6 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <sourceDir>${sourceDirectory}</sourceDir>
-                            </sourceDirs>
-                        </configuration>
                     </execution>
 
                     <execution>
@@ -181,11 +179,6 @@
                         <goals>
                             <goal>test-compile</goal>
                         </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <sourceDir>${testSourceDirectory}</sourceDir>
-                            </sourceDirs>
-                        </configuration>
                     </execution>
                 </executions>
 
@@ -200,6 +193,21 @@
                     <useManifestOnlyJar>false</useManifestOnlyJar>
                     <failIfNoTests>false</failIfNoTests>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${plugin.source.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
