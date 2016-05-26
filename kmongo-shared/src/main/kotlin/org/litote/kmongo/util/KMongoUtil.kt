@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.memberProperties
 
 /**
- *
+ * Internal utility methods
  */
 object KMongoUtil {
 

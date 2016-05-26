@@ -28,7 +28,7 @@ import org.bson.codecs.configuration.CodecRegistries
 import org.litote.kmongo.util.KMongoConfiguration.jacksonCodecProvider
 
 /**
- *  Main object used to create a [MongoClient] instance.
+ *  Main object used to create a [MongoClient](https://api.mongodb.com/java/current/com/mongodb/async/client/MongoClient.html) instance.
  */
 object KMongo {
 

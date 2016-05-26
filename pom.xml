@@ -52,6 +52,7 @@
         <plugin.jar.version>2.6</plugin.jar.version>
         <plugin.source.version>3.0.0</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
+        <plugin.dokka.version>0.9.8</plugin.dokka.version>
 
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
@@ -221,8 +222,38 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>dokka-maven-plugin</artifactId>
+                <version>${plugin.dokka.version}</version>
+                <executions>
+                    <execution>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>dokka</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceLinks>
+                        <link>
+                            <dir>${sourceDirectory}</dir>
+                            <url>https://github.com/Litote/kmongo/blob/master/${project.artifactId}/src/main/kotlin</url>
+                        </link>
+                    </sourceLinks>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jcenter</id>
+            <name>JCenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <scm>
         <developerConnection>scm:git:git@github.com:Litote/kmongo.git</developerConnection>

@@ -22,7 +22,7 @@ import org.litote.kmongo.jackson.ObjectMapperFactory
 import kotlin.reflect.KClass
 
 /**
- * Used
+ * Use this class to customize the default KMongo behaviour
  */
 object KMongoConfiguration {
 

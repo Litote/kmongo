@@ -19,7 +19,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.FIELD
 
 /**
- *
+ * Use it to specify the Mongo identifier
  */
 @Target(FIELD)
 @Retention(RUNTIME)

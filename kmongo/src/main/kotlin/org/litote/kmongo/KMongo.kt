@@ -28,7 +28,7 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.litote.kmongo.util.KMongoConfiguration.jacksonCodecProvider
 
 /**
- * Main object used to create a [MongoClient] instance.
+ * Main object used to create a [MongoClient](https://api.mongodb.com/java/current/com/mongodb/MongoClient.html) instance.
  */
 object KMongo {
 
@@ -43,7 +43,7 @@ object KMongo {
     /**
      * Creates a Mongo instance based on a (single) mongodb node.
 
-     * @param host server to connect to in format host[:port]
+     * @param host server to connect to in format host(:port)
      * @return the mongo client
      */
     fun createClient(host: String): MongoClient
@@ -52,7 +52,7 @@ object KMongo {
     /**
      * Creates a Mongo instance based on a (single) mongodb node (default port).
 
-     * @param host    server to connect to in format host[:port]
+     * @param host    server to connect to in format host(:port)
      * @param options default query options
      * @return the mongo client
      */

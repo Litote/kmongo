@@ -614,9 +614,14 @@ fun <TResult> MongoIterable<TResult>.toList(): List<TResult>
         = into(mutableListOf<TResult>())
 
 //*******
-//json() extension methods
+//json extension property
 //*******
 
+/**
+ * Get the extended json representation of this object
+ *
+ * See [Mongo extended json format](https://docs.mongodb.com/manual/reference/mongodb-extended-json) for details
+ */
 val Any.json: String
     get() = toExtendedJson(this)
 
