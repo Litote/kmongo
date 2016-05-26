@@ -33,7 +33,7 @@ object EmbeddedMongo {
     }
 
     private fun createInstance(): MongodProcess {
-        val port = RandomPortNumberGenerator.pickAvailableRandomEphemeralPortNumber()
+        val port = Network.getFreeServerPort()
 
         val mongodConfig = MongodConfigBuilder()
                 .version(PRODUCTION)
