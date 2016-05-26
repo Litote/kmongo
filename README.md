@@ -1,8 +1,13 @@
-# KMongo - mongo shell query & object mapping for Kotlin
+ [![KMongo logo](http://litote.org/kmongo/kmongo.png "KMongo")](http://litote.org/kmongo) &nbsp; [![Build Status](https://travis-ci.org/Litote/kmongo.png)](https://travis-ci.org/Litote/kmongo)
+# KMongo 
+ 
+## Mongo shell query & object mapping for Kotlin
 
 Apache 2 license
 
 **the current version is Alpha 1**  
+
+***
 
 ## Roadmap
 
@@ -19,7 +24,6 @@ Apache 2 license
  * @MongoId annotation to support id in other field than _id
  * @StoredToObjectId annotation to transform String to ObjectId 
  * allow mapper customization 
- * remove mongo-jackson-codec dependency
  
 ### Beta 3 / End of july 
 
