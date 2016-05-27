@@ -1,9 +1,10 @@
- [![KMongo logo](http://litote.org/kmongo/kmongo.png "KMongo")](http://litote.org/kmongo) &nbsp; [![Build Status](https://travis-ci.org/Litote/kmongo.png)](https://travis-ci.org/Litote/kmongo)
+ [![KMongo logo](http://litote.org/kmongo/kmongo.png "KMongo")](http://litote.org/kmongo)
+ [![Build Status](https://travis-ci.org/Litote/kmongo.png)](https://travis-ci.org/Litote/kmongo)
+ [![Apache2 license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+ 
 # KMongo 
  
 ## Mongo shell query & object mapping for Kotlin
-
-Apache 2 license
 
 **the current version is Alpha 1**  
 
