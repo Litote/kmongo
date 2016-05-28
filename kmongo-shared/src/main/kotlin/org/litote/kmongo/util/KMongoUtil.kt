@@ -23,6 +23,8 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
 import org.bson.types.ObjectId
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 import kotlin.reflect.KClass
 import kotlin.reflect.memberProperties
 
@@ -32,9 +34,16 @@ import kotlin.reflect.memberProperties
 object KMongoUtil {
 
     val EMPTY_JSON = "{}"
+    private val mongoJsonReplacePattern = Pattern.compile("\\\$\\s+")
+    private val mongoJsonQuoteReplacement = Matcher.quoteReplacement("\$")
+
 
     fun toBson(json: String): Bson
             = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
+
+    fun formatJson(json: String): String {
+        return mongoJsonReplacePattern.matcher(json).replaceAll(mongoJsonQuoteReplacement)
+    }
 
     fun toBsonList(json: Array<out String>, codecRegistry: CodecRegistry): List<Bson>
             =

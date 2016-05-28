@@ -21,7 +21,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
-
+ *
  */
 class KMongoUtilTest {
 
@@ -31,5 +31,35 @@ class KMongoUtilTest {
     fun extractId() {
         val id = ObjectId()
         assertEquals(id, KMongoUtil.extractId(Obj(id), Obj::class))
+    }
+
+    @Test
+    fun formatJson() {
+        assertEquals("\$regexp", KMongoUtil.formatJson("$ regexp"))
+        assertEquals("\$regexp", KMongoUtil.formatJson("$  regexp"))
+        assertEquals("\$\$regexp", KMongoUtil.formatJson("$$ regexp"))
+
+        val dollar = "\$"
+        assertEquals("""
+           [
+              {
+                ${dollar}group : {
+                   _id : null,
+                   totalPrice: { ${dollar}sum: { ${dollar}multiply: [ "${dollar}price", "${dollar}quantity" ] } },
+                   averageQuantity: { ${dollar}avg: "${dollar}quantity" },
+                   count: { ${dollar}sum: 1 }
+                }
+              }
+           ]""", KMongoUtil.formatJson("""
+           [
+              {
+                $ group : {
+                   _id : null,
+                   totalPrice: { $ sum: { $ multiply: [ "$ price", "$ quantity" ] } },
+                   averageQuantity: { $ avg: "$ quantity" },
+                   count: { $ sum: 1 }
+                }
+              }
+           ]"""))
     }
 }

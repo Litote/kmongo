@@ -16,13 +16,13 @@
 package org.litote.kmongo
 
 import org.junit.Test
-import org.litote.kmongo.MongoOperator.`$`
 import org.litote.kmongo.MongoOperator.`in`
 import org.litote.kmongo.MongoOperator.group
 import org.litote.kmongo.MongoOperator.gt
 import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.MongoOperator.sort
 import org.litote.kmongo.MongoOperator.sum
+import org.litote.kmongo.util.KMongoUtil
 import kotlin.test.assertEquals
 
 
@@ -50,12 +50,12 @@ class MongoOperatorTest {
                      { ${dollar}sort: { total: -1 } }
                 ]
                 """,
-                """
+                KMongoUtil.formatJson("""
                 [
                      { $match: { status: "A" } },
-                     { $group: { _id: "$`$`cust_id", total: { $sum: "$`$`amount" } } },
+                     { $group: { _id: "$ cust_id", total: { $sum: "$ amount" } } },
                      { $sort: { total: -1 } }
                 ]
-                """)
+                """))
     }
 }

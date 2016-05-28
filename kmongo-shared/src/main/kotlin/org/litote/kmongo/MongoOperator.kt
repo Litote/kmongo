@@ -64,11 +64,7 @@ enum class MongoOperator {
     //Comments
     comment,
     //Projection
-    `$` {
-        override fun toString(): String{
-            return "\$"
-        }
-    },
+
     /*elemMatch,*/
     meta,
     slice,
