@@ -617,3 +617,10 @@ fun <TResult> MongoIterable<TResult>.toList(callback: (List<TResult>?, Throwable
 val Any.json: String
     get() = KMongoUtil.toExtendedJson(this)
 
+
+/**
+ * Format this string to remove space(s) between $ and next char
+ */
+fun String.formatJson(): String
+        = KMongoUtil.formatJson(this)
+

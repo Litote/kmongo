@@ -33,6 +33,7 @@ import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
 import org.bson.types.ObjectId
+import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
 import org.litote.kmongo.util.KMongoUtil.extractId
@@ -624,4 +625,10 @@ fun <TResult> MongoIterable<TResult>.toList(): List<TResult>
  */
 val Any.json: String
     get() = toExtendedJson(this)
+
+/**
+ * Format this string to remove space(s) between $ and next char
+ */
+fun String.formatJson(): String
+        = KMongoUtil.formatJson(this)
 
