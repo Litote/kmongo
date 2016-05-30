@@ -28,7 +28,7 @@
 
     <artifactId>kmongo-async</artifactId>
     <name>KMongo async</name>
-    <description>KMongo async classes</description>
+    <description>KMongo async client</description>
 
     <dependencies>
         <dependency>

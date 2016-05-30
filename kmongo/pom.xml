@@ -28,7 +28,7 @@
 
     <artifactId>kmongo</artifactId>
     <name>KMongo</name>
-    <description>KMongo synchronous classes</description>
+    <description>KMongo synchronous client</description>
 
     <dependencies>
         <dependency>
