@@ -21,6 +21,7 @@ import com.mongodb.client.MongoCollection
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.litote.kmongo.AggregateTest.Article
 import org.litote.kmongo.MongoOperator.and
 import org.litote.kmongo.MongoOperator.limit
 import org.litote.kmongo.MongoOperator.match
@@ -31,7 +32,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-class AggregateTest : KMongoBaseTest<AggregateTest.Article>() {
+class AggregateTest : KMongoBaseTest<Article>() {
 
     data class Article(val title: String, val author: String, val tags: List<String>) {
 
