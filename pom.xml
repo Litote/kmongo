@@ -235,7 +235,6 @@
                 <version>${plugin.dokka.version}</version>
                 <executions>
                     <execution>
-                        <phase>verify</phase>
                         <goals>
                             <goal>dokka</goal>
                             <goal>javadoc</goal>
