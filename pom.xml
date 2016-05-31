@@ -247,10 +247,10 @@
                     <sourceLinks>
                         <link>
                             <dir>${sourceDirectory}</dir>
-                            <url>https://github.com/Litote/kmongo/blob/master/${project.artifactId}/src/main/kotlin
-                            </url>
+                            <url>https://github.com/Litote/kmongo/blob/master/${project.artifactId}/src/main/kotlin</url>
                         </link>
                     </sourceLinks>
+                    <skip>${dokka.skip}</skip>
                 </configuration>
             </plugin>
             <plugin>
@@ -328,6 +328,7 @@
                 </property>
             </activation>
             <properties>
+                <dokka.skip>true</dokka.skip>
                 <gpg.skip>true</gpg.skip>
             </properties>
         </profile>
@@ -339,6 +340,7 @@
                 </property>
             </activation>
             <properties>
+                <dokka.skip>false</dokka.skip>
                 <gpg.skip>false</gpg.skip>
             </properties>
         </profile>
