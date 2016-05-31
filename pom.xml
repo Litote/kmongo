@@ -54,6 +54,8 @@
         <plugin.source.version>3.0.0</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
         <plugin.dokka.version>0.9.8</plugin.dokka.version>
+        <plugin.gpg.version>1.5</plugin.gpg.version>
+        <plugin.nexus-staging.version>1.6.3</plugin.nexus-staging.version>
 
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
@@ -221,6 +223,8 @@
                 <version>${plugin.release.version}</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
                 </configuration>
             </plugin>
 
@@ -230,7 +234,7 @@
                 <version>${plugin.dokka.version}</version>
                 <executions>
                     <execution>
-                        <phase>pre-site</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>dokka</goal>
                             <goal>javadoc</goal>
@@ -242,20 +246,46 @@
                     <sourceLinks>
                         <link>
                             <dir>${sourceDirectory}</dir>
-                            <url>https://github.com/Litote/kmongo/blob/master/${project.artifactId}/src/main/kotlin</url>
+                            <url>https://github.com/Litote/kmongo/blob/master/${project.artifactId}/src/main/kotlin
+                            </url>
                         </link>
                     </sourceLinks>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${plugin.nexus-staging.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${plugin.gpg.version}</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
 
     <pluginRepositories>
-            <pluginRepository>
-                <id>jcenter</id>
-                <name>JCenter</name>
-                <url>https://jcenter.bintray.com/</url>
-            </pluginRepository>
+        <pluginRepository>
+            <id>jcenter</id>
+            <name>JCenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </pluginRepository>
     </pluginRepositories>
 
     <scm>
@@ -276,5 +306,41 @@
             <comments/>
         </license>
     </licenses>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <profiles>
+        <profile>
+            <id>build</id>
+            <activation>
+                <property>
+                    <name>!release</name>
+                </property>
+            </activation>
+            <properties>
+                <gpg.skip>true</gpg.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                </property>
+            </activation>
+            <properties>
+                <gpg.skip>false</gpg.skip>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
