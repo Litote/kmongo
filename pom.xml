@@ -225,6 +225,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <releaseProfiles>release</releaseProfiles>
                     <goals>deploy</goals>
+                    <tagNameFormat>kmongo-@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
 
