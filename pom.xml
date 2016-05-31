@@ -21,7 +21,7 @@
 
     <groupId>org.litote.kmongo</groupId>
     <artifactId>kmongo-root</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>KMongo</name>
     <description>Mongo client for Kotlin</description>
@@ -223,7 +223,8 @@
                     <releaseProfiles>release</releaseProfiles>
                     <goals>deploy</goals>
                     <tagNameFormat>kmongo-@{project.version}</tagNameFormat>
-                    <preparationGoals>clean verify dokka:javadocJar</preparationGoals>
+                    <preparationGoals>clean package dokka:javadocJar verify</preparationGoals>
+                    <goals>package dokka:javadocJar deploy</goals>
                 </configuration>
             </plugin>
 
@@ -296,6 +297,15 @@
     <organization>
         <name>Litote</name>
     </organization>
+    <developers>
+        <developer>
+            <id>zigzago</id>
+            <name>Julien Buret</name>
+            <email>zigzago@litote.org</email>
+            <organization>Litote</organization>
+            <organizationUrl>http://litote.org</organizationUrl>
+        </developer>
+    </developers>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
