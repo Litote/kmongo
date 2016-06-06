@@ -18,6 +18,7 @@ package org.litote.kmongo
 
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.exists
+import org.litote.kmongo.MongoOperator.ne
 import org.litote.kmongo.model.Coordinate
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
@@ -63,11 +64,11 @@ class DistinctTest : KMongoBaseTest<Friend>() {
     @Test
     fun distinctWithQuery() {
         col.insertMany(listOf(Friend("John", Coordinate(1, 2)),
-                Friend("Smith", Coordinate(1, 2)),
+                Friend("Smith", Coordinate(125, 72)),
                 Friend(null, Coordinate(125, 72))))
-        val l = col.distinct<Coordinate>("coordinate", "{name:{$exists:true}}").toList()
+        val l = col.distinct<Coordinate>("coordinate", "{name:{$ne:'John'}}").toList()
         assertEquals(1, l.size)
-        assertEquals (Coordinate(1, 2), l.first())
+        assertEquals (Coordinate(125, 72), l.first())
     }
 
     @Test

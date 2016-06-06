@@ -37,7 +37,7 @@ import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
 import org.litote.kmongo.util.KMongoUtil.extractId
-import org.litote.kmongo.util.KMongoUtil.idFilter
+import org.litote.kmongo.util.KMongoUtil.idFilterQuery
 import org.litote.kmongo.util.KMongoUtil.setModifier
 import org.litote.kmongo.util.KMongoUtil.toBson
 import org.litote.kmongo.util.KMongoUtil.toBsonList
@@ -167,7 +167,7 @@ fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON, callback: (T?, T
  * @param callback a callback that is passed the first item or null
  */
 fun <T> MongoCollection<T>.findOne(id: ObjectId, callback: (T?, Throwable?) -> Unit)
-        = findOne(idFilter(id), callback)
+        = findOne(idFilterQuery(id), callback)
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
@@ -250,7 +250,7 @@ fun <T> MongoCollection<T>.deleteOne(filter: String, callback: (DeleteResult?, T
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T> MongoCollection<T>.deleteOne(id: ObjectId, callback: (DeleteResult?, Throwable?) -> Unit)
-        = deleteOne(idFilter(id), callback)
+        = deleteOne(idFilterQuery(id), callback)
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -276,8 +276,8 @@ fun <T> MongoCollection<T>.deleteMany(filter: String, callback: (DeleteResult?, 
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.replaceOne(id: ObjectId, replacement: T, callback: (UpdateResult?, Throwable?) -> Unit)
-        = replaceOne(idFilter(id), replacement, UpdateOptions(), callback)
+fun <T : Any> MongoCollection<T>.replaceOne(id: ObjectId, replacement: T, callback: (UpdateResult?, Throwable?) -> Unit)
+        = replaceOne(idFilterQuery(id), replacement, UpdateOptions(), callback)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -290,7 +290,7 @@ fun <T> MongoCollection<T>.replaceOne(id: ObjectId, replacement: T, callback: (U
  * @throws com.mongodb.MongoException             returned via the callback
  */
 inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T, noinline callback: (UpdateResult?, Throwable?) -> Unit)
-        = replaceOne(idFilter(extractId(replacement, T::class)), replacement, UpdateOptions(), callback)
+        = replaceOne(idFilterQuery(extractId(replacement, T::class)), replacement, UpdateOptions(), callback)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -304,8 +304,8 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T, noinl
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
-        = replaceOne(toBson(filter), replacement, options, callback)
+fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
+        = withDocumentClass<BsonDocument>().replaceOne(toBson(filter), KMongoUtil.filterIdToBson(replacement), options, callback)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -318,8 +318,8 @@ fun <T> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: U
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.replaceOne(filter: String, replacement: T, callback: (UpdateResult?, Throwable?) -> Unit)
-        = replaceOne(toBson(filter), replacement, UpdateOptions(), callback)
+fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, callback: (UpdateResult?, Throwable?) -> Unit)
+        = replaceOne(filter, replacement, UpdateOptions(), callback)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -376,7 +376,7 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: Any, callback: (Upd
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: String, callback: (UpdateResult?, Throwable?) -> Unit)
-        = updateOne(idFilter(id), update, UpdateOptions(), callback)
+        = updateOne(idFilterQuery(id), update, UpdateOptions(), callback)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -389,7 +389,7 @@ fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: String, callback: (Up
  * @throws com.mongodb.MongoException             returned via the callback
  */
 inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, noinline callback: (UpdateResult?, Throwable?) -> Unit) {
-    return updateOne(idFilter(extractId(target, T::class)), setModifier(target), UpdateOptions(), callback)
+    return updateOne(idFilterQuery(extractId(target, T::class)), setModifier(target), UpdateOptions(), callback)
 }
 
 /**
@@ -404,7 +404,7 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, noinline ca
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T : Any> MongoCollection<T>.updateOne(id: ObjectId, update: T, callback: (UpdateResult?, Throwable?) -> Unit)
-        = updateOne(idFilter(id), setModifier(update), UpdateOptions(), callback)
+        = updateOne(idFilterQuery(id), setModifier(update), UpdateOptions(), callback)
 
 /**
  * Update all documents in the collection according to the specified arguments.

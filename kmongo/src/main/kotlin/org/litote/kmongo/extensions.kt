@@ -37,7 +37,8 @@ import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
 import org.litote.kmongo.util.KMongoUtil.extractId
-import org.litote.kmongo.util.KMongoUtil.idFilter
+import org.litote.kmongo.util.KMongoUtil.filterIdToBson
+import org.litote.kmongo.util.KMongoUtil.idFilterQuery
 import org.litote.kmongo.util.KMongoUtil.setModifier
 import org.litote.kmongo.util.KMongoUtil.toBson
 import org.litote.kmongo.util.KMongoUtil.toBsonList
@@ -171,7 +172,7 @@ fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T?
  * @return the first item returned or null
  */
 fun <T> MongoCollection<T>.findOne(id: ObjectId): T?
-        = findOne(idFilter(id))
+        = findOne(idFilterQuery(id))
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.
@@ -250,7 +251,7 @@ fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 fun <T> MongoCollection<T>.deleteOne(id: ObjectId): DeleteResult
-        = deleteOne(idFilter(id))
+        = deleteOne(idFilterQuery(id))
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -277,8 +278,8 @@ fun <T> MongoCollection<T>.deleteMany(filter: String): DeleteResult
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.replaceOne(id: ObjectId, replacement: T): UpdateResult
-        = replaceOne(idFilter(id), replacement, UpdateOptions())
+fun <T : Any> MongoCollection<T>.replaceOne(id: ObjectId, replacement: T): UpdateResult
+        = replaceOne(idFilterQuery(id), replacement, UpdateOptions())
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -291,7 +292,7 @@ fun <T> MongoCollection<T>.replaceOne(id: ObjectId, replacement: T): UpdateResul
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T): UpdateResult
-        = replaceOne(idFilter(extractId(replacement, T::class)), replacement, UpdateOptions())
+        = replaceOne(idFilterQuery(extractId(replacement, T::class)), replacement, UpdateOptions())
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -305,8 +306,8 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T): Upda
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions): UpdateResult
-        = replaceOne(toBson(filter), replacement, options)
+fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions): UpdateResult
+        = withDocumentClass<BsonDocument>().replaceOne(toBson(filter), filterIdToBson(replacement), options)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -319,8 +320,8 @@ fun <T> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: U
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.replaceOne(filter: String, replacement: T): UpdateResult
-        = replaceOne(toBson(filter), replacement, UpdateOptions())
+fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T): UpdateResult
+        = replaceOne(filter, replacement, UpdateOptions())
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -381,7 +382,7 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: Any): UpdateResult
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: String): UpdateResult
-        = updateOne(idFilter(id), update, UpdateOptions())
+        = updateOne(idFilterQuery(id), update, UpdateOptions())
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -395,7 +396,7 @@ fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: String): UpdateResult
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T): UpdateResult
-        = updateOne(idFilter(extractId(target, T::class)), setModifier(target), UpdateOptions())
+        = updateOne(idFilterQuery(extractId(target, T::class)), setModifier(target), UpdateOptions())
 
 
 /**
@@ -411,7 +412,7 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T): UpdateResu
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 fun <T : Any> MongoCollection<T>.updateOne(id: ObjectId, update: T): UpdateResult
-        = updateOne(idFilter(id), setModifier(update), UpdateOptions())
+        = updateOne(idFilterQuery(id), setModifier(update), UpdateOptions())
 
 /**
  * Update all documents in the collection according to the specified arguments.

@@ -18,7 +18,9 @@ package org.litote.kmongo.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.bson.codecs.configuration.CodecProvider
+import org.litote.kmongo.jackson.JacksonCodecProvider
 import org.litote.kmongo.jackson.ObjectMapperFactory
+import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 
 /**
@@ -26,7 +28,19 @@ import kotlin.reflect.KClass
  */
 object KMongoConfiguration {
 
-    var extendedJsonMapper: ObjectMapper = ObjectMapperFactory.extendedJsonMapper
-    var jacksonCodecProvider: CodecProvider = ObjectMapperFactory.jacksonCodecProvider
+    var extendedJsonMapper: ObjectMapper = ObjectMapperFactory.createExtendedJsonObjectMapper()
+    var bsonMapper: ObjectMapper = ObjectMapperFactory.createBsonObjectMapper()
     var defaultCollectionNameBuilder: (KClass<*>) -> String = { it.simpleName!!.toLowerCase() }
+
+    val jacksonCodecProvider: CodecProvider by lazy(PUBLICATION) {
+        JacksonCodecProvider(bsonMapper)
+    }
+
+    val filterIdBsonMapper: ObjectMapper by lazy(PUBLICATION) {
+        ObjectMapperFactory.createFilterIdObjectMapper(bsonMapper)
+    }
+
+    val filterIdExtendedJsonMapper: ObjectMapper by lazy(PUBLICATION) {
+        ObjectMapperFactory.createFilterIdObjectMapper(extendedJsonMapper)
+    }
 }

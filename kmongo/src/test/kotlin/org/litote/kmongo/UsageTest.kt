@@ -16,6 +16,7 @@
 
 package org.litote.kmongo
 
+import org.bson.types.ObjectId
 import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.avg
@@ -30,6 +31,8 @@ import java.time.LocalDate
 import java.time.Month.MAY
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Samples used in doc
@@ -38,6 +41,16 @@ class UsageTest : KMongoBaseTest<Jedi>() {
 
     data class Jedi(val name: String, val age: Int, val firstAppearance: StarWarsFilm)
     data class StarWarsFilm(val name: String, val date: LocalDate)
+
+    data class LightSaber1(val _id: String?)
+    data class LightSaber2(val _id: org.bson.types.ObjectId?)
+    data class LightSaber3(val _id: String)
+    data class LightSaber4(val _id: org.bson.types.ObjectId)
+    data class LightSaber5(var _id: String?)
+    data class LightSaber6(var _id: org.bson.types.ObjectId?)
+
+    class TFighter(val version: String, val pilot: Pilot?)
+    class Pilot()
 
     override fun getDefaultCollectionClass(): KClass<Jedi> {
         return Jedi::class
@@ -67,4 +80,40 @@ class UsageTest : KMongoBaseTest<Jedi>() {
         assertEquals((896 + 19) / 2, averageAge)
         assertEquals(896, maxAge)
     }
+
+    @Test
+    fun testInsertId() {
+        val lightSaber1 = LightSaber1(null)
+        database.getCollection<LightSaber1>().insertOne(lightSaber1)
+        assertNotNull(lightSaber1._id)
+        val lightSaber2 = LightSaber2(null)
+        database.getCollection<LightSaber2>().insertOne(lightSaber2)
+        assertNotNull(lightSaber2._id)
+        database.getCollection<LightSaber3>().insertOne(LightSaber3("coucou"))
+        val id = ObjectId()
+        database.getCollection<LightSaber4>().insertOne(LightSaber4(id))
+        val lightSaber5 = LightSaber5(null)
+        database.getCollection<LightSaber5>().insertOne(lightSaber5)
+        assertNotNull(lightSaber5._id)
+        val lightSaber6 = LightSaber6(null)
+        database.getCollection<LightSaber6>().insertOne(lightSaber6)
+        assertNotNull(lightSaber6._id)
+
+        assertNotNull(database.getCollection<LightSaber1>().findOne()!!._id)
+        assertNotNull(database.getCollection<LightSaber2>().findOne()!!._id)
+        assertEquals("coucou", database.getCollection<LightSaber3>().findOne()!!._id)
+        assertEquals(id, database.getCollection<LightSaber4>().findOne()!!._id)
+        assertNotNull(database.getCollection<LightSaber5>().findOne()!!._id)
+        assertNotNull(database.getCollection<LightSaber6>().findOne()!!._id)
+    }
+
+    @Test
+    fun testInsertNullField() {
+        database.getCollection<TFighter>().insertOne(TFighter("v1", null))
+        val doc = database.getCollection("tfighter").findOne()
+
+        assertEquals("v1", doc!!.get("version"))
+        assertTrue(doc.containsKey("pilot"))
+    }
 }
+

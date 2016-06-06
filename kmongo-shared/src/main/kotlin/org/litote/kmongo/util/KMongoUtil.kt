@@ -17,6 +17,7 @@
 package org.litote.kmongo.util
 
 import org.bson.BsonDocument
+import org.bson.RawBsonDocument
 import org.bson.codecs.BsonArrayCodec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.configuration.CodecRegistry
@@ -34,16 +35,12 @@ import kotlin.reflect.memberProperties
 object KMongoUtil {
 
     val EMPTY_JSON = "{}"
-    private val mongoJsonReplacePattern = Pattern.compile("\\\$\\s+")
-    private val mongoJsonQuoteReplacement = Matcher.quoteReplacement("\$")
+    private val SPACE_REPLACE_PATTERN = Pattern.compile("\\\$\\s+")
+    private val QUOTE_REPLACE_MATCHER = Matcher.quoteReplacement("\$")
 
 
     fun toBson(json: String): Bson
             = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
-
-    fun formatJson(json: String): String {
-        return mongoJsonReplacePattern.matcher(json).replaceAll(mongoJsonQuoteReplacement)
-    }
 
     fun toBsonList(json: Array<out String>, codecRegistry: CodecRegistry): List<Bson>
             =
@@ -54,17 +51,27 @@ object KMongoUtil {
                 json.map { toBson(it) }
             }
 
+    fun filterIdToBson(obj: Any): BsonDocument
+            = RawBsonDocument(KMongoConfiguration.filterIdBsonMapper.writeValueAsBytes(obj))
+
+    fun formatJson(json: String): String {
+        return SPACE_REPLACE_PATTERN.matcher(json).replaceAll(QUOTE_REPLACE_MATCHER)
+    }
+
     fun toExtendedJson(obj: Any): String
             = KMongoConfiguration.extendedJsonMapper.writeValueAsString(obj)
+
+    private fun filterIdToExtendedJson(obj: Any): String
+            = KMongoConfiguration.filterIdExtendedJsonMapper.writeValueAsString(obj)
 
     private fun isJsonArray(json: String)
             = json.trim().startsWith('[')
 
-    fun idFilter(id: ObjectId)
+    fun idFilterQuery(id: ObjectId)
             = "{_id:${toExtendedJson(id)}}"
 
     fun setModifier(obj: Any)
-            = "{\$set:${toExtendedJson(obj)}}"
+            = "{\$set:${filterIdToExtendedJson(obj)}}"
 
     fun extractId(obj: Any, clazz: KClass<*>): ObjectId {
         return (clazz.memberProperties.find { "_id" == it.name }!!)(obj) as ObjectId

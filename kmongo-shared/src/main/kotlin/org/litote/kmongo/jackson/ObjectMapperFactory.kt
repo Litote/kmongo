@@ -15,23 +15,17 @@
  */
 package org.litote.kmongo.jackson
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import de.undercouch.bson4jackson.BsonParser
-import org.bson.codecs.configuration.CodecProvider
 
 internal object ObjectMapperFactory {
-
-    val extendedJsonMapper: ObjectMapper = createExtendedJsonObjectMapper()
-    val jacksonCodecProvider: CodecProvider = JacksonCodecProvider(createBsonObjectMapper())
 
     fun createExtendedJsonObjectMapper(): ObjectMapper {
         return ObjectMapper()
                 .registerModule(KotlinModule())
                 .registerModule(ExtendedJsonModule())
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
     }
 
     fun createBsonObjectMapper(): ObjectMapper {
@@ -43,7 +37,13 @@ internal object ObjectMapperFactory {
                 .registerModule(KotlinModule())
                 .registerModule(BsonModule())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+    }
+
+    fun createFilterIdObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
+        val newObjectMapper = objectMapper.copy()
+        newObjectMapper.setFilterProvider(FilterIdIntrospector.IdPropertyFilterProvider)
+        newObjectMapper.setAnnotationIntrospector(FilterIdIntrospector)
+        return newObjectMapper
     }
 
 

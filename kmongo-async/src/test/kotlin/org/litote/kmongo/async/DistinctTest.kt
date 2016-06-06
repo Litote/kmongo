@@ -17,7 +17,7 @@
 package org.litote.kmongo.async
 
 import org.junit.Test
-import org.litote.kmongo.MongoOperator.exists
+import org.litote.kmongo.MongoOperator
 import org.litote.kmongo.model.Coordinate
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
@@ -81,14 +81,14 @@ class DistinctTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun distinctWithQuery() {
         col.insertMany(listOf(Friend("John", Coordinate(1, 2)),
-                Friend("Smith", Coordinate(1, 2)),
+                Friend("Smith", Coordinate(125, 72)),
                 Friend(null, Coordinate(125, 72))), {
             r, t ->
-            col.distinct<Coordinate>("coordinate", "{name:{$exists:true}}").toList {
+            col.distinct<Coordinate>("coordinate", "{name:{${MongoOperator.ne}:'John'}}").toList {
                 r, t ->
                 asyncTest {
                     assertEquals(1, r!!.size)
-                    assertEquals (Coordinate(1, 2), r.first())
+                    assertEquals (Coordinate(125, 72), r.first())
                 }
             }
         })

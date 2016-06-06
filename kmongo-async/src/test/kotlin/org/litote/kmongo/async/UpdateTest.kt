@@ -23,6 +23,7 @@ import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.unset
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 /**
  *
@@ -78,7 +79,7 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
                 col.findOne("{name:'Johnny'}", { r, t ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
-                        assertEquals("123 Wall Street", r.address)
+                        assertNull(r.address)
                         assertEquals(friend._id, r._id)
                     }
                 })
@@ -95,7 +96,7 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
                 col.findOne("{name:'Johnny'}", { r, t ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
-                        assertEquals("123 Wall Street", r.address)
+                        assertNull(r.address)
                     }
                 })
             })

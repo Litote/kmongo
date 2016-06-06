@@ -129,6 +129,10 @@ internal class KMongoBsonFactory : BsonFactory() {
         }
         return p
     }
+
+    override fun copy(): BsonFactory {
+        return KMongoBsonFactory()
+    }
 }
 
 

@@ -23,6 +23,7 @@ import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.unset
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 /**
  *
@@ -62,7 +63,7 @@ class UpdateTest : KMongoBaseTest<Friend>() {
         col.updateOne("{name:'John'}", preexistingDocument)
         val r = col.findOne("{name:'Johnny'}")
         assertEquals("Johnny", r!!.name)
-        assertEquals("123 Wall Street", r.address)
+        assertNull(r.address)
         assertEquals(friend._id, r._id)
     }
 
@@ -74,7 +75,7 @@ class UpdateTest : KMongoBaseTest<Friend>() {
         col.updateOne("{name:'John'}", newDocument)
         val r = col.findOne("{name:'Johnny'}")
         assertEquals("Johnny", r!!.name)
-        assertEquals("123 Wall Street", r.address)
+        assertNull(r.address)
     }
 
     @Test
