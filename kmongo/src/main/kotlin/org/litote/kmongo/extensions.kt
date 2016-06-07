@@ -19,6 +19,7 @@ import com.mongodb.ReadPreference
 import com.mongodb.client.AggregateIterable
 import com.mongodb.client.DistinctIterable
 import com.mongodb.client.FindIterable
+import com.mongodb.client.ListIndexesIterable
 import com.mongodb.client.MapReduceIterable
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
@@ -27,6 +28,8 @@ import com.mongodb.client.model.CountOptions
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.FindOneAndUpdateOptions
+import com.mongodb.client.model.IndexModel
+import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.InsertOneOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.result.DeleteResult
@@ -517,6 +520,58 @@ fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String): T
  */
 fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, options: FindOneAndUpdateOptions): T
         = findOneAndUpdate(toBson(filter), toBson(update), options)
+
+
+/**
+ * Create an index with the given keys.
+
+ * @param keys an object describing the index key(s)
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.createIndex(keys: String): String
+        = createIndex(keys, IndexOptions())
+
+/**
+ * Create an index with the given keys and options.
+
+ * @param keys                an object describing the index key(s), which may not be null.
+ * @param indexOptions the options for the index
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.createIndex(keys: String, indexOptions: IndexOptions): String
+        = createIndex(toBson(keys), indexOptions)
+
+/**
+ * Get all the indexes in this collection.
+
+ * @param <TResult>   the target document type of the iterable.
+ * @return the list indexes iterable interface
+ */
+inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexesIterable<TResult>
+        = listIndexes(TResult::class.java)
+
+
+/**
+ * Drops the index given the keys used to create it.
+
+ * @param keys the keys of the index to remove
+ */
+fun <T> MongoCollection<T>.dropIndex(keys: String)
+        = dropIndex(toBson(keys))
+
+
+//*******
+//IndexModel extension methods
+//*******
+
+/**
+ * Construct an instance with the given keys and options.
+ *
+ * @param keys the index keys
+ * @param options the index options
+ */
+fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel
+        = IndexModel(toBson(keys), options)
 
 //*******
 //DistinctIterable extension methods

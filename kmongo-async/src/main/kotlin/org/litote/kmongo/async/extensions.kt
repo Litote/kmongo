@@ -19,6 +19,7 @@ import com.mongodb.ReadPreference
 import com.mongodb.async.client.AggregateIterable
 import com.mongodb.async.client.DistinctIterable
 import com.mongodb.async.client.FindIterable
+import com.mongodb.async.client.ListIndexesIterable
 import com.mongodb.async.client.MapReduceIterable
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.async.client.MongoDatabase
@@ -27,6 +28,8 @@ import com.mongodb.client.model.CountOptions
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.FindOneAndUpdateOptions
+import com.mongodb.client.model.IndexModel
+import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.InsertOneOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.result.DeleteResult
@@ -507,6 +510,57 @@ fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, opti
  */
 fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, callback: (T?, Throwable?) -> Unit)
         = findOneAndUpdate(filter, update, FindOneAndUpdateOptions(), callback)
+
+/**
+ * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
+
+ * @param key      an object describing the index key(s)
+ * @param callback the callback that is completed once the index has been created
+ */
+fun <T> MongoCollection<T>.createIndex(key: String, callback: (String?, Throwable?) -> Unit)
+        = createIndex(key, IndexOptions(), callback)
+
+/**
+ * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
+
+ * @param key      an object describing the index key(s)
+ * @param options  the options for the index
+ * @param callback the callback that is completed once the index has been created
+ */
+fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions, callback: (String?, Throwable?) -> Unit)
+        = createIndex(toBson(key), options, callback)
+
+
+/**
+ * Get all the indexes in this collection.
+
+ * @param <TResult>   the target document type of the iterable.
+ * @return the list indexes iterable interface
+ */
+inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexesIterable<TResult>
+        = listIndexes(TResult::class.java)
+
+/**
+ * Drops the index given the keys used to create it.
+
+ * @param keys the keys of the index to remove
+ * @param callback  the callback that is completed once the index has been dropped
+ */
+fun <T> MongoCollection<T>.dropIndex(keys: String, callback: (Void?, Throwable?) -> Unit)
+        = dropIndex(toBson(keys), callback)
+
+//*******
+//IndexModel extension methods
+//*******
+
+/**
+ * Construct an instance with the given keys and options.
+ *
+ * @param keys the index keys
+ * @param options the index options
+ */
+fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel
+        = IndexModel(toBson(keys), options)
 
 //*******
 //DistinctIterable extension methods
