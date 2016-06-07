@@ -6,7 +6,7 @@
  
 ## A Kotlin toolkit for Mongo
 
-**The current version is 0.1.1**  
+**The current version is 0.2.0**  
 
 Full documentation here : [http://litote.org/kmongo](http://litote.org/kmongo) 
 
