@@ -74,7 +74,21 @@ object KMongoUtil {
             = "{\$set:${filterIdToExtendedJson(obj)}}"
 
     fun extractId(obj: Any, clazz: KClass<*>): ObjectId {
-        return (clazz.memberProperties.find { "_id" == it.name }!!)(obj) as ObjectId
+        val idField = clazz.memberProperties.find { "_id" == it.name }
+        if (idField == null) {
+            throw IllegalArgumentException("$obj has to contain _id field")
+        } else {
+            val id = (idField)(obj)
+            if (id == null) {
+                throw IllegalArgumentException("_id is null")
+            } else {
+                when (id) {
+                    is ObjectId -> return id
+                    is String -> return ObjectId(id)
+                    else -> throw IllegalArgumentException("_id type not supported")
+                }
+            }
+        }
     }
 
     fun defaultCollectionName(clazz: KClass<*>): String
