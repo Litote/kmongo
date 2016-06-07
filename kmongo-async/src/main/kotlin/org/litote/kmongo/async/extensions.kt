@@ -357,7 +357,7 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: Up
  * Update a single document in the collection according to the specified arguments.
  *
  * @param filter   a document describing the query filter
- * @param update   the new updated object - only non null fields are updated
+ * @param update   the new updated object
  * @param callback the callback passed the result of the update one operation
  *
  * @throws com.mongodb.MongoWriteException        returned via the callback
@@ -384,7 +384,7 @@ fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: String, callback: (Up
 /**
  * Update a single document in the collection according to the specified arguments.
  *
- * @param target  the new updated object - must have an non null id - only non null fields are updated
+ * @param target  the new updated object - must have an non null id
  * @param callback  the callback passed the result of the update one operation
  *
  * @throws com.mongodb.MongoWriteException        returned via the callback
@@ -399,7 +399,7 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, noinline ca
  * Update a single document in the collection according to the specified arguments.
  *
  * @param id        the object id
- * @param update    the new updated object - only non null fields are updated
+ * @param update    the new updated object
  * @param callback  the callback passed the result of the update one operation
  *
  * @throws com.mongodb.MongoWriteException        returned via the callback

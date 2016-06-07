@@ -18,14 +18,15 @@ Full documentation here : [http://litote.org/kmongo](http://litote.org/kmongo)
 
  * Improve doc
  * @MongoId annotation to support id in other field than _id
- * @StoredToObjectId annotation to transform String to ObjectId 
- * allow mapper customization 
+ * @ToObjectId annotation to transform String to ObjectId 
+ * allow mapper customization
+ * create/drop indexes
  
 ### Beta 3 (0.3) / End of july 
 
+ * link to KDoc
  * check support of all extended bson types (dates)
  * support bulk operations
- * create/drop indexes
  
 ### RC & R / End of august 
 

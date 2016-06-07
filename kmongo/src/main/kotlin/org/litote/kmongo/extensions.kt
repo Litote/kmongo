@@ -361,7 +361,7 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: Up
  * Update a single document in the collection according to the specified arguments.
  *
  * @param filter   a document describing the query filter
- * @param update   the new updated object - only non null fields are updated
+ * @param update   the new updated object
  *
  * @return the result of the update one operation
  *
@@ -390,7 +390,7 @@ fun <T> MongoCollection<T>.updateOne(id: ObjectId, update: String): UpdateResult
 /**
  * Update a single document in the collection according to the specified arguments.
  *
- * @param target  the new updated object - must have an non null id - only non null fields are updated
+ * @param target  the new updated object - must have an non null id
  *
  * @return the result of the update one operation
  *
@@ -406,7 +406,7 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T): UpdateResu
  * Update a single document in the collection according to the specified arguments.
  *
  * @param id        the object id
- * @param update    the new updated object - only non null fields are updated
+ * @param update    the new updated object
  *
  * @return the result of the update one operation
  *
