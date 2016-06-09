@@ -30,7 +30,7 @@ class ReplaceTest : KMongoBaseTest<Friend>() {
     fun canReplaceWithId() {
         val friend = Friend("Peter", "31 rue des Lilas")
         col.insertOne(friend)
-        col.replaceOne(friend._id!!, Friend("John"))
+        col.replaceOneById(friend._id!!, Friend("John"))
         val r = col.findOne("{name:'John'}}")
         assertEquals("John", r!!.name)
         assertNull(r.address)

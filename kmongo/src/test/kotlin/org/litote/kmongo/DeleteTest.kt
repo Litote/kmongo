@@ -39,7 +39,7 @@ class DeleteTest : KMongoBaseTest<Friend>() {
     @Test
     fun canDeleteByObjectId() {
         col.insertOne("{ _id:{$oid:'47cc67093475061e3d95369d'}, name:'John'}")
-        col.deleteOne(ObjectId("47cc67093475061e3d95369d"))
+        col.deleteOneById(ObjectId("47cc67093475061e3d95369d"))
         val c = col.count()
         assertEquals(0, c)
     }

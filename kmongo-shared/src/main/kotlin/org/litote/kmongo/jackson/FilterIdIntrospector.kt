@@ -25,16 +25,17 @@ import com.fasterxml.jackson.databind.ser.FilterProvider
 import com.fasterxml.jackson.databind.ser.PropertyFilter
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter
+import org.litote.kmongo.util.MongoIdUtil
 
 /**
  *
  */
-internal object FilterIdIntrospector : JacksonAnnotationIntrospector() {
+internal object FilterIdIntrospector : KMongoAnnotationIntrospector() {
 
     object IdPropertyFilter : SimpleBeanPropertyFilter() {
 
         private fun include(pojo: Any, writer: PropertyWriter): Boolean {
-            return writer.name != "_id"
+            return writer.name != MongoIdUtil.findIdProperty(pojo.javaClass.kotlin)?.name
         }
 
         override fun serializeAsField(pojo: Any, jgen: JsonGenerator, provider: SerializerProvider, writer: PropertyWriter) {

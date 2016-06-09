@@ -173,6 +173,12 @@ internal class ExtendedJsonModule : SimpleModule() {
                 = OffsetDateTimeExtendedJsonSerializer.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
     }
 
+    override fun setupModule(context: SetupContext) {
+        super.setupModule(context)
+
+        context.appendAnnotationIntrospector(KMongoAnnotationIntrospector.INTROSPECTOR)
+    }
+
     init {
         addSerializer(ObjectId::class.java, ObjectIdExtendedJsonSerializer)
         addSerializer(Binary::class.java, BinaryExtendedJsonSerializer)

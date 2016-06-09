@@ -16,9 +16,7 @@
 package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.bson.BsonObjectId
 import org.bson.BsonReader
-import org.bson.BsonString
 import org.bson.BsonValue
 import org.bson.BsonWriter
 import org.bson.RawBsonDocument
@@ -28,33 +26,20 @@ import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.types.ObjectId
+import org.litote.kmongo.util.MongoIdUtil
 import java.io.IOException
 import java.io.UncheckedIOException
-import java.lang.reflect.Field
-import kotlin.LazyThreadSafetyMode.PUBLICATION
+import kotlin.reflect.defaultType
+import kotlin.reflect.jvm.javaField
 
 /**
  *
  */
-internal class JacksonCodec<T>(val bsonObjectMapper: ObjectMapper,
-                      val codecRegistry: CodecRegistry,
-                      val type: Class<T>) : Codec<T>, CollectibleCodec<T> {
+internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
+                                     val codecRegistry: CodecRegistry,
+                                     val type: Class<T>) : Codec<T>, CollectibleCodec<T> {
 
     private val rawBsonDocumentCodec: Codec<RawBsonDocument>
-    private val idField: Field? by lazy(PUBLICATION) {
-        val f = try {
-            type.getDeclaredField("_id")
-        } catch(e: NoSuchFieldException) {
-            //type.declaredFields.firstOrNull { it.isAnnotationPresent(MongoId::class.java) }
-            null
-        }
-        if (f == null) {
-            null
-        } else {
-            f.isAccessible = true
-            f
-        }
-    }
 
     init {
         this.rawBsonDocumentCodec = codecRegistry.get(RawBsonDocument::class.java)
@@ -83,36 +68,33 @@ internal class JacksonCodec<T>(val bsonObjectMapper: ObjectMapper,
         return this.type
     }
 
-    override fun getDocumentId(document: T): BsonValue? {
-        if (idField == null) {
+    override fun getDocumentId(document: T): BsonValue {
+        val idProperty = MongoIdUtil.findIdProperty(type.kotlin)
+        if (idProperty == null) {
             throw IllegalStateException("$type has no id field")
         } else {
-            val idValue = (idField as Field).get(document)
-            if (idValue == null) {
-                throw IllegalStateException("$type has null id")
-            }
-            return when (idValue) {
-                is ObjectId -> BsonObjectId(idValue)
-                is String -> BsonString(idValue)
-                else -> throw IllegalArgumentException("id field type not supported : ${idField}")
-            }
+            val idValue = MongoIdUtil.getIdBsonValue(idProperty, document)
+            return idValue ?: throw IllegalStateException("$type has null id")
         }
     }
 
-    override fun documentHasId(document: T): Boolean = idField != null &&  (idField as Field).get(document) != null
+    override fun documentHasId(document: T): Boolean
+            = MongoIdUtil.findIdProperty(type.kotlin) != null
 
     override fun generateIdIfAbsentFromDocument(document: T): T {
-        if (idField != null) {
-            val id = (idField as Field)
-            val idValue = id.get(document)
+        val idProperty = MongoIdUtil.findIdProperty(type.kotlin)
+        if (idProperty != null) {
+            val idValue = MongoIdUtil.getIdValue(idProperty, document)
             if (idValue == null) {
-                val fieldType = id.getType()
-                if (fieldType == String::class.java) {
-                    id.set(document, ObjectId.get().toString())
-                } else if (fieldType == ObjectId::class.java) {
-                    id.set(document, ObjectId.get())
+                val toString = idProperty.returnType.toString()
+                val javaField = idProperty.javaField
+                javaField!!.isAccessible = true
+                if (toString.startsWith(ObjectId::class.defaultType.toString())) {
+                    javaField.set(document, ObjectId.get())
+                } else if (toString.startsWith(String::class.defaultType.toString())) {
+                    javaField.set(document, ObjectId.get().toString())
                 } else {
-                    throw IllegalArgumentException("generation for id field type not supported : ${idField}")
+                    throw IllegalArgumentException("generation for id property type not supported : $idProperty")
                 }
             }
         }

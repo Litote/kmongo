@@ -47,7 +47,7 @@ class FindOneTest : KMongoBaseTest<Friend>() {
     fun canFindOneWithObjectId() {
         val john = Friend(ObjectId(), "John")
         col.insertOne(john)
-        val friend = col.findOne(john._id!!)
+        val friend = col.findOneById(john._id!!)
         assertEquals(john._id, friend!!._id)
     }
 

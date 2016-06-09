@@ -55,7 +55,7 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
         val john = Friend(ObjectId(), "John")
         col.insertOne(john,
                 { r, t ->
-                    col.findOne(john._id!!, {
+                    col.findOneById(john._id!!, {
                         friend, throwable ->
                         asyncTest { assertEquals(john._id, friend!!._id) }
                     })

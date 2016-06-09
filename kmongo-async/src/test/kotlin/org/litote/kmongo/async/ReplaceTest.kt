@@ -30,7 +30,7 @@ class ReplaceTest : KMongoAsyncBaseTest<Friend>() {
     fun canReplaceWithId() {
         val friend = Friend("Peter", "31 rue des Lilas")
         col.insertOne(friend, { r, t ->
-            col.replaceOne(friend._id!!, Friend("John"), { r, t ->
+            col.replaceOneById(friend._id!!, Friend("John"), { r, t ->
                 col.findOne("{name:'John'}}", { r, t ->
                     asyncTest {
                         assertEquals("John", r!!.name)

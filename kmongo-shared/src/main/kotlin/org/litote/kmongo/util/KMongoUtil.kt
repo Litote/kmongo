@@ -23,11 +23,9 @@ import org.bson.codecs.DecoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
-import org.bson.types.ObjectId
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
-import kotlin.reflect.memberProperties
 
 /**
  * Internal utility methods
@@ -39,7 +37,7 @@ object KMongoUtil {
     private val QUOTE_REPLACE_MATCHER = Matcher.quoteReplacement("\$")
 
 
-    fun toBson(json: String): Bson
+    fun toBson(json: String): BsonDocument
             = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
 
     fun toBsonList(json: Array<out String>, codecRegistry: CodecRegistry): List<Bson>
@@ -67,27 +65,18 @@ object KMongoUtil {
     private fun isJsonArray(json: String)
             = json.trim().startsWith('[')
 
-    fun idFilterQuery(id: ObjectId)
+    fun idFilterQuery(id: Any)
             = "{_id:${toExtendedJson(id)}}"
 
     fun setModifier(obj: Any)
             = "{\$set:${filterIdToExtendedJson(obj)}}"
 
-    fun extractId(obj: Any, clazz: KClass<*>): ObjectId {
-        val idField = clazz.memberProperties.find { "_id" == it.name }
-        if (idField == null) {
+    fun extractId(obj: Any, clazz: KClass<*>): Any {
+        val idProperty = MongoIdUtil.findIdProperty(clazz)
+        if (idProperty == null) {
             throw IllegalArgumentException("$obj has to contain _id field")
         } else {
-            val id = (idField)(obj)
-            if (id == null) {
-                throw IllegalArgumentException("_id is null")
-            } else {
-                when (id) {
-                    is ObjectId -> return id
-                    is String -> return ObjectId(id)
-                    else -> throw IllegalArgumentException("_id type not supported")
-                }
-            }
+            return MongoIdUtil.getIdValue(idProperty, obj) ?: throw IllegalArgumentException("id is null")
         }
     }
 

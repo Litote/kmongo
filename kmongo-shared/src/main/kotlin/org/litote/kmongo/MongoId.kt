@@ -15,12 +15,10 @@
  */
 package org.litote.kmongo
 
-import kotlin.annotation.AnnotationRetention.RUNTIME
-import kotlin.annotation.AnnotationTarget.FIELD
+import kotlin.annotation.AnnotationTarget.PROPERTY
 
 /**
  * Use it to specify the Mongo identifier
  */
-@Target(FIELD)
-@Retention(RUNTIME)
+@Target(PROPERTY)
 annotation class MongoId

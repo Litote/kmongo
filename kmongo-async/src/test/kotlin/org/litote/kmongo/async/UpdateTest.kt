@@ -48,7 +48,7 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
     fun canUpdateByObjectId() {
         val friend = Friend("Paul")
         col.insertOne(friend, { r, t ->
-            col.updateOne(friend._id!!, "{$set:{name:'John'}}", { r, t ->
+            col.updateOneById(friend._id!!, "{$set:{name:'John'}}", { r, t ->
                 col.findOne("{name:'John'}", { r, t ->
                     asyncTest {
                         assertEquals("John", r!!.name)

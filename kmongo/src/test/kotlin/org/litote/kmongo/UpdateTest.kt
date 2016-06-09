@@ -42,7 +42,7 @@ class UpdateTest : KMongoBaseTest<Friend>() {
     fun canUpdateByObjectId() {
         val friend = Friend("Paul")
         col.insertOne(friend)
-        col.updateOne(friend._id!!, "{$set:{name:'John'}}")
+        col.updateOneById(friend._id!!, "{$set:{name:'John'}}")
         val r = col.findOne("{name:'John'}")
         assertEquals("John", r!!.name)
         assertEquals(friend._id, r._id)

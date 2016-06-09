@@ -44,7 +44,7 @@ class DeleteTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canDeleteByObjectId() {
         col.insertOne("{ _id:{$oid:'47cc67093475061e3d95369d'}, name:'John'}", { r, t ->
-            col.deleteOne(ObjectId("47cc67093475061e3d95369d"), { r, t ->
+            col.deleteOneById(ObjectId("47cc67093475061e3d95369d"), { r, t ->
                 col.count({ c, t ->
                     asyncTest {
                         assertEquals(0, c)

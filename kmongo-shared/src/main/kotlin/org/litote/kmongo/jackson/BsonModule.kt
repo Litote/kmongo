@@ -300,6 +300,12 @@ internal class BsonModule : SimpleModule() {
                 = date.toInstant()
     }
 
+    override fun setupModule(context: SetupContext) {
+        super.setupModule(context)
+
+        context.appendAnnotationIntrospector(KMongoAnnotationIntrospector.INTROSPECTOR)
+    }
+
     init {
         addSerializer(ObjectId::class.java, ObjectIdBsonSerializer)
         addSerializer(Binary::class.java, BinaryBsonSerializer)

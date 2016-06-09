@@ -13,16 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo.jackson
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.bson.codecs.Codec
-import org.bson.codecs.configuration.CodecProvider
-import org.bson.codecs.configuration.CodecRegistry
+package org.litote.kmongo.util
 
-internal class JacksonCodecProvider(val bsonObjectMapper: ObjectMapper) : CodecProvider {
+import org.bson.types.ObjectId
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.litote.kmongo.MongoId
 
-    override fun <T : Any> get(type: Class<T>, registry: CodecRegistry): Codec<T> {
-        return JacksonCodec(bsonObjectMapper, registry, type)
+/**
+
+ */
+class MongoIdUtilTest {
+
+    class WithMongoId(@MongoId val key: ObjectId? = null)
+
+    @Test
+    fun findIdPropertyShouldFindMongoIdAnnotatedField() {
+        val p = MongoIdUtil.findIdProperty(WithMongoId::class)
+        assertEquals("key", p!!.name)
     }
+
 }
