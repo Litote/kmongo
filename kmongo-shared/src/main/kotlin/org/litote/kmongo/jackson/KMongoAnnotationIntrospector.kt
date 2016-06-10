@@ -18,14 +18,14 @@ package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.databind.PropertyName
 import com.fasterxml.jackson.databind.introspect.Annotated
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector
+import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector
 import org.litote.kmongo.util.MongoIdUtil
 import java.lang.reflect.Field
 
 /**
  *
  */
-internal open class KMongoAnnotationIntrospector : JacksonAnnotationIntrospector() {
+internal open class KMongoAnnotationIntrospector : NopAnnotationIntrospector() {
 
     companion object {
         val INTROSPECTOR = KMongoAnnotationIntrospector()

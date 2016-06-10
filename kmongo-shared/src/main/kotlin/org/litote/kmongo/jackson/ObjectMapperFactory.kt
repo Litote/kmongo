@@ -17,7 +17,6 @@ package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import de.undercouch.bson4jackson.BsonParser
 
@@ -42,8 +41,8 @@ internal object ObjectMapperFactory {
 
     fun createFilterIdObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
         val newObjectMapper = objectMapper.copy()
-        newObjectMapper.setFilterProvider(FilterIdIntrospector.IdPropertyFilterProvider)
-        newObjectMapper.setAnnotationIntrospector(AnnotationIntrospectorPair(objectMapper.serializationConfig.annotationIntrospector, FilterIdIntrospector))
+                .setFilterProvider(FilterIdModule.IdPropertyFilterProvider)
+                .registerModule(FilterIdModule())
         return newObjectMapper
     }
 }

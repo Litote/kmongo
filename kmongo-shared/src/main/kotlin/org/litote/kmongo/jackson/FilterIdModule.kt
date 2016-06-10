@@ -19,7 +19,8 @@ package org.litote.kmongo.jackson
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.introspect.Annotated
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector
+import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.ser.BeanPropertyFilter
 import com.fasterxml.jackson.databind.ser.FilterProvider
 import com.fasterxml.jackson.databind.ser.PropertyFilter
@@ -27,10 +28,8 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter
 import org.litote.kmongo.util.MongoIdUtil
 
-/**
- *
- */
-internal object FilterIdIntrospector : KMongoAnnotationIntrospector() {
+
+internal class FilterIdModule : SimpleModule() {
 
     object IdPropertyFilter : SimpleBeanPropertyFilter() {
 
@@ -49,7 +48,6 @@ internal object FilterIdIntrospector : KMongoAnnotationIntrospector() {
 
     object IdPropertyFilterProvider : FilterProvider() {
 
-
         override fun findFilter(filterId: Any): BeanPropertyFilter? {
             throw UnsupportedOperationException()
         }
@@ -59,7 +57,16 @@ internal object FilterIdIntrospector : KMongoAnnotationIntrospector() {
         }
     }
 
-    override fun findFilterId(a: Annotated): Any? {
-        return "_id"
+    object FilterIdIntrospector : NopAnnotationIntrospector() {
+
+        override fun findFilterId(a: Annotated): Any? {
+            return "_id"
+        }
+    }
+
+    override fun setupModule(context: SetupContext) {
+        super.setupModule(context)
+
+        context.appendAnnotationIntrospector(FilterIdIntrospector)
     }
 }
