@@ -16,7 +16,6 @@
 
 package org.litote.kmongo
 
-import org.bson.Document
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.model.Friend
@@ -65,7 +64,6 @@ class MongoIdTest : KMongoBaseTest<Friend>() {
         val withMongoIdCol = col.withDocumentClass<WithMongoId>()
         withMongoIdCol.insertOne(withMongoId)
         assertNotNull(withMongoId.key)
-        println(col.withDocumentClass<Document>().find().first())
         assertEquals(withMongoId.key, withMongoIdCol.findOneById(withMongoId.key!!)!!.key)
     }
 
