@@ -14,22 +14,14 @@ Full documentation here : [http://litote.org/kmongo](http://litote.org/kmongo)
 
 ## Roadmap
 
-### Beta 2 (0.2) / End of june 
-
- * Improve doc
- * @MongoId annotation to support id in other field than _id
- * @ToObjectId annotation to transform String to ObjectId 
- * allow mapper customization
- * create/drop indexes
  
-### Beta 3 (0.3) / End of july 
+### Beta 3 (0.3) / End of june 
 
  * link to KDoc
- * check support of all extended bson types (dates)
  * support bulk operations
- 
-### RC & R / End of august 
-
  * discuss providing json to *Options classes mapping 
+ 
+### RC & R / End of july 
+
  * follow mongo driver versioning
  * simple benchmark
