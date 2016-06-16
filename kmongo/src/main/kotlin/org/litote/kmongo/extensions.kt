@@ -16,6 +16,7 @@
 package org.litote.kmongo
 
 import com.mongodb.ReadPreference
+import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.AggregateIterable
 import com.mongodb.client.DistinctIterable
 import com.mongodb.client.FindIterable
@@ -24,6 +25,7 @@ import com.mongodb.client.MapReduceIterable
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
+import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.CountOptions
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
@@ -45,6 +47,7 @@ import org.litote.kmongo.util.KMongoUtil.setModifier
 import org.litote.kmongo.util.KMongoUtil.toBson
 import org.litote.kmongo.util.KMongoUtil.toBsonList
 import org.litote.kmongo.util.KMongoUtil.toExtendedJson
+import org.litote.kmongo.util.KMongoUtil.toWriteModel
 
 //*******
 //MongoDatabase extension methods
@@ -225,7 +228,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String)
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String, options: InsertOneOptions)
-        = withDocumentClass<BsonDocument>().insertOne(toBson(document), options)
+        = withDocumentClass<BsonDocument>().insertOne(toBson(document, T::class), options)
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -557,6 +560,26 @@ inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexes
  */
 fun <T> MongoCollection<T>.dropIndex(keys: String)
         = dropIndex(toBson(keys))
+
+/**
+ * Executes a mix of inserts, updates, replaces, and deletes.
+
+ * @param requests the writes to execute
+ * @return the result of the bulk write
+ */
+inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String): BulkWriteResult
+        = withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), BulkWriteOptions())
+
+/**
+ * Executes a mix of inserts, updates, replaces, and deletes.
+
+ * @param requests the writes to execute
+ * @param options  the options to apply to the bulk write operation
+ *
+ * @return the result of the bulk write
+ */
+inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String, options: BulkWriteOptions): BulkWriteResult
+        = withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), options)
 
 
 //*******

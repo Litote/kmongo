@@ -16,16 +16,29 @@
 
 package org.litote.kmongo.util
 
+import com.mongodb.client.model.DeleteManyModel
+import com.mongodb.client.model.DeleteOneModel
+import com.mongodb.client.model.InsertOneModel
+import com.mongodb.client.model.ReplaceOneModel
+import com.mongodb.client.model.UpdateManyModel
+import com.mongodb.client.model.UpdateOneModel
+import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.WriteModel
+import org.bson.BsonBoolean
 import org.bson.BsonDocument
+import org.bson.BsonObjectId
+import org.bson.BsonString
 import org.bson.RawBsonDocument
 import org.bson.codecs.BsonArrayCodec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
+import org.bson.types.ObjectId
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
+import kotlin.reflect.defaultType
 
 /**
  * Internal utility methods
@@ -36,9 +49,37 @@ object KMongoUtil {
     private val SPACE_REPLACE_PATTERN = Pattern.compile("\\\$\\s+")
     private val QUOTE_REPLACE_MATCHER = Matcher.quoteReplacement("\$")
 
-
     fun toBson(json: String): BsonDocument
             = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
+
+    fun <T : Any> toBson(json: String, type: KClass<T>): BsonDocument
+            = generateIfAbsentAndMayBeMoveId(toBson(json), type)
+
+    private fun <T : Any> generateIfAbsentAndMayBeMoveId(document: BsonDocument, type: KClass<T>): BsonDocument {
+        if (!document.containsKey("_id")) {
+            val idProperty = MongoIdUtil.findIdProperty(type)
+            if (idProperty != null) {
+                val idValue = document.get(idProperty.name)
+                if (idValue == null) {
+                    val toString = idProperty.returnType.toString()
+                    if (toString.startsWith(ObjectId::class.defaultType.toString())) {
+                        document.put("_id", BsonObjectId(ObjectId.get()))
+                    } else if (toString.startsWith(String::class.defaultType.toString())) {
+                        document.put("_id", BsonString(ObjectId.get().toString()))
+                    } else {
+                        throw IllegalArgumentException("generation for id property type not supported : $idProperty")
+                    }
+                } else {
+                    document.put("_id", idValue)
+                }
+                if (idProperty.name != "_id") {
+                    document.remove(idProperty.name)
+                }
+            }
+        }
+
+        return document
+    }
 
     fun toBsonList(json: Array<out String>, codecRegistry: CodecRegistry): List<Bson>
             =
@@ -77,6 +118,49 @@ object KMongoUtil {
             throw IllegalArgumentException("$obj has to contain _id field")
         } else {
             return MongoIdUtil.getIdValue(idProperty, obj) ?: throw IllegalArgumentException("id is null")
+        }
+    }
+
+    fun <T : Any> toWriteModel(json: Array<out String>, codecRegistry: CodecRegistry, type: KClass<T>): List<WriteModel<BsonDocument>>
+            =
+            if (json.size == 1 && isJsonArray(json[0])) {
+                BsonArrayCodec(codecRegistry).decode(JsonReader(json[0]), DecoderContext.builder().build())
+                        .map { toWriteModel(it as BsonDocument, type) }
+            } else {
+                json.map { toWriteModel(toBson(it), type) }
+            }
+
+    private fun <T : Any> toWriteModel(bson: BsonDocument, type: KClass<T>): WriteModel<BsonDocument> {
+        if (bson.containsKey("insertOne")) {
+            return InsertOneModel(generateIfAbsentAndMayBeMoveId(bson.getDocument("insertOne"), type))
+        } else if (bson.containsKey("updateOne")) {
+            val updateOne = bson.getDocument("updateOne")
+            return UpdateOneModel<BsonDocument>(
+                    updateOne.getDocument("filter"),
+                    updateOne.getDocument("update"),
+                    UpdateOptions().upsert(updateOne.getBoolean("upsert", BsonBoolean.FALSE).value))
+        } else if (bson.containsKey("updateMany")) {
+            val updateMany = bson.getDocument("updateMany")
+            return UpdateManyModel<BsonDocument>(
+                    updateMany.getDocument("filter"),
+                    updateMany.getDocument("update"),
+                    UpdateOptions().upsert(updateMany.getBoolean("upsert", BsonBoolean.FALSE).value))
+        } else if (bson.containsKey("replaceOne")) {
+            val replaceOne = bson.getDocument("replaceOne")
+            return ReplaceOneModel<BsonDocument>(
+                    replaceOne.getDocument("filter"),
+                    replaceOne.getDocument("replacement"),
+                    UpdateOptions().upsert(replaceOne.getBoolean("upsert", BsonBoolean.FALSE).value))
+        } else if (bson.containsKey("deleteOne")) {
+            val deleteOne = bson.getDocument("deleteOne")
+            return DeleteOneModel<BsonDocument>(
+                    deleteOne.getDocument("filter"))
+        } else if (bson.containsKey("deleteMany")) {
+            val deleteMany = bson.getDocument("deleteMany")
+            return DeleteManyModel<BsonDocument>(
+                    deleteMany.getDocument("filter"))
+        } else {
+            throw IllegalArgumentException("unknown write model : $bson")
         }
     }
 

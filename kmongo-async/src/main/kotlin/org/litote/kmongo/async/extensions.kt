@@ -24,6 +24,8 @@ import com.mongodb.async.client.MapReduceIterable
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.async.client.MongoDatabase
 import com.mongodb.async.client.MongoIterable
+import com.mongodb.bulk.BulkWriteResult
+import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.CountOptions
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
@@ -35,7 +37,6 @@ import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
-import org.litote.kmongo.MongoId
 import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
@@ -44,6 +45,7 @@ import org.litote.kmongo.util.KMongoUtil.idFilterQuery
 import org.litote.kmongo.util.KMongoUtil.setModifier
 import org.litote.kmongo.util.KMongoUtil.toBson
 import org.litote.kmongo.util.KMongoUtil.toBsonList
+import org.litote.kmongo.util.KMongoUtil.toWriteModel
 
 
 //*******
@@ -224,7 +226,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String, noin
  * @throws com.mongodb.MongoException             returned via the callback
  */
 inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String, options: InsertOneOptions, noinline callback: (Void?, Throwable?) -> Unit)
-        = withDocumentClass<BsonDocument>().insertOne(toBson(document), options, callback)
+        = withDocumentClass<BsonDocument>().insertOne(toBson(document, T::class), options, callback)
 
 
 /**
@@ -548,6 +550,27 @@ inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexes
  */
 fun <T> MongoCollection<T>.dropIndex(keys: String, callback: (Void?, Throwable?) -> Unit)
         = dropIndex(toBson(keys), callback)
+
+
+/**
+ * Executes a mix of inserts, updates, replaces, and deletes.
+
+ * @param requests the writes to execute
+ * @param callback the callback passed the result of the bulk write
+ */
+inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String, noinline callback: (BulkWriteResult?, Throwable?) -> Unit)
+        = withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), BulkWriteOptions(), callback)
+
+/**
+ * Executes a mix of inserts, updates, replaces, and deletes.
+
+ * @param requests the writes to execute
+ * @param options  the options to apply to the bulk write operation
+ * @param callback the callback passed the result of the bulk write
+ */
+inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String, options: BulkWriteOptions, noinline callback: (BulkWriteResult?, Throwable?) -> Unit)
+        = withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), options, callback)
+
 
 //*******
 //IndexModel extension methods

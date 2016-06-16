@@ -16,12 +16,15 @@
 
 package org.litote.kmongo
 
+import org.bson.Document
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  *
@@ -31,6 +34,8 @@ class MongoIdTest : KMongoBaseTest<Friend>() {
     class StringId(val _id: String? = null)
 
     class WithMongoId(@MongoId val key: ObjectId? = null)
+
+    class WithMongoStringId(@MongoId val key: String? = null)
 
     class CompositeId(val _id: Key?)
 
@@ -65,6 +70,54 @@ class MongoIdTest : KMongoBaseTest<Friend>() {
         withMongoIdCol.insertOne(withMongoId)
         assertNotNull(withMongoId.key)
         assertEquals(withMongoId.key, withMongoIdCol.findOneById(withMongoId.key!!)!!.key)
+        assertFalse(col.withDocumentClass<Document>().findOneById(withMongoId.key)!!.containsKey("key"))
+    }
+
+    @Test
+    fun testJsonKeyObjectIdSetByKMongo() {
+        val withMongoId = WithMongoId(ObjectId())
+        val withMongoIdCol = col.withDocumentClass<WithMongoId>()
+        withMongoIdCol.insertOne(withMongoId.json)
+        assertEquals(withMongoId.key, withMongoIdCol.findOneById(withMongoId.key!!)!!.key)
+        assertFalse(col.withDocumentClass<Document>().findOneById(withMongoId.key)!!.containsKey("key"))
+    }
+
+    @Test
+    fun testJsonKeyObjectIdSetByHand() {
+        val withMongoId = WithMongoId(ObjectId())
+        val withMongoIdCol = col.withDocumentClass<WithMongoId>()
+        withMongoIdCol.insertOne("{key:${withMongoId.key!!.json}}")
+        assertEquals(withMongoId.key, withMongoIdCol.findOneById(withMongoId.key)!!.key)
+        assertFalse(col.withDocumentClass<Document>().findOneById(withMongoId.key)!!.containsKey("key"))
+    }
+
+    @Test
+    fun testJsonKeyStringSetByKMongo() {
+        val withMongoId = WithMongoStringId("keyValue")
+        val withMongoIdCol = col.withDocumentClass<WithMongoStringId>()
+        withMongoIdCol.insertOne(withMongoId.json)
+        assertEquals(withMongoId.key, withMongoIdCol.findOneById(withMongoId.key!!)!!.key)
+        assertFalse(col.withDocumentClass<Document>().findOneById(withMongoId.key)!!.containsKey("key"))
+        assertTrue(col.withDocumentClass<Document>().findOneById(withMongoId.key)!!.get("_id") is String)
+    }
+
+    @Test
+    fun testJsonKeyStringSetByHand() {
+        val withMongoId = WithMongoStringId("keyValue")
+        val withMongoIdCol = col.withDocumentClass<WithMongoStringId>()
+        withMongoIdCol.insertOne("{key:${withMongoId.key!!.json}}")
+        assertEquals(withMongoId.key, withMongoIdCol.findOneById(withMongoId.key)!!.key)
+        assertFalse(col.withDocumentClass<Document>().findOneById(withMongoId.key)!!.containsKey("key"))
+        assertTrue(col.withDocumentClass<Document>().findOneById(withMongoId.key)!!.get("_id") is String)
+    }
+
+    @Test
+    fun testJsonKeyGeneration() {
+        val withMongoIdCol = col.withDocumentClass<WithMongoStringId>()
+        withMongoIdCol.insertOne("{}")
+        assertTrue(withMongoIdCol.findOne()!!.key!! is String)
+        assertTrue(col.withDocumentClass<Document>().findOne()!!.get("_id") is String)
+        assertFalse(col.withDocumentClass<Document>().findOne()!!.containsKey("key"))
     }
 
     @Test

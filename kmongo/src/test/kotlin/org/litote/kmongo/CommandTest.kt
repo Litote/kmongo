@@ -19,7 +19,6 @@ package org.litote.kmongo
 import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.model.Friend
-import org.litote.kmongo.util.KMongoUtil
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -54,7 +53,7 @@ class CommandTest : KMongoBaseTest<Friend>() {
 
     @Test
     fun canRunAGeoNearCommand() {
-        col.createIndex(KMongoUtil.toBson("{loc:'2d'}"))
+        col.createIndex("{loc:'2d'}")
         col.insertOne("{loc:{lat:48.690833,lng:9.140556}, name:'Paris'}")
         val r = database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}")
         val locations = r.results
@@ -65,7 +64,7 @@ class CommandTest : KMongoBaseTest<Friend>() {
 
     @Test
     fun canRunAnEmptyResultCommand() {
-        col.createIndex(KMongoUtil.toBson("{loc:'2d'}"))
+        col.createIndex("{loc:'2d'}")
         val r = database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}")
         assertTrue (r.results.isEmpty())
     }

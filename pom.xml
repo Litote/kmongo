@@ -155,7 +155,7 @@
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
-                <artifactId>bson</artifactId>
+                <artifactId>mongodb-driver-core</artifactId>
                 <version>${mongo.version}</version>
             </dependency>
         </dependencies>
