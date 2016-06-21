@@ -16,6 +16,9 @@
 
 package org.litote.kmongo
 
+import com.mongodb.client.model.Aggregates.match
+import com.mongodb.client.model.Aggregates.sample
+import com.mongodb.client.model.Filters.lt
 import org.bson.types.ObjectId
 import org.junit.Before
 import org.junit.Test
@@ -70,8 +73,15 @@ class UsageTest : KMongoBaseTest<Jedi>() {
                                             {$sample:{size:1}}
                                           ]""").first()
 
+        val luke2 = col.aggregate<Jedi>(
+                match(
+                    lt("age", yoda.age)),
+                    sample(1))
+                .first()
+
         assertEquals("Luke Skywalker", luke.name)
         assertEquals("Yoda", yoda.name)
+        assertEquals(luke, luke2)
     }
 
     @Test

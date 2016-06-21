@@ -37,6 +37,7 @@ import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
+import org.bson.conversions.Bson
 import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
@@ -185,6 +186,18 @@ fun <T> MongoCollection<T>.findOneById(id: Any, callback: (T?, Throwable?) -> Un
  */
 inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregateIterable<TResult>
         = aggregate(toBsonList(pipeline, codecRegistry), TResult::class.java)
+
+/**
+ * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
+ * iterable will be a query of the collection that the aggregation was written to.  Note that in this case the pipeline will be
+ * executed even if the iterable is never iterated.
+ *
+ * @param pipeline    the aggregate pipeline
+ * @param <TResult>   the target document type of the iterable
+ * @return an iterable containing the result of the aggregation operation
+ */
+inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregateIterable<TResult>
+        = aggregate(pipeline.toList(), TResult::class.java)
 
 /**
  * Aggregates documents according to the specified map-reduce function.
