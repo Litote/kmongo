@@ -35,13 +35,13 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.0.2</kotlin.version>
-        <mongo.version>3.2.2</mongo.version>
-        <jackson.version>2.7.4</jackson.version>
+        <kotlin.version>1.0.3</kotlin.version>
+        <mongo.version>3.3.0</mongo.version>
+        <jackson.version>2.8.1</jackson.version>
         <bson4jackson.version>2.7.0</bson4jackson.version>
 
         <!-- test dependencies -->
-        <flapdoodle.version>1.50.3</flapdoodle.version>
+        <flapdoodle.version>1.50.5</flapdoodle.version>
         <sl4j.version>1.7.21</sl4j.version>
         <junit.version>4.12</junit.version>
 
