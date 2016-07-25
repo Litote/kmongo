@@ -50,7 +50,7 @@
         <plugin.jar.version>2.6</plugin.jar.version>
         <plugin.source.version>3.0.0</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
-        <plugin.dokka.version>0.9.8</plugin.dokka.version>
+        <plugin.dokka.version>0.9.9</plugin.dokka.version>
         <plugin.gpg.version>1.5</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.3</plugin.nexus-staging.version>
 
