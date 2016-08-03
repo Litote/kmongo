@@ -26,6 +26,7 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.MongoId
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.memberProperties
 
 /**
@@ -42,8 +43,10 @@ internal object MongoIdUtil {
     fun getAnnotatedMongoIdProperty(type: KClass<*>): KProperty1<*, *>?
             = type.memberProperties.find { it.annotations.any { it is MongoId } }
 
-    fun getIdValue(idProperty: KProperty1<*, *>, instance: Any): Any?
-            = (idProperty)(instance)
+    fun getIdValue(idProperty: KProperty1<*, *>, instance: Any): Any? {
+        idProperty.isAccessible = true
+        return (idProperty)(instance)
+    }
 
     fun getIdBsonValue(idProperty: KProperty1<*, *>, instance: Any): BsonValue? {
         val idValue = (idProperty)(instance)

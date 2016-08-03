@@ -47,10 +47,10 @@ abstract class KMongoBaseTest<T : Any> {
                 = database.getCollection(KMongoUtil.defaultCollectionName(clazz), clazz.java)
 
         inline fun <reified T : Any> dropCollection()
-                = dropCollection (KMongoUtil.defaultCollectionName(T::class))
+                = dropCollection(KMongoUtil.defaultCollectionName(T::class))
 
         fun dropCollection(clazz: KClass<*>)
-                = dropCollection (KMongoUtil.defaultCollectionName(clazz))
+                = dropCollection(KMongoUtil.defaultCollectionName(clazz))
 
         fun dropCollection(collectionName: String) {
             database.getCollection(collectionName).drop()

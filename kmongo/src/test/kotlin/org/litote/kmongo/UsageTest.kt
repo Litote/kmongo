@@ -74,9 +74,8 @@ class UsageTest : KMongoBaseTest<Jedi>() {
                                           ]""").first()
 
         val luke2 = col.aggregate<Jedi>(
-                match(
-                    lt("age", yoda.age)),
-                    sample(1))
+                match(lt("age", yoda.age)),
+                sample(1))
                 .first()
 
         assertEquals("Luke Skywalker", luke.name)
