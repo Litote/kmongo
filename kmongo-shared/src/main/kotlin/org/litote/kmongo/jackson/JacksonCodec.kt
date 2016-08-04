@@ -69,7 +69,7 @@ internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
     }
 
     override fun getDocumentId(document: T): BsonValue {
-        val idProperty = MongoIdUtil.findIdProperty(type.kotlin)
+        val idProperty = MongoIdUtil.findIdProperty(document.javaClass.kotlin)
         if (idProperty == null) {
             throw IllegalStateException("$type has no id field")
         } else {
@@ -79,10 +79,10 @@ internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
     }
 
     override fun documentHasId(document: T): Boolean
-            = MongoIdUtil.findIdProperty(type.kotlin) != null
+            = MongoIdUtil.findIdProperty(document.javaClass.kotlin) != null
 
     override fun generateIdIfAbsentFromDocument(document: T): T {
-        val idProperty = MongoIdUtil.findIdProperty(type.kotlin)
+        val idProperty = MongoIdUtil.findIdProperty(document.javaClass.kotlin)
         if (idProperty != null) {
             val idValue = MongoIdUtil.getIdValue(idProperty, document)
             if (idValue == null) {

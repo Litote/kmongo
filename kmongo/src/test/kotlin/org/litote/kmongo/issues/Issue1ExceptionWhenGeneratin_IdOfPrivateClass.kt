@@ -24,9 +24,9 @@ import org.litote.kmongo.KMongoBaseTest
 import kotlin.test.assertNotNull
 
 /**
- * [Exception when generating _id of private class] https://github.com/Litote/kmongo/issues/1)
+ * [Exception when generating _id of private class](https://github.com/Litote/kmongo/issues/1)
  */
-class Issue1 {
+class Issue1ExceptionWhenGeneratin_IdOfPrivateClass {
 
     private data class PrivateClass(val _id: String? = null)
 
