@@ -19,8 +19,9 @@ package org.litote.kmongo.jackson
 import com.fasterxml.jackson.databind.PropertyName
 import com.fasterxml.jackson.databind.introspect.Annotated
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector
-import org.litote.kmongo.util.MongoIdUtil
+import org.litote.kmongo.MongoId
 import java.lang.reflect.Field
+import kotlin.reflect.jvm.kotlinProperty
 
 /**
  *
@@ -50,7 +51,6 @@ internal open class KMongoAnnotationIntrospector : NopAnnotationIntrospector() {
         if (field !is Field) {
             return false
         }
-        val p = MongoIdUtil.getAnnotatedMongoIdProperty(field.declaringClass.kotlin)
-        return p != null && p.name == a.name
+        return field.kotlinProperty?.annotations?.any { it is MongoId } ?: false
     }
 }
