@@ -26,22 +26,23 @@ import kotlin.reflect.jvm.kotlinProperty
 /**
  *
  */
-internal open class KMongoAnnotationIntrospector : NopAnnotationIntrospector() {
+internal class KMongoAnnotationIntrospector : NopAnnotationIntrospector() {
 
     companion object {
         val INTROSPECTOR = KMongoAnnotationIntrospector()
+        val ID_PROPERTY_NAME: PropertyName = PropertyName.construct("_id")
     }
 
     override fun findNameForDeserialization(a: Annotated): PropertyName? {
         if (isAnnotatedWithMongoId(a)) {
-            return PropertyName("_id")
+            return ID_PROPERTY_NAME
         }
         return super.findNameForDeserialization(a)
     }
 
     override fun findNameForSerialization(a: Annotated): PropertyName? {
         if (isAnnotatedWithMongoId(a)) {
-            return PropertyName("_id")
+            return ID_PROPERTY_NAME
         }
         return super.findNameForSerialization(a)
     }
@@ -49,6 +50,10 @@ internal open class KMongoAnnotationIntrospector : NopAnnotationIntrospector() {
     private fun isAnnotatedWithMongoId(a: Annotated): Boolean {
         val field = a.annotated
         if (field !is Field) {
+            return false
+        }
+        //fix kotlin reflection issue with enum
+        if (field.declaringClass.isEnum) {
             return false
         }
         return field.kotlinProperty?.annotations?.any { it is MongoId } ?: false
