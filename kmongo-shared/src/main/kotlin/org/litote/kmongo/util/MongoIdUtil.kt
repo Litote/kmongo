@@ -26,6 +26,7 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.MongoId
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+import kotlin.reflect.KotlinReflectionInternalError
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.memberProperties
 
@@ -34,14 +35,27 @@ import kotlin.reflect.memberProperties
  */
 internal object MongoIdUtil {
 
+    //TODO need to cache something here
     fun findIdProperty(type: KClass<*>): KProperty1<*, *>?
             = getAnnotatedMongoIdProperty(type) ?: getIdProperty(type)
 
     private fun getIdProperty(type: KClass<*>): KProperty1<*, *>?
-            = type.memberProperties.find { "_id" == it.name }
+            =
+            try {
+                type.memberProperties.find { "_id" == it.name }
+            } catch(error: KotlinReflectionInternalError) {
+                //ignore
+                null
+            }
 
     fun getAnnotatedMongoIdProperty(type: KClass<*>): KProperty1<*, *>?
-            = type.memberProperties.find { it.annotations.any { it is MongoId } }
+            =
+            try {
+                type.memberProperties.find { it.annotations.any { it is MongoId } }
+            } catch(error: KotlinReflectionInternalError) {
+                //ignore
+                null
+            }
 
     fun getIdValue(idProperty: KProperty1<*, *>, instance: Any): Any? {
         idProperty.isAccessible = true

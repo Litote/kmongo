@@ -422,7 +422,13 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, noinline ca
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, callback: (UpdateResult?, Throwable?) -> Unit)
-        = updateOne(idFilterQuery(id), setModifier(update), UpdateOptions(), callback)
+        =
+        //strange but update can be a String
+        if (update is String) {
+            updateOneById(idFilterQuery(id), update, callback)
+        } else {
+            updateOne(idFilterQuery(id), setModifier(update), UpdateOptions(), callback)
+        }
 
 /**
  * Update all documents in the collection according to the specified arguments.

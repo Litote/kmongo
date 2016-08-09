@@ -415,7 +415,6 @@ fun <T> MongoCollection<T>.updateOneById(id: Any, update: String): UpdateResult
 inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T): UpdateResult
         = updateOneById(extractId(target, T::class), target)
 
-
 /**
  * Update a single document in the collection according to the specified arguments.
  *
@@ -429,7 +428,13 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T): UpdateResu
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any): UpdateResult
-        = updateOne(idFilterQuery(id), setModifier(update), UpdateOptions())
+        =
+        //strange but update can be a String
+        if (update is String) {
+            updateOneById(idFilterQuery(id), update)
+        } else {
+            updateOne(idFilterQuery(id), setModifier(update), UpdateOptions())
+        }
 
 /**
  * Update all documents in the collection according to the specified arguments.
