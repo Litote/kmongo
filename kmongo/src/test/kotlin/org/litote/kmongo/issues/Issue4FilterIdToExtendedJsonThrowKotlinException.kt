@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 
 
 /**
- * [filterIdToExtendedJson throw Kotlin exception](https://github.com/Litote/kmongo/issues/3)
+ * [filterIdToExtendedJson throw Kotlin exception](https://github.com/Litote/kmongo/issues/4)
  */
 class Issue4FilterIdToExtendedJsonThrowKotlinException : KMongoBaseTest<ClassWithValue>() {
 
