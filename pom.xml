@@ -21,7 +21,7 @@
 
     <groupId>org.litote.kmongo</groupId>
     <artifactId>kmongo-root</artifactId>
-    <version>3.3.3-SNAPSHOT</version>
+    <version>3.3.3</version>
     <packaging>pom</packaging>
     <name>KMongo</name>
     <description>Mongo client for Kotlin</description>
@@ -290,7 +290,7 @@
         <connection>scm:git:git@github.com:Litote/kmongo.git</connection>
         <developerConnection>scm:git:git@github.com:Litote/kmongo.git</developerConnection>
         <url>git@github.com:Litote/kmongo.git</url>
-      <tag>HEAD</tag>
+      <tag>kmongo-3.3.3</tag>
   </scm>
 
     <inceptionYear>2016</inceptionYear>
