@@ -34,7 +34,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.LocalTime.MIDNIGHT
 import java.time.OffsetDateTime
 import java.time.OffsetTime
 import java.time.ZoneId
@@ -152,7 +151,7 @@ internal class ExtendedJsonModule : SimpleModule() {
     internal object LocalDateExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDate>() {
 
         override fun epochMillis(temporal: LocalDate): Long
-                = LocalDateTimeExtendedJsonSerializer.epochMillis(temporal.atTime(MIDNIGHT))
+                = LocalDateTimeExtendedJsonSerializer.epochMillis(temporal.atStartOfDay())
     }
 
     internal object LocalDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDateTime>() {

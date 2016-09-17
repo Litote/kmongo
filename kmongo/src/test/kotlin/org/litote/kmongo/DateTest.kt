@@ -16,6 +16,7 @@
 
 package org.litote.kmongo
 
+import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.DateTest.DateValue
 import java.time.Instant
@@ -27,8 +28,10 @@ import java.time.OffsetTime
 import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
+import java.util.TimeZone
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  *
@@ -38,7 +41,10 @@ class DateTest : KMongoBaseTest<DateValue>() {
     data class DateValue(val date: Date?, val calendar: Calendar?,
                          val localDateTime: LocalDateTime?, val localDate: LocalDate?, val localTime: LocalTime?,
                          val zonedDateTime: ZonedDateTime?, val offsetDateTime: OffsetDateTime?, var offsetTime: OffsetTime?,
-                         val instant: Instant?)
+                         val instant: Instant?) {
+        constructor() : this(Date(), Calendar.getInstance(), LocalDateTime.now(), LocalDate.now(), LocalTime.now(),
+                ZonedDateTime.now(), OffsetDateTime.now(), OffsetTime.now(), Instant.now())
+    }
 
     override fun getDefaultCollectionClass(): KClass<DateValue> {
         return DateValue::class
@@ -46,8 +52,7 @@ class DateTest : KMongoBaseTest<DateValue>() {
 
     @Test
     fun testInsertAndLoad() {
-        val value = DateValue(Date(), Calendar.getInstance(), LocalDateTime.now(), LocalDate.now(), LocalTime.now(),
-                ZonedDateTime.now(), OffsetDateTime.now(), OffsetTime.now(), Instant.now())
+        val value = DateValue()
         col.insertOne(value)
         val loadedValue = col.findOne()
         //set correct offset (now != 1970 !)
@@ -58,8 +63,7 @@ class DateTest : KMongoBaseTest<DateValue>() {
 
     @Test
     fun testInsertJsonAndLoad() {
-        val value = DateValue(Date(), Calendar.getInstance(), LocalDateTime.now(), LocalDate.now(), LocalTime.now(),
-                ZonedDateTime.now(), OffsetDateTime.now(), OffsetTime.now(), Instant.now())
+        val value = DateValue()
         col.insertOne(value.json)
         val loadedValue = col.findOne()
         //set correct offset (now != 1970 !)
@@ -74,5 +78,30 @@ class DateTest : KMongoBaseTest<DateValue>() {
         col.insertOne(value.json)
         val loadedValue = col.findOne()
         assertEquals(value, loadedValue)
+    }
+
+    @Test
+    fun testDateStorageInMongo() {
+        val defaultTimezone = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"))
+        try {
+            val value = DateValue()
+            col.insertOne(value)
+            val loadedValue = col.withDocumentClass<Document>().findOne()!!
+            val date = loadedValue.get("date").toString()
+            assertEquals(date, loadedValue.get("calendar").toString())
+            assertEquals(date, loadedValue.get("localDateTime").toString())
+            assertEquals(date, loadedValue.get("zonedDateTime").toString())
+            assertEquals(date, loadedValue.get("offsetDateTime").toString())
+            assertEquals(date, loadedValue.get("instant").toString())
+
+            assertEquals(date.substring(0, 11), loadedValue.get("localDate").toString().substring(0, 11))
+            assertTrue(loadedValue.get("localDate").toString().contains("00:00:00"))
+
+            assertEquals(date.substring(11, 19), loadedValue.get("localTime").toString().substring(11, 19))
+            assertEquals(date.substring(11, 19), loadedValue.get("offsetTime").toString().substring(11, 19))
+        } finally {
+            TimeZone.setDefault(defaultTimezone)
+        }
     }
 }
