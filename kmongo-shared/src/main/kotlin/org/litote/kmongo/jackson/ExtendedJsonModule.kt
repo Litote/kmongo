@@ -30,13 +30,13 @@ import org.bson.types.Binary
 import org.bson.types.MaxKey
 import org.bson.types.MinKey
 import org.bson.types.ObjectId
+import org.litote.kmongo.jackson.BsonModule.Companion.mongoZoneId
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.OffsetTime
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
@@ -151,13 +151,13 @@ internal class ExtendedJsonModule : SimpleModule() {
     internal object LocalDateExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDate>() {
 
         override fun epochMillis(temporal: LocalDate): Long
-                = LocalDateTimeExtendedJsonSerializer.epochMillis(temporal.atStartOfDay())
+                = ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal.atStartOfDay(mongoZoneId))
     }
 
     internal object LocalDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDateTime>() {
 
         override fun epochMillis(temporal: LocalDateTime): Long
-                = ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal.atZone(ZoneId.systemDefault()))
+                = ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal.atZone(mongoZoneId))
     }
 
     internal object LocalTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalTime>() {

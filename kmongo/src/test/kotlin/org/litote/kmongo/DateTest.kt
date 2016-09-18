@@ -25,6 +25,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.OffsetTime
+import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
@@ -40,10 +42,13 @@ class DateTest : KMongoBaseTest<DateValue>() {
 
     data class DateValue(val date: Date?, val calendar: Calendar?,
                          val localDateTime: LocalDateTime?, val localDate: LocalDate?, val localTime: LocalTime?,
-                         val zonedDateTime: ZonedDateTime?, val offsetDateTime: OffsetDateTime?, var offsetTime: OffsetTime?,
+                         var zonedDateTime: ZonedDateTime?, var offsetDateTime: OffsetDateTime?, var offsetTime: OffsetTime?,
                          val instant: Instant?) {
-        constructor() : this(Date(), Calendar.getInstance(), LocalDateTime.now(), LocalDate.now(), LocalTime.now(),
-                ZonedDateTime.now(), OffsetDateTime.now(), OffsetTime.now(), Instant.now())
+
+        constructor() : this(UTC)
+
+        constructor(offset: ZoneOffset) : this(Date(), Calendar.getInstance(), LocalDateTime.now(), LocalDate.now(), LocalTime.now(),
+                ZonedDateTime.now(offset), OffsetDateTime.now(offset), OffsetTime.now(offset), Instant.now())
     }
 
     override fun getDefaultCollectionClass(): KClass<DateValue> {
@@ -55,8 +60,19 @@ class DateTest : KMongoBaseTest<DateValue>() {
         val value = DateValue()
         col.insertOne(value)
         val loadedValue = col.findOne()
-        //set correct offset (now != 1970 !)
-        loadedValue!!.offsetTime = loadedValue.offsetTime!!.withOffsetSameInstant(value.offsetTime!!.offset)
+
+        assertEquals(value, loadedValue)
+    }
+
+    @Test
+    fun testGMT1InsertAndLoad() {
+        val offset = ZoneOffset.of("+1")
+        val value = DateValue(offset)
+        col.insertOne(value)
+        val loadedValue = col.findOne()!!
+        loadedValue.offsetDateTime = loadedValue.offsetDateTime!!.withOffsetSameInstant(offset)
+        loadedValue.offsetTime = loadedValue.offsetTime!!.withOffsetSameInstant(offset)
+        loadedValue.zonedDateTime = loadedValue.zonedDateTime!!.withZoneSameInstant(offset)
 
         assertEquals(value, loadedValue)
     }
@@ -66,8 +82,6 @@ class DateTest : KMongoBaseTest<DateValue>() {
         val value = DateValue()
         col.insertOne(value.json)
         val loadedValue = col.findOne()
-        //set correct offset (now != 1970 !)
-        loadedValue!!.offsetTime = loadedValue.offsetTime!!.withOffsetSameInstant(value.offsetTime!!.offset)
 
         assertEquals(value, loadedValue)
     }
@@ -81,27 +95,48 @@ class DateTest : KMongoBaseTest<DateValue>() {
     }
 
     @Test
-    fun testDateStorageInMongo() {
+    fun testUTCDateStorageInMongoWithUTCCurrentTimeZone() {
+        testUTCDateStorage(0, "GMT", "00:00:00")
+    }
+
+    @Test
+    fun testUTCDateStorageInMongoWithGMT1CurrentTimeZone() {
+        testUTCDateStorage(1, "GMT+1:00", "01:00:00")
+    }
+
+    @Test
+    fun testUTCDateStorageInMongoWithGMTminus1CurrentTimeZone() {
+        testUTCDateStorage(-1, "GMT-1:00", "23:00:00")
+    }
+
+    private fun testUTCDateStorage(modifier: Int, timezone: String, timeDate: String) {
         val defaultTimezone = TimeZone.getDefault()
-        TimeZone.setDefault(TimeZone.getTimeZone("GMT"))
+        TimeZone.setDefault(TimeZone.getTimeZone(timezone))
         try {
             val value = DateValue()
             col.insertOne(value)
             val loadedValue = col.withDocumentClass<Document>().findOne()!!
-            val date = loadedValue.get("date").toString()
-            assertEquals(date, loadedValue.get("calendar").toString())
-            assertEquals(date, loadedValue.get("localDateTime").toString())
-            assertEquals(date, loadedValue.get("zonedDateTime").toString())
-            assertEquals(date, loadedValue.get("offsetDateTime").toString())
-            assertEquals(date, loadedValue.get("instant").toString())
+            val date = loadedValue.get("date") as Date
+            val dateToString = date.toString()
+            assertEquals(dateToString, loadedValue.get("calendar").toString())
+            assertEquals(dateToString, loadedValue.get("zonedDateTime").toString())
+            assertEquals(dateToString, loadedValue.get("offsetDateTime").toString())
+            assertEquals(dateToString, loadedValue.get("instant").toString())
+            assertEquals(dateToString.substring(11, 19), loadedValue.get("offsetTime").toString().substring(11, 19))
 
-            assertEquals(date.substring(0, 11), loadedValue.get("localDate").toString().substring(0, 11))
-            assertTrue(loadedValue.get("localDate").toString().contains("00:00:00"))
+            assertTrue(loadedValue.get("localDate").toString().contains(timeDate))
 
-            assertEquals(date.substring(11, 19), loadedValue.get("localTime").toString().substring(11, 19))
-            assertEquals(date.substring(11, 19), loadedValue.get("offsetTime").toString().substring(11, 19))
+            val localDateTime = loadedValue.get("localDateTime") as Date
+            assertEquals(date.hours, hour(localDateTime.hours - modifier))
+            assertEquals(dateToString.substring(13, 19), localDateTime.toString().substring(13, 19))
+
+            val localTime = loadedValue.get("localTime") as Date
+            assertEquals(date.hours, hour(localTime.hours - modifier))
+            assertEquals(dateToString.substring(13, 19), localTime.toString().substring(13, 19))
         } finally {
             TimeZone.setDefault(defaultTimezone)
         }
     }
+
+    private fun hour(hour: Int): Int = if (hour < 0) 24 - hour else if (hour > 23) hour - 24 else hour
 }
