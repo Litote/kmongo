@@ -167,4 +167,9 @@ object KMongoUtil {
     fun defaultCollectionName(clazz: KClass<*>): String
             = KMongoConfiguration.defaultCollectionNameBuilder.invoke(clazz)
 
+    fun getIdValue(value: Any): Any? {
+        val idProperty = MongoIdUtil.findIdProperty(value.javaClass.kotlin)
+        return if (idProperty == null) null else MongoIdUtil.getIdValue(idProperty, value)
+    }
+
 }

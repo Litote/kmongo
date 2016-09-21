@@ -284,6 +284,27 @@ fun <T> MongoCollection<T>.deleteMany(filter: String, callback: (DeleteResult?, 
         = deleteMany(toBson(filter), callback)
 
 /**
+ * Save the document.
+ * If the document has no id field, or if the document has a null id value, insert the document.
+ * Otherwise, call [replaceOneById] with upsert true.
+ *
+ * @param document the document to save
+ * @param callback the callback passed the result of the save operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+fun <T : Any> MongoCollection<T>.save(document: T, callback: (Void?, Throwable?) -> Unit) {
+    val id = KMongoUtil.getIdValue(document)
+    if (id != null) {
+        replaceOneById(id, document, UpdateOptions().upsert(true), { r, t -> callback.invoke(null, t) })
+    } else {
+        insertOne(document, callback)
+    }
+}
+
+/**
  * Replace a document in the collection according to the specified arguments.
  *
  * @param id          the object id
@@ -310,7 +331,7 @@ fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, callbac
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
-        = replaceOne(idFilterQuery(id), replacement, UpdateOptions(), callback)
+        = replaceOne(idFilterQuery(id), replacement, options, callback)
 
 /**
  * Replace a document in the collection according to the specified arguments.

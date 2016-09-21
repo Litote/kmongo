@@ -140,6 +140,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
 fun <T> MongoCollection<T>.find(filter: String = EMPTY_JSON): FindIterable<T>
         = find(toBson(filter))
 
+
 /**
  * Finds the first document that match the filter in the collection.
  *
@@ -247,6 +248,27 @@ fun <T> MongoCollection<T>.deleteOneById(id: Any): DeleteResult
  */
 fun <T> MongoCollection<T>.deleteMany(filter: String): DeleteResult
         = deleteMany(toBson(filter))
+
+/**
+ * Save the document.
+ * If the document has no id field, or if the document has a null id value, insert the document.
+ * Otherwise, call [replaceOneById] with upsert true.
+ *
+ * @param document the document to save
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+fun <T : Any> MongoCollection<T>.save(document: T) {
+    val id = KMongoUtil.getIdValue(document)
+    if (id != null) {
+        replaceOneById(id, document, UpdateOptions().upsert(true))
+    } else {
+        insertOne(document)
+    }
+}
+
 
 /**
  * Replace a document in the collection according to the specified arguments.
