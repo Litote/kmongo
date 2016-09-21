@@ -17,6 +17,7 @@
 package org.litote.kmongo
 
 import com.mongodb.ReadPreference
+import com.mongodb.client.model.Filters
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.oid
@@ -33,6 +34,13 @@ class FindOneTest : KMongoBaseTest<Friend>() {
     fun canFindOne() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"))
         val friend = col.findOne("{name:'John'}")
+        assertEquals("John", friend!!.name)
+    }
+
+    @Test
+    fun canFindOneBson() {
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
+        val friend = col.findOne(Filters.eq("name", "John"))
         assertEquals("John", friend!!.name)
     }
 

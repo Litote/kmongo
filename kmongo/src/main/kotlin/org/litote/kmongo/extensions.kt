@@ -151,6 +151,15 @@ fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T?
         = find(filter).first()
 
 /**
+ * Finds the first document that match the filter in the collection.
+ *
+ * @param filter the query filter
+ * @return the first item returned or null
+ */
+fun <T> MongoCollection<T>.findOne(filter: Bson): T?
+        = find(filter).first()
+
+/**
  * Finds the document that match the [ObjectId] parameter.
  *
  * @param id       the object id

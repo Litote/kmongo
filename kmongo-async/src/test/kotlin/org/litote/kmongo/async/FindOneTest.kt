@@ -16,6 +16,7 @@
 package org.litote.kmongo.async
 
 import com.mongodb.ReadPreference
+import com.mongodb.client.model.Filters
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.oid
@@ -33,6 +34,17 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"),
                 { r, t ->
                     col.findOne("{name:'John'}", {
+                        friend, throwable ->
+                        asyncTest { assertEquals("John", friend!!.name) }
+                    })
+                })
+    }
+
+    @Test
+    fun canFindOneBson() {
+        col.insertOne(Friend("John", "22 Wall Street Avenue"),
+                { r, t ->
+                    col.findOne(Filters.eq("name", "John"), {
                         friend, throwable ->
                         asyncTest { assertEquals("John", friend!!.name) }
                     })
