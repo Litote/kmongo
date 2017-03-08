@@ -21,7 +21,7 @@
 
     <groupId>org.litote.kmongo</groupId>
     <artifactId>kmongo-root</artifactId>
-    <version>3.3.6-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>KMongo</name>
     <description>Mongo client for Kotlin</description>
@@ -35,24 +35,24 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.0.3</kotlin.version>
-        <mongo.version>3.3.0</mongo.version>
-        <jackson.version>2.8.1</jackson.version>
+        <kotlin.version>1.1.0</kotlin.version>
+        <mongo.version>3.4.2</mongo.version>
+        <jackson.version>2.8.7</jackson.version>
         <bson4jackson.version>2.7.0</bson4jackson.version>
 
         <!-- test dependencies -->
-        <flapdoodle.version>1.50.5</flapdoodle.version>
-        <sl4j.version>1.7.21</sl4j.version>
+        <flapdoodle.version>2.0.0</flapdoodle.version>
+        <sl4j.version>1.7.24</sl4j.version>
         <junit.version>4.12</junit.version>
 
         <!-- plugins -->
         <plugin.surefire.version>2.19.1</plugin.surefire.version>
-        <plugin.jar.version>2.6</plugin.jar.version>
-        <plugin.source.version>3.0.0</plugin.source.version>
+        <plugin.jar.version>3.0.2</plugin.jar.version>
+        <plugin.source.version>3.0.1</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
-        <plugin.dokka.version>0.9.9</plugin.dokka.version>
-        <plugin.gpg.version>1.5</plugin.gpg.version>
-        <plugin.nexus-staging.version>1.6.3</plugin.nexus-staging.version>
+        <plugin.dokka.version>0.9.13</plugin.dokka.version>
+        <plugin.gpg.version>1.6</plugin.gpg.version>
+        <plugin.nexus-staging.version>1.6.7</plugin.nexus-staging.version>
 
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
@@ -150,7 +150,7 @@
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
-                <artifactId>mongo-java-driver</artifactId>
+                <artifactId>mongodb-driver</artifactId>
                 <version>${mongo.version}</version>
             </dependency>
             <dependency>
@@ -169,6 +169,11 @@
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <version>${kotlin.version}</version>
+                <configuration>
+                    <args>
+                        <arg>-Xallow-kotlin-package</arg>
+                    </args>
+                </configuration>
 
                 <executions>
                     <execution>
