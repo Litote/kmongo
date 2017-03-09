@@ -29,7 +29,6 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.util.MongoIdUtil
 import java.io.IOException
 import java.io.UncheckedIOException
-import kotlin.reflect.defaultType
 import kotlin.reflect.jvm.javaField
 
 /**
@@ -89,9 +88,9 @@ internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
                 val toString = idProperty.returnType.toString()
                 val javaField = idProperty.javaField
                 javaField!!.isAccessible = true
-                if (toString.startsWith(ObjectId::class.defaultType.toString())) {
+                if (toString.startsWith(ObjectId::class.qualifiedName!!)) {
                     javaField.set(document, ObjectId.get())
-                } else if (toString.startsWith(String::class.defaultType.toString())) {
+                } else if (toString.startsWith(String::class.qualifiedName!!)) {
                     javaField.set(document, ObjectId.get().toString())
                 } else {
                     throw IllegalArgumentException("generation for id property type not supported : $idProperty")

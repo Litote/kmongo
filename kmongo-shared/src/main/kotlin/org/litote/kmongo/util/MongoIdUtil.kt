@@ -26,9 +26,9 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.MongoId
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.KotlinReflectionInternalError
+import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.isAccessible
-import kotlin.reflect.memberProperties
+import kotlin.reflect.full.memberProperties
 
 /**
  *

@@ -101,7 +101,7 @@ internal class BsonModule : SimpleModule() {
             } else if (tree is POJONode) {
                 return tree.pojo as BsonTimestamp
             } else {
-                throw ctxt.mappingException(BsonTimestamp::class.java)
+                return ctxt.handleUnexpectedToken(BsonTimestamp::class.java, jp) as BsonTimestamp
             }
         }
     }
@@ -130,7 +130,7 @@ internal class BsonModule : SimpleModule() {
             } else if (tree is BinaryNode) {
                 return Binary(tree.binaryValue())
             } else {
-                throw ctxt.mappingException(ObjectId::class.java)
+                return ctxt.handleUnexpectedToken(ObjectId::class.java, jp) as Binary
             }
         }
     }
@@ -155,13 +155,13 @@ internal class BsonModule : SimpleModule() {
                 if (value == 1) {
                     return MaxKey()
                 }
-                throw ctxt.mappingException(MaxKey::class.java)
+                return ctxt.handleUnexpectedToken(MaxKey::class.java, jp) as MaxKey
             } else if (tree is POJONode) {
                 return tree.pojo as MaxKey
             } else if (tree is TextNode) {
                 return MaxKey()
             } else {
-                throw ctxt.mappingException(MaxKey::class.java)
+                return ctxt.handleUnexpectedToken(MaxKey::class.java, jp) as MaxKey
             }
         }
     }
@@ -186,13 +186,13 @@ internal class BsonModule : SimpleModule() {
                 if (value == 1) {
                     return MinKey()
                 }
-                throw ctxt.mappingException(MinKey::class.java)
+                return ctxt.handleUnexpectedToken(MinKey::class.java, jp) as MinKey
             } else if (tree is POJONode) {
                 return tree.pojo as MinKey
             } else if (tree is TextNode) {
                 return MinKey()
             } else {
-                throw ctxt.mappingException(MinKey::class.java)
+                return ctxt.handleUnexpectedToken(MinKey::class.java, jp) as MinKey
             }
         }
     }

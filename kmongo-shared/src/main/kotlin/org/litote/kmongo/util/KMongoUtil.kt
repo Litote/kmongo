@@ -38,7 +38,6 @@ import org.bson.types.ObjectId
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
-import kotlin.reflect.defaultType
 
 /**
  * Internal utility methods
@@ -62,9 +61,9 @@ object KMongoUtil {
                 val idValue = document.get(idProperty.name)
                 if (idValue == null) {
                     val toString = idProperty.returnType.toString()
-                    if (toString.startsWith(ObjectId::class.defaultType.toString())) {
+                    if (toString.startsWith(ObjectId::class.qualifiedName!!)) {
                         document.put("_id", BsonObjectId(ObjectId.get()))
-                    } else if (toString.startsWith(String::class.defaultType.toString())) {
+                    } else if (toString.startsWith(String::class.qualifiedName!!)) {
                         document.put("_id", BsonString(ObjectId.get().toString()))
                     } else {
                         throw IllegalArgumentException("generation for id property type not supported : $idProperty")
