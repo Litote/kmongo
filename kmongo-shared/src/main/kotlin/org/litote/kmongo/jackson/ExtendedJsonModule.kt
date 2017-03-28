@@ -16,15 +16,9 @@
 package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.TreeNode
-import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.databind.node.POJONode
-import com.fasterxml.jackson.databind.node.ValueNode
-import de.undercouch.bson4jackson.BsonParser
-import de.undercouch.bson4jackson.deserializers.BsonDeserializer
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
 import org.bson.types.MaxKey
@@ -48,21 +42,6 @@ internal class ExtendedJsonModule : SimpleModule() {
             gen.writeStartObject()
             gen.writeStringField("\$oid", value.toHexString())
             gen.writeEndObject()
-        }
-    }
-
-    internal object ObjectIdBsonDeserializer : BsonDeserializer<ObjectId>() {
-
-        override fun deserialize(jp: BsonParser, ctxt: DeserializationContext): ObjectId? {
-            val tree = jp.codec.readTree<TreeNode>(jp)
-            if (tree.isObject) {
-                val hexString = (tree.get("\$oid") as ValueNode).asText()
-                return ObjectId(hexString)
-            } else if (tree is POJONode) {
-                return tree.pojo as ObjectId
-            } else {
-                throw ctxt.mappingException(ObjectId::class.java)
-            }
         }
     }
 
