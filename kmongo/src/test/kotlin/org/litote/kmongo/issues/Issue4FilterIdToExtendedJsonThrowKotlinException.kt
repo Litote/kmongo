@@ -50,7 +50,7 @@ class Issue4FilterIdToExtendedJsonThrowKotlinException : KMongoBaseTest<ClassWit
         col.updateOneById(e._id!!, ClassWithValue(null, "b", B))
         assertEquals("b", col.findOneById(e._id)!!.v)
         assertEquals(B, col.findOneById(e._id)!!.e)
-        col.updateOneById(e._id!!, "{$set:{v:'a',e:'A'}}")
+        col.updateOneById(e._id, "{$set:{v:'a',e:'A'}}")
         assertEquals("a", col.findOneById(e._id)!!.v)
         assertEquals(A, col.findOneById(e._id)!!.e)
     }

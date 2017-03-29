@@ -15,7 +15,16 @@
  */
 package org.litote.kmongo.jackson
 
+import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonBooleanFormatVisitor
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor
 import org.bson.BsonReader
 import org.bson.BsonValue
 import org.bson.BsonWriter
@@ -25,7 +34,15 @@ import org.bson.codecs.CollectibleCodec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
+import org.bson.json.JsonReader
 import org.bson.types.ObjectId
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.`object`
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.array
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.boolean
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.integer
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.map
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.number
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.string
 import org.litote.kmongo.util.MongoIdUtil
 import java.io.IOException
 import java.io.UncheckedIOException
@@ -35,8 +52,53 @@ import kotlin.reflect.jvm.javaField
  *
  */
 internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
+                                     val notBsonObjectMapper: ObjectMapper,
                                      val codecRegistry: CodecRegistry,
                                      val type: Class<T>) : Codec<T>, CollectibleCodec<T> {
+
+    class VisitorWrapper : JsonFormatVisitorWrapper.Base() {
+
+        enum class JsonType {
+            string, array, number, map, `object`, integer, boolean
+        }
+
+        var jsonType: JsonType? = null
+
+        override fun expectStringFormat(type: JavaType?): JsonStringFormatVisitor? {
+            jsonType = string
+            return null
+        }
+
+        override fun expectArrayFormat(type: JavaType?): JsonArrayFormatVisitor? {
+            jsonType = array
+            return null
+        }
+
+        override fun expectNumberFormat(type: JavaType?): JsonNumberFormatVisitor? {
+            jsonType = number
+            return null
+        }
+
+        override fun expectMapFormat(type: JavaType?): JsonMapFormatVisitor? {
+            jsonType = map
+            return null
+        }
+
+        override fun expectObjectFormat(type: JavaType?): JsonObjectFormatVisitor? {
+            jsonType = `object`
+            return null
+        }
+
+        override fun expectIntegerFormat(type: JavaType?): JsonIntegerFormatVisitor? {
+            jsonType = integer
+            return null
+        }
+
+        override fun expectBooleanFormat(type: JavaType?): JsonBooleanFormatVisitor? {
+            jsonType = boolean
+            return null
+        }
+    }
 
     private val rawBsonDocumentCodec: Codec<RawBsonDocument>
 
@@ -44,7 +106,7 @@ internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
         this.rawBsonDocumentCodec = codecRegistry.get(RawBsonDocument::class.java)
     }
 
-    override fun decode(reader: BsonReader, decoderContext: DecoderContext): T {
+    override fun decode(reader: BsonReader, decoderContext: DecoderContext): T? {
         try {
             return bsonObjectMapper.readValue(rawBsonDocumentCodec.decode(reader, decoderContext).byteBuffer.array(), type)
         } catch (e: IOException) {
@@ -53,10 +115,32 @@ internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
 
     }
 
-    override fun encode(writer: BsonWriter, value: T, encoderContext: EncoderContext) {
+    override fun encode(writer: BsonWriter, value: T?, encoderContext: EncoderContext) {
         try {
-            val e = bsonObjectMapper.writeValueAsBytes(value)
-            rawBsonDocumentCodec.encode(writer, RawBsonDocument(e), encoderContext)
+            if (value == null) {
+                writer.writeNull()
+            } else {
+                //need to know the serialized type, see https://github.com/Litote/kmongo/issues/12
+                val visitor = VisitorWrapper()
+                bsonObjectMapper.acceptJsonFormatVisitor(value::class.java, visitor)
+
+                when (visitor.jsonType) {
+                    `object`, map, array, null -> {
+                        val bytes = bsonObjectMapper.writeValueAsBytes(value)
+                        rawBsonDocumentCodec.encode(writer, RawBsonDocument(bytes), encoderContext)
+                    }
+
+                    string, integer, number, boolean -> {
+                        val jsonReader = JsonReader(notBsonObjectMapper.writeValueAsString(value))
+                        when (visitor.jsonType) {
+                            number -> writer.writeDouble(jsonReader.readDouble())
+                            integer -> writer.writeInt64(jsonReader.readInt64())
+                            boolean -> writer.writeBoolean(jsonReader.readBoolean())
+                            else -> writer.writeString(jsonReader.readString())
+                        }
+                    }
+                }
+            }
         } catch (e: IOException) {
             throw UncheckedIOException(e)
         }

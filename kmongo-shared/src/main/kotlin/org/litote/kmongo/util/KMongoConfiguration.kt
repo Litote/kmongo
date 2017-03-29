@@ -24,16 +24,33 @@ import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 
 /**
- * Use this class to customize the default KMongo behaviour
+ * Use this class to customize the default behaviour of KMongo.
  */
 object KMongoConfiguration {
 
+    /**
+     * Manage mongo extended json format.
+     */
     var extendedJsonMapper: ObjectMapper = ObjectMapperFactory.createExtendedJsonObjectMapper()
+
+    /**
+     * Manage bson format.
+     */
     var bsonMapper: ObjectMapper = ObjectMapperFactory.createBsonObjectMapper()
+
+    /**
+     * Basically a copy of [bsonMapper] without [de.undercouch.bson4jackson.BsonFactory].
+     * Used by [org.litote.kmongo.jackson.JacksonCodec] to resolves specific serialization issues.
+     */
+    var bsonMapperCopy = ObjectMapperFactory.createBsonObjectMapperCopy()
+
+    /**
+     * To change the default collection name strategy.
+     */
     var defaultCollectionNameBuilder: (KClass<*>) -> String = { it.simpleName!!.toLowerCase() }
 
     val jacksonCodecProvider: CodecProvider by lazy(PUBLICATION) {
-        JacksonCodecProvider(bsonMapper)
+        JacksonCodecProvider(bsonMapper, bsonMapperCopy)
     }
 
     val filterIdBsonMapper: ObjectMapper by lazy(PUBLICATION) {

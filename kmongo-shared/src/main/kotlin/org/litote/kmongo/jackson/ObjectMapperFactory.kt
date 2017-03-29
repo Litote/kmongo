@@ -17,14 +17,14 @@ package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import de.undercouch.bson4jackson.BsonParser
 
 internal object ObjectMapperFactory {
 
     fun createExtendedJsonObjectMapper(): ObjectMapper {
         return ObjectMapper()
-                .registerModule(KotlinModule())
+                .registerKotlinModule()
                 .registerModule(ExtendedJsonModule())
     }
 
@@ -32,9 +32,16 @@ internal object ObjectMapperFactory {
         val bsonFactory = KMongoBsonFactory()
         bsonFactory.enable(BsonParser.Feature.HONOR_DOCUMENT_LENGTH)
 
-        return ObjectMapper(bsonFactory)
-                .registerModule(de.undercouch.bson4jackson.BsonModule())
-                .registerModule(KotlinModule())
+        return configureBson(ObjectMapper(bsonFactory))
+    }
+
+    fun createBsonObjectMapperCopy(): ObjectMapper {
+        return configureBson(ObjectMapper())
+    }
+
+    private fun configureBson(mapper: ObjectMapper): ObjectMapper {
+        return mapper.registerModule(de.undercouch.bson4jackson.BsonModule())
+                .registerKotlinModule()
                 .registerModule(BsonModule())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }

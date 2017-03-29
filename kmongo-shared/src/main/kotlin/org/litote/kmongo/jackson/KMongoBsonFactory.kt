@@ -24,8 +24,6 @@ import de.undercouch.bson4jackson.BsonParser
 import de.undercouch.bson4jackson.types.Timestamp
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
-import org.bson.types.MaxKey
-import org.bson.types.MinKey
 import org.bson.types.ObjectId
 import java.io.InputStream
 import java.io.OutputStream
