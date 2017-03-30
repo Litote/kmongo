@@ -45,9 +45,13 @@ object KMongoConfiguration {
     var bsonMapperCopy = ObjectMapperFactory.createBsonObjectMapperCopy()
 
     /**
-     * To change the default collection name strategy.
+     * To change the default collection name strategy - default is camel case.
      */
-    var defaultCollectionNameBuilder: (KClass<*>) -> String = { it.simpleName!!.toLowerCase() }
+    lateinit var defaultCollectionNameBuilder: (KClass<*>) -> String
+
+    init {
+        useCamelCaseCollectionNameBuilder()
+    }
 
     val jacksonCodecProvider: CodecProvider by lazy(PUBLICATION) {
         JacksonCodecProvider(bsonMapper, bsonMapperCopy)
@@ -59,5 +63,62 @@ object KMongoConfiguration {
 
     val filterIdExtendedJsonMapper: ObjectMapper by lazy(PUBLICATION) {
         ObjectMapperFactory.createFilterIdObjectMapper(extendedJsonMapper)
+    }
+
+    /**
+     * Use Camel Case default collection name builder.
+     *
+     * @param fromClass optional custom [KClass] -> [String] transformer (default is [KClass.simpleName])
+     */
+    fun useCamelCaseCollectionNameBuilder(fromClass: (KClass<*>) -> String = { it.simpleName!! }) {
+        defaultCollectionNameBuilder = {
+            fromClass
+                    .invoke(it)
+                    .toCharArray()
+                    .run {
+                        foldIndexed(StringBuilder()) { i, s, c ->
+                            s.append(
+                                    if (c.isUpperCase() && (i == 0 || this[i - 1].isUpperCase())) {
+                                        c.toLowerCase()
+                                    } else {
+                                        c
+                                    })
+                        }.toString()
+                    }
+        }
+    }
+
+    /**
+     * Use Snake Case default collection name builder.
+     *
+     * @param fromClass optional custom [KClass] -> [String] transformer (default is [KClass.simpleName])
+     */
+    fun useSnakeCaseCollectionNameBuilder(fromClass: (KClass<*>) -> String = { it.simpleName!! }) {
+        defaultCollectionNameBuilder = {
+            fromClass
+                    .invoke(it)
+                    .toCharArray()
+                    .run {
+                        foldIndexed(StringBuilder()) { i, s, c ->
+                            if (c.isUpperCase()) {
+                                if (i != 0 && this[i - 1].isLowerCase()) {
+                                    s.append('_')
+                                }
+                                s.append(c.toLowerCase())
+                            } else {
+                                s.append(c)
+                            }
+                        }.toString()
+                    }
+        }
+    }
+
+    /**
+     * Use Lower Case default collection name builder.
+     *
+     * @param fromClass optional custom [KClass] -> [String] transformer (default is [KClass.simpleName])
+     */
+    fun useLowerCaseCollectionNameBuilder(fromClass: (KClass<*>) -> String = { it.simpleName!! }) {
+        defaultCollectionNameBuilder = { fromClass.invoke(it).toLowerCase() }
     }
 }
