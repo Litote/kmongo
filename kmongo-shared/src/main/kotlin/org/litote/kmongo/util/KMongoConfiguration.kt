@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.util
 
+import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.bson.codecs.configuration.CodecProvider
 import org.litote.kmongo.jackson.JacksonCodecProvider
@@ -63,6 +64,45 @@ object KMongoConfiguration {
 
     val filterIdExtendedJsonMapper: ObjectMapper by lazy(PUBLICATION) {
         ObjectMapperFactory.createFilterIdObjectMapper(extendedJsonMapper)
+    }
+
+    /**
+     * Register a jackson [Module] for the two bson mappers, [bsonMapper] and [bsonMapperCopy].
+     *
+     * For example, if you need to manage [DBRefs](https://docs.mongodb.com/manual/reference/database-references/) autoloading,
+     * you can write this kind of module :
+     *
+     *      class KMongoBeanDeserializer(deserializer:BeanDeserializer) : ThrowableDeserializer(deserializer) {
+     *
+     *              override fun deserializeFromObject(jp: JsonParser, ctxt: DeserializationContext): Any? {
+     *                   if(jp.currentName == "\$ref") {
+     *                       val ref = jp.nextTextValue()
+     *                       jp.nextValue()
+     *                       val id = jp.getValueAsString()
+     *                       while(jp.currentToken != JsonToken.END_OBJECT) jp.nextToken()
+     *                       return database.getCollection(ref).withDocumentClass(_beanType.rawClass).findOneById(id)
+     *                    } else {
+     *                       return super.deserializeFromObject(jp, ctxt)
+     *                    }
+     *                   }
+     *               }
+     *
+     *       class KMongoBeanDeserializerModifier : BeanDeserializerModifier() {
+     *
+     *              override fun modifyDeserializer(config: DeserializationConfig, beanDesc: BeanDescription, deserializer: JsonDeserializer<*>): JsonDeserializer<*> {
+     *                  return if(deserializer is BeanDeserializer) {
+     *                          KMongoBeanDeserializer( deserializer)
+     *                         } else {
+     *                          deserializer
+     *                         }
+     *                  }
+     *              }
+     *
+     *       KMongoConfiguration.registerBsonModule(SimpleModule().setDeserializerModifier(KMongoBeanDeserializerModifier()))
+     */
+    fun registerBsonModule(module: Module) {
+        bsonMapper.registerModule(module)
+        bsonMapperCopy.registerModule(module)
     }
 
     /**

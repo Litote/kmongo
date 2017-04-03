@@ -108,7 +108,8 @@ internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
 
     override fun decode(reader: BsonReader, decoderContext: DecoderContext): T? {
         try {
-            return bsonObjectMapper.readValue(rawBsonDocumentCodec.decode(reader, decoderContext).byteBuffer.array(), type)
+            val document = rawBsonDocumentCodec.decode(reader, decoderContext)
+            return bsonObjectMapper.readValue(document.byteBuffer.array(), type)
         } catch (e: IOException) {
             throw UncheckedIOException(e)
         }
