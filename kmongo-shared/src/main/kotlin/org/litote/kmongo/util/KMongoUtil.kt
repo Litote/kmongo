@@ -112,6 +112,10 @@ object KMongoUtil {
             = "{\$set:${filterIdToExtendedJson(obj)}}"
 
     fun extractId(obj: Any, clazz: KClass<*>): Any {
+        //check map
+        if (obj is Map<*, *>) {
+            return obj["_id"] ?: throw IllegalArgumentException("_id is null")
+        }
         val idProperty = MongoIdUtil.findIdProperty(clazz)
         if (idProperty == null) {
             throw IllegalArgumentException("$obj has to contain _id field")
@@ -167,6 +171,10 @@ object KMongoUtil {
             = KMongoConfiguration.defaultCollectionNameBuilder.invoke(clazz)
 
     fun getIdValue(value: Any): Any? {
+        //check map
+        if (value is Map<*, *>) {
+            return value["_id"]
+        }
         val idProperty = MongoIdUtil.findIdProperty(value.javaClass.kotlin)
         return if (idProperty == null) null else MongoIdUtil.getIdValue(idProperty, value)
     }
