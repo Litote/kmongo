@@ -31,7 +31,7 @@ import kotlin.test.assertEquals
 class Issue16GetIdPropertyAndMap : KMongoBaseTest<Friend>() {
 
     @Test
-    fun testSerializeAndDeserializeLocale() {
+    fun testSerializeAndDeserializeDocumentWithId() {
         val id = ObjectId("58ed213ca00a936d64541a1d")
         val thing = Document("_id", id).append("name", "test this")
         database.getCollection("test").apply {

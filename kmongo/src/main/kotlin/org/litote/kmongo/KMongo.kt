@@ -16,6 +16,11 @@
 
 package org.litote.kmongo
 
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.mongodb.DBRef
 import com.mongodb.MongoClient
 import com.mongodb.MongoClient.getDefaultCodecRegistry
 import com.mongodb.MongoClientOptions
@@ -25,7 +30,10 @@ import com.mongodb.ServerAddress
 import org.bson.codecs.configuration.CodecRegistries.fromProviders
 import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.bson.codecs.configuration.CodecRegistry
+import org.litote.kmongo.util.KMongoConfiguration
 import org.litote.kmongo.util.KMongoConfiguration.jacksonCodecProvider
+import java.math.BigDecimal
+import java.math.BigInteger
 
 /**
  * Main object used to create a [MongoClient](https://api.mongodb.com/java/current/com/mongodb/MongoClient.html) instance.
@@ -214,6 +222,34 @@ object KMongo {
     private fun configureOptions(clientOptions: MongoClientOptions): MongoClientOptions
             = MongoClientOptions.builder(clientOptions).codecRegistry(configureRegistry(clientOptions.codecRegistry)).build()
 
-    private fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry())
-            = fromRegistries(codecRegistry, fromProviders(jacksonCodecProvider))
+    private fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry {
+        //need to register DBRef just before using jacksonCodecProvider, because it only exists in sync driver!
+        KMongoConfiguration.registerBsonModule(SimpleModule().addSerializer(DBRef::class.java, object : JsonSerializer<DBRef>() {
+            override fun serialize(value: DBRef?, gen: JsonGenerator, serializers: SerializerProvider) {
+                if (value == null) {
+                    gen.writeNull()
+                } else {
+                    gen.writeStartObject()
+                    gen.writeStringField("\$ref", value.collectionName)
+                    gen.writeFieldName("\$id")
+                    val id = value.id
+                    when (id) {
+                        is String -> gen.writeString(id)
+                        is Long -> gen.writeNumber(id)
+                        is Int -> gen.writeNumber(id)
+                        is Float -> gen.writeNumber(id)
+                        is Double -> gen.writeNumber(id)
+                        is BigInteger -> gen.writeNumber(id)
+                        is BigDecimal -> gen.writeNumber(id)
+                        else -> gen.writeObject(id)
+                    }
+                    if (value.databaseName != null) {
+                        gen.writeStringField("\$db", value.databaseName)
+                    }
+                    gen.writeEndObject()
+                }
+            }
+        }))
+        return fromRegistries(codecRegistry, fromProviders(jacksonCodecProvider))
+    }
 }
