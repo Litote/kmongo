@@ -17,6 +17,10 @@
 package org.litote.kmongo
 
 import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonToken
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -30,6 +34,7 @@ import com.mongodb.ServerAddress
 import org.bson.codecs.configuration.CodecRegistries.fromProviders
 import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.bson.codecs.configuration.CodecRegistry
+import org.bson.types.ObjectId
 import org.litote.kmongo.util.KMongoConfiguration
 import org.litote.kmongo.util.KMongoConfiguration.jacksonCodecProvider
 import java.math.BigDecimal
@@ -224,32 +229,60 @@ object KMongo {
 
     private fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry {
         //need to register DBRef just before using jacksonCodecProvider, because it only exists in sync driver!
-        KMongoConfiguration.registerBsonModule(SimpleModule().addSerializer(DBRef::class.java, object : JsonSerializer<DBRef>() {
-            override fun serialize(value: DBRef?, gen: JsonGenerator, serializers: SerializerProvider) {
-                if (value == null) {
-                    gen.writeNull()
-                } else {
-                    gen.writeStartObject()
-                    gen.writeStringField("\$ref", value.collectionName)
-                    gen.writeFieldName("\$id")
-                    val id = value.id
-                    when (id) {
-                        is String -> gen.writeString(id)
-                        is Long -> gen.writeNumber(id)
-                        is Int -> gen.writeNumber(id)
-                        is Float -> gen.writeNumber(id)
-                        is Double -> gen.writeNumber(id)
-                        is BigInteger -> gen.writeNumber(id)
-                        is BigDecimal -> gen.writeNumber(id)
-                        else -> gen.writeObject(id)
-                    }
-                    if (value.databaseName != null) {
-                        gen.writeStringField("\$db", value.databaseName)
-                    }
-                    gen.writeEndObject()
-                }
-            }
-        }))
+        KMongoConfiguration.registerBsonModule(
+                SimpleModule()
+                        .addSerializer(DBRef::class.java, object : JsonSerializer<DBRef>() {
+                            override fun serialize(value: DBRef?, gen: JsonGenerator, serializers: SerializerProvider) {
+                                if (value == null) {
+                                    gen.writeNull()
+                                } else {
+                                    gen.writeStartObject()
+                                    gen.writeStringField("\$ref", value.collectionName)
+                                    gen.writeFieldName("\$id")
+                                    val id = value.id
+                                    when (id) {
+                                        is String -> gen.writeString(id)
+                                        is Long -> gen.writeNumber(id)
+                                        is Int -> gen.writeNumber(id)
+                                        is Float -> gen.writeNumber(id)
+                                        is Double -> gen.writeNumber(id)
+                                        is BigInteger -> gen.writeNumber(id)
+                                        is BigDecimal -> gen.writeNumber(id)
+                                        is ObjectId -> gen.writeObjectId(id)
+                                        else -> error("dbRef with id $id of type ${id.javaClass} is not supported")
+                                    }
+                                    if (value.databaseName != null) {
+                                        gen.writeStringField("\$db", value.databaseName)
+                                    }
+                                    gen.writeEndObject()
+                                }
+                            }
+                        })
+                        .addDeserializer(DBRef::class.java, object : JsonDeserializer<DBRef>() {
+                            override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): DBRef? {
+                                return if (jp.isExpectedStartObjectToken) {
+                                    jp.nextValue()
+                                    val ref = jp.getValueAsString()
+                                    jp.nextValue()
+                                    val id = when (jp.currentToken) {
+                                        JsonToken.VALUE_EMBEDDED_OBJECT -> jp.embeddedObject
+                                        JsonToken.VALUE_STRING -> jp.getValueAsString()
+                                        else -> jp.decimalValue
+                                    }
+                                    var db: String? = null
+                                    while (jp.currentToken != JsonToken.END_OBJECT) {
+                                        if (jp.getCurrentName() == "\$db") {
+                                            db = jp.getValueAsString()
+                                        } else {
+                                            jp.nextToken()
+                                        }
+                                    }
+                                    DBRef(db, ref, id)
+                                } else {
+                                    null
+                                }
+                            }
+                        }))
         return fromRegistries(codecRegistry, fromProviders(jacksonCodecProvider))
     }
 }
