@@ -273,9 +273,8 @@ object KMongo {
                                     while (jp.currentToken != JsonToken.END_OBJECT) {
                                         if (jp.getCurrentName() == "\$db") {
                                             db = jp.getValueAsString()
-                                        } else {
-                                            jp.nextToken()
                                         }
+                                        jp.nextToken()
                                     }
                                     DBRef(db, ref, id)
                                 } else {

@@ -58,4 +58,11 @@ class Issue18SavingDBRefContainingAnObjectIdBreaks : KMongoBaseTest<TestData>() 
         database.getCollection<TestData>().save(data)
         assertEquals(data, database.getCollection<TestData>().findOne()!!)
     }
+
+    @Test
+    fun testSerializeAndDeserializeWithDatabaseDBRef() {
+        val data = TestData("I'm working", DBRef("db", "magic", ObjectId()))
+        database.getCollection<TestData>().save(data)
+        assertEquals(data, database.getCollection<TestData>().findOne()!!)
+    }
 }
