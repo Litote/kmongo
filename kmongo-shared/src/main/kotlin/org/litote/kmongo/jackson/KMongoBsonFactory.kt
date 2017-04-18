@@ -32,9 +32,13 @@ internal class KMongoBsonFactory : BsonFactory() {
 
     internal class KMongoBsonGenerator(jsonFeatures: Int, bsonFeatures: Int, out: OutputStream) : BsonGenerator(jsonFeatures, bsonFeatures, out) {
 
+        override fun canWriteObjectId(): Boolean {
+            return true;
+        }
+
         override fun writeObjectId(objectId: Any) {
             if (objectId !is ObjectId) {
-                throw IllegalArgumentException("$objectId has to be ${ObjectId::class}")
+                error("$objectId has to be ${ObjectId::class}")
             }
             _writeArrayFieldNameIfNeeded()
             _verifyValueWrite("write object id")
