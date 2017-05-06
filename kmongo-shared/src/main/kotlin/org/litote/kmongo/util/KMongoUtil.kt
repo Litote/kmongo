@@ -35,6 +35,15 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
 import org.bson.types.ObjectId
+import org.litote.kmongo.MongoOperator.currentDate
+import org.litote.kmongo.MongoOperator.inc
+import org.litote.kmongo.MongoOperator.max
+import org.litote.kmongo.MongoOperator.min
+import org.litote.kmongo.MongoOperator.mul
+import org.litote.kmongo.MongoOperator.rename
+import org.litote.kmongo.MongoOperator.set
+import org.litote.kmongo.MongoOperator.setOnInsert
+import org.litote.kmongo.MongoOperator.unset
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
@@ -47,6 +56,7 @@ object KMongoUtil {
     val EMPTY_JSON = "{}"
     private val SPACE_REPLACE_PATTERN = Pattern.compile("\\\$\\s+")
     private val QUOTE_REPLACE_MATCHER = Matcher.quoteReplacement("\$")
+    private val UPDATE_OPERATORS = listOf(inc, mul, rename, setOnInsert, set, unset, min, max, currentDate).map { it.toString() }
 
     fun toBson(json: String): BsonDocument
             = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
@@ -105,11 +115,19 @@ object KMongoUtil {
     private fun isJsonArray(json: String)
             = json.trim().startsWith('[')
 
-    fun idFilterQuery(id: Any)
+    fun idFilterQuery(id: Any): String
             = "{_id:${toExtendedJson(id)}}"
 
-    fun setModifier(obj: Any)
-            = "{\$set:${filterIdToExtendedJson(obj)}}"
+    private fun containsUpdateOperator(map: Map<*, *>): Boolean
+            = UPDATE_OPERATORS.any { map.contains(it) }
+
+    fun setModifier(obj: Any): String {
+        return if (obj is Map<*, *> && containsUpdateOperator(obj)) {
+            toExtendedJson(obj)
+        } else {
+            "{\$set:${filterIdToExtendedJson(obj)}}"
+        }
+    }
 
     fun extractId(obj: Any, clazz: KClass<*>): Any {
         //check map
