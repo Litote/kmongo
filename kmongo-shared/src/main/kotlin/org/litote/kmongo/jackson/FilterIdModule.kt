@@ -33,11 +33,12 @@ internal class FilterIdModule : SimpleModule() {
 
     object IdPropertyFilter : SimpleBeanPropertyFilter() {
 
-        private fun include(pojo: Any, writer: PropertyWriter): Boolean {
-            return writer.name != MongoIdUtil.findIdProperty(pojo.javaClass.kotlin)?.name
+        private fun include(pojo: Any?, writer: PropertyWriter): Boolean {
+            return if (pojo == null) true
+            else writer.name != MongoIdUtil.findIdProperty(pojo.javaClass.kotlin)?.name
         }
 
-        override fun serializeAsField(pojo: Any, jgen: JsonGenerator, provider: SerializerProvider, writer: PropertyWriter) {
+        override fun serializeAsField(pojo: Any?, jgen: JsonGenerator, provider: SerializerProvider, writer: PropertyWriter) {
             if (include(pojo, writer)) {
                 writer.serializeAsField(pojo, jgen, provider)
             } else if (!jgen.canOmitFields()) { // since 2.3
