@@ -16,6 +16,7 @@
 package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import de.undercouch.bson4jackson.BsonParser
@@ -26,6 +27,7 @@ internal object ObjectMapperFactory {
         return ObjectMapper()
                 .registerKotlinModule()
                 .registerModule(ExtendedJsonModule())
+                .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
     }
 
     fun createBsonObjectMapper(): ObjectMapper {
@@ -44,6 +46,7 @@ internal object ObjectMapperFactory {
                 .registerKotlinModule()
                 .registerModule(BsonModule())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
     }
 
     fun createFilterIdObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
