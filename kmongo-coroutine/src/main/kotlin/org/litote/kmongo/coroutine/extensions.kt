@@ -339,12 +339,13 @@ suspend fun <T> MongoCollection<T>.deleteMany(filter: String): DeleteResult {
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T : Any> MongoCollection<T>.save(document: T, callback: (Void?, Throwable?) -> Unit) {
+suspend fun <T : Any> MongoCollection<T>.save(document: T): Void? {
     val id = KMongoUtil.getIdValue(document)
-    if (id != null) {
-        replaceOneById(id, document, UpdateOptions().upsert(true), { r, t -> callback.invoke(null, t) })
+    return if (id != null) {
+        replaceOneById(id, document, UpdateOptions().upsert(true))
+        null
     } else {
-        insertOne(document, callback)
+        singleResult<Void> { insertOne(document, it) }
     }
 }
 
@@ -359,8 +360,10 @@ fun <T : Any> MongoCollection<T>.save(document: T, callback: (Void?, Throwable?)
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, callback: (UpdateResult?, Throwable?) -> Unit)
-    = replaceOneById(id, replacement, UpdateOptions(), callback)
+suspend fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T): UpdateResult {
+    return replaceOneById(id, replacement, UpdateOptions())
+}
+
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -374,8 +377,9 @@ fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, callbac
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
-    = replaceOne(idFilterQuery(id), replacement, options, callback)
+suspend fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, options: UpdateOptions): UpdateResult {
+    return replaceOne(idFilterQuery(id), replacement, options)
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -387,8 +391,9 @@ fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, options
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T, noinline callback: (UpdateResult?, Throwable?) -> Unit)
-    = replaceOneById(extractId(replacement, T::class), replacement, callback)
+suspend inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T): UpdateResult {
+    return replaceOneById(extractId(replacement, T::class), replacement)
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -402,8 +407,9 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T, noinl
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
-    = withDocumentClass<BsonDocument>().replaceOne(toBson(filter), KMongoUtil.filterIdToBson(replacement), options, callback)
+suspend fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions): UpdateResult {
+    return singleResult { withDocumentClass<BsonDocument>().replaceOne(toBson(filter), KMongoUtil.filterIdToBson(replacement), options, it) }
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -416,8 +422,9 @@ fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, opti
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, callback: (UpdateResult?, Throwable?) -> Unit)
-    = replaceOne(filter, replacement, UpdateOptions(), callback)
+suspend fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T): UpdateResult {
+    return replaceOne(filter, replacement, UpdateOptions())
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -430,8 +437,9 @@ fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, call
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateOne(filter: String, update: String, callback: (UpdateResult?, Throwable?) -> Unit)
-    = updateOne(filter, update, UpdateOptions(), callback)
+suspend fun <T> MongoCollection<T>.updateOne(filter: String, update: String): UpdateResult {
+    return updateOne(filter, update, UpdateOptions())
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -445,8 +453,9 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: String, callback: (
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
-    = updateOne(toBson(filter), toBson(update), options, callback)
+suspend fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: UpdateOptions): UpdateResult {
+    return singleResult { updateOne(toBson(filter), toBson(update), options, it) }
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -459,8 +468,9 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: Up
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateOne(filter: String, update: Any, callback: (UpdateResult?, Throwable?) -> Unit)
-    = updateOne(filter, setModifier(update), UpdateOptions(), callback)
+suspend fun <T> MongoCollection<T>.updateOne(filter: String, update: Any): UpdateResult {
+    return updateOne(filter, setModifier(update), UpdateOptions())
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -472,8 +482,8 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: Any, callback: (Upd
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, noinline callback: (UpdateResult?, Throwable?) -> Unit) {
-    return updateOneById(extractId(target, T::class), target, callback)
+suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T): UpdateResult {
+    return updateOneById(extractId(target, T::class), target)
 }
 
 /**
@@ -487,8 +497,8 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, noinline ca
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, callback: (UpdateResult?, Throwable?) -> Unit)
-    = updateOneById(id, update, UpdateOptions(), callback)
+suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: String): UpdateResult
+    = updateOneById(id, update, UpdateOptions())
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -502,8 +512,8 @@ fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, callback: (Upd
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
-    = updateOne(idFilterQuery(id), update, options, callback)
+suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, options: UpdateOptions): UpdateResult
+    = updateOne(idFilterQuery(id), update, options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -516,8 +526,8 @@ fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, options: Updat
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, callback: (UpdateResult?, Throwable?) -> Unit)
-    = updateOneById(id, update, UpdateOptions(), callback)
+suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any): UpdateResult
+    = updateOneById(id, update, UpdateOptions())
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -531,14 +541,14 @@ fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, callback: (Update
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
-    =
+suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, options: UpdateOptions): UpdateResult {
     //strange but update can be a String
-    if (update is String) {
-        updateOneById(idFilterQuery(id), update, options, callback)
+    return if (update is String) {
+        updateOneById(idFilterQuery(id), update, options)
     } else {
-        updateOne(idFilterQuery(id), setModifier(update), options, callback)
+        updateOne(idFilterQuery(id), setModifier(update), options)
     }
+}
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -552,8 +562,9 @@ fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, options: UpdateOp
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateMany(filter: String, update: String, options: UpdateOptions, callback: (UpdateResult?, Throwable?) -> Unit)
-    = updateMany(toBson(filter), toBson(update), options, callback)
+suspend fun <T> MongoCollection<T>.updateMany(filter: String, update: String, options: UpdateOptions): UpdateResult {
+    return singleResult { updateMany(toBson(filter), toBson(update), options, it) }
+}
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -566,8 +577,9 @@ fun <T> MongoCollection<T>.updateMany(filter: String, update: String, options: U
  * @throws com.mongodb.MongoWriteConcernException returned via the callback
  * @throws com.mongodb.MongoException             returned via the callback
  */
-fun <T> MongoCollection<T>.updateMany(filter: String, update: String, callback: (UpdateResult?, Throwable?) -> Unit)
-    = updateMany(filter, update, UpdateOptions(), callback)
+suspend fun <T> MongoCollection<T>.updateMany(filter: String, update: String): UpdateResult {
+    return updateMany(filter, update, UpdateOptions())
+}
 
 /**
  * Atomically find a document and remove it.
@@ -576,8 +588,9 @@ fun <T> MongoCollection<T>.updateMany(filter: String, update: String, callback: 
  * @param options  the options to apply to the operation
  * @param callback the callback passed the document that was removed.  If no documents matched the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndDeleteOptions, callback: (T?, Throwable?) -> Unit)
-    = findOneAndDelete(toBson(filter), options, callback)
+suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndDeleteOptions): T {
+    return singleResult { findOneAndDelete(toBson(filter), options, it) }
+}
 
 /**
  * Atomically find a document and remove it.
@@ -585,8 +598,9 @@ fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndD
  * @param filter   the query filter to find the document with
  * @param callback the callback passed the document that was removed.  If no documents matched the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndDelete(filter: String, callback: (T?, Throwable?) -> Unit)
-    = findOneAndDelete(filter, FindOneAndDeleteOptions(), callback)
+suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(filter: String): T {
+    return findOneAndDelete(filter, FindOneAndDeleteOptions())
+}
 
 /**
  * Atomically find a document and replace it.
@@ -599,8 +613,9 @@ fun <T> MongoCollection<T>.findOneAndDelete(filter: String, callback: (T?, Throw
  *                    property, this will either be the document as it was before the update or as it is after the update.  If no
  *                    documents matched the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, options: FindOneAndReplaceOptions, callback: (T?, Throwable?) -> Unit)
-    = findOneAndReplace(toBson(filter), replacement, options, callback)
+suspend fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, options: FindOneAndReplaceOptions): T {
+    return singleResult { findOneAndReplace(toBson(filter), replacement, options, it) }
+}
 
 /**
  * Atomically find a document and replace it.
@@ -612,8 +627,9 @@ fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, opt
  *                    property, this will either be the document as it was before the update or as it is after the update.  If no
  *                    documents matched the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, callback: (T?, Throwable?) -> Unit)
-    = findOneAndReplace(filter, replacement, FindOneAndReplaceOptions(), callback)
+suspend fun <T : Any> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T): T {
+    return findOneAndReplace(filter, replacement, FindOneAndReplaceOptions())
+}
 
 /**
  * Atomically find a document and update it.
@@ -626,8 +642,9 @@ fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, cal
  *                 this will either be the document as it was before the update or as it is after the update.  If no documents matched
  *                  the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, options: FindOneAndUpdateOptions, callback: (T?, Throwable?) -> Unit)
-    = findOneAndUpdate(toBson(filter), toBson(update), options, callback)
+suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, options: FindOneAndUpdateOptions): T {
+    return singleResult { findOneAndUpdate(toBson(filter), toBson(update), options, it) }
+}
 
 /**
  * Atomically find a document and update it.
@@ -639,8 +656,9 @@ fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, opti
  *                 this will either be the document as it was before the update or as it is after the update.  If no documents matched
  *                  the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, callback: (T?, Throwable?) -> Unit)
-    = findOneAndUpdate(filter, update, FindOneAndUpdateOptions(), callback)
+suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(filter: String, update: String): T {
+    return findOneAndUpdate(filter, update, FindOneAndUpdateOptions())
+}
 
 /**
  * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
@@ -648,8 +666,9 @@ fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, call
  * @param key      an object describing the index key(s)
  * @param callback the callback that is completed once the index has been created
  */
-fun <T> MongoCollection<T>.createIndex(key: String, callback: (String?, Throwable?) -> Unit)
-    = createIndex(key, IndexOptions(), callback)
+suspend fun <T> MongoCollection<T>.createIndex(key: String): String {
+    return createIndex(key, IndexOptions())
+}
 
 /**
  * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
@@ -658,8 +677,9 @@ fun <T> MongoCollection<T>.createIndex(key: String, callback: (String?, Throwabl
  * @param options  the options for the index
  * @param callback the callback that is completed once the index has been created
  */
-fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions, callback: (String?, Throwable?) -> Unit)
-    = createIndex(toBson(key), options, callback)
+suspend fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions): String {
+    return singleResult { createIndex(toBson(key), options, it) }
+}
 
 
 /**
@@ -677,9 +697,9 @@ inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexes
  * @param keys the keys of the index to remove
  * @param callback  the callback that is completed once the index has been dropped
  */
-fun <T> MongoCollection<T>.dropIndex(keys: String, callback: (Void?, Throwable?) -> Unit)
-    = dropIndex(toBson(keys), callback)
-
+suspend fun <T> MongoCollection<T>.dropIndex(keys: String): Void {
+    return singleResult { dropIndex(toBson(keys), it) }
+}
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -687,8 +707,9 @@ fun <T> MongoCollection<T>.dropIndex(keys: String, callback: (Void?, Throwable?)
  * @param requests the writes to execute
  * @param callback the callback passed the result of the bulk write
  */
-inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String, noinline callback: (BulkWriteResult?, Throwable?) -> Unit)
-    = withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), BulkWriteOptions(), callback)
+suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String): BulkWriteResult {
+    return singleResult { withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), BulkWriteOptions(), it) }
+}
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -697,8 +718,9 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: Strin
  * @param options  the options to apply to the bulk write operation
  * @param callback the callback passed the result of the bulk write
  */
-inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String, options: BulkWriteOptions, noinline callback: (BulkWriteResult?, Throwable?) -> Unit)
-    = withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), options, callback)
+suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String, options: BulkWriteOptions): BulkWriteResult {
+    return singleResult { withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), options, it) }
+}
 
 
 //*******
@@ -808,8 +830,9 @@ fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T>
  * @param target   the collection to insert into
  * @param callback a callback that will be passed the target containing all documents
  */
-fun <TResult> MongoIterable<TResult>.toList(callback: (List<TResult>?, Throwable?) -> Unit)
-    = into(mutableListOf<TResult>(), callback)
+suspend fun <TResult> MongoIterable<TResult>.toList(): MutableList<TResult> {
+    return singleResult { into(mutableListOf<TResult>(), it) }
+}
 
 //*******
 //json extension property
