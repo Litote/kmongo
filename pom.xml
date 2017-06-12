@@ -180,6 +180,7 @@
                 <configuration>
                     <args>
                         <arg>-Xallow-kotlin-package</arg>
+                        <arg>-Xcoroutines=enable</arg>
                     </args>
                 </configuration>
 
