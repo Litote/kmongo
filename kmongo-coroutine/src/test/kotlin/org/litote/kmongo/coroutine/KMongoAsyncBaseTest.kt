@@ -17,43 +17,16 @@ package org.litote.kmongo.coroutine
 
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.async.client.MongoDatabase
-import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.reflect.KClass
 
 /**
  *
  */
 abstract class KMongoAsyncBaseTest<T : Any> {
-
-    class TestContext {
-
-        val lock = CountDownLatch(1)
-        var error: Throwable? = null
-
-        fun test(testToRun: () -> Unit) {
-            try {
-                testToRun()
-            } catch(t: Throwable) {
-                error = t
-                throw t
-            } finally {
-                lock.countDown()
-            }
-        }
-
-        fun waitToComplete() {
-            assert(lock.await(10, TimeUnit.SECONDS))
-            val err = error
-            if (err != null) throw err
-        }
-    }
 
     companion object {
 
@@ -73,47 +46,26 @@ abstract class KMongoAsyncBaseTest<T : Any> {
         fun <T : Any> getCollection(clazz: KClass<T>): MongoCollection<T>
             = database.getCollection(defaultCollectionName(clazz), clazz.java)
 
-        inline fun <reified T : Any> dropCollection()
+        suspend inline fun <reified T : Any> dropCollection()
             = dropCollection(defaultCollectionName(T::class))
 
-        fun dropCollection(clazz: KClass<*>)
+        suspend fun dropCollection(clazz: KClass<*>)
             = dropCollection(defaultCollectionName(clazz))
 
-        fun dropCollection(collectionName: String) {
-            val count = CountDownLatch(1)
-            dropCollection(collectionName, { r, t -> count.countDown() })
-            count.await(1, SECONDS)
+        suspend fun dropCollection(collectionName: String): Void? {
+            return singleResult { database.getCollection(collectionName).drop(it) }
         }
-
-        fun dropCollection(collectionName: String, callback: (Void?, Throwable?) -> Unit)
-            = database.getCollection(collectionName).drop(callback)
     }
 
-    lateinit var testContext: TestContext
     lateinit var col: MongoCollection<T>
 
     @Before
     fun before() {
-        testContext = TestContext()
         col = getCollection(getDefaultCollectionClass())
-    }
-
-    @After
-    fun after() {
-        try {
-            waitToComplete()
-        } finally {
-            dropCollection(getDefaultCollectionClass())
-        }
     }
 
     @Suppress("UNCHECKED_CAST")
     open fun getDefaultCollectionClass(): KClass<T>
         = Friend::class as KClass<T>
-
-    fun waitToComplete() = testContext.waitToComplete()
-
-    fun asyncTest(testToRun: () -> Unit) = testContext.test(testToRun)
-
 
 }
