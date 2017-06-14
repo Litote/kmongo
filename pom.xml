@@ -32,12 +32,14 @@
         <module>kmongo-shared</module>
         <module>kmongo</module>
         <module>kmongo-async</module>
+        <module>kmongo-coroutine</module>
     </modules>
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.1.1</kotlin.version>
+        <kotlin.version>1.1.2</kotlin.version>
         <mongo.version>3.4.2</mongo.version>
+        <coroutine.version>0.16</coroutine.version>
         <jackson.version>2.8.7</jackson.version>
         <bson4jackson.version>2.8.0-SNAPSHOT</bson4jackson.version>
 
@@ -159,6 +161,11 @@
                 <artifactId>mongodb-driver-core</artifactId>
                 <version>${mongo.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-coroutines-core</artifactId>
+                <version>${coroutine.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -173,6 +180,7 @@
                 <configuration>
                     <args>
                         <arg>-Xallow-kotlin-package</arg>
+                        <arg>-Xcoroutines=enable</arg>
                     </args>
                 </configuration>
 
@@ -295,6 +303,10 @@
 
     <!-- TODO remove this for release -->
     <repositories>
+        <repository>
+            <id>central</id>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
         <repository>
             <id>maven-snapshots</id>
             <url>http://oss.sonatype.org/content/repositories/snapshots</url>
