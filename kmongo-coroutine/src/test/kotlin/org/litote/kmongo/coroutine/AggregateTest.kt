@@ -44,14 +44,14 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
     @Before
     fun setup() = runBlocking<Unit> {
 
-        singleResult<Void> { col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"), it) }
-        singleResult<Void> { col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"), it) }
-        singleResult<Void> { col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"), it) }
+        col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"))
+        col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"))
+        col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"))
 
         friendCol = getCollection<Friend>()
-        singleResult<Void> { friendCol.insertOne(Friend("William"), it) }
-        singleResult<Void> { friendCol.insertOne(Friend("John"), it) }
-        singleResult<Void> { friendCol.insertOne(Friend("Richard"), it) }
+        friendCol.insertOne(Friend("William"))
+        friendCol.insertOne(Friend("John"))
+        friendCol.insertOne(Friend("Richard"))
     }
 
     @After

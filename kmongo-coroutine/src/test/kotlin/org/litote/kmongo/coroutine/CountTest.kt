@@ -38,21 +38,21 @@ class CountTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canCount() = runBlocking {
-        singleResult<Void> { col.insertMany(listOf(newFriend(), newFriend()), it) }
+         col.insertMany(listOf(newFriend(), newFriend()))
         val count = col.count()
         assertEquals(2, count)
     }
 
     @Test
     fun canCountWithQuery() = runBlocking {
-        singleResult<Void> { col.insertMany(listOf(newFriend(), newFriend()), it) }
+        col.insertMany(listOf(newFriend(), newFriend()))
         val count = col.count("{name:{$exists:true}}")
         assertEquals(2, count)
     }
 
     @Test
     fun canCountWithParameters() = runBlocking {
-        singleResult<Void> { col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")), it) }
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
         val count = col.count("{name:'Peter'}}")
         assertEquals(1, count)
     }

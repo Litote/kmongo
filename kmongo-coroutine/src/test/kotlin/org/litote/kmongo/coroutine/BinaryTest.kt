@@ -46,7 +46,7 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
         val expectedId = Binary("friend2".toByteArray())
         val expected = BinaryFriend(expectedId, "friend2")
 
-        singleResult<Void> { col.insertOne(expected, it) }
+        col.insertOne(expected)
         expected.name = "new friend"
 
         col.updateOne("{_id:${expectedId.json}}", expected)
@@ -60,7 +60,7 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
         val expectedId = Binary("friend".toByteArray())
         val expected = BinaryFriend(expectedId, "friend")
 
-        singleResult<Void> { col.insertOne(expected, it) }
+        col.insertOne(expected)
         val savedFriend = col.findOne("{_id:${expectedId.json}}")
         assertNotNull(savedFriend)
         assertEquals(expected, savedFriend)
@@ -77,7 +77,7 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
     fun canMarshallBinary() = runBlocking {
         val doc = BinaryFriend(Binary("abcde".toByteArray()))
 
-        singleResult<Void> { col.insertOne(doc, it) }
+        col.insertOne(doc)
         val count = col.count("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}")
         val savedDoc = col.findOne("{_id:${doc._id.json}}") ?: throw AssertionError("Must not NUll")
 
