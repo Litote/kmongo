@@ -134,6 +134,14 @@ inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): 
     = withDocumentClass(NewTDocument::class.java)
 
 /**
+ * Counts the number of documents
+ *
+ */
+suspend fun <T> MongoCollection<T>.count(): Long {
+    return singleResult { count(it) } ?: 0L
+}
+
+/**
  * Counts the number of documents in the collection according to the given options.
  *
  * @param filter   the query filter
