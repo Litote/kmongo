@@ -9,3 +9,7 @@
 ## A Kotlin toolkit for Mongo
 
 Documentation : [https://litote.org/kmongo](https://litote.org/kmongo)
+
+## Contributors
+
+* [Deny Prasetyo](https://github.com/jasoet)
