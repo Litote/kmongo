@@ -79,7 +79,7 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
 
         singleResult<Void> { col.insertOne(doc, it) }
         val count = col.count("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}")
-        val savedDoc = col.findOne("{_id:${doc._id.json}}") ?: throw IllegalStateException("Must not NUll")
+        val savedDoc = col.findOne("{_id:${doc._id.json}}") ?: throw AssertionError("Must not NUll")
 
         assertEquals(1, count)
         assertEquals(doc._id.type, savedDoc._id.type)
