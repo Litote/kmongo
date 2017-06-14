@@ -20,7 +20,6 @@ import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 /**
  *
@@ -34,7 +33,6 @@ class ReplaceTest : KMongoAsyncBaseTest<Friend>() {
         col.replaceOneById(friend._id ?: Any(), Friend("John"))
         val replacedFriend = col.findOne("{name:'John'}}") ?: throw AssertionError("Value must not null!")
         assertEquals("John", replacedFriend.name)
-        assertNull(replacedFriend.address)
     }
 
     @Test

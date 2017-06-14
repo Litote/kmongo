@@ -18,6 +18,7 @@ package org.litote.kmongo.coroutine
 
 import kotlinx.coroutines.experimental.runBlocking
 import org.bson.types.ObjectId
+import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.oid
 import org.litote.kmongo.model.Friend
@@ -27,6 +28,11 @@ import kotlin.test.assertEquals
  *
  */
 class DeleteTest : KMongoAsyncBaseTest<Friend>() {
+
+    @Before
+    fun tearDown() = runBlocking<Unit> {
+        dropCollection<Friend>()
+    }
 
     @Test
     fun canDeleteASpecificDocument() = runBlocking {
