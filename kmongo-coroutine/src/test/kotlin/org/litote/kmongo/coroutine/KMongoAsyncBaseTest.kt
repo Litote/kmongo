@@ -53,7 +53,7 @@ abstract class KMongoAsyncBaseTest<T : Any> {
             = dropCollection(defaultCollectionName(clazz))
 
         suspend fun dropCollection(collectionName: String): Void? {
-            return singleResult { database.getCollection(collectionName).drop(it) }
+            return database.dropCollection(collectionName)
         }
     }
 

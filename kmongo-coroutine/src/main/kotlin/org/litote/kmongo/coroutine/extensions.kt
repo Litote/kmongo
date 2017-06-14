@@ -50,6 +50,7 @@ import org.litote.kmongo.util.KMongoUtil.toBson
 import org.litote.kmongo.util.KMongoUtil.toBsonList
 import org.litote.kmongo.util.KMongoUtil.toWriteModel
 import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.reflect.KClass
 
 
 //*******
@@ -97,6 +98,45 @@ inline fun <reified T : Any> MongoDatabase.getCollection(collectionName: String)
 inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T>
     = getCollection(defaultCollectionName(T::class), T::class.java)
 
+
+/**
+ * Gets a collection.
+ *
+ * @param <T>            the default target type of the collection to return
+ *                       - the name of the collection is determined by [defaultCollectionName]
+ * @return the collection
+ * @see defaultCollectionName
+ */
+fun <T : Any> MongoDatabase.getCollection(clazz: KClass<T>): MongoCollection<T>
+    = getCollection(defaultCollectionName(clazz), clazz.java)
+
+/**
+ * Drops this collection from the Database.
+ *
+ * @param callback the callback that is completed once the collection has been dropped
+ * @mongodb.driver.manual reference/command/drop/ Drop Collection
+ */
+suspend inline fun <reified T : Any> MongoDatabase.dropCollection()
+    = dropCollection(defaultCollectionName(T::class))
+
+/**
+ * Drops this collection from the Database.
+ *
+ * @param callback the callback that is completed once the collection has been dropped
+ * @mongodb.driver.manual reference/command/drop/ Drop Collection
+ */
+suspend fun MongoDatabase.dropCollection(clazz: KClass<*>)
+    = dropCollection(defaultCollectionName(clazz))
+
+/**
+ * Drops this collection from the Database.
+ *
+ * @param callback the callback that is completed once the collection has been dropped
+ * @mongodb.driver.manual reference/command/drop/ Drop Collection
+ */
+suspend fun MongoDatabase.dropCollection(collectionName: String): Void? {
+    return singleResult { getCollection(collectionName).drop(it) }
+}
 
 /**
  * Executes the given command in the context of the current database with the given read preference.
