@@ -17,6 +17,7 @@ package org.litote.kmongo.coroutine
 
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.exists
 import org.litote.kmongo.model.Friend
@@ -27,7 +28,7 @@ import kotlin.test.assertEquals
  */
 class CountTest : KMongoAsyncBaseTest<Friend>() {
 
-    @After
+    @Before
     fun tearDown() = runBlocking<Unit> {
         dropCollection<Friend>()
     }
