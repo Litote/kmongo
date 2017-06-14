@@ -304,6 +304,10 @@
     <!-- TODO remove this for release -->
     <repositories>
         <repository>
+            <id>central</id>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+        <repository>
             <id>maven-snapshots</id>
             <url>http://oss.sonatype.org/content/repositories/snapshots</url>
             <layout>default</layout>
