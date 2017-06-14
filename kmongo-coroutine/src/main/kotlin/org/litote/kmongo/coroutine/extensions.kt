@@ -33,6 +33,7 @@ import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
+import com.mongodb.client.model.InsertManyOptions
 import com.mongodb.client.model.InsertOneOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.result.DeleteResult
@@ -257,6 +258,30 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
 inline fun <reified TResult : Any> MongoCollection<*>.mapReduce(mapFunction: String, reduceFunction: String): MapReduceIterable<TResult>
     = mapReduce(mapFunction, reduceFunction, TResult::class.java)
 
+/**
+ * Inserts one or more documents.  A call to this method is equivalent to a call to the {@code bulkWrite} method
+ *
+ * @param documents the documents to insert
+ * @param options   the options to apply to the operation
+ * @throws com.mongodb.MongoBulkWriteException if there's an exception in the bulk write operation
+ * @throws com.mongodb.MongoException          if the write failed due some other failure
+ * @see com.mongodb.async.client.MongoCollection#bulkWrite
+ */
+suspend fun <T : Any> MongoCollection<T>.insertMany(documents: List<T>, options: InsertManyOptions): Void? {
+    return singleResult { insertMany(documents, options, it) }
+}
+
+/**
+ * Inserts one or more documents.  A call to this method is equivalent to a call to the {@code bulkWrite} method
+ *
+ * @param documents the documents to insert
+ * @throws com.mongodb.MongoBulkWriteException if there's an exception in the bulk write operation
+ * @throws com.mongodb.MongoException          if the write failed due some other failure
+ * @see com.mongodb.async.client.MongoCollection#bulkWrite
+ */
+suspend fun <T : Any> MongoCollection<T>.insertMany(documents: List<T>): Void? {
+    return insertMany(documents, InsertManyOptions())
+}
 
 /**
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
