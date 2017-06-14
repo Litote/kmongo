@@ -304,7 +304,8 @@
     <!-- TODO remove this for release -->
     <repositories>
         <repository>
-            <id>central</id>
+            <id>jcenter</id>
+            <name>JCenter</name>
             <url>http://jcenter.bintray.com</url>
         </repository>
         <repository>
