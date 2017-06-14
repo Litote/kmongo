@@ -285,6 +285,34 @@ suspend fun <T : Any> MongoCollection<T>.insertMany(documents: List<T>): Void? {
 
 /**
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
+
+ * @param document the document to insert
+ * @param callback the callback that is completed once the insert has completed
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(document: TDocument): Void? {
+    return insertOne(document, InsertOneOptions())
+}
+
+/**
+ * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
+
+ * @param document the document to insert
+ * @param options  the options to apply to the operation
+ * @param callback the callback that is completed once the insert has completed
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoCommandException      returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(document: TDocument, options: InsertOneOptions): Void? {
+    return singleResult { insertOne(document, options, it) }
+}
+
+/**
+ * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
  *
  * @param document the document to insert
  *
