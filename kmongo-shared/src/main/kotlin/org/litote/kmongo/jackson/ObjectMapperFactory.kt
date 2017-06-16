@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import de.undercouch.bson4jackson.BsonParser
+import org.litote.bson4jackson.BsonParser
 
 internal object ObjectMapperFactory {
 
@@ -42,7 +42,7 @@ internal object ObjectMapperFactory {
     }
 
     private fun configureBson(mapper: ObjectMapper): ObjectMapper {
-        return mapper.registerModule(de.undercouch.bson4jackson.BsonModule())
+        return mapper.registerModule(org.litote.bson4jackson.BsonModule())
                 .registerKotlinModule()
                 .registerModule(BsonModule())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

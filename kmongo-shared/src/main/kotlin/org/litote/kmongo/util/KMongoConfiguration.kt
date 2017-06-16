@@ -40,7 +40,7 @@ object KMongoConfiguration {
     var bsonMapper: ObjectMapper = ObjectMapperFactory.createBsonObjectMapper()
 
     /**
-     * Basically a copy of [bsonMapper] without [de.undercouch.bson4jackson.BsonFactory].
+     * Basically a copy of [bsonMapper] without [org.litote.bson4jackson.BsonFactory].
      * Used by [org.litote.kmongo.jackson.JacksonCodec] to resolves specific serialization issues.
      */
     var bsonMapperCopy = ObjectMapperFactory.createBsonObjectMapperCopy()
