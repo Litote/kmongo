@@ -138,5 +138,5 @@ class DateTest : KMongoBaseTest<DateValue>() {
         }
     }
 
-    private fun hour(hour: Int): Int = if (hour < 0) 24 - hour else if (hour > 23) hour - 24 else hour
+    private fun hour(hour: Int): Int = if (hour < 0) 24 + hour else if (hour > 23) hour - 24 else hour
 }
