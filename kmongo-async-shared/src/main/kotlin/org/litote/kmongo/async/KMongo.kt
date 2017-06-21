@@ -44,7 +44,6 @@ object KMongo {
      * Create a new client with the given client settings.
      *
      * @param settings the settings
-     *
      * @return the client
      */
     fun createClient(settings: MongoClientSettings): MongoClient {
@@ -60,7 +59,6 @@ object KMongo {
      * Create a new client with the given connection string.
      *
      * @param connectionString the connection
-     *
      * @return the client
      */
     fun createClient(connectionString: String): MongoClient
@@ -68,9 +66,8 @@ object KMongo {
 
     /**
      * Create a new client with the given connection string.
-
-     * @param connectionString the settings
      *
+     * @param connectionString the settings
      * @return the client
      */
     fun createClient(connectionString: ConnectionString): MongoClient {

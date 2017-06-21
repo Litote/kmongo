@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.litote.kmongo.async
 
-import org.litote.kmongo.model.Friend
-import kotlin.reflect.KClass
+import com.mongodb.async.client.MongoClient
+import org.litote.kmongo.EmbeddedMongo.mongodProcess
+import org.litote.kmongo.service.MongoClientProvider
 
 /**
  *
  */
-open class KMongoAsyncBaseTest<T : Any> : KMongoAsyncAbstractTest<T>() {
+object AsyncTestClient {
 
-    @Suppress("UNCHECKED_CAST")
-    override fun getDefaultCollectionClass(): KClass<T>
-            = Friend::class as KClass<T>
+    val instance: MongoClient by lazy {
+        createClient(mongodProcess.config.net().port)
+    }
+
+    private fun createClient(port: Int): MongoClient {
+        return MongoClientProvider.createMongoClient<MongoClient>("mongodb://127.0.0.1:$port")
+    }
 }

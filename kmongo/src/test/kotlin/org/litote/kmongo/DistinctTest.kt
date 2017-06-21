@@ -17,7 +17,6 @@
 package org.litote.kmongo
 
 import org.junit.Test
-import org.litote.kmongo.MongoOperator.exists
 import org.litote.kmongo.MongoOperator.ne
 import org.litote.kmongo.model.Coordinate
 import org.litote.kmongo.model.Friend

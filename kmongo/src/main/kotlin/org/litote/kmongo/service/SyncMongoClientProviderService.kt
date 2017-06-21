@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.service
 
+import com.mongodb.ConnectionString
 import com.mongodb.MongoClient
+import org.litote.kmongo.KMongo
 
 /**
  *
  */
-object TestClient {
+internal class SyncMongoClientProviderService : MongoClientProviderService<MongoClient> {
 
-    val instance: MongoClient by lazy {
-        createClient(EmbeddedMongo.mongodProcess.config.net().port)
+    override fun createMongoClient(): MongoClient {
+        return KMongo.createClient()
     }
 
-    private fun createClient(port: Int): MongoClient {
-        val mongo = KMongo.createClient("127.0.0.1:$port")
-        return mongo
+    override fun createMongoClient(connectionString: String): MongoClient {
+        return KMongo.createClient(connectionString)
+    }
+
+    override fun createMongoClient(connectionString: ConnectionString): MongoClient {
+        return KMongo.createClient(connectionString)
     }
 }

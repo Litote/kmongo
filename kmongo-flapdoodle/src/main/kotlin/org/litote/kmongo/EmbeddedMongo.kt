@@ -24,7 +24,7 @@ import de.flapdoodle.embed.mongo.distribution.Version.Main.PRODUCTION
 import de.flapdoodle.embed.process.runtime.Network
 
 /**
- *
+ * Flapdoodle wrapper.
  */
 object EmbeddedMongo {
 

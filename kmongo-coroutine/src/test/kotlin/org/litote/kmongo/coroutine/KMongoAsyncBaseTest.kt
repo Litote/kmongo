@@ -15,57 +15,16 @@
  */
 package org.litote.kmongo.coroutine
 
-import com.mongodb.async.client.MongoCollection
-import com.mongodb.async.client.MongoDatabase
-import org.junit.Before
-import org.junit.BeforeClass
 import org.litote.kmongo.model.Friend
-import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
 import kotlin.reflect.KClass
 
 /**
  *
  */
-abstract class KMongoAsyncBaseTest<T : Any> {
-
-    companion object {
-
-        val mongoClient = AsyncTestClient.instance
-
-        lateinit var database: MongoDatabase
-
-        @BeforeClass
-        @JvmStatic
-        fun startMongo() {
-            database = mongoClient.getDatabase("test")
-        }
-
-        inline fun <reified T : Any> getCollection(): MongoCollection<T>
-            = database.getCollection<T>()
-
-        fun <T : Any> getCollection(clazz: KClass<T>): MongoCollection<T>
-            = database.getCollection(defaultCollectionName(clazz), clazz.java)
-
-        suspend inline fun <reified T : Any> dropCollection()
-            = dropCollection(defaultCollectionName(T::class))
-
-        suspend fun dropCollection(clazz: KClass<*>)
-            = dropCollection(defaultCollectionName(clazz))
-
-        suspend fun dropCollection(collectionName: String): Void? {
-            return database.dropCollection(collectionName)
-        }
-    }
-
-    lateinit var col: MongoCollection<T>
-
-    @Before
-    fun before() {
-        col = getCollection(getDefaultCollectionClass())
-    }
+open class KMongoAsyncBaseTest<T : Any> : KMongoCoroutineAbstractTest<T>() {
 
     @Suppress("UNCHECKED_CAST")
-    open fun getDefaultCollectionClass(): KClass<T>
-        = Friend::class as KClass<T>
+    override fun getDefaultCollectionClass(): KClass<T>
+            = Friend::class as KClass<T>
 
 }

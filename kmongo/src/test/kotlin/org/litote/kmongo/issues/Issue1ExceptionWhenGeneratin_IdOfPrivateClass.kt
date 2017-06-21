@@ -20,6 +20,7 @@ import com.mongodb.client.MongoCollection
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.litote.kmongo.KMongoAbstractTest
 import org.litote.kmongo.KMongoBaseTest
 import kotlin.test.assertNotNull
 
@@ -34,13 +35,13 @@ class Issue1ExceptionWhenGeneratin_IdOfPrivateClass {
 
     @Before
     fun before() {
-        KMongoBaseTest.startMongo()
-        col = KMongoBaseTest.getCollection(PrivateClass::class)
+        KMongoAbstractTest.startMongo()
+        col = KMongoAbstractTest.getCollection(PrivateClass::class)
     }
 
     @After
     fun after() {
-        KMongoBaseTest.dropCollection(PrivateClass::class)
+        KMongoAbstractTest.dropCollection(PrivateClass::class)
     }
 
     @Test

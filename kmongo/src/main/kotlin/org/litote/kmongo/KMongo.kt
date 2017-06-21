@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.mongodb.ConnectionString
 import com.mongodb.DBRef
 import com.mongodb.MongoClient
 import com.mongodb.MongoClient.getDefaultCodecRegistry
@@ -81,6 +82,15 @@ object KMongo {
      */
     fun createClient(host: String, port: Int): MongoClient
             = createClient(ServerAddress(host, port))
+
+    /**
+     * Creates a Mongo instance based on a (single) mongodb node.
+
+     * @param connectionString the settings
+     * @return the mongo client
+     */
+    fun createClient(connectionString: ConnectionString): MongoClient
+            = createClient(MongoClientURI(connectionString.toString()))
 
     /**
      * Creates a Mongo instance based on a (single) mongodb node
