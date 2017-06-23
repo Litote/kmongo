@@ -20,8 +20,7 @@ import com.mongodb.client.MongoCollection
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.litote.kmongo.FlapdoodleRule.Companion.dropCollection
-import org.litote.kmongo.FlapdoodleRule.Companion.getCollection
+import org.litote.kmongo.FlapdoodleRule
 import kotlin.test.assertNotNull
 
 /**
@@ -33,14 +32,16 @@ class Issue1ExceptionWhenGeneratin_IdOfPrivateClass {
 
     private lateinit var col: MongoCollection<PrivateClass>
 
+    private val rule = FlapdoodleRule(PrivateClass::class)
+
     @Before
     fun before() {
-        col = getCollection(PrivateClass::class)
+        col = rule.getCollection(PrivateClass::class)
     }
 
     @After
     fun after() {
-        dropCollection(PrivateClass::class)
+        rule.dropCollection(PrivateClass::class)
     }
 
     @Test

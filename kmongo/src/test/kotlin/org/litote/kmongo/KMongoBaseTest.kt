@@ -29,14 +29,14 @@ open class KMongoBaseTest<T : Any> {
     @Suppress("LeakingThis")
     @Rule @JvmField
     val rule = FlapdoodleRule(getDefaultCollectionClass())
-    
+
     val col by lazy { rule.col }
 
-    val database by lazy { FlapdoodleRule.database }
+    val database by lazy { rule.database }
 
-    inline fun <reified T : Any> getCollection(): MongoCollection<T> = FlapdoodleRule.getCollection()
+    inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection()
 
-    inline fun <reified T : Any> dropCollection() = FlapdoodleRule.dropCollection<T>()
+    inline fun <reified T : Any> dropCollection() = rule.dropCollection<T>()
 
     @Suppress("UNCHECKED_CAST")
     open fun getDefaultCollectionClass(): KClass<T> = Friend::class as KClass<T>

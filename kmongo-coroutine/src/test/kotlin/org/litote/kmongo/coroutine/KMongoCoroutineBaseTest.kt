@@ -17,7 +17,6 @@ package org.litote.kmongo.coroutine
 
 import com.mongodb.async.client.MongoCollection
 import org.junit.Rule
-import org.litote.kmongo.async.AsyncFlapdoodleRule
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 
@@ -32,9 +31,9 @@ open class KMongoCoroutineBaseTest<T : Any> {
 
     val col by lazy { rule.col }
 
-    val database by lazy { CoroutineFlapdoodleRule.database }
+    val database by lazy { rule.database }
 
-    inline fun <reified T : Any> getCollection(): MongoCollection<T> = CoroutineFlapdoodleRule.getCollection<T>()
+    inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection<T>()
 
     @Suppress("UNCHECKED_CAST")
     open fun getDefaultCollectionClass(): KClass<T>

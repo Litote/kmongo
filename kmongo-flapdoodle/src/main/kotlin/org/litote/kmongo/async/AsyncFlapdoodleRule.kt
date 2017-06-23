@@ -32,44 +32,44 @@ import kotlin.reflect.KClass
  * A [org.junit.Rule] to help writing tests for KMongo using [Flapdoodle](http://flapdoodle-oss.github.io/de.flapdoodle.embed.mongo/).
  */
 class AsyncFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
-                                   val generateRandomCollectionName: Boolean = false) : TestRule {
+                                   val generateRandomCollectionName: Boolean = false,
+                                   val dbName: String = "test") : TestRule {
 
     companion object {
-
-        val mongoClient: MongoClient = AsyncTestClient.instance
-        var databaseName: String = "test"
-        val database: MongoDatabase by lazy {
-            mongoClient.getDatabase(databaseName)
-        }
 
         inline fun <reified T : Any> rule(generateRandomCollectionName: Boolean = false): AsyncFlapdoodleRule<T>
                 = AsyncFlapdoodleRule(T::class, generateRandomCollectionName)
 
-        inline fun <reified T : Any> getCollection(): MongoCollection<T>
-                = database.getCollection(KMongoUtil.defaultCollectionName(T::class), T::class.java)
+    }
 
-        fun <T : Any> getCollection(clazz: KClass<T>): MongoCollection<T>
-                = getCollection(KMongoUtil.defaultCollectionName(clazz), clazz)
+    val mongoClient: MongoClient = AsyncTestClient.instance
+    val database: MongoDatabase by lazy {
+        mongoClient.getDatabase(dbName)
+    }
 
-        fun <T : Any> getCollection(name: String, clazz: KClass<T>): MongoCollection<T>
-                = database.getCollection(name, clazz.java)
+    inline fun <reified T : Any> getCollection(): MongoCollection<T>
+            = database.getCollection(KMongoUtil.defaultCollectionName(T::class), T::class.java)
 
-        fun <T> MongoCollection<T>.drop() {
-            val count = CountDownLatch(1)
-            drop { r, t -> count.countDown() }
-            count.await(1, TimeUnit.SECONDS)
-        }
+    fun <T : Any> getCollection(clazz: KClass<T>): MongoCollection<T>
+            = getCollection(KMongoUtil.defaultCollectionName(clazz), clazz)
 
-        inline fun <reified T : Any> dropCollection()
-                = dropCollection(KMongoUtil.defaultCollectionName(T::class))
+    fun <T : Any> getCollection(name: String, clazz: KClass<T>): MongoCollection<T>
+            = database.getCollection(name, clazz.java)
 
-        fun dropCollection(clazz: KClass<*>)
-                = dropCollection(KMongoUtil.defaultCollectionName(clazz))
+    fun <T> MongoCollection<T>.drop() {
+        val count = CountDownLatch(1)
+        drop { r, t -> count.countDown() }
+        count.await(1, TimeUnit.SECONDS)
+    }
 
-        fun dropCollection(collectionName: String) {
-            database.getCollection(collectionName).drop()
-        }
+    inline fun <reified T : Any> dropCollection()
+            = dropCollection(KMongoUtil.defaultCollectionName(T::class))
 
+    fun dropCollection(clazz: KClass<*>)
+            = dropCollection(KMongoUtil.defaultCollectionName(clazz))
+
+    fun dropCollection(collectionName: String) {
+        database.getCollection(collectionName).drop()
     }
 
     internal lateinit var testContext: AsyncTestContext

@@ -26,7 +26,6 @@ import org.litote.kmongo.MongoOperator.limit
 import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.MongoOperator.project
 import org.litote.kmongo.coroutine.AggregateTest.Article
-import org.litote.kmongo.coroutine.CoroutineFlapdoodleRule.Companion.dropCollection
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
@@ -57,7 +56,7 @@ class AggregateTest : KMongoCoroutineBaseTest<Article>() {
 
     @After
     fun tearDown() = runBlocking<Unit> {
-        dropCollection<Friend>()
+        rule.dropCollection<Friend>()
     }
 
     override fun getDefaultCollectionClass(): KClass<Article> = Article::class
@@ -65,7 +64,7 @@ class AggregateTest : KMongoCoroutineBaseTest<Article>() {
     @Test
     fun canAggregate() = runBlocking<Unit> {
         col.aggregate<Article>("{$match:{}}")
-            .toList()
+                .toList()
     }
 
     @Test
@@ -101,7 +100,7 @@ class AggregateTest : KMongoCoroutineBaseTest<Article>() {
         assertFailsWith(MongoCommandException::class) {
             runBlocking {
                 col.aggregate<Article>("{\$invalid:{}}")
-                    .toList()
+                        .toList()
             }
         }
     }
@@ -109,7 +108,7 @@ class AggregateTest : KMongoCoroutineBaseTest<Article>() {
     @Test
     fun shouldPopulateIds() = runBlocking {
         val data = friendCol.aggregate<Friend>("{$project: {_id: '\$_id', name: '\$name'}}")
-            .toList()
+                .toList()
         assertEquals(3, data.size)
         assertTrue(data.all { it._id != null })
     }

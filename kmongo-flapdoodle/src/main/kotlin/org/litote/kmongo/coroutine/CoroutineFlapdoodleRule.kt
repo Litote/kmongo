@@ -34,54 +34,53 @@ import kotlin.reflect.KClass
  * A [org.junit.Rule] to help writing tests for KMongo using [Flapdoodle](http://flapdoodle-oss.github.io/de.flapdoodle.embed.mongo/).
  */
 class CoroutineFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
-                                       val generateRandomCollectionName: Boolean = false) : TestRule {
-
+                                       val generateRandomCollectionName: Boolean = false,
+                                       val dbName: String = "test") : TestRule {
 
     companion object {
-
-        val mongoClient: MongoClient = AsyncTestClient.instance
-        var databaseName: String = "test"
-        val database: MongoDatabase by lazy {
-            mongoClient.getDatabase(databaseName)
-        }
 
         inline fun <reified T : Any> rule(generateRandomCollectionName: Boolean = false): CoroutineFlapdoodleRule<T>
                 = CoroutineFlapdoodleRule(T::class, generateRandomCollectionName)
 
-        private suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<T>) -> Unit): T? {
-            return suspendCoroutine { continuation ->
-                callback(SingleResultCallback { result: T?, throwable: Throwable? ->
-                    if (throwable != null) {
-                        continuation.resumeWithException(throwable)
-                    } else {
-                        continuation.resume(result)
-                    }
-                })
-            }
+    }
+
+    val mongoClient: MongoClient = AsyncTestClient.instance
+    val database: MongoDatabase by lazy {
+        mongoClient.getDatabase(dbName)
+    }
+
+    private suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<T>) -> Unit): T? {
+        return suspendCoroutine { continuation ->
+            callback(SingleResultCallback { result: T?, throwable: Throwable? ->
+                if (throwable != null) {
+                    continuation.resumeWithException(throwable)
+                } else {
+                    continuation.resume(result)
+                }
+            })
         }
+    }
 
-        inline fun <reified T : Any> getCollection(): MongoCollection<T>
-                = database.getCollection(KMongoUtil.defaultCollectionName(T::class), T::class.java)
+    inline fun <reified T : Any> getCollection(): MongoCollection<T>
+            = database.getCollection(KMongoUtil.defaultCollectionName(T::class), T::class.java)
 
-        fun <T : Any> getCollection(clazz: KClass<T>): MongoCollection<T>
-                = database.getCollection(KMongoUtil.defaultCollectionName(clazz), clazz.java)
+    fun <T : Any> getCollection(clazz: KClass<T>): MongoCollection<T>
+            = database.getCollection(KMongoUtil.defaultCollectionName(clazz), clazz.java)
 
-        fun <T : Any> getCollection(name: String, clazz: KClass<T>): MongoCollection<T>
-                = database.getCollection(name, clazz.java)
+    fun <T : Any> getCollection(name: String, clazz: KClass<T>): MongoCollection<T>
+            = database.getCollection(name, clazz.java)
 
-        suspend inline fun <reified T : Any> dropCollection()
-                = dropCollection(KMongoUtil.defaultCollectionName(T::class))
+    suspend inline fun <reified T : Any> dropCollection()
+            = dropCollection(KMongoUtil.defaultCollectionName(T::class))
 
-        suspend fun dropCollection(clazz: KClass<*>)
-                = dropCollection(KMongoUtil.defaultCollectionName(clazz))
+    suspend fun dropCollection(clazz: KClass<*>)
+            = dropCollection(KMongoUtil.defaultCollectionName(clazz))
 
-        suspend fun dropCollection(collectionName: String)
-                = database.getCollection(collectionName).drop()
+    suspend fun dropCollection(collectionName: String)
+            = database.getCollection(collectionName).drop()
 
-        suspend fun <T> MongoCollection<T>.drop(): Void? {
-            return singleResult { this.drop(it) }
-        }
-
+    suspend fun <T> MongoCollection<T>.drop(): Void? {
+        return singleResult { this.drop(it) }
     }
 
     val col: MongoCollection<T> by lazy {

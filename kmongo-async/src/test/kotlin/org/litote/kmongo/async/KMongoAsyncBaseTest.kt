@@ -31,11 +31,11 @@ open class KMongoAsyncBaseTest<T : Any> {
 
     val col by lazy { rule.col }
 
-    val database by lazy { AsyncFlapdoodleRule.database }
+    val database by lazy { rule.database }
 
-    inline fun <reified T : Any> getCollection(): MongoCollection<T> = AsyncFlapdoodleRule.getCollection<T>()
+    inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection<T>()
 
-    inline fun <reified T : Any> dropCollection() = AsyncFlapdoodleRule.dropCollection<T>()
+    inline fun <reified T : Any> dropCollection() = rule.dropCollection<T>()
 
     fun asyncTest(testToRun: () -> Unit) = rule.asyncTest(testToRun)
 
