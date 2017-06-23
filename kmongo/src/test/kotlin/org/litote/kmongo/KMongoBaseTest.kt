@@ -16,15 +16,28 @@
 
 package org.litote.kmongo
 
+import com.mongodb.client.MongoCollection
+import org.junit.Rule
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 
 /**
  *
  */
-open class KMongoBaseTest<T : Any> : KMongoAbstractTest<T>() {
+open class KMongoBaseTest<T : Any> {
+
+    @Suppress("LeakingThis")
+    @Rule @JvmField
+    val rule = FlapdoodleRule(getDefaultCollectionClass())
+    
+    val col by lazy { rule.col }
+
+    val database by lazy { FlapdoodleRule.database }
+
+    inline fun <reified T : Any> getCollection(): MongoCollection<T> = FlapdoodleRule.getCollection()
+
+    inline fun <reified T : Any> dropCollection() = FlapdoodleRule.dropCollection<T>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun getDefaultCollectionClass(): KClass<T>
-            = Friend::class as KClass<T>
+    open fun getDefaultCollectionClass(): KClass<T> = Friend::class as KClass<T>
 }

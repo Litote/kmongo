@@ -25,7 +25,7 @@ import kotlin.test.assertTrue
 /**
  *
  */
-class CommandTest : KMongoAsyncBaseTest<Friend>() {
+class CommandTest : KMongoCoroutineBaseTest<Friend>() {
 
     class LocationResult(val results: List<Location>)
 

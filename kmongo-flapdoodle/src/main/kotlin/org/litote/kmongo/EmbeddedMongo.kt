@@ -26,7 +26,7 @@ import de.flapdoodle.embed.process.runtime.Network
 /**
  * Flapdoodle wrapper.
  */
-object EmbeddedMongo {
+internal object EmbeddedMongo {
 
     val mongodProcess: MongodProcess by lazy {
         createInstance()

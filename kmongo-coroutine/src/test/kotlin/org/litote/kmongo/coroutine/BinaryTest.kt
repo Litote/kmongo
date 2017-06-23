@@ -28,7 +28,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
+class BinaryTest : KMongoCoroutineBaseTest<BinaryFriend>() {
 
     data class BinaryFriend(val _id: Binary, var name: String = "none")
 

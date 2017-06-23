@@ -13,18 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo.coroutine
 
-import org.litote.kmongo.model.Friend
-import kotlin.reflect.KClass
+package org.litote.kmongo.async
 
-/**
- *
- */
-open class KMongoAsyncBaseTest<T : Any> : KMongoCoroutineAbstractTest<T>() {
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
-    @Suppress("UNCHECKED_CAST")
-    override fun getDefaultCollectionClass(): KClass<T>
-            = Friend::class as KClass<T>
 
+class AsyncTestContext {
+
+    val lock = CountDownLatch(1)
+    var error: Throwable? = null
+
+    fun test(testToRun: () -> Unit) {
+        try {
+            testToRun()
+        } catch(t: Throwable) {
+            error = t
+            throw t
+        } finally {
+            lock.countDown()
+        }
+    }
+
+    fun waitToComplete() {
+        assert(lock.await(10, TimeUnit.SECONDS))
+        val err = error
+        if (err != null) throw err
+    }
 }

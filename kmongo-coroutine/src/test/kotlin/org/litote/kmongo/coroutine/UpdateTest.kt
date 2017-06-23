@@ -19,7 +19,6 @@ package org.litote.kmongo.coroutine
 import com.mongodb.client.model.UpdateOptions
 import kotlinx.coroutines.experimental.runBlocking
 import org.bson.types.ObjectId
-import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.exists
 import org.litote.kmongo.MongoOperator.set
@@ -31,12 +30,7 @@ import kotlin.test.assertNull
 /**
  *
  */
-class UpdateTest : KMongoAsyncBaseTest<Friend>() {
-
-    @Before
-    fun tearDown() = runBlocking<Unit> {
-        dropCollection<Friend>()
-    }
+class UpdateTest : KMongoCoroutineBaseTest<Friend>() {
 
     @Test
     fun canUpdateMulti() = runBlocking {

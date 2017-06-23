@@ -17,7 +17,6 @@
 package org.litote.kmongo.coroutine
 
 import kotlinx.coroutines.experimental.runBlocking
-import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator
 import org.litote.kmongo.model.Coordinate
@@ -28,14 +27,9 @@ import kotlin.test.assertTrue
 /**
  *
  */
-class DistinctTest : KMongoAsyncBaseTest<Friend>() {
+class DistinctTest : KMongoCoroutineBaseTest<Friend>() {
 
     val wallStreetAvenue = "22 Wall Street Avenue"
-
-    @Before
-    fun tearDown() = runBlocking<Unit> {
-        dropCollection<Friend>()
-    }
 
     @Test
     fun distinctOnStringEntities() = runBlocking {

@@ -32,7 +32,7 @@ import kotlin.test.assertNull
 /**
  *
  */
-class FindOneAndModifyTest : KMongoAsyncBaseTest<Friend>() {
+class FindOneAndModifyTest : KMongoCoroutineBaseTest<Friend>() {
 
     @Test
     fun canFindAndUpdateOne() = runBlocking {

@@ -24,7 +24,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class ReplaceTest : KMongoAsyncBaseTest<Friend>() {
+class ReplaceTest : KMongoCoroutineBaseTest<Friend>() {
 
     @Test
     fun canReplaceWithId() = runBlocking {

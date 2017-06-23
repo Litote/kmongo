@@ -23,7 +23,7 @@ import org.litote.kmongo.service.MongoClientProvider
 /**
  *
  */
-object AsyncTestClient {
+internal object AsyncTestClient {
 
     val instance: MongoClient by lazy {
         createClient(mongodProcess.config.net().port)

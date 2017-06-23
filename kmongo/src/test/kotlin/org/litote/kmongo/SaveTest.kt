@@ -32,7 +32,6 @@ class SaveTest : KMongoBaseTest<Friend>() {
 
     @After
     fun tearDown() {
-        super.after()
         dropCollection<ClassWithoutId>()
     }
 

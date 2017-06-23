@@ -13,33 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.litote.kmongo.async
+package org.litote.kmongo.coroutine
 
 import com.mongodb.async.client.MongoCollection
 import org.junit.Rule
+import org.litote.kmongo.async.AsyncFlapdoodleRule
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 
 /**
  *
  */
-open class KMongoAsyncBaseTest<T : Any> {
+open class KMongoCoroutineBaseTest<T : Any> {
 
     @Suppress("LeakingThis")
     @Rule @JvmField
-    val rule = AsyncFlapdoodleRule(getDefaultCollectionClass())
+    val rule = CoroutineFlapdoodleRule(getDefaultCollectionClass())
 
     val col by lazy { rule.col }
 
     val database by lazy { AsyncFlapdoodleRule.database }
 
-    inline fun <reified T : Any> getCollection(): MongoCollection<T> = AsyncFlapdoodleRule.getCollection<T>()
-
-    inline fun <reified T : Any> dropCollection() = AsyncFlapdoodleRule.dropCollection<T>()
-
-    fun asyncTest(testToRun: () -> Unit) = rule.asyncTest(testToRun)
+    inline fun <reified T : Any> getCollection(): MongoCollection<T> = CoroutineFlapdoodleRule.getCollection<T>()
 
     @Suppress("UNCHECKED_CAST")
     open fun getDefaultCollectionClass(): KClass<T>
             = Friend::class as KClass<T>
+
 }

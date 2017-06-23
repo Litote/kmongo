@@ -55,7 +55,6 @@ class AggregateTest : KMongoBaseTest<Article>() {
 
     @After
     fun tearDown() {
-        super.after()
         dropCollection<Friend>()
     }
 

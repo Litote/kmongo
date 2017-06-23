@@ -28,7 +28,7 @@ import kotlin.test.assertNull
 /**
  *
  */
-class FindOneTest : KMongoAsyncBaseTest<Friend>() {
+class FindOneTest : KMongoCoroutineBaseTest<Friend>() {
 
     @Test
     fun canFindOne() = runBlocking {

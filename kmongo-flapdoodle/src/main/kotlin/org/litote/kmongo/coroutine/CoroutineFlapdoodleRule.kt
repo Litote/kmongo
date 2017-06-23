@@ -17,30 +17,33 @@
 package org.litote.kmongo.coroutine
 
 import com.mongodb.async.SingleResultCallback
+import com.mongodb.async.client.MongoClient
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.async.client.MongoDatabase
-import org.junit.Before
-import org.junit.BeforeClass
+import kotlinx.coroutines.experimental.runBlocking
+import org.bson.types.ObjectId
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
+import org.litote.kmongo.async.AsyncFlapdoodleRule
 import org.litote.kmongo.async.AsyncTestClient
 import org.litote.kmongo.util.KMongoUtil
 import kotlin.coroutines.experimental.suspendCoroutine
 import kotlin.reflect.KClass
 
 /**
- *
+ * A [org.junit.Rule] to help writing tests for KMongo using [Flapdoodle](http://flapdoodle-oss.github.io/de.flapdoodle.embed.mongo/).
  */
-abstract class KMongoCoroutineAbstractTest<T : Any> {
+class CoroutineFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
+                                       val generateRandomCollectionName: Boolean = false) : TestRule {
+
 
     companion object {
 
-        val mongoClient = AsyncTestClient.instance
-
-        lateinit var database: MongoDatabase
-
-        @BeforeClass
-        @JvmStatic
-        fun startMongo() {
-            database = mongoClient.getDatabase("test")
+        val mongoClient: MongoClient = AsyncTestClient.instance
+        var databaseName: String = "test"
+        val database: MongoDatabase by lazy {
+            mongoClient.getDatabase(databaseName)
         }
 
         private suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<T>) -> Unit): T? {
@@ -67,17 +70,36 @@ abstract class KMongoCoroutineAbstractTest<T : Any> {
         suspend fun dropCollection(clazz: KClass<*>)
                 = dropCollection(KMongoUtil.defaultCollectionName(clazz))
 
-        suspend fun dropCollection(collectionName: String): Void? {
-            return singleResult { database.getCollection(collectionName).drop(it) }
+        suspend fun dropCollection(collectionName: String)
+                = database.getCollection(collectionName).drop()
+
+        suspend fun <T> MongoCollection<T>.drop(): Void? {
+            return singleResult { this.drop(it) }
+        }
+
+    }
+
+    val col: MongoCollection<T> by lazy {
+        val name = if (generateRandomCollectionName) {
+            ObjectId().toString()
+        } else {
+            KMongoUtil.defaultCollectionName(defaultDocumentClass)
+        }
+
+        AsyncFlapdoodleRule.getCollection(name, defaultDocumentClass)
+    }
+
+    override fun apply(base: Statement, description: Description): Statement {
+        return object : Statement() {
+
+            override fun evaluate() {
+                try {
+                    base.evaluate()
+                } finally {
+                    runBlocking { col.drop() }
+                }
+            }
         }
     }
 
-    lateinit var col: MongoCollection<T>
-
-    @Before
-    fun before() {
-        col = getCollection(getDefaultCollectionClass())
-    }
-
-    abstract fun getDefaultCollectionClass(): KClass<T>
 }

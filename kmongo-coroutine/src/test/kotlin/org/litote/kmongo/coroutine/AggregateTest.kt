@@ -26,13 +26,14 @@ import org.litote.kmongo.MongoOperator.limit
 import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.MongoOperator.project
 import org.litote.kmongo.coroutine.AggregateTest.Article
+import org.litote.kmongo.coroutine.CoroutineFlapdoodleRule.Companion.dropCollection
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-class AggregateTest : KMongoAsyncBaseTest<Article>() {
+class AggregateTest : KMongoCoroutineBaseTest<Article>() {
 
     data class Article(val title: String, val author: String, val tags: List<String>) {
 
@@ -57,7 +58,6 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
     @After
     fun tearDown() = runBlocking<Unit> {
         dropCollection<Friend>()
-        dropCollection<Article>()
     }
 
     override fun getDefaultCollectionClass(): KClass<Article> = Article::class

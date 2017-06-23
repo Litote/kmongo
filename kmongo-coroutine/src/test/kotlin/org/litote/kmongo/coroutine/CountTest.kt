@@ -16,8 +16,6 @@
 package org.litote.kmongo.coroutine
 
 import kotlinx.coroutines.experimental.runBlocking
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.exists
 import org.litote.kmongo.model.Friend
@@ -26,12 +24,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class CountTest : KMongoAsyncBaseTest<Friend>() {
-
-    @Before
-    fun tearDown() = runBlocking<Unit> {
-        dropCollection<Friend>()
-    }
+class CountTest : KMongoCoroutineBaseTest<Friend>() {
 
     fun newFriend(): Friend {
         return Friend("John", "22 Wall Street Avenue")
@@ -39,7 +32,7 @@ class CountTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canCount() = runBlocking {
-         col.insertMany(listOf(newFriend(), newFriend()))
+        col.insertMany(listOf(newFriend(), newFriend()))
         val count = col.count()
         assertEquals(2, count)
     }
