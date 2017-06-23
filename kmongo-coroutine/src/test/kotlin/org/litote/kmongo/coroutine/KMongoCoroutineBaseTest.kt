@@ -32,7 +32,7 @@ open class KMongoCoroutineBaseTest<T : Any> {
 
     val col by lazy { rule.col }
 
-    val database by lazy { AsyncFlapdoodleRule.database }
+    val database by lazy { CoroutineFlapdoodleRule.database }
 
     inline fun <reified T : Any> getCollection(): MongoCollection<T> = CoroutineFlapdoodleRule.getCollection<T>()
 

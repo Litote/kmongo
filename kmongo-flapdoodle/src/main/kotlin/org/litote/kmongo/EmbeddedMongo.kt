@@ -18,6 +18,7 @@ package org.litote.kmongo
 
 import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
+import de.flapdoodle.embed.mongo.config.IMongodConfig
 import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
 import de.flapdoodle.embed.mongo.config.Net
 import de.flapdoodle.embed.mongo.distribution.Version.Main.PRODUCTION
@@ -26,20 +27,19 @@ import de.flapdoodle.embed.process.runtime.Network
 /**
  * Flapdoodle wrapper.
  */
-internal object EmbeddedMongo {
+object EmbeddedMongo {
+
+    var port = Network.getFreeServerPort()
+    var config: IMongodConfig = MongodConfigBuilder()
+            .version(PRODUCTION)
+            .net(Net(port, Network.localhostIsIPv6()))
+            .build()
 
     val mongodProcess: MongodProcess by lazy {
         createInstance()
     }
 
     private fun createInstance(): MongodProcess {
-        val port = Network.getFreeServerPort()
-
-        val mongodConfig = MongodConfigBuilder()
-                .version(PRODUCTION)
-                .net(Net(port, Network.localhostIsIPv6()))
-                .build()
-
-        return MongodStarter.getDefaultInstance().prepare(mongodConfig).start()
+        return MongodStarter.getDefaultInstance().prepare(config).start()
     }
 }

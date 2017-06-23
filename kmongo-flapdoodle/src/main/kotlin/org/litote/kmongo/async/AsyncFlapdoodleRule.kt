@@ -42,6 +42,9 @@ class AsyncFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
             mongoClient.getDatabase(databaseName)
         }
 
+        inline fun <reified T : Any> rule(generateRandomCollectionName: Boolean = false): AsyncFlapdoodleRule<T>
+                = AsyncFlapdoodleRule(T::class, generateRandomCollectionName)
+
         inline fun <reified T : Any> getCollection(): MongoCollection<T>
                 = database.getCollection(KMongoUtil.defaultCollectionName(T::class), T::class.java)
 
@@ -69,7 +72,7 @@ class AsyncFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
 
     }
 
-    lateinit var testContext: AsyncTestContext
+    internal lateinit var testContext: AsyncTestContext
 
     val col: MongoCollection<T> by lazy {
         val name = if (generateRandomCollectionName) {

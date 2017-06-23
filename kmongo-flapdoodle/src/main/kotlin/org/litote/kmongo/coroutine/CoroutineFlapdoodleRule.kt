@@ -25,7 +25,6 @@ import org.bson.types.ObjectId
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import org.litote.kmongo.async.AsyncFlapdoodleRule
 import org.litote.kmongo.async.AsyncTestClient
 import org.litote.kmongo.util.KMongoUtil
 import kotlin.coroutines.experimental.suspendCoroutine
@@ -46,6 +45,9 @@ class CoroutineFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
             mongoClient.getDatabase(databaseName)
         }
 
+        inline fun <reified T : Any> rule(generateRandomCollectionName: Boolean = false): CoroutineFlapdoodleRule<T>
+                = CoroutineFlapdoodleRule(T::class, generateRandomCollectionName)
+
         private suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<T>) -> Unit): T? {
             return suspendCoroutine { continuation ->
                 callback(SingleResultCallback { result: T?, throwable: Throwable? ->
@@ -63,6 +65,9 @@ class CoroutineFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
 
         fun <T : Any> getCollection(clazz: KClass<T>): MongoCollection<T>
                 = database.getCollection(KMongoUtil.defaultCollectionName(clazz), clazz.java)
+
+        fun <T : Any> getCollection(name: String, clazz: KClass<T>): MongoCollection<T>
+                = database.getCollection(name, clazz.java)
 
         suspend inline fun <reified T : Any> dropCollection()
                 = dropCollection(KMongoUtil.defaultCollectionName(T::class))
@@ -86,7 +91,7 @@ class CoroutineFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
             KMongoUtil.defaultCollectionName(defaultDocumentClass)
         }
 
-        AsyncFlapdoodleRule.getCollection(name, defaultDocumentClass)
+        getCollection(name, defaultDocumentClass)
     }
 
     override fun apply(base: Statement, description: Description): Statement {

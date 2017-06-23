@@ -40,6 +40,9 @@ class FlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
             mongoClient.getDatabase(databaseName)
         }
 
+        inline fun <reified T : Any> rule(generateRandomCollectionName: Boolean = false): FlapdoodleRule<T>
+                = FlapdoodleRule(T::class,generateRandomCollectionName)
+
         inline fun <reified T : Any> getCollection(): MongoCollection<T>
                 = database.getCollection(KMongoUtil.defaultCollectionName(T::class), T::class.java)
 

@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.async
+package org.litote.kmongo
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import com.mongodb.client.model.Filters
+import org.junit.Rule
+import org.junit.Test
+import org.litote.kmongo.KFongoRule.Companion.rule
+import kotlin.test.assertEquals
 
+/**
+ *
+ */
+class KFongoRuleTest {
 
-internal class AsyncTestContext {
+    data class Friend(val name: String, val _id: String? = null)
 
-    val lock = CountDownLatch(1)
-    var error: Throwable? = null
+    @Rule @JvmField
+    val rule = rule<Friend>()
 
-    fun test(testToRun: () -> Unit) {
-        try {
-            testToRun()
-        } catch(t: Throwable) {
-            error = t
-            throw t
-        } finally {
-            lock.countDown()
-        }
-    }
-
-    fun waitToComplete() {
-        assert(lock.await(10, TimeUnit.SECONDS))
-        val err = error
-        if (err != null) throw err
+    @Test
+    fun testSaveAndFind() {
+        val friend = Friend("bob")
+        rule.col.insertOne(friend)
+        assertEquals(friend, rule.col.findOneAndDelete(Filters.eq("_id", friend._id)))
     }
 }

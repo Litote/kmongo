@@ -31,6 +31,7 @@
     <modules>
         <module>kmongo-shared</module>
         <module>kmongo-flapdoodle</module>
+        <module>kmongo-fongo</module>
         <module>kmongo</module>
         <module>kmongo-async-shared</module>
         <module>kmongo-async</module>
@@ -48,6 +49,7 @@
 
         <!-- test dependencies -->
         <flapdoodle.version>2.0.0</flapdoodle.version>
+        <fongo.version>2.1.0</fongo.version>
         <sl4j.version>1.7.25</sl4j.version>
         <junit.version>4.12</junit.version>
 
@@ -160,6 +162,11 @@
                 <groupId>de.flapdoodle.embed</groupId>
                 <artifactId>de.flapdoodle.embed.mongo</artifactId>
                 <version>${flapdoodle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.fakemongo</groupId>
+                <artifactId>fongo</artifactId>
+                <version>${fongo.version}</version>
             </dependency>
 
             <dependency>
