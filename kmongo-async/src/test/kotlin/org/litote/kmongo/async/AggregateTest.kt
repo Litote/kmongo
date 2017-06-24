@@ -54,7 +54,7 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
         friendCol.insertOne(Friend("John"), { r, t -> count.countDown() })
         friendCol.insertOne(Friend("Richard"), { r, t -> count.countDown() })
 
-        count.await(10, TimeUnit.SECONDS)
+        count.await(20, TimeUnit.SECONDS)
     }
 
     @After

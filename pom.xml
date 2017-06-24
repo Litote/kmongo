@@ -40,7 +40,7 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.1.2</kotlin.version>
+        <kotlin.version>1.1.3</kotlin.version>
         <mongo.version>3.4.2</mongo.version>
         <coroutine.version>0.16</coroutine.version>
         <jackson.version>2.8.8.1</jackson.version>
