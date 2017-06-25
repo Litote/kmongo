@@ -253,9 +253,7 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <releaseProfiles>release</releaseProfiles>
-                    <goals>deploy</goals>
                     <tagNameFormat>kmongo-@{project.version}</tagNameFormat>
-                    <preparationGoals>clean package dokka:javadocJar verify</preparationGoals>
                     <goals>package dokka:javadocJar deploy</goals>
                 </configuration>
             </plugin>
