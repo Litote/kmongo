@@ -57,7 +57,7 @@
         <plugin.jar.version>3.0.2</plugin.jar.version>
         <plugin.source.version>3.0.1</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
-        <plugin.dokka.version>0.9.14</plugin.dokka.version>
+        <plugin.dokka.version>0.9.15</plugin.dokka.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
 
@@ -119,6 +119,21 @@
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-async</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-coroutine</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-shared</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
@@ -133,6 +148,11 @@
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-flapdoodle</artifactId>
                 <scope>test</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-fongo</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -276,8 +296,10 @@
                             <dir>${sourceDirectory}</dir>
                             <url>https://github.com/Litote/kmongo/blob/master/${project.artifactId}/src/main/kotlin
                             </url>
+                            <urlSuffix>#L</urlSuffix>
                         </link>
                     </sourceLinks>
+                    <reportUndocumented>false</reportUndocumented>
                 </configuration>
             </plugin>
             <plugin>
