@@ -28,6 +28,8 @@ import com.mongodb.async.client.MongoIterable
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.CountOptions
+import com.mongodb.client.model.CreateCollectionOptions
+import com.mongodb.client.model.CreateViewOptions
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.FindOneAndUpdateOptions
@@ -77,6 +79,82 @@ suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<
 //*******
 //MongoDatabase extension methods
 //*******
+
+/**
+ * Executes the given command in the context of the current database with a read preference of [ReadPreference.primary].
+
+ * @param command     the command to be run
+ * @param <TResult>   the type of the class to use instead of `Document`.
+ * @return TResult object result of the command
+ */
+suspend inline fun <reified TResult : Any> MongoDatabase.runCommand(command: Bson): TResult? {
+    return singleResult { runCommand(command, TResult::class.java, it) }
+}
+
+/**
+ * Executes the given command in the context of the current database with the given read preference.
+
+ * @param command        the command to be run
+ * @param readPreference the [com.mongodb.ReadPreference] to be used when executing the command
+ * @param <TResult>      the type of the class to use instead of `Document`.
+ * @return TResult object result of the command
+ */
+suspend inline fun <reified TResult : Any> MongoDatabase.runCommand(command: Bson, readPreference: ReadPreference): TResult? {
+    return singleResult { runCommand(command, readPreference, TResult::class.java, it) }
+}
+
+/**
+ * Executes the given command in the context of the current database with the given read preference.
+ *
+ * @param command        the command to be run
+ * @param readPreference the {@link com.mongodb.ReadPreference} to be used when executing the command
+ * @param <TResult>      the type of the class to use instead of {@code Document}.
+ */
+suspend inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String, readPreference: ReadPreference): TResult? {
+    return singleResult { runCommand(toBson(command), readPreference, TResult::class.java, it) }
+}
+
+/**
+ * Executes the given command in the context of the current database with the given read preference.
+ *
+ * @param command        the command to be run
+ * @param <TResult>      the type of the class to use instead of {@code Document}.
+ */
+suspend inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String): TResult? {
+    return runCommand(command, readPreference)
+}
+
+/**
+ * Drops this database.
+
+ * @mongodb.driver.manual reference/command/dropDatabase/#dbcmd.dropDatabase Drop database
+ */
+suspend fun MongoDatabase.drop() {
+    singleResult<Void> { this.drop(it) }
+}
+
+/**
+ * Create a new collection with the given name.
+
+ * @param collectionName the name for the new collection to create
+ * @mongodb.driver.manual reference/command/create Create Command
+ */
+suspend fun MongoDatabase.createCollection(collectionName: String) {
+    singleResult<Void> { this.createCollection(collectionName, it) }
+}
+
+/**
+ * Create a new collection with the selected options
+
+ * @param collectionName the name for the new collection to create
+ * @param options        various options for creating the collection
+ * @mongodb.driver.manual reference/command/create Create Command
+ */
+suspend fun MongoDatabase.createCollection(collectionName: String, options: CreateCollectionOptions) {
+    singleResult<Void> { this.createCollection(collectionName, options, it) }
+}
+
+
 /**
  * Gets a collection.
  *
@@ -85,7 +163,7 @@ suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<
  * @return the collection
  */
 inline fun <reified T : Any> MongoDatabase.getCollection(collectionName: String): MongoCollection<T>
-    = getCollection(collectionName, T::class.java)
+        = getCollection(collectionName, T::class.java)
 
 /**
  * Gets a collection.
@@ -96,7 +174,7 @@ inline fun <reified T : Any> MongoDatabase.getCollection(collectionName: String)
  * @see defaultCollectionName
  */
 inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T>
-    = getCollection(defaultCollectionName(T::class), T::class.java)
+        = getCollection(defaultCollectionName(T::class), T::class.java)
 
 
 /**
@@ -108,58 +186,58 @@ inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T>
  * @see defaultCollectionName
  */
 fun <T : Any> MongoDatabase.getCollection(clazz: KClass<T>): MongoCollection<T>
-    = getCollection(defaultCollectionName(clazz), clazz.java)
+        = getCollection(defaultCollectionName(clazz), clazz.java)
+
+/**
+ * Creates a view with the given name, backing collection/view name, and aggregation pipeline that defines the view.
+
+ * @param viewName the name of the view to create
+ * @param viewOn   the backing collection/view for the view
+ * @param pipeline the pipeline that defines the view
+ * @mongodb.driver.manual reference/command/create Create Command
+ */
+suspend fun MongoDatabase.createView(viewName: String, viewOn: String, pipeline: List<Bson>) {
+    singleResult<Void> { this.createView(viewName, viewOn, pipeline, it) }
+}
+
+/**
+ * Creates a view with the given name, backing collection/view name, aggregation pipeline, and options that defines the view.
+
+ * @param viewName the name of the view to create
+ * @param viewOn   the backing collection/view for the view
+ * @param pipeline the pipeline that defines the view
+ * @param createViewOptions various options for creating the view
+ * @mongodb.driver.manual reference/command/create Create Command
+ */
+suspend fun MongoDatabase.createView(viewName: String, viewOn: String, pipeline: List<Bson>, createViewOptions: CreateViewOptions) {
+    singleResult<Void> { this.createView(viewName, viewOn, pipeline, createViewOptions, it) }
+}
 
 /**
  * Drops this collection from the Database.
  *
- * @param callback the callback that is completed once the collection has been dropped
  * @mongodb.driver.manual reference/command/drop/ Drop Collection
  */
 suspend inline fun <reified T : Any> MongoDatabase.dropCollection()
-    = dropCollection(defaultCollectionName(T::class))
+        = dropCollection(defaultCollectionName(T::class))
 
 /**
  * Drops this collection from the Database.
  *
- * @param callback the callback that is completed once the collection has been dropped
  * @mongodb.driver.manual reference/command/drop/ Drop Collection
  */
 suspend fun MongoDatabase.dropCollection(clazz: KClass<*>)
-    = dropCollection(defaultCollectionName(clazz))
+        = dropCollection(defaultCollectionName(clazz))
 
 /**
  * Drops this collection from the Database.
  *
- * @param callback the callback that is completed once the collection has been dropped
  * @mongodb.driver.manual reference/command/drop/ Drop Collection
  */
 suspend fun MongoDatabase.dropCollection(collectionName: String): Void? {
     return singleResult { getCollection(collectionName).drop(it) }
 }
 
-/**
- * Executes the given command in the context of the current database with the given read preference.
- *
- * @param command        the command to be run
- * @param readPreference the {@link com.mongodb.ReadPreference} to be used when executing the command
- * @param <TResult>      the type of the class to use instead of {@code Document}.
- * @param callback       the callback that is passed the command result
- */
-suspend inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String, readPreference: ReadPreference): TResult? {
-    return singleResult { runCommand(toBson(command), readPreference, TResult::class.java, it) }
-}
-
-/**
- * Executes the given command in the context of the current database with the given read preference.
- *
- * @param command        the command to be run
- * @param <TResult>      the type of the class to use instead of {@code Document}.
- * @param callback       the callback that is passed the command result
- */
-suspend inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String): TResult? {
-    return runCommand(command, readPreference)
-}
 
 //*******
 //MongoCollection extension methods
@@ -172,7 +250,7 @@ suspend inline fun <reified TResult : Any> MongoDatabase.runCommand(command: Str
  * @return a new MongoCollection instance with the different default class
  */
 inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument>
-    = withDocumentClass(NewTDocument::class.java)
+        = withDocumentClass(NewTDocument::class.java)
 
 /**
  * Counts the number of documents
@@ -186,7 +264,6 @@ suspend fun <T> MongoCollection<T>.count(): Long {
  * Counts the number of documents in the collection according to the given options.
  *
  * @param filter   the query filter
- * @param callback the callback passed the number of documents in the collection
  */
 suspend fun <T> MongoCollection<T>.count(filter: String): Long {
     return count(filter, CountOptions())
@@ -210,7 +287,7 @@ suspend fun <T> MongoCollection<T>.count(filter: String, options: CountOptions):
  * @return an iterable of distinct values
  */
 inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctIterable<TResult>
-    = distinct(fieldName, EMPTY_JSON)
+        = distinct(fieldName, EMPTY_JSON)
 
 /**
  * Gets the distinct values of the specified field name.
@@ -221,7 +298,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
  * @return an iterable of distinct values
  */
 inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String, filter: String): DistinctIterable<TResult>
-    = distinct(fieldName, toBson(filter), TResult::class.java)
+        = distinct(fieldName, toBson(filter), TResult::class.java)
 
 /**
  * Finds all documents that match the filter in the collection.
@@ -230,7 +307,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
  * @return the find iterable interface
  */
 fun <T : Any> MongoCollection<T>.find(filter: String): FindIterable<T>
-    = find(toBson(filter))
+        = find(toBson(filter))
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -272,7 +349,7 @@ suspend fun <T : Any> MongoCollection<T>.findOneById(id: Any): T? {
  * @return an iterable containing the result of the aggregation operation
  */
 inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregateIterable<TResult>
-    = aggregate(toBsonList(pipeline, codecRegistry), TResult::class.java)
+        = aggregate(toBsonList(pipeline, codecRegistry), TResult::class.java)
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
@@ -284,7 +361,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
  * @return an iterable containing the result of the aggregation operation
  */
 inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregateIterable<TResult>
-    = aggregate(pipeline.toList(), TResult::class.java)
+        = aggregate(pipeline.toList(), TResult::class.java)
 
 /**
  * Aggregates documents according to the specified map-reduce function.
@@ -296,7 +373,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
  * @return an iterable containing the result of the map-reduce operation
  */
 inline fun <reified TResult : Any> MongoCollection<*>.mapReduce(mapFunction: String, reduceFunction: String): MapReduceIterable<TResult>
-    = mapReduce(mapFunction, reduceFunction, TResult::class.java)
+        = mapReduce(mapFunction, reduceFunction, TResult::class.java)
 
 /**
  * Inserts one or more documents.  A call to this method is equivalent to a call to the {@code bulkWrite} method
@@ -362,7 +439,7 @@ suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(document: TDo
  * @throws com.mongodb.MongoException
  */
 suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String): Void?
-    = insertOne(document, InsertOneOptions())
+        = insertOne(document, InsertOneOptions())
 
 /**
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
@@ -597,7 +674,7 @@ suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T): Up
  * @throws com.mongodb.MongoException             returned via the callback
  */
 suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: String): UpdateResult?
-    = updateOneById(id, update, UpdateOptions())
+        = updateOneById(id, update, UpdateOptions())
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -612,7 +689,7 @@ suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: String): Updat
  * @throws com.mongodb.MongoException             returned via the callback
  */
 suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, options: UpdateOptions): UpdateResult?
-    = updateOne(idFilterQuery(id), update, options)
+        = updateOne(idFilterQuery(id), update, options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -626,7 +703,7 @@ suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, option
  * @throws com.mongodb.MongoException             returned via the callback
  */
 suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any): UpdateResult?
-    = updateOneById(id, update, UpdateOptions())
+        = updateOneById(id, update, UpdateOptions())
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -788,7 +865,7 @@ suspend fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOption
  * @return the list indexes iterable interface
  */
 inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexesIterable<TResult>
-    = listIndexes(TResult::class.java)
+        = listIndexes(TResult::class.java)
 
 /**
  * Drops the index given the keys used to create it.
@@ -833,7 +910,7 @@ suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg request
  * @param options the index options
  */
 fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel
-    = IndexModel(toBson(keys), options)
+        = IndexModel(toBson(keys), options)
 
 //*******
 //DistinctIterable extension methods
@@ -846,7 +923,7 @@ fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()):
  * @return this
  */
 fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T>
-    = filter(toBson(filter))
+        = filter(toBson(filter))
 
 //*******
 //FindIterable extension methods
@@ -859,7 +936,7 @@ fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T>
  * @return this
  */
 fun <T> FindIterable<T>.filter(filter: String): FindIterable<T>
-    = filter(toBson(filter))
+        = filter(toBson(filter))
 
 /**
  * Sets the query modifiers to apply to this operation.
@@ -868,7 +945,7 @@ fun <T> FindIterable<T>.filter(filter: String): FindIterable<T>
  * @return this
  */
 fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T>
-    = modifiers(toBson(modifiers))
+        = modifiers(toBson(modifiers))
 
 /**
  * Sets a document describing the fields to return for all matching documents.
@@ -877,7 +954,7 @@ fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T>
  * @return this
  */
 fun <T> FindIterable<T>.projection(projection: String): FindIterable<T>
-    = projection(toBson(projection))
+        = projection(toBson(projection))
 
 /**
  * Sets the sort criteria to apply to the query.
@@ -886,7 +963,7 @@ fun <T> FindIterable<T>.projection(projection: String): FindIterable<T>
  * @return this
  */
 fun <T> FindIterable<T>.sort(sort: String): FindIterable<T>
-    = sort(toBson(sort))
+        = sort(toBson(sort))
 
 //*******
 //MapReduceIterable extension methods
@@ -899,7 +976,7 @@ fun <T> FindIterable<T>.sort(sort: String): FindIterable<T>
  * @return this
  */
 fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T>
-    = scope(toBson(scope))
+        = scope(toBson(scope))
 
 /**
  * Sets the sort criteria to apply to the query.
@@ -908,7 +985,7 @@ fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T>
  * @return this
  */
 fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T>
-    = sort(toBson(sort))
+        = sort(toBson(sort))
 
 /**
  * Sets the query filter to apply to the query.
@@ -917,7 +994,7 @@ fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T>
  * @return this
  */
 fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T>
-    = filter(toBson(filter))
+        = filter(toBson(filter))
 
 //*******
 //MongoIterable extension methods
@@ -950,5 +1027,5 @@ val Any.json: String
  * Format this string to remove space(s) between $ and next char
  */
 fun String.formatJson(): String
-    = KMongoUtil.formatJson(this)
+        = KMongoUtil.formatJson(this)
 
