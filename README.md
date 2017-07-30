@@ -8,7 +8,9 @@
  
 ## A Kotlin toolkit for Mongo
 
-Documentation : [https://litote.org/kmongo](https://litote.org/kmongo)
+Documentation: [https://litote.org/kmongo](https://litote.org/kmongo)
+
+Forum: [https://groups.google.com/forum/#!forum/kmongo](https://groups.google.com/forum/#!forum/kmongo)
 
 ## Contributors
 
