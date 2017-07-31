@@ -24,7 +24,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.mongodb.BasicDBObject
 import com.mongodb.ConnectionString
+import com.mongodb.DBObject
 import com.mongodb.DBRef
 import com.mongodb.MongoClient
 import com.mongodb.MongoClient.getDefaultCodecRegistry
@@ -238,7 +240,7 @@ object KMongo {
             = MongoClientOptions.builder(clientOptions).codecRegistry(configureRegistry(clientOptions.codecRegistry)).build()
 
     private fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry {
-        //need to register DBRef just before using jacksonCodecProvider, because it only exists in sync driver!
+        //need to register DBRef & DBObject just before using jacksonCodecProvider, because it only exists in sync driver!
         KMongoConfiguration.registerBsonModule(
                 SimpleModule()
                         .addSerializer(DBRef::class.java, object : JsonSerializer<DBRef>() {
@@ -291,7 +293,23 @@ object KMongo {
                                     null
                                 }
                             }
-                        }))
+                        })
+                        .addSerializer(DBObject::class.java, object : JsonSerializer<DBObject>() {
+                            override fun serialize(value: DBObject, gen: JsonGenerator, serializers: SerializerProvider) {
+                                val map = value.toMap()
+                                serializers
+                                        .findTypedValueSerializer(map::class.java, true, null)
+                                        .serialize(map, gen, serializers)
+                            }
+                        })
+                        .addDeserializer(DBObject::class.java, object : JsonDeserializer<DBObject>() {
+                            override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): DBObject? {
+                                val map = jp.readValueAs(Map::class.java)
+                                return BasicDBObject(map)
+                            }
+                        })
+        )
+
         return fromRegistries(codecRegistry, fromProviders(jacksonCodecProvider))
     }
 }
