@@ -127,11 +127,19 @@ class DateTest : KMongoBaseTest<DateValue>() {
             assertTrue(loadedValue.get("localDate").toString().contains(timeDate))
 
             val localDateTime = loadedValue.get("localDateTime") as Date
-            assertEquals(date.hours, hour(localDateTime.hours - modifier))
+            val calendarDateTime = Calendar.getInstance()
+            calendarDateTime.time = localDateTime
+
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+
+            assertEquals(calendar.get(Calendar.HOUR_OF_DAY), hour(calendarDateTime.get(Calendar.HOUR_OF_DAY) - modifier))
             assertEquals(dateToString.substring(13, 19), localDateTime.toString().substring(13, 19))
 
             val localTime = loadedValue.get("localTime") as Date
-            assertEquals(date.hours, hour(localTime.hours - modifier))
+            val calendarTime = Calendar.getInstance()
+            calendarTime.time = localTime
+            assertEquals(calendar.get(Calendar.HOUR_OF_DAY), hour(calendarTime.get(Calendar.HOUR_OF_DAY) - modifier))
             assertEquals(dateToString.substring(13, 19), localTime.toString().substring(13, 19))
         } finally {
             TimeZone.setDefault(defaultTimezone)
