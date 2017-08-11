@@ -60,7 +60,18 @@ import org.litote.kmongo.util.KMongoUtil.toWriteModel
  * @param <T>            the default target type of the collection to return
  * @return the collection
  */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 inline fun <reified T : Any> MongoDatabase.getCollection(collectionName: String): MongoCollection<T>
+        = getCollectionOfName(collectionName)
+
+/**
+ * Gets a collection.
+ *
+ * @param collectionName the name of the collection to return
+ * @param <T>            the default target type of the collection to return
+ * @return the collection
+ */
+inline fun <reified T : Any> MongoDatabase.getCollectionOfName(collectionName: String): MongoCollection<T>
         = getCollection(collectionName, T::class.java)
 
 /**
@@ -217,7 +228,20 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
  * *
  * @return an iterable containing the result of the map-reduce operation
  */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 inline fun <reified TResult : Any> MongoCollection<*>.mapReduce(mapFunction: String, reduceFunction: String): MapReduceIterable<TResult>
+        = mapReduceWith(mapFunction, reduceFunction)
+
+/**
+ * Aggregates documents according to the specified map-reduce function.
+ *
+ * @param mapFunction    a JavaScript function that associates or "maps" a value with a key and emits the key and value pair.
+ * @param reduceFunction a JavaScript function that "reduces" to a single object all the values associated with a particular key.
+ * @param <TResult>      the target document type of the iterable.
+ * *
+ * @return an iterable containing the result of the map-reduce operation
+ */
+inline fun <reified TResult : Any> MongoCollection<*>.mapReduceWith(mapFunction: String, reduceFunction: String): MapReduceIterable<TResult>
         = mapReduce(mapFunction, reduceFunction, TResult::class.java)
 
 
@@ -307,7 +331,7 @@ fun <T> MongoCollection<T>.deleteMany(filter: String, callback: (DeleteResult?, 
 fun <T : Any> MongoCollection<T>.save(document: T, callback: (Void?, Throwable?) -> Unit) {
     val id = KMongoUtil.getIdValue(document)
     if (id != null) {
-        replaceOneById(id, document, UpdateOptions().upsert(true), { r, t -> callback.invoke(null, t) })
+        replaceOneById(id, document, UpdateOptions().upsert(true), { _, t -> callback.invoke(null, t) })
     } else {
         insertOne(document, callback)
     }
@@ -633,7 +657,17 @@ fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions, callb
  * @param <TResult>   the target document type of the iterable.
  * @return the list indexes iterable interface
  */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexesIterable<TResult>
+        = listTypedIndexes()
+
+/**
+ * Get all the indexes in this collection.
+
+ * @param <TResult>   the target document type of the iterable.
+ * @return the list indexes iterable interface
+ */
+inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesIterable<TResult>
         = listIndexes(TResult::class.java)
 
 /**
