@@ -45,14 +45,14 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
     fun setup() {
         val count = CountDownLatch(6)
 
-        col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"), { r, t -> count.countDown() })
-        col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"), { r, t -> count.countDown() })
-        col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"), { r, t -> count.countDown() })
+        col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"), { _, _ -> count.countDown() })
+        col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"), { _, _ -> count.countDown() })
+        col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"), { _, _ -> count.countDown() })
 
         friendCol = getCollection<Friend>()
-        friendCol.insertOne(Friend("William"), { r, t -> count.countDown() })
-        friendCol.insertOne(Friend("John"), { r, t -> count.countDown() })
-        friendCol.insertOne(Friend("Richard"), { r, t -> count.countDown() })
+        friendCol.insertOne(Friend("William"), { _, _ -> count.countDown() })
+        friendCol.insertOne(Friend("John"), { _, _ -> count.countDown() })
+        friendCol.insertOne(Friend("Richard"), { _, _ -> count.countDown() })
 
         count.await(20, TimeUnit.SECONDS)
     }
@@ -79,7 +79,7 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
     fun canAggregateWithMultipleDocuments() {
         col.aggregate<Article>("{$match:{tags:'virus'}}")
                 .toList {
-                    l, t ->
+                    l, _ ->
                     asyncTest {
                         assertEquals(2, l!!.size)
                         assertTrue (l.all { it.tags.contains("virus") })
@@ -92,7 +92,7 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
         val tag = "pandemic"
         col.aggregate<Article>("{$match:{tags:'$tag'}}")
                 .toList {
-                    l, t ->
+                    l, _ ->
                     asyncTest {
                         assertEquals(1, l!!.size)
                         assertEquals ("World War Z", l.first().title)
@@ -104,7 +104,7 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
     fun canAggregateWithManyMatch() {
         col.aggregate<Article>("{$match:{$and:[{tags:'virus'}, {tags:'pandemic'}]}}")
                 .toList {
-                    l, t ->
+                    l, _ ->
                     asyncTest {
                         assertEquals(1, l!!.size)
                         assertEquals ("World War Z", l.first().title)
@@ -116,7 +116,7 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
     fun canAggregateWithManyOperators() {
         col.aggregate<Article>("[{$match:{tags:'virus'}},{$limit:1}]")
                 .toList {
-                    l, t ->
+                    l, _ ->
                     asyncTest {
                         assertEquals(1, l!!.size)
                     }
@@ -127,7 +127,7 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
     fun shouldCheckIfCommandHasErrors() {
         col.aggregate<Article>("{\$invalid:{}}")
                 .toList {
-                    l, t ->
+                    _, t ->
                     asyncTest {
                         assertTrue(t is MongoCommandException)
                     }
@@ -138,7 +138,7 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
     fun shouldPopulateIds() {
         friendCol.aggregate<Friend>("{$project: {_id: '\$_id', name: '\$name'}}")
                 .toList {
-                    l, t ->
+                    l, _ ->
                     asyncTest {
                         assertEquals(3, l!!.size)
                         assertTrue (l.all { it._id != null })

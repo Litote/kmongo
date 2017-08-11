@@ -39,7 +39,7 @@ class CommandTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canRunACommand() {
         database.runCommand<Document>("{ ping: 1 }", {
-            r, t ->
+            r, _ ->
             asyncTest {
                 assertEquals(1.0, r!!.get("ok"))
             }
@@ -48,9 +48,9 @@ class CommandTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canRunACommandWithParameter() {
-        col.insertOne("{test:1}", { r, t ->
+        col.insertOne("{test:1}", { _, _ ->
             val friends = "friend"
-            database.runCommand<Document>("{ count: '$friends' }", { r, t ->
+            database.runCommand<Document>("{ count: '$friends' }", { r, _ ->
                 asyncTest {
                     assertEquals(1, r!!.get("n"))
                 }
@@ -60,9 +60,9 @@ class CommandTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canRunAGeoNearCommand() {
-        col.createIndex("{loc:'2d'}", { r, t ->
-            col.insertOne("{loc:{lat:48.690833,lng:9.140556}, name:'Paris'}", { r, t ->
-                database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}", { r, t ->
+        col.createIndex("{loc:'2d'}", { _, _ ->
+            col.insertOne("{loc:{lat:48.690833,lng:9.140556}, name:'Paris'}", { _, _ ->
+                database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}", { r, _ ->
                     asyncTest {
                         val locations = r!!.results
                         assertEquals(1, locations.size)
@@ -76,8 +76,8 @@ class CommandTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canRunAnEmptyResultCommand() {
-        col.createIndex("{loc:'2d'}", { r, t ->
-            database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}", { r, t ->
+        col.createIndex("{loc:'2d'}", { _, _ ->
+            database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}", { r, _ ->
                 asyncTest {
                     assertTrue (r!!.results.isEmpty())
                 }

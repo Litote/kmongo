@@ -29,9 +29,9 @@ class ReplaceTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canReplaceWithId() {
         val friend = Friend("Peter", "31 rue des Lilas")
-        col.insertOne(friend, { r, t ->
-            col.replaceOneById(friend._id!!, Friend("John"), { r, t ->
-                col.findOne("{name:'John'}}", { r, t ->
+        col.insertOne(friend, { _, _ ->
+            col.replaceOneById(friend._id!!, Friend("John"), { _, _ ->
+                col.findOne("{name:'John'}}", { r, _ ->
                     asyncTest {
                         assertEquals("John", r!!.name)
                         assertNull(r.address)
@@ -44,10 +44,10 @@ class ReplaceTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canReplaceTheSameDocument() {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOne(friend, { r, t ->
+        col.insertOne(friend, { _, _ ->
             friend.name = "Johnny"
-            col.replaceOne(friend, { r, t ->
-                col.findOne("{name:'Johnny'}", { r, t ->
+            col.replaceOne(friend, { _, _ ->
+                col.findOne("{name:'Johnny'}", { r, _ ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
                         assertEquals("123 Wall Street", r.address)

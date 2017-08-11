@@ -32,8 +32,8 @@ class CountTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canCount() {
         col.insertMany(listOf(newFriend(), newFriend()), {
-            r, t ->
-            col.count { r, t ->
+            _, _ ->
+            col.count { r, _ ->
                 asyncTest {
                     assertEquals(2, r)
                 }
@@ -44,8 +44,8 @@ class CountTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canCountWithQuery() {
         col.insertMany(listOf(newFriend(), newFriend()), {
-            r, t ->
-            col.count("{name:{$exists:true}}", { r, t ->
+            _, _ ->
+            col.count("{name:{$exists:true}}", { r, _ ->
                 asyncTest {
                     assertEquals(2, r)
                 }
@@ -56,8 +56,8 @@ class CountTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canCountWithParameters() {
         col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")), {
-            r, t ->
-            col.count("{name:'Peter'}}", { r, t ->
+            _, _ ->
+            col.count("{name:'Peter'}}", { r, _ ->
                 asyncTest {
                     assertEquals(1, r)
                 }

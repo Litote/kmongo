@@ -35,9 +35,9 @@ class DistinctTest : KMongoAsyncBaseTest<Friend>() {
         col.insertMany(listOf(Friend("John", wallStreetAvenue),
                 Friend("Smith", wallStreetAvenue),
                 Friend("Peter", "24 Wall Street Avenue")), {
-            r, t ->
+            _, _ ->
             col.distinct<String>("address").toList {
-                r, t ->
+                r, _ ->
                 asyncTest {
                     assertEquals(2, r!!.size)
                     assertTrue (r.contains(wallStreetAvenue) && r.contains("24 Wall Street Avenue"))
@@ -51,9 +51,9 @@ class DistinctTest : KMongoAsyncBaseTest<Friend>() {
         col.insertMany(listOf(Friend("John", Coordinate(1, 2)),
                 Friend("Smith", Coordinate(1, 2)),
                 Friend("Peter", Coordinate(125, 72))), {
-            r, t ->
+            _, _ ->
             col.distinct<Int>("coordinate.lat").toList {
-                r, t ->
+                r, _ ->
                 asyncTest {
                     assertEquals(2, r!!.size)
                     assertTrue (r.contains(1) && r.contains(125))
@@ -67,9 +67,9 @@ class DistinctTest : KMongoAsyncBaseTest<Friend>() {
         col.insertMany(listOf(Friend("John", Coordinate(1, 2)),
                 Friend("Smith", Coordinate(1, 2)),
                 Friend("Peter", Coordinate(125, 72))), {
-            r, t ->
+            _, _ ->
             col.distinct<Coordinate>("coordinate").toList {
-                r, t ->
+                r, _ ->
                 asyncTest {
                     assertEquals(2, r!!.size)
                     assertTrue (r.contains(Coordinate(1, 2)) && r.contains(Coordinate(125, 72)))
@@ -83,9 +83,9 @@ class DistinctTest : KMongoAsyncBaseTest<Friend>() {
         col.insertMany(listOf(Friend("John", Coordinate(1, 2)),
                 Friend("Smith", Coordinate(125, 72)),
                 Friend(null, Coordinate(125, 72))), {
-            r, t ->
+            _, _ ->
             col.distinct<Coordinate>("coordinate", "{name:{${MongoOperator.ne}:'John'}}").toList {
-                r, t ->
+                r, _ ->
                 asyncTest {
                     assertEquals(1, r!!.size)
                     assertEquals (Coordinate(125, 72), r.first())
@@ -98,9 +98,9 @@ class DistinctTest : KMongoAsyncBaseTest<Friend>() {
     fun distinctWithParameterizedQuery() {
         col.insertMany(listOf(Friend("John", Coordinate(1, 2)),
                 Friend("Peter", Coordinate(3, 4))), {
-            r, t ->
+            _, _ ->
             col.distinct<Coordinate>("coordinate", "{name:'Peter'}").toList {
-                r, t ->
+                r, _ ->
                 asyncTest {
                     assertEquals(1, r!!.size)
                     assertEquals (Coordinate(3, 4), r.first())

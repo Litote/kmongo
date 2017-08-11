@@ -33,9 +33,9 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canUpdateMulti() {
         col.insertMany(listOf(Friend("John"), Friend("John")), {
-            r, t ->
-            col.updateMany("{name:'John'}", "{$unset:{name:1}}") { r, t ->
-                col.count("{name:{$exists:true}}", { r, t ->
+            _, _ ->
+            col.updateMany("{name:'John'}", "{$unset:{name:1}}") { _, _ ->
+                col.count("{name:{$exists:true}}", { r, _ ->
                     asyncTest {
                         assertEquals(0, r)
                     }
@@ -47,9 +47,9 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canUpdateByObjectId() {
         val friend = Friend("Paul")
-        col.insertOne(friend, { r, t ->
-            col.updateOneById(friend._id!!, "{$set:{name:'John'}}", { r, t ->
-                col.findOne("{name:'John'}", { r, t ->
+        col.insertOne(friend, { _, _ ->
+            col.updateOneById(friend._id!!, "{$set:{name:'John'}}", { _, _ ->
+                col.findOne("{name:'John'}", { r, _ ->
                     asyncTest {
                         assertEquals("John", r!!.name)
                         assertEquals(friend._id, r._id)
@@ -61,8 +61,8 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canUpsert() {
-        col.updateOne("{}", "{$set:{name:'John'}}", UpdateOptions().upsert(true), { r, t ->
-            col.findOne("{name:'John'}", { r, t ->
+        col.updateOne("{}", "{$set:{name:'John'}}", UpdateOptions().upsert(true), { _, _ ->
+            col.findOne("{name:'John'}", { r, _ ->
                 asyncTest {
                     assertEquals("John", r!!.name)
                 }
@@ -73,10 +73,10 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canPartiallyUdpateWithAPreexistingDocument() {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOne(friend, { r, t ->
+        col.insertOne(friend, { _, _ ->
             val preexistingDocument = Friend(friend._id!!, "Johnny")
-            col.updateOne("{name:'John'}", preexistingDocument, { r, t ->
-                col.findOne("{name:'Johnny'}", { r, t ->
+            col.updateOne("{name:'John'}", preexistingDocument, { _, _ ->
+                col.findOne("{name:'Johnny'}", { r, _ ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
                         assertNull(r.address)
@@ -90,10 +90,10 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canPartiallyUdpateWithANewDocument() {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOne(friend, { r, t ->
+        col.insertOne(friend, { _, _ ->
             val newDocument = Friend("Johnny")
-            col.updateOne("{name:'John'}", newDocument, { r, t ->
-                col.findOne("{name:'Johnny'}", { r, t ->
+            col.updateOne("{name:'John'}", newDocument, { _, _ ->
+                col.findOne("{name:'Johnny'}", { r, _ ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
                         assertNull(r.address)
@@ -106,10 +106,10 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canUpdateTheSameDocument() {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOne(friend, { r, t ->
+        col.insertOne(friend, { _, _ ->
             friend.name = "Johnny"
-            col.updateOne(friend, { r, t ->
-                col.findOne("{name:'Johnny'}", { r, t ->
+            col.updateOne(friend, { _, _ ->
+                col.findOne("{name:'Johnny'}", { r, _ ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
                         assertEquals("123 Wall Street", r.address)

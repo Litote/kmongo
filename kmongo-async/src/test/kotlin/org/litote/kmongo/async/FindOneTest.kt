@@ -32,9 +32,9 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canFindOne() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"),
-                { r, t ->
+                { _, _ ->
                     col.findOne("{name:'John'}", {
-                        friend, throwable ->
+                        friend, _ ->
                         asyncTest { assertEquals("John", friend!!.name) }
                     })
                 })
@@ -43,9 +43,9 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canFindOneBson() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"),
-                { r, t ->
+                { _, _ ->
                     col.findOne(Filters.eq("name", "John"), {
-                        friend, throwable ->
+                        friend, _ ->
                         asyncTest { assertEquals("John", friend!!.name) }
                     })
                 })
@@ -54,9 +54,9 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canFindOneWithEmptyQuery() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"),
-                { r, t ->
+                { _, _ ->
                     col.findOne {
-                        friend, throwable ->
+                        friend, _ ->
                         asyncTest { assertEquals("John", friend!!.name) }
                     }
                 })
@@ -66,9 +66,9 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
     fun canFindOneWithObjectId() {
         val john = Friend(ObjectId(), "John")
         col.insertOne(john,
-                { r, t ->
+                { _, _ ->
                     col.findOneById(john._id!!, {
-                        friend, throwable ->
+                        friend, _ ->
                         asyncTest { assertEquals(john._id, friend!!._id) }
                     })
                 })
@@ -79,9 +79,9 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
         val id = ObjectId()
         val john = Friend(id, "John")
         col.insertOne(john,
-                { r, t ->
+                { _, _ ->
                     col.findOne("{_id:${id.json}}", {
-                        friend, throwable ->
+                        friend, _ ->
                         asyncTest { assertEquals(id, friend!!._id) }
                     })
                 })
@@ -92,9 +92,9 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
         val id = ObjectId()
         val john = Friend(id, "John")
         col.insertOne(john,
-                { r, t ->
+                { _, _ ->
                     col.findOne("{_id:{$oid:'$id'}}", {
-                        friend, throwable ->
+                        friend, _ ->
                         asyncTest { assertEquals(id, friend!!._id) }
                     })
                 })
@@ -103,7 +103,7 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun whenNoResultShouldReturnNull() {
         col.findOne("{_id:'invalid-id'}", {
-            r, t ->
+            r, _ ->
             asyncTest { assertNull(r) }
         })
     }
@@ -111,9 +111,9 @@ class FindOneTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canFindOneWithReadPreference() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"),
-                { r, t ->
+                { _, _ ->
                     col.withReadPreference(ReadPreference.primaryPreferred()).findOne("{name:'John'}", {
-                        friend, throwable ->
+                        friend, _ ->
                         asyncTest { assertEquals("John", friend!!.name) }
                     })
                 })

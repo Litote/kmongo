@@ -45,12 +45,12 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
         val expected = BinaryFriend(expectedId, "friend2")
 
         col.insertOne(expected, {
-            r, t ->
+            _, _ ->
             expected.name = "new friend"
             col.updateOne("{_id:${expectedId.json}}", expected, {
-                r, t ->
+                _, _ ->
                 col.findOne ("{_id:${expectedId.json}}", {
-                    r, t ->
+                    r, _ ->
                     asyncTest { assertEquals(expected, r) }
                 })
             })
@@ -63,9 +63,9 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
         val expected = BinaryFriend(expectedId, "friend")
 
         col.insertOne(expected, {
-            r, t ->
+            _, _ ->
             col.findOne ("{_id:${expectedId.json}}", {
-                r, t ->
+                r, _ ->
                 asyncTest { assertEquals(expected, r) }
             })
         })
@@ -75,9 +75,9 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
     @Test
     fun testRemove() {
         col.deleteOne("{_id:${friendId.json}}", {
-            r, t ->
+            _, _ ->
             col.findOne ("{_id:${friendId.json}}", {
-                r, t ->
+                r, _ ->
                 asyncTest { assertNull(r) }
             })
         })
@@ -89,11 +89,11 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
         val doc = BinaryFriend(Binary("abcde".toByteArray()))
 
         col.insertOne(doc, {
-            r, t ->
+            _, _ ->
             col.count("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}", {
-                count, t ->
+                count, _ ->
                 col.findOne ("{_id:${doc._id.json}}", {
-                    r, t ->
+                    r, _ ->
                     asyncTest {
                         assertEquals(1, count)
                         assertEquals(doc._id.type, r!!._id.type)

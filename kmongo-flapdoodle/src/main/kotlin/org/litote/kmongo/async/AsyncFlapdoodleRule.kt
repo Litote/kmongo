@@ -58,7 +58,7 @@ class AsyncFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
 
     fun <T> MongoCollection<T>.drop() {
         val count = CountDownLatch(1)
-        drop { r, t -> count.countDown() }
+        drop { _, _ -> count.countDown() }
         count.await(1, TimeUnit.SECONDS)
     }
 
