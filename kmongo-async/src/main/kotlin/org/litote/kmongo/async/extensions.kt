@@ -650,6 +650,32 @@ fun <T> MongoCollection<T>.createIndex(key: String, callback: (String?, Throwabl
 fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions, callback: (String?, Throwable?) -> Unit)
         = createIndex(toBson(key), options, callback)
 
+/**
+ * Create an index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+ *
+ * If successful, the callback will be executed with the name of the created index as the result.
+ *
+ * @param key      an object describing the index key(s)
+ * @param options  the options for the index
+ * @param callback the callback that is completed once the index has been created
+ */
+fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions = IndexOptions(), callback: (String?, Throwable?) -> Unit = { _, _ -> }) {
+    createIndex(keys, indexOptions, { s, t ->
+        if (t != null) {
+            dropIndexOfKeys(keys, { _, t2 ->
+                if (t2 != null) {
+                    callback.invoke(null, t)
+                } else {
+                    createIndex(keys, indexOptions, callback)
+                }
+            })
+        } else {
+            callback.invoke(s, null)
+        }
+    })
+}
 
 /**
  * Get all the indexes in this collection.
@@ -677,8 +703,16 @@ inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIn
  * @param callback  the callback that is completed once the index has been dropped
  */
 fun <T> MongoCollection<T>.dropIndex(keys: String, callback: (Void?, Throwable?) -> Unit)
-        = dropIndex(toBson(keys), callback)
+        = dropIndexOfKeys(keys, callback)
 
+/**
+ * Drops the index given the keys used to create it.
+
+ * @param keys the keys of the index to remove
+ * @param callback  the callback that is completed once the index has been dropped
+ */
+fun <T> MongoCollection<T>.dropIndexOfKeys(keys: String, callback: (Void?, Throwable?) -> Unit)
+        = dropIndex(toBson(keys), callback)
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.

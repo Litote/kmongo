@@ -15,6 +15,7 @@
  */
 package org.litote.kmongo
 
+import com.mongodb.MongoCommandException
 import com.mongodb.ReadPreference
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.AggregateIterable
@@ -495,6 +496,27 @@ fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, opti
  */
 fun <T> MongoCollection<T>.createIndex(keys: String, indexOptions: IndexOptions = IndexOptions()): String
         = createIndex(toBson(keys), indexOptions)
+
+
+/**
+ * Create an index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+
+ * @param keys an object describing the index key(s), which may not be null.
+ * @param indexOptions the options for the index
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions = IndexOptions()) {
+    try {
+        createIndex(keys, indexOptions)
+    } catch (e: MongoCommandException) {
+        //there is an exception if the parameters of an existing index are changed.
+        //then drop the index and create a new one
+        dropIndexOfKeys(keys)
+        createIndex(keys, indexOptions)
+    }
+}
 
 /**
  * Get all the indexes in this collection.

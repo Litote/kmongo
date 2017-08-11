@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.coroutine
 
+import com.mongodb.MongoCommandException
 import com.mongodb.async.client.AggregateIterable
 import com.mongodb.async.client.DistinctIterable
 import com.mongodb.async.client.FindIterable
@@ -641,6 +642,28 @@ suspend fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOption
     return singleResult { createIndex(KMongoUtil.toBson(key), options, it) }
 }
 
+/**
+ * Create an index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+ *
+ * If successful, the callback will be executed with the name of the created index as the result.
+ *
+ * @param key      an object describing the index key(s)
+ * @param options  the options for the index
+ * @param callback the callback that is completed once the index has been created
+ */
+suspend fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions = IndexOptions()) {
+    try {
+        createIndex(keys, indexOptions)
+    } catch (e: MongoCommandException) {
+        //there is an exception if the parameters of an existing index are changed.
+        //then drop the index and create a new one
+        dropIndex(keys)
+        createIndex(keys, indexOptions)
+    }
+}
+
 
 /**
  * Get all the indexes in this collection.
@@ -648,7 +671,7 @@ suspend fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOption
  * @param <TResult>   the target document type of the iterable.
  * @return the list indexes iterable interface
  */
-inline fun <reified TResult : Any> MongoCollection<*>.listIndexesTyped(): ListIndexesIterable<TResult>
+inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesIterable<TResult>
         = listIndexes(TResult::class.java)
 
 /**

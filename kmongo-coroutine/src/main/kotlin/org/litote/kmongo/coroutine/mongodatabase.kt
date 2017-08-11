@@ -24,7 +24,6 @@ import com.mongodb.client.model.CreateViewOptions
 import org.bson.conversions.Bson
 import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
-import kotlin.reflect.KClass
 
 
 /**
@@ -121,8 +120,8 @@ inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T>
  * @return the collection
  * @see defaultCollectionName
  */
-fun <T : Any> MongoDatabase.getCollection(clazz: KClass<T>): MongoCollection<T>
-        = getCollection(defaultCollectionName(clazz), clazz.java)
+inline fun <reified T : Any> MongoDatabase.getCollectionOfName(name: String): MongoCollection<T>
+        = getCollection(name, T::class.java)
 
 /**
  * Creates a view with the given name, backing collection/view name, and aggregation pipeline that defines the view.
@@ -156,14 +155,6 @@ suspend fun MongoDatabase.createView(viewName: String, viewOn: String, pipeline:
  */
 suspend inline fun <reified T : Any> MongoDatabase.dropCollection()
         = dropCollection(defaultCollectionName(T::class))
-
-/**
- * Drops this collection from the Database.
- *
- * @mongodb.driver.manual reference/command/drop/ Drop Collection
- */
-suspend fun MongoDatabase.dropCollection(clazz: KClass<*>)
-        = dropCollection(defaultCollectionName(clazz))
 
 /**
  * Drops this collection from the Database.
