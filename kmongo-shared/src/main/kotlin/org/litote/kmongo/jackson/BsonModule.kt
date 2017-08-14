@@ -53,19 +53,12 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.OffsetTime
-import java.time.ZoneId
-import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 import java.time.ZonedDateTime
 import java.util.Date
 
 
 internal class BsonModule : SimpleModule() {
-
-    companion object {
-        //TODO remove this in kmongo 3.5
-        private val oldZoneIdBehaviour = System.getProperty("kmongo.oldLocalBehaviour") != null
-        val mongoZoneId: ZoneId get() = if (oldZoneIdBehaviour) ZoneId.systemDefault() else ZoneOffset.UTC
-    }
 
     private object ObjectIdBsonSerializer : JsonSerializer<ObjectId>() {
 
@@ -268,19 +261,19 @@ internal class BsonModule : SimpleModule() {
     private object ZonedDateTimeBsonDeserializer : TemporalBsonDeserializer<ZonedDateTime>() {
 
         override fun toObject(date: Date): ZonedDateTime
-                = ZonedDateTime.ofInstant(date.toInstant(), mongoZoneId)
+                = ZonedDateTime.ofInstant(date.toInstant(), UTC)
     }
 
     private object OffsetDateTimeBsonDeserializer : TemporalBsonDeserializer<OffsetDateTime>() {
 
         override fun toObject(date: Date): OffsetDateTime
-                = OffsetDateTime.ofInstant(date.toInstant(), mongoZoneId)
+                = OffsetDateTime.ofInstant(date.toInstant(), UTC)
     }
 
     private object LocalDateTimeBsonDeserializer : TemporalBsonDeserializer<LocalDateTime>() {
 
         override fun toObject(date: Date): LocalDateTime
-                = LocalDateTime.ofInstant(date.toInstant(), mongoZoneId)
+                = LocalDateTime.ofInstant(date.toInstant(), UTC)
     }
 
     private object LocalDateBsonDeserializer : TemporalBsonDeserializer<LocalDate>() {
