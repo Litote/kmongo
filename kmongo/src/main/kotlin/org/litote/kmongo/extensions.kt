@@ -470,7 +470,7 @@ fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndD
  * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
  * returned
  */
-fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()): T
+fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()): T?
         = findOneAndReplace(toBson(filter), replacement, options)
 
 /**
@@ -484,7 +484,7 @@ fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, opt
  * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
  * returned
  */
-fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()): T
+fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()): T?
         = findOneAndUpdate(toBson(filter), toBson(update), options)
 
 /**
