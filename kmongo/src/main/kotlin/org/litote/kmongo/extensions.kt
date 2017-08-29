@@ -456,7 +456,7 @@ fun <T : Any> MongoCollection<T>.updateMany(filter: String, update: String, upda
  *
  * @return the document that was removed.  If no documents matched the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()): T
+fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()): T?
         = findOneAndDelete(toBson(filter), options)
 
 /**
