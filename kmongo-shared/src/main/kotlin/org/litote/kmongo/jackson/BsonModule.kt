@@ -258,8 +258,14 @@ internal class BsonModule : SimpleModule() {
     private abstract class TemporalBsonDeserializer<T> : JsonDeserializer<T>() {
 
         override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): T {
-            val date = jp.embeddedObject
-            return toObject(date as Date)
+            return toObject(jp.embeddedObject.run {
+                //sometimes the date is a timestamp ( see https://github.com/Litote/kmongo/issues/35 )
+                if (this == null) {
+                    Date(jp.longValue)
+                } else {
+                    this as Date
+                }
+            })
         }
 
         abstract fun toObject(date: Date): T
