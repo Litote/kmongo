@@ -126,7 +126,7 @@ suspend fun <T : Any> MongoCollection<T>.findOne(filter: Bson): T? {
 }
 
 /**
- * Finds the document that match the [ObjectId] parameter.
+ * Finds the document that match the id parameter.
  *
  * @param id       the object id
  */
@@ -265,7 +265,7 @@ suspend fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult? {
 }
 
 /**
- * Removes at most one document from the [ObjectId] parameter.  If no documents match, the collection is not
+ * Removes at most one document from the id parameter.  If no documents match, the collection is not
  * modified.
  *
  * @param id   the object id

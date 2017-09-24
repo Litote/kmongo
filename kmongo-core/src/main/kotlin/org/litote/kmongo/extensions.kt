@@ -172,7 +172,7 @@ fun <T> MongoCollection<T>.findOne(filter: Bson): T?
         = find(filter).first()
 
 /**
- * Finds the document that match the [ObjectId] parameter.
+ * Finds the document that match the id parameter.
  *
  * @param id       the object id
  * @return the first item returned or null
@@ -257,7 +257,7 @@ fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult
         = deleteOne(toBson(filter))
 
 /**
- * Removes at most one document from the [ObjectId] parameter.  If no documents match, the collection is not
+ * Removes at most one document from the id parameter.  If no documents match, the collection is not
  * modified.
  *
  * @param id   the object id

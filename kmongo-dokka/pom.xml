@@ -30,19 +30,15 @@
     <dependencies>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
+            <artifactId>kmongo-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-async</artifactId>
+            <artifactId>kmongo-async-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-coroutine</artifactId>
+            <artifactId>kmongo-coroutine-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
@@ -67,10 +63,10 @@
                     </args>
                     <sourceDirs>
                         <sourceDirs>${project.basedir}/../kmongo-shared/src/main/kotlin</sourceDirs>
-                        <sourceDirs>${project.basedir}/../kmongo/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/../kmongo-core/src/main/kotlin</sourceDirs>
                         <sourceDirs>${project.basedir}/../kmongo-async-shared/src/main/kotlin</sourceDirs>
-                        <sourceDirs>${project.basedir}/../kmongo-async/src/main/kotlin</sourceDirs>
-                        <sourceDirs>${project.basedir}/../kmongo-coroutine/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/../kmongo-async-core/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/../kmongo-coroutine-core/src/main/kotlin</sourceDirs>
                     </sourceDirs>
                 </configuration>
 
@@ -104,7 +100,8 @@
                 </executions>
                 <configuration>
                     <moduleName>kmongo</moduleName>
-                    <reportUndocumented>false</reportUndocumented>
+                    <jdkVersion>8</jdkVersion>
+                    <reportNotDocumented>false</reportNotDocumented>
                     <sourceLinks>
                         <link>
                             <dir>${project.basedir}/../kmongo-shared/src/main/kotlin</dir>
@@ -113,8 +110,8 @@
                             <urlSuffix>#L</urlSuffix>
                         </link>
                         <link>
-                            <dir>${project.basedir}/../kmongo/src/main/kotlin</dir>
-                            <url>https://github.com/Litote/kmongo/blob/master/kmongo/src/main/kotlin
+                            <dir>${project.basedir}/../kmongo-core/src/main/kotlin</dir>
+                            <url>https://github.com/Litote/kmongo-core/blob/master/kmongo/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
@@ -125,14 +122,14 @@
                             <urlSuffix>#L</urlSuffix>
                         </link>
                         <link>
-                            <dir>${project.basedir}/../kmongo-async/src/main/kotlin</dir>
-                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-async/src/main/kotlin
+                            <dir>${project.basedir}/../kmongo-async-core/src/main/kotlin</dir>
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-async-core/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
                         <link>
-                            <dir>${project.basedir}/../kmongo-coroutine/src/main/kotlin</dir>
-                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-coroutine/src/main/kotlin
+                            <dir>${project.basedir}/../kmongo-coroutine-core/src/main/kotlin</dir>
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-coroutine-core/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
@@ -141,11 +138,24 @@
                     <outputFormat>html</outputFormat>
                     <sourceDirectories>
                         <dir>${project.basedir}/../kmongo-shared/src/main/kotlin</dir>
-                        <dir>${project.basedir}/../kmongo/src/main/kotlin</dir>
+                        <dir>${project.basedir}/../kmongo-core/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-async-shared/src/main/kotlin</dir>
-                        <dir>${project.basedir}/../kmongo-async/src/main/kotlin</dir>
-                        <dir>${project.basedir}/../kmongo-coroutine/src/main/kotlin</dir>
+                        <dir>${project.basedir}/../kmongo-async-core/src/main/kotlin</dir>
+                        <dir>${project.basedir}/../kmongo-coroutine-core/src/main/kotlin</dir>
                     </sourceDirectories>
+                    <externalDocumentationLinks>
+                        <link>
+                            <url>http://mongodb.github.io/mongo-java-driver/3.5/javadoc/</url>
+                        </link>
+                    </externalDocumentationLinks>
+                    <perPackageOptions>
+                        <packageOptions>
+                            <prefix>kotlin</prefix>
+                            <skipDeprecated>false</skipDeprecated>
+                            <reportUndocumented>true</reportUndocumented>
+                            <includeNonPublic>false</includeNonPublic>
+                        </packageOptions>
+                    </perPackageOptions>
                 </configuration>
             </plugin>
         </plugins>
