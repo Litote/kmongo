@@ -16,13 +16,12 @@
   ~  */
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.litote.kmongo</groupId>
     <artifactId>kmongo-root</artifactId>
-    <version>3.5.0-SNAPSHOT</version>
+    <version>3.5.0</version>
     <packaging>pom</packaging>
     <name>KMongo root project</name>
     <description>Mongo client for Kotlin</description>
@@ -415,7 +414,7 @@
         <connection>scm:git:git@github.com:Litote/kmongo.git</connection>
         <developerConnection>scm:git:git@github.com:Litote/kmongo.git</developerConnection>
         <url>git@github.com:Litote/kmongo.git</url>
-        <tag>HEAD</tag>
+        <tag>kmongo-3.5.0</tag>
     </scm>
 
     <inceptionYear>2016</inceptionYear>
@@ -436,7 +435,7 @@
             <name>Apache License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
-            <comments/>
+            <comments />
         </license>
     </licenses>
 
