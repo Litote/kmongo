@@ -474,6 +474,24 @@
                 <gpg.skip>false</gpg.skip>
             </properties>
         </profile>
+        <profile>
+            <id>ide-jackson</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.litote.kmongo</groupId>
+                    <artifactId>kmongo-jackson-mapping</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>ide-native</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.litote.kmongo</groupId>
+                    <artifactId>kmongo-native-mapping</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
 </project>
