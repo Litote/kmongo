@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Litote
+ * Copyright (C) 2017 Litote
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import org.junit.Test
-import org.litote.kmongo.KMongoBaseTest
+import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOneById
 import org.litote.kmongo.withDocumentClass
 import kotlin.reflect.KClass
@@ -70,7 +70,7 @@ data class ClassWithAbstractMemberMap(val _id: String? = null, val ext: Map<Stri
 /**
  * [Id not generated for subclass](https://github.com/Litote/kmongo/issues/2)
  */
-class Issue2IdNotGeneratedForSubclass : KMongoBaseTest<CollectionInterface>() {
+class Issue2IdNotGeneratedForSubclass : AllCategoriesKMongoBaseTest<CollectionInterface>() {
 
     override fun getDefaultCollectionClass(): KClass<CollectionInterface> {
         return CollectionInterface::class

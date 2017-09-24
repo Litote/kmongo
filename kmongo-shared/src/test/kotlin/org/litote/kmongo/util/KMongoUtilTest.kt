@@ -16,22 +16,14 @@
 
 package org.litote.kmongo.util
 
-import org.bson.types.ObjectId
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.litote.kmongo.KMongoRootTest
 
 /**
  *
  */
-class KMongoUtilTest {
-
-    class Obj(var _id: ObjectId = ObjectId())
-
-    @Test
-    fun extractId() {
-        val id = ObjectId()
-        assertEquals(id, KMongoUtil.extractId(Obj(id), Obj::class))
-    }
+class KMongoUtilTest : KMongoRootTest() {
 
     @Test
     fun formatJson() {
@@ -62,4 +54,6 @@ class KMongoUtilTest {
               }
            ]"""))
     }
+
+
 }

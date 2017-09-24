@@ -24,7 +24,7 @@
     </parent>
 
     <artifactId>kmongo-fongo</artifactId>
-    <name>KMongo Fongo</name>
+    <name>KMongo fongo integration</name>
     <description>Helper library for tests with Fongo</description>
 
     <dependencies>
@@ -35,6 +35,12 @@
         <dependency>
             <groupId>com.github.fakemongo</groupId>
             <artifactId>fongo</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -64,6 +70,17 @@
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-shared-tests</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-jackson-mapping</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

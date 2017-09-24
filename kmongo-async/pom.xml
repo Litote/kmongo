@@ -25,25 +25,45 @@
 
     <artifactId>kmongo-async</artifactId>
     <name>KMongo async</name>
-    <description>KMongo async client</description>
+    <description>KMongo asynchronous client</description>
 
     <dependencies>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-async-shared</artifactId>
+            <artifactId>kmongo-async-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-flapdoodle</artifactId>
-            <scope>test</scope>
+            <artifactId>kmongo-jackson-mapping</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-shared</artifactId>
-            <type>test-jar</type>
+            <artifactId>kmongo-async-core-tests</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <groups>org.litote.kmongo.JacksonMappingCategory</groups>
+                    <dependenciesToScan>
+                        <dependency>org.litote.kmongo:kmongo-async-core-tests</dependency>
+                    </dependenciesToScan>
+                    <includes>
+                        <include>**/Test*.java</include>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*TestCase.java</include>
+                        <include>**/*Issue*.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

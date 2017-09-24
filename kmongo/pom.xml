@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -25,29 +26,44 @@
 
     <artifactId>kmongo</artifactId>
     <name>KMongo sync</name>
-    <description>KMongo synchronous client</description>
+    <description>KMongo synchronous client with jackson object mapping</description>
 
     <dependencies>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-shared</artifactId>
+            <artifactId>kmongo-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-jackson-mapping</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-flapdoodle</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-shared</artifactId>
-            <type>test-jar</type>
+            <artifactId>kmongo-core-tests</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <groups>org.litote.kmongo.JacksonMappingCategory</groups>
+                    <dependenciesToScan>
+                        <dependency>org.litote.kmongo:kmongo-core-tests</dependency>
+                    </dependenciesToScan>
+                    <includes>
+                        <include>**/Test*.java</include>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*TestCase.java</include>
+                        <include>**/*Issue*.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

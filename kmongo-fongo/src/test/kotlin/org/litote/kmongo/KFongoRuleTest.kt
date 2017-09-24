@@ -20,16 +20,16 @@ import com.mongodb.client.model.Filters
 import org.junit.Rule
 import org.junit.Test
 import org.litote.kmongo.KFongoRule.Companion.rule
+import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 
 /**
  *
  */
-class KFongoRuleTest {
+class KFongoRuleTest : KMongoRootTest() {
 
-    data class Friend(val name: String, val _id: String? = null)
-
-    @Rule @JvmField
+    @Rule
+    @JvmField
     val rule = rule<Friend>()
 
     @Test

@@ -19,16 +19,16 @@ package org.litote.kmongo
 import com.mongodb.client.model.Filters
 import org.junit.Rule
 import org.junit.Test
+import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 
 /**
  *
  */
-class FlapdoodleRuleTest {
+class FlapdoodleRuleTest : KMongoRootTest() {
 
-    data class Friend(val name: String, val _id: String? = null)
-
-    @Rule @JvmField
+    @Rule
+    @JvmField
     val rule = FlapdoodleRule.rule<Friend>(true)
 
     @Test

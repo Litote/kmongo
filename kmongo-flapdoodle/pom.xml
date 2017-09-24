@@ -24,7 +24,7 @@
     </parent>
 
     <artifactId>kmongo-flapdoodle</artifactId>
-    <name>KMongo Flapdoodle</name>
+    <name>KMongo flapdoodle integration</name>
     <description>Helper library for tests with Flapdoodle</description>
 
     <dependencies>
@@ -64,6 +64,17 @@
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-shared-tests</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-jackson-mapping</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

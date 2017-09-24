@@ -20,7 +20,7 @@ import com.mongodb.ConnectionString
 import java.io.Closeable
 
 /**
- * Contract for providing a MongoClient class using [java.util.ServiceLoader].
+ * Provides a MongoClient class using [java.util.ServiceLoader].
  */
 interface MongoClientProviderService<T : Closeable> {
 

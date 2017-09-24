@@ -28,7 +28,6 @@ import org.bson.BsonBoolean
 import org.bson.BsonDocument
 import org.bson.BsonObjectId
 import org.bson.BsonString
-import org.bson.RawBsonDocument
 import org.bson.codecs.BsonArrayCodec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.configuration.CodecRegistry
@@ -44,9 +43,11 @@ import org.litote.kmongo.MongoOperator.rename
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
 import org.litote.kmongo.MongoOperator.unset
+import org.litote.kmongo.service.ClassMappingType
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty1
 
 /**
  * Internal utility methods
@@ -66,7 +67,7 @@ object KMongoUtil {
 
     private fun <T : Any> generateIfAbsentAndMayBeMoveId(document: BsonDocument, type: KClass<T>): BsonDocument {
         if (!document.containsKey("_id")) {
-            val idProperty = MongoIdUtil.findIdProperty(type)
+            val idProperty = ClassMappingType.findIdProperty(type)
             if (idProperty != null) {
                 val idValue = document.get(idProperty.name)
                 if (idValue == null) {
@@ -76,7 +77,7 @@ object KMongoUtil {
                     } else if (toString.startsWith(String::class.qualifiedName!!)) {
                         document.put("_id", BsonString(ObjectId.get().toString()))
                     } else {
-                        throw IllegalArgumentException("generation for id property type not supported : $idProperty")
+                        error("generation for id property type not supported : $idProperty")
                     }
                 } else {
                     document.put("_id", idValue)
@@ -100,17 +101,17 @@ object KMongoUtil {
             }
 
     fun filterIdToBson(obj: Any): BsonDocument
-            = RawBsonDocument(KMongoConfiguration.filterIdBsonMapper.writeValueAsBytes(obj))
+            = ClassMappingType.filterIdToBson(obj)
 
     fun formatJson(json: String): String {
         return SPACE_REPLACE_PATTERN.matcher(json).replaceAll(QUOTE_REPLACE_MATCHER)
     }
 
     fun toExtendedJson(obj: Any): String
-            = KMongoConfiguration.extendedJsonMapper.writeValueAsString(obj)
+            = ClassMappingType.toExtendedJson(obj)
 
     private fun filterIdToExtendedJson(obj: Any): String
-            = KMongoConfiguration.filterIdExtendedJsonMapper.writeValueAsString(obj)
+            = ClassMappingType.filterIdToExtendedJson(obj)
 
     private fun isJsonArray(json: String)
             = json.trim().startsWith('[')
@@ -132,13 +133,14 @@ object KMongoUtil {
     fun extractId(obj: Any, clazz: KClass<*>): Any {
         //check map
         if (obj is Map<*, *>) {
-            return obj["_id"] ?: throw IllegalArgumentException("_id is null")
+            return obj["_id"] ?: error("_id is null")
         }
-        val idProperty = MongoIdUtil.findIdProperty(clazz)
+        val idProperty = ClassMappingType.findIdProperty(clazz)
         if (idProperty == null) {
             throw IllegalArgumentException("$obj has to contain _id field")
         } else {
-            return MongoIdUtil.getIdValue(idProperty, obj) ?: throw IllegalArgumentException("id is null")
+            @Suppress("UNCHECKED_CAST")
+            return ClassMappingType.getIdValue<Any, Any>(idProperty as KProperty1<Any, Any>, obj) ?: error("id is null")
         }
     }
 
@@ -186,15 +188,16 @@ object KMongoUtil {
     }
 
     fun defaultCollectionName(clazz: KClass<*>): String
-            = KMongoConfiguration.defaultCollectionNameBuilder.invoke(clazz)
+            = CollectionNameFormatter.defaultCollectionNameBuilder.invoke(clazz)
 
     fun getIdValue(value: Any): Any? {
         //check map
         if (value is Map<*, *>) {
             return value["_id"]
         }
-        val idProperty = MongoIdUtil.findIdProperty(value.javaClass.kotlin)
-        return if (idProperty == null) null else MongoIdUtil.getIdValue(idProperty, value)
+        val idProperty = ClassMappingType.findIdProperty(value.javaClass.kotlin)
+        @Suppress("UNCHECKED_CAST")
+        return if (idProperty == null) null else ClassMappingType.getIdValue<Any, Any>(idProperty as KProperty1<Any, Any>, value)
     }
 
 }

@@ -30,24 +30,40 @@
     <dependencies>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-async-shared</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-core</artifactId>
+            <artifactId>kmongo-coroutine-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-flapdoodle</artifactId>
-            <scope>test</scope>
+            <artifactId>kmongo-jackson-mapping</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-shared</artifactId>
-            <type>test-jar</type>
+            <artifactId>kmongo-coroutine-core-tests</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <groups>org.litote.kmongo.JacksonMappingCategory</groups>
+                    <dependenciesToScan>
+                        <dependency>org.litote.kmongo:kmongo-coroutine-core-tests</dependency>
+                    </dependenciesToScan>
+                    <includes>
+                        <include>**/Test*.java</include>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*TestCase.java</include>
+                        <include>**/*Issue*.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

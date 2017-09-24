@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2017 Litote
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.litote.kmongo.issues
 
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -9,7 +25,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.junit.Test
-import org.litote.kmongo.KMongoBaseTest
+import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
 import org.litote.kmongo.issues.Issue35DateStoredAsTimestamp.TestWrapper
 import java.time.LocalDateTime
@@ -19,7 +35,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class Issue35DateStoredAsTimestamp : KMongoBaseTest<TestWrapper>() {
+class Issue35DateStoredAsTimestamp : AllCategoriesKMongoBaseTest<TestWrapper>() {
 
     data class TestData(val l: Long = 0, @JsonProperty("r") val d: LocalDateTime)
 

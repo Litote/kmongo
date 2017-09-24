@@ -22,9 +22,9 @@ import org.litote.kmongo.service.MongoClientProvider
 /**
  *
  */
-internal object FlapdoodleTestClient {
+object FlapdoodleTestClient {
 
-    val instance: MongoClient by lazy {
+    internal val instance: MongoClient by lazy {
         createClient(EmbeddedMongo.mongodProcess.config.net().port)
     }
 

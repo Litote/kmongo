@@ -25,7 +25,7 @@ import com.mongodb.connection.ServerSettings
 import com.mongodb.connection.SocketSettings
 import com.mongodb.connection.SslSettings
 import org.bson.codecs.configuration.CodecRegistries
-import org.litote.kmongo.util.KMongoConfiguration.jacksonCodecProvider
+import org.litote.kmongo.service.ClassMappingType
 
 /**
  *  Main object used to create a [MongoClient](https://api.mongodb.com/java/current/com/mongodb/async/client/MongoClient.html) instance.
@@ -49,7 +49,7 @@ object KMongo {
     fun createClient(settings: MongoClientSettings): MongoClient {
         val codecRegistry = CodecRegistries.fromRegistries(
                 settings.codecRegistry,
-                CodecRegistries.fromProviders(jacksonCodecProvider))
+                ClassMappingType.codecRegistry())
         return MongoClients.create(
                 MongoClientSettings.builder(settings)
                         .codecRegistry(codecRegistry).build())

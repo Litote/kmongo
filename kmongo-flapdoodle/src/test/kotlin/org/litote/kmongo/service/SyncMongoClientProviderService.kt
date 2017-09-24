@@ -21,10 +21,8 @@ import com.mongodb.MongoClient
 import com.mongodb.MongoClient.getDefaultCodecRegistry
 import com.mongodb.MongoClientOptions
 import com.mongodb.ServerAddress
-import org.bson.codecs.configuration.CodecRegistries.fromProviders
 import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.bson.codecs.configuration.CodecRegistry
-import org.litote.kmongo.util.KMongoConfiguration
 
 /**
  * only used for test
@@ -32,7 +30,7 @@ import org.litote.kmongo.util.KMongoConfiguration
 internal class SyncMongoClientProviderService : MongoClientProviderService<MongoClient> {
 
     private fun codec(): CodecRegistry =
-            fromRegistries(getDefaultCodecRegistry(), fromProviders(KMongoConfiguration.jacksonCodecProvider))
+            fromRegistries(getDefaultCodecRegistry(), ClassMappingType.codecRegistry())
 
     override fun createMongoClient(): MongoClient {
         error("unsupported")

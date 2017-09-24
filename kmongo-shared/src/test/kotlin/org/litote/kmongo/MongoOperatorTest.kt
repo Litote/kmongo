@@ -26,7 +26,7 @@ import org.litote.kmongo.util.KMongoUtil
 import kotlin.test.assertEquals
 
 
-class MongoOperatorTest {
+class MongoOperatorTest : KMongoRootTest() {
 
     @Test
     fun simpleOperator()

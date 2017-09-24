@@ -18,9 +18,8 @@ package org.litote.kmongo
 
 import com.github.fakemongo.Fongo
 import com.mongodb.MongoClient.getDefaultCodecRegistry
-import org.bson.codecs.configuration.CodecRegistries.fromProviders
 import org.bson.codecs.configuration.CodecRegistries.fromRegistries
-import org.litote.kmongo.util.KMongoConfiguration
+import org.litote.kmongo.service.ClassMappingType
 
 
 /**
@@ -31,7 +30,6 @@ internal object FongoTestClient {
     val fongo = Fongo(
             "test",
             Fongo.DEFAULT_SERVER_VERSION,
-            fromRegistries(getDefaultCodecRegistry(),
-                    fromProviders(KMongoConfiguration.jacksonCodecProvider))
+            fromRegistries(getDefaultCodecRegistry(), ClassMappingType.codecRegistry())
     )
 }

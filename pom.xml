@@ -16,7 +16,8 @@
   ~  */
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.litote.kmongo</groupId>
@@ -28,13 +29,25 @@
     <url>http://litote.org/kmongo</url>
 
     <modules>
+        <module>kmongo-shared-tests</module>
         <module>kmongo-shared</module>
+        <module>kmongo-jackson-mapping</module>
+        <module>kmongo-native-mapping</module>
         <module>kmongo-flapdoodle</module>
         <module>kmongo-fongo</module>
+        <module>kmongo-core</module>
+        <module>kmongo-core-tests</module>
         <module>kmongo</module>
+        <module>kmongo-native</module>
         <module>kmongo-async-shared</module>
+        <module>kmongo-async-core</module>
+        <module>kmongo-async-core-tests</module>
         <module>kmongo-async</module>
+        <module>kmongo-async-native</module>
+        <module>kmongo-coroutine-core</module>
+        <module>kmongo-coroutine-core-tests</module>
         <module>kmongo-coroutine</module>
+        <module>kmongo-coroutine-native</module>
     </modules>
 
     <properties>
@@ -54,7 +67,6 @@
 
         <!-- plugins -->
         <plugin.surefire.version>2.20</plugin.surefire.version>
-        <plugin.jar.version>3.0.2</plugin.jar.version>
         <plugin.source.version>3.0.1</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
         <plugin.dokka.version>0.9.15</plugin.dokka.version>
@@ -78,36 +90,6 @@
             <artifactId>kotlin-reflect</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.litote</groupId>
-            <artifactId>bson4jackson-fork</artifactId>
-            <version>${bson4jackson.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-            <version>${jackson-module.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -115,6 +97,31 @@
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-shared</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-shared-tests</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-jackson-mapping</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-native-mapping</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-core-tests</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -129,19 +136,37 @@
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-async-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-async-core-tests</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-coroutine</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-shared</artifactId>
+                <artifactId>kmongo-coroutine-core</artifactId>
                 <version>${project.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-coroutine-core-tests</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-async-shared</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-coroutine-native</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -171,6 +196,37 @@
                 <artifactId>mongodb-driver-core</artifactId>
                 <version>${mongo.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.litote</groupId>
+                <artifactId>bson4jackson-fork</artifactId>
+                <version>${bson4jackson.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-databind</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-kotlin</artifactId>
+                <version>${jackson-module.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.jetbrains.kotlinx</groupId>
                 <artifactId>kotlinx-coroutines-core</artifactId>
@@ -209,6 +265,20 @@
     <build>
         <sourceDirectory>${sourceDirectory}</sourceDirectory>
         <testSourceDirectory>${testSourceDirectory}</testSourceDirectory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${plugin.surefire.version}</version>
+                    <configuration>
+                        <forkMode>once</forkMode>
+                        <useSystemClassLoader>false</useSystemClassLoader>
+                        <useManifestOnlyJar>false</useManifestOnlyJar>
+                        <failIfNoTests>false</failIfNoTests>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -237,17 +307,6 @@
                     </execution>
                 </executions>
 
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${plugin.surefire.version}</version>
-                <configuration>
-                    <forkMode>once</forkMode>
-                    <useSystemClassLoader>false</useSystemClassLoader>
-                    <useManifestOnlyJar>false</useManifestOnlyJar>
-                    <failIfNoTests>false</failIfNoTests>
-                </configuration>
             </plugin>
 
             <plugin>
