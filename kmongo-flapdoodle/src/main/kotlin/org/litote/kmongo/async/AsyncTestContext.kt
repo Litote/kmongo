@@ -37,7 +37,7 @@ internal class AsyncTestContext {
     }
 
     fun waitToComplete() {
-        assert(lock.await(10, TimeUnit.SECONDS))
+        assert(lock.await(40, TimeUnit.SECONDS))
         val err = error
         if (err != null) throw err
     }
