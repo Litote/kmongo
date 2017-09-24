@@ -64,8 +64,8 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                                     .readName(propertyName)
                                     .writeName(propertyName)
                                     .typeData(typeData)
-                                    .readAnnotations(propertyMetadata.readAnnotations)
-                                    .writeAnnotations(propertyMetadata.writeAnnotations)
+                                    .readAnnotations(propertyMetadata.readAnnotations + it.getDeclaredAnnotations())
+                                    .writeAnnotations(propertyMetadata.writeAnnotations + it.getDeclaredAnnotations())
                                     .propertySerialization(serialization)
                                     .propertyAccessor(PropertyAccessorImpl<Any>(propertyMetadata));
 
@@ -91,5 +91,10 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                             )
                     )
         } */
+    }
+
+    private fun KProperty<*>.getDeclaredAnnotations(): List<Annotation> {
+        return (javaField?.declaredAnnotations?.toList() ?: emptyList<Annotation>()) +
+                (getter.javaMethod?.declaredAnnotations?.toList() ?: emptyList<Annotation>())
     }
 }
