@@ -350,6 +350,8 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <jdkVersion>8</jdkVersion>
+                    <reportNotDocumented>false</reportNotDocumented>
                     <sourceLinks>
                         <link>
                             <dir>${sourceDirectory}</dir>
@@ -358,11 +360,11 @@
                             <urlSuffix>#L</urlSuffix>
                         </link>
                     </sourceLinks>
-                    <perPackageOptions>
-                        <packageOptions>
-                            <reportUndocumented>false</reportUndocumented>
-                        </packageOptions>
-                    </perPackageOptions>
+                    <externalDocumentationLinks>
+                        <link>
+                            <url>http://mongodb.github.io/mongo-java-driver/3.5/javadoc/</url>
+                        </link>
+                    </externalDocumentationLinks>
                 </configuration>
             </plugin>
             <plugin>

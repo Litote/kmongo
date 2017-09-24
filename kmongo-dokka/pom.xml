@@ -100,8 +100,6 @@
                 </executions>
                 <configuration>
                     <moduleName>kmongo</moduleName>
-                    <jdkVersion>8</jdkVersion>
-                    <reportNotDocumented>false</reportNotDocumented>
                     <sourceLinks>
                         <link>
                             <dir>${project.basedir}/../kmongo-shared/src/main/kotlin</dir>
@@ -143,19 +141,6 @@
                         <dir>${project.basedir}/../kmongo-async-core/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-coroutine-core/src/main/kotlin</dir>
                     </sourceDirectories>
-                    <externalDocumentationLinks>
-                        <link>
-                            <url>http://mongodb.github.io/mongo-java-driver/3.5/javadoc/</url>
-                        </link>
-                    </externalDocumentationLinks>
-                    <perPackageOptions>
-                        <packageOptions>
-                            <prefix>kotlin</prefix>
-                            <skipDeprecated>false</skipDeprecated>
-                            <reportUndocumented>true</reportUndocumented>
-                            <includeNonPublic>false</includeNonPublic>
-                        </packageOptions>
-                    </perPackageOptions>
                 </configuration>
             </plugin>
         </plugins>
