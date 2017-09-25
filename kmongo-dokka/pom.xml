@@ -34,6 +34,10 @@
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-jackson-mapping</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-async-core</artifactId>
         </dependency>
         <dependency>
@@ -63,6 +67,7 @@
                     </args>
                     <sourceDirs>
                         <sourceDirs>${project.basedir}/../kmongo-shared/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/../kmongo-jackson-mapping/src/main/kotlin</sourceDirs>
                         <sourceDirs>${project.basedir}/../kmongo-core/src/main/kotlin</sourceDirs>
                         <sourceDirs>${project.basedir}/../kmongo-async-shared/src/main/kotlin</sourceDirs>
                         <sourceDirs>${project.basedir}/../kmongo-async-core/src/main/kotlin</sourceDirs>
@@ -110,8 +115,14 @@
                             <urlSuffix>#L</urlSuffix>
                         </link>
                         <link>
+                            <dir>${project.basedir}/../kmongo-jackson-mapping/src/main/kotlin</dir>
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-jackson-mapping/src/main/kotlin
+                            </url>
+                            <urlSuffix>#L</urlSuffix>
+                        </link>
+                        <link>
                             <dir>${project.basedir}/../kmongo-core/src/main/kotlin</dir>
-                            <url>https://github.com/Litote/kmongo-core/blob/master/kmongo/src/main/kotlin
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-core/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
@@ -138,6 +149,7 @@
                     <outputFormat>html</outputFormat>
                     <sourceDirectories>
                         <dir>${project.basedir}/../kmongo-shared/src/main/kotlin</dir>
+                        <dir>${project.basedir}/../kmongo-jackson-mapping/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-core/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-async-shared/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-async-core/src/main/kotlin</dir>
