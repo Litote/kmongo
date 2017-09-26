@@ -34,8 +34,8 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
     @BsonDiscriminator("an")
     data class WithAnnotations(
             @BsonId val withAnnotationsId: String,
-            @field:BsonProperty("otherName") val prop: String,
-            @field:BsonProperty(useDiscriminator = true) val other: OtherClass,
+            @BsonProperty("otherName") val prop: String,
+            @BsonProperty(useDiscriminator = true) val other: OtherClass,
             @BsonIgnore val ignore: String?)
 
     data class OtherClass(val ok: Boolean = true)

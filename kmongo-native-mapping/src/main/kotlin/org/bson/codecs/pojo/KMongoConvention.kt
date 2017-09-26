@@ -22,6 +22,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
@@ -32,15 +33,35 @@ import kotlin.reflect.jvm.javaType
  */
 internal class KMongoConvention(val serialization: PropertySerialization<Any>) : Convention {
 
-    private fun getTypeData(property: KProperty<*>): TypeData<Any> {
-        @Suppress("UNCHECKED_CAST")
-        return TypeData.builder<Any>(property.returnType.javaType as Class<Any>).build()
+    companion object {
+        private val metadataFqName = "kotlin.Metadata"
+
+        private fun Class<*>.isKotlinClass(): Boolean {
+            return this.declaredAnnotations.singleOrNull { it.annotationClass.java.name == metadataFqName } != null
+        }
+
+        private fun getTypeData(property: KProperty<*>): TypeData<Any> {
+            @Suppress("UNCHECKED_CAST")
+            return TypeData.builder<Any>(property.returnType.javaType as Class<Any>).build()
+        }
+
+        private fun KProperty<*>.getDeclaredAnnotations(owner: KClass<*>): List<Annotation> {
+            return listOfNotNull(
+                    owner.primaryConstructor?.parameters?.find { it.name == name }?.annotations,
+                    javaField?.declaredAnnotations?.toList(),
+                    getter.javaMethod?.declaredAnnotations?.toList()
+            ).flatMap { it }
+        }
     }
+
 
     @Suppress("UNCHECKED_CAST")
     override fun apply(classModelBuilder: ClassModelBuilder<*>) {
         val type = classModelBuilder.type
-        if (!type.isArray && !type.isEnum && !type.isAssignableFrom(Collection::class.java)) {
+        if (!type.isArray
+                && !type.isEnum
+                && !type.isAssignableFrom(Collection::class.java)
+                && type.isKotlinClass()) {
             val instanceCreatorFactory = KotlinInstanceCreatorFactory<Any>(type.kotlin as KClass<Any>)
             (classModelBuilder as ClassModelBuilder<Any>).instanceCreatorFactory(instanceCreatorFactory)
 
@@ -58,14 +79,15 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                     }
 
                     val propertyName = it.name
+                    val declaredAnnotations = it.getDeclaredAnnotations(type.kotlin)
                     val propertyBuilder =
                             PropertyModel.builder<Any>()
                                     .propertyName(propertyName)
                                     .readName(propertyName)
                                     .writeName(propertyName)
                                     .typeData(typeData)
-                                    .readAnnotations(propertyMetadata.readAnnotations + it.getDeclaredAnnotations())
-                                    .writeAnnotations(propertyMetadata.writeAnnotations + it.getDeclaredAnnotations())
+                                    .readAnnotations(propertyMetadata.readAnnotations + declaredAnnotations)
+                                    .writeAnnotations(propertyMetadata.writeAnnotations + declaredAnnotations)
                                     .propertySerialization(serialization)
                                     .propertyAccessor(PropertyAccessorImpl<Any>(propertyMetadata));
 
@@ -91,10 +113,5 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                             )
                     )
         } */
-    }
-
-    private fun KProperty<*>.getDeclaredAnnotations(): List<Annotation> {
-        return (javaField?.declaredAnnotations?.toList() ?: emptyList<Annotation>()) +
-                (getter.javaMethod?.declaredAnnotations?.toList() ?: emptyList<Annotation>())
     }
 }
