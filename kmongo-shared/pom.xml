@@ -29,6 +29,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-id</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-core</artifactId>
             <scope>provided</scope>

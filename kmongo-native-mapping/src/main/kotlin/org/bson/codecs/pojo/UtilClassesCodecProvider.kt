@@ -17,12 +17,18 @@
 package org.bson.codecs.pojo
 
 import org.bson.BsonReader
+import org.bson.BsonType
 import org.bson.BsonWriter
 import org.bson.codecs.Codec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistry
+import org.bson.types.ObjectId
+import org.litote.kmongo.Id
+import org.litote.kmongo.id.IdTransformer
+import org.litote.kmongo.id.StringId
+import org.litote.kmongo.id.WrappedObjectId
 import java.util.Locale
 
 /**
@@ -42,9 +48,38 @@ internal object UtilClassesCodecProvider : CodecProvider {
                 = Locale.forLanguageTag(reader.readString())
     }
 
-    private val codecsMap: Map<Class<*>, Codec<*>> = listOf(LocaleCodec)
+    private object IdCodec : Codec<Id<*>> {
+
+        override fun encode(writer: BsonWriter, value: Id<*>, encoderContext: EncoderContext) {
+            val wrapped = IdTransformer.unwrapId(value)
+            when (wrapped) {
+                is String -> writer.writeString(wrapped)
+                is ObjectId -> writer.writeObjectId(wrapped)
+                else -> error("unsupported id type $value")
+            }
+        }
+
+        override fun getEncoderClass(): Class<Id<*>> = Id::class.java
+
+        override fun decode(reader: BsonReader, decoderContext: DecoderContext): Id<*>? {
+            return IdTransformer.wrapId(
+                    when (reader.currentBsonType) {
+                        BsonType.STRING -> reader.readString()
+                        BsonType.OBJECT_ID -> reader.readObjectId()
+                        else -> error("unsupported id token ${reader.currentBsonType}")
+                    }
+            )
+        }
+
+    }
+
+    private val codecsMap: Map<Class<*>, Codec<*>> = listOf(LocaleCodec, IdCodec)
             .map { it.encoderClass to it }
-            .toMap()
+            .toMap() +
+            mapOf(
+                    StringId::class.java to IdCodec,
+                    WrappedObjectId::class.java to IdCodec
+            )
 
     override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? {
         @Suppress("UNCHECKED_CAST")

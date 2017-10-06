@@ -98,10 +98,10 @@ internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>, registry: CodecRe
         if (idProperty != null && propertyAccessor != null) {
             val idValue = propertyAccessor.get(document)
             if (idValue == null) {
-                val toString = idProperty.typeData.type
-                if (ObjectId::class.java == toString) {
+                val type = idProperty.typeData.type
+                if (ObjectId::class.java == type) {
                     setPropertyValue(propertyAccessor, document, ObjectId.get())
-                } else if (String::class.java == toString) {
+                } else if (String::class.java == type) {
                     setPropertyValue(propertyAccessor, document, ObjectId.get().toString())
                 } else {
                     error("generation for id property type not supported : $idProperty")

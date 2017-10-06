@@ -21,6 +21,7 @@ import java.util.ServiceLoader
 
 /**
  * Provides a MongoClient class. Common interface for sync and async driver.
+ * This object is mainly used in tests.
  */
 object MongoClientProvider {
 

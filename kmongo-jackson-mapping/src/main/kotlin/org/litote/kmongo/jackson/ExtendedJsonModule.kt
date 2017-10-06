@@ -24,6 +24,8 @@ import org.bson.types.Binary
 import org.bson.types.MaxKey
 import org.bson.types.MinKey
 import org.bson.types.ObjectId
+import org.litote.kmongo.Id
+import org.litote.kmongo.id.IdTransformer
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -37,7 +39,7 @@ import java.util.Date
 
 internal class ExtendedJsonModule : SimpleModule() {
 
-    internal object ObjectIdExtendedJsonSerializer : JsonSerializer<ObjectId>() {
+    object ObjectIdExtendedJsonSerializer : JsonSerializer<ObjectId>() {
         override fun serialize(value: ObjectId, gen: JsonGenerator, serializers: SerializerProvider) {
             gen.writeStartObject()
             gen.writeStringField("\$oid", value.toHexString())
@@ -45,7 +47,7 @@ internal class ExtendedJsonModule : SimpleModule() {
         }
     }
 
-    internal object BinaryExtendedJsonSerializer : JsonSerializer<Binary>() {
+    object BinaryExtendedJsonSerializer : JsonSerializer<Binary>() {
 
         override fun serialize(obj: Binary, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider) {
             jsonGenerator.writeStartObject()
@@ -55,7 +57,7 @@ internal class ExtendedJsonModule : SimpleModule() {
         }
     }
 
-    internal object BsonTimestampExtendedJsonSerializer : JsonSerializer<BsonTimestamp>() {
+    object BsonTimestampExtendedJsonSerializer : JsonSerializer<BsonTimestamp>() {
 
         override fun serialize(obj: BsonTimestamp, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider) {
             jsonGenerator.writeStartObject()
@@ -68,7 +70,7 @@ internal class ExtendedJsonModule : SimpleModule() {
         }
     }
 
-    internal object MaxKeyExtendedJsonSerializer : JsonSerializer<MaxKey>() {
+    object MaxKeyExtendedJsonSerializer : JsonSerializer<MaxKey>() {
 
         override fun serialize(obj: MaxKey, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider) {
             jsonGenerator.writeStartObject()
@@ -77,7 +79,7 @@ internal class ExtendedJsonModule : SimpleModule() {
         }
     }
 
-    internal object MinKeyExtendedJsonSerializer : JsonSerializer<MinKey>() {
+    object MinKeyExtendedJsonSerializer : JsonSerializer<MinKey>() {
 
         override fun serialize(obj: MinKey, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider) {
             jsonGenerator.writeStartObject()
@@ -86,7 +88,7 @@ internal class ExtendedJsonModule : SimpleModule() {
         }
     }
 
-    internal abstract class TemporalExtendedJsonSerializer<T> : JsonSerializer<T>() {
+    abstract class TemporalExtendedJsonSerializer<T> : JsonSerializer<T>() {
 
         override fun serialize(value: T, gen: JsonGenerator, serializers: SerializerProvider) {
             gen.writeStartObject()
@@ -97,58 +99,65 @@ internal class ExtendedJsonModule : SimpleModule() {
         abstract fun epochMillis(temporal: T): Long
     }
 
-    internal object DateExtendedJsonSerializer : TemporalExtendedJsonSerializer<Date>() {
+    object DateExtendedJsonSerializer : TemporalExtendedJsonSerializer<Date>() {
 
         override fun epochMillis(temporal: Date): Long
                 = temporal.time
     }
 
-    internal object CalendarExtendedJsonSerializer : TemporalExtendedJsonSerializer<Calendar>() {
+    object CalendarExtendedJsonSerializer : TemporalExtendedJsonSerializer<Calendar>() {
 
         override fun epochMillis(temporal: Calendar): Long
                 = temporal.timeInMillis
     }
 
-    internal object InstantExtendedJsonSerializer : TemporalExtendedJsonSerializer<Instant>() {
+    object InstantExtendedJsonSerializer : TemporalExtendedJsonSerializer<Instant>() {
 
         override fun epochMillis(temporal: Instant): Long
                 = temporal.toEpochMilli()
     }
 
-    internal object ZonedDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<ZonedDateTime>() {
+    object ZonedDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<ZonedDateTime>() {
 
         override fun epochMillis(temporal: ZonedDateTime): Long
                 = InstantExtendedJsonSerializer.epochMillis(temporal.toInstant())
     }
 
-    internal object OffsetDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<OffsetDateTime>() {
+    object OffsetDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<OffsetDateTime>() {
 
         override fun epochMillis(temporal: OffsetDateTime): Long
                 = InstantExtendedJsonSerializer.epochMillis(temporal.toInstant())
     }
 
-    internal object LocalDateExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDate>() {
+    object LocalDateExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDate>() {
 
         override fun epochMillis(temporal: LocalDate): Long
                 = ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal.atStartOfDay(UTC))
     }
 
-    internal object LocalDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDateTime>() {
+    object LocalDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDateTime>() {
 
         override fun epochMillis(temporal: LocalDateTime): Long
                 = ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal.atZone(UTC))
     }
 
-    internal object LocalTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalTime>() {
+    object LocalTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalTime>() {
 
         override fun epochMillis(temporal: LocalTime): Long
                 = LocalDateTimeExtendedJsonSerializer.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
     }
 
-    internal object OffsetTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<OffsetTime>() {
+    object OffsetTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<OffsetTime>() {
 
         override fun epochMillis(temporal: OffsetTime): Long
                 = OffsetDateTimeExtendedJsonSerializer.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
+    }
+
+    object IdSerializer : JsonSerializer<Id<*>>() {
+
+        override fun serialize(id: Id<*>, generator: JsonGenerator, provider: SerializerProvider) {
+            generator.writeObject(IdTransformer.unwrapId(id))
+        }
     }
 
     override fun setupModule(context: SetupContext) {
@@ -163,6 +172,8 @@ internal class ExtendedJsonModule : SimpleModule() {
         addSerializer(BsonTimestamp::class.java, BsonTimestampExtendedJsonSerializer)
         addSerializer(MaxKey::class.java, MaxKeyExtendedJsonSerializer)
         addSerializer(MinKey::class.java, MinKeyExtendedJsonSerializer)
+
+        addSerializer(Id::class.java, IdSerializer)
 
         addSerializer(Date::class.java, DateExtendedJsonSerializer)
         addSerializer(Calendar::class.java, CalendarExtendedJsonSerializer)

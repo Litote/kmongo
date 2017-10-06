@@ -16,6 +16,8 @@
 
 package org.litote.kmongo.service
 
+import org.litote.kmongo.id.IdGenerator
+import org.litote.kmongo.id.ObjectIdGenerator
 import java.util.ServiceLoader
 
 private val mappingTypeProvider
@@ -56,9 +58,17 @@ private var currentService: ClassMappingTypeService
  */
 object ClassMappingType : ClassMappingTypeService by currentService {
 
+    init {
+        //objectId generator by default
+        if (!IdGenerator.defaultGeneratorInitialized) {
+            IdGenerator.defaultGenerator = ObjectIdGenerator
+        }
+    }
+
     /**
      * Do not use the [ClassMappingTypeService.priority] method do define the service used,
-     * and force the use of the service specified.
+     * and force the use of the specified service.
+     * Use this method at startup only.
      */
     fun forceService(service: ClassMappingTypeService) {
         selectedService = service

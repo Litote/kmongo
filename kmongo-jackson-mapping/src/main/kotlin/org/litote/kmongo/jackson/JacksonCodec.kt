@@ -170,12 +170,12 @@ internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
         if (idProperty != null) {
             val idValue = MongoIdUtil.getIdValue(idProperty, document)
             if (idValue == null) {
-                val toString = idProperty.returnType.toString()
-                val javaField = idProperty.javaField
-                javaField!!.isAccessible = true
-                if (toString.startsWith(ObjectId::class.qualifiedName!!)) {
+                val javaField = idProperty.javaField!!
+                val type = javaField.type
+                javaField.isAccessible = true
+                if (ObjectId::class.java == type) {
                     javaField.set(document, ObjectId.get())
-                } else if (toString.startsWith(String::class.qualifiedName!!)) {
+                } else if (String::class.java == type) {
                     javaField.set(document, ObjectId.get().toString())
                 } else {
                     error("generation for id property type not supported : $idProperty")

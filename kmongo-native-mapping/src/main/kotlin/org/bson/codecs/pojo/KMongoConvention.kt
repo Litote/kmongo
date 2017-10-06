@@ -21,8 +21,10 @@ import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
@@ -41,8 +43,14 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
         }
 
         private fun getTypeData(property: KProperty<*>): TypeData<Any> {
+            val returnType = property.returnType.javaType
             @Suppress("UNCHECKED_CAST")
-            return TypeData.builder<Any>(property.returnType.javaType as Class<Any>).build()
+            val c: Class<Any> = when (returnType) {
+                is Class<*> -> returnType as Class<Any>
+                else -> (property.returnType.classifier as KClass<*>).java as Class<Any>
+            }
+
+            return TypeData.builder<Any>(c).build()
         }
 
         private fun KProperty<*>.getDeclaredAnnotations(owner: KClass<*>): List<Annotation> {
@@ -67,8 +75,8 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
 
             classModelBuilder.type.kotlin.memberProperties.forEach {
                 it.isAccessible = true
-                if (it.returnType.javaType is Class<*>
-                        && it.javaField?.run { !Modifier.isTransient(modifiers) } ?: true) {
+                if (!it.returnType.isSubtypeOf(Collection::class.starProjectedType)
+                    && it.javaField?.run { !Modifier.isTransient(modifiers) } ?: true) {
                     classModelBuilder.removeProperty(it.name)
                     val typeData = getTypeData(it)
                     val propertyMetadata = PropertyMetadata<Any>(it.name, classModelBuilder.type.simpleName, typeData)

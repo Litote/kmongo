@@ -28,6 +28,7 @@
     <url>http://litote.org/kmongo</url>
 
     <modules>
+        <module>kmongo-id</module>
         <module>kmongo-shared-tests</module>
         <module>kmongo-shared</module>
         <module>kmongo-jackson-mapping</module>
@@ -84,15 +85,21 @@
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-reflect</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-id</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-shared</artifactId>

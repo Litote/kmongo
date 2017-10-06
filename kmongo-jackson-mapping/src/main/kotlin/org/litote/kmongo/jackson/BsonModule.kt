@@ -18,6 +18,7 @@ package org.litote.kmongo.jackson
 import com.fasterxml.jackson.core.Base64Variants
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonToken.VALUE_STRING
 import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
@@ -33,6 +34,8 @@ import org.bson.types.Binary
 import org.bson.types.MaxKey
 import org.bson.types.MinKey
 import org.bson.types.ObjectId
+import org.litote.kmongo.Id
+import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.jackson.ExtendedJsonModule.BinaryExtendedJsonSerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.BsonTimestampExtendedJsonSerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.CalendarExtendedJsonSerializer
@@ -322,6 +325,30 @@ internal class BsonModule : SimpleModule() {
                 = date.toInstant()
     }
 
+    private object IdBsonSerializer : JsonSerializer<Id<*>>() {
+
+        override fun serialize(id: Id<*>, generator: JsonGenerator, provider: SerializerProvider) {
+            IdTransformer.unwrapId(id).also {
+                when (it) {
+                    is String -> generator.writeString(it)
+                    is ObjectId -> ObjectIdBsonSerializer.serialize(it, generator, provider)
+                    else -> error("unsupported id type $id")
+                }
+            }
+        }
+    }
+
+    private object IdBsonDeserializer : JsonDeserializer<Id<*>>() {
+
+        override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Id<*> {
+            return if (jp.currentToken == VALUE_STRING) {
+                IdTransformer.wrapId(jp.valueAsString)
+            } else {
+                IdTransformer.wrapId(jp.embeddedObject)
+            }
+        }
+    }
+
     override fun setupModule(context: SetupContext) {
         super.setupModule(context)
 
@@ -338,6 +365,9 @@ internal class BsonModule : SimpleModule() {
         addDeserializer(MaxKey::class.java, MaxKeyBsonDeserializer)
         addSerializer(MinKey::class.java, MinKeyBsonSerializer)
         addDeserializer(MinKey::class.java, MinKeyBsonDeserializer)
+
+        addSerializer(Id::class.java, IdBsonSerializer)
+        addDeserializer(Id::class.java, IdBsonDeserializer)
 
         addSerializer(Instant::class.java, InstantBsonSerializer)
         addSerializer(ZonedDateTime::class.java, ZonedDateTimeBsonSerializer)
