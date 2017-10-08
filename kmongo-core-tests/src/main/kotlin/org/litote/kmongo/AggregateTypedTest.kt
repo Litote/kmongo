@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Litote
+ * Copyright (C) 2017 Litote
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,22 @@
 
 package org.litote.kmongo
 
-import com.mongodb.MongoCommandException
 import com.mongodb.client.MongoCollection
+import com.mongodb.client.model.Aggregates
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.litote.kmongo.AggregateTest.Article
-import org.litote.kmongo.MongoOperator.and
-import org.litote.kmongo.MongoOperator.limit
-import org.litote.kmongo.MongoOperator.match
-import org.litote.kmongo.MongoOperator.project
+import org.litote.kmongo.AggregateTypedTest.Article
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
-class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
+/**
+ *
+ */
+class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
 
     data class Article(val title: String, val author: String, val tags: List<String>) {
 
@@ -62,14 +61,14 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Test
     fun canAggregate() {
-        val l = col.aggregate<Article>("{$match:{}}").toList()
-        assertEquals(3, l.size)
+        val l = col.aggregate<Article>(match(Article::author eq "Maberry Jonathan")).toList()
+        assertEquals(1, l.size)
     }
 
 
     @Test
     fun canAggregateWithMultipleDocuments() {
-        val l = col.aggregate<Article>("{$match:{tags:'virus'}}").toList()
+        val l = col.aggregate<Article>(match(Article::tags contains "virus")).toList()
         assertEquals(2, l.size)
         assertTrue(l.all { it.tags.contains("virus") })
     }
@@ -77,62 +76,54 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
     @Test
     fun canAggregateParameters() {
         val tag = "pandemic"
-        val l = col.aggregate<Article>("{$match:{tags:'$tag'}}").toList()
+        val l = col.aggregate<Article>(match(Article::tags contains tag)).toList()
         assertEquals(1, l.size)
         assertEquals("World War Z", l.first().title)
     }
 
     @Test
     fun canAggregateWithManyMatch() {
-        val l = col.aggregate<Article>("{$match:{$and:[{tags:'virus'}, {tags:'pandemic'}]}}").toList()
+        val l = col.aggregate<Article>(match(Article::tags contains "virus", Article::tags contains "pandemic")).toList()
         assertEquals(1, l.size)
         assertEquals("World War Z", l.first().title)
     }
 
     @Test
     fun canAggregateWithManyOperators() {
-        val l = col.aggregate<Article>("[{$match:{tags:'virus'}},{$limit:1}]").toList()
+        val l = col.aggregate<Article>(match(Article::tags contains "virus"), Aggregates.limit(1)).toList()
         assertEquals(1, l.size)
     }
 
     @Test
-    fun shouldCheckIfCommandHasErrors() {
-        try {
-            col.aggregate<Article>("{\$invalid:{}}").toList()
-        } catch (e: Exception) {
-            assertTrue(e is MongoCommandException)
-            return
-        }
-
-        fail("should have exception")
-    }
-
-    @Test
     fun shouldPopulateIds() {
-        val l = friendCol.aggregate<Friend>("{$project: {_id: '\$_id', name: '\$name'}}").toList()
+        val l = friendCol.aggregate<Friend>(
+                project(
+                        mapOf(
+                                Friend::_id to "\$_id",
+                                Friend::name to "\$name"
+                        ) as Map<KProperty<*>, String>
+                )).toList()
         assertEquals(3, l.size)
         assertTrue(l.all { it._id != null })
         assertTrue(l.all { it.name != null })
         assertTrue(l.all { it.address == null })
 
-        val l2 = friendCol.aggregate<Friend>("{$project: {_id: 1, name: 1}}").toList()
+        val l2 = friendCol.aggregate<Friend>(project(Friend::_id, Friend::name)).toList()
         assertEquals(3, l2.size)
         assertTrue(l2.all { it._id != null })
         assertTrue(l2.all { it.name != null })
         assertTrue(l2.all { it.address == null })
 
-        val l3 = friendCol.aggregate<Friend>("{$project: { name: 1}}").toList()
+        val l3 = friendCol.aggregate<Friend>(project(Friend::name)).toList()
         assertEquals(3, l3.size)
         assertTrue(l3.all { it._id != null })
         assertTrue(l3.all { it.name != null })
         assertTrue(l3.all { it.address == null })
 
-        val l4 = friendCol.aggregate<Friend>("{$project: {_id: 0, name: 1}}").toList()
+        val l4 = friendCol.aggregate<Friend>(project(Friend::_id to false, Friend::name to true)).toList()
         assertEquals(3, l4.size)
         assertTrue(l4.all { it._id == null })
         assertTrue(l4.all { it.name != null })
         assertTrue(l4.all { it.address == null })
     }
-
-
 }

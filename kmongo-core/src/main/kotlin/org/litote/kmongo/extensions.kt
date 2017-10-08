@@ -28,6 +28,7 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
 import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.CountOptions
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.FindOneAndUpdateOptions
@@ -170,6 +171,24 @@ fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T?
  */
 fun <T> MongoCollection<T>.findOne(filter: Bson): T?
         = find(filter).first()
+
+/**
+ * Finds the first document that match the filter in the collection.
+ *
+ * @param filters the query filters
+ * @return the first item returned or null
+ */
+fun <T> MongoCollection<T>.findOne(vararg filters: Bson): T?
+        = find(Filters.and(filters.toList())).first()
+
+/**
+ * Finds the first document that match the filter in the collection.
+ *
+ * @param filters the query filters
+ * @return the first item returned or null
+ */
+inline fun <reified T : Any> MongoCollection<T>.findOne(filters: () -> Bson): T?
+        = findOne(filters.invoke())
 
 /**
  * Finds the document that match the id parameter.
@@ -688,6 +707,14 @@ fun <TResult> MongoIterable<TResult>.toList(): List<TResult>
  */
 val Any.json: String
     get() = toExtendedJson(this)
+
+/**
+ * Get the [org.bson.BsonValue] of this string.
+ *
+ * @throws Exception if the string content is not a valid json document format
+ */
+val String.bson: BsonDocument
+    get() = toBson(this)
 
 /**
  * Format this string to remove space(s) between $ and next char

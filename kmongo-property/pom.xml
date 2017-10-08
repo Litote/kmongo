@@ -23,18 +23,19 @@
         <version>3.5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>kmongo-core</artifactId>
-    <name>KMongo sync core</name>
-    <description>KMongo synchronous client core extensions</description>
+    <artifactId>kmongo-property</artifactId>
+    <name>KMongo property helper classes</name>
+    <description>Provides typed checks for mongo queries</description>
 
     <dependencies>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-property</artifactId>
+            <artifactId>kmongo-shared</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
+            <artifactId>mongodb-driver-core</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
