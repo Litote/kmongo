@@ -44,7 +44,7 @@ private val defaultService by lazy {
 private var selectedService: ClassMappingTypeService? =
         System.getProperty("org.litote.mongo.test.mapping.service")
                 ?.let {
-                    Class.forName(it).newInstance() as ClassMappingTypeService
+                    Class.forName(it).getConstructor().newInstance() as ClassMappingTypeService
                 }
 
 private var currentService: ClassMappingTypeService
