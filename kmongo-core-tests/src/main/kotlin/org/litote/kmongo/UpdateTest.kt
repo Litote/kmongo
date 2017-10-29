@@ -31,6 +31,27 @@ import kotlin.test.assertNull
 class UpdateTest : AllCategoriesKMongoBaseTest<Friend>() {
 
     @Test
+    fun canUpdate() {
+        val friend = Friend("Paul")
+        col.insertOne(friend)
+        col.updateOne("{name:'Paul'}", "{$set:{name:'John'}}")
+        val r = col.findOne("{name:'John'}")
+        assertEquals("John", r!!.name)
+    }
+
+    @Test
+    fun canUpdateTheSameDocument() {
+        val friend = Friend("John", "123 Wall Street")
+        col.insertOne(friend)
+        friend.name = "Johnny"
+        col.updateOne(friend)
+        val r = col.findOne("{name:'Johnny'}")
+        assertEquals("Johnny", r!!.name)
+        assertEquals("123 Wall Street", r.address)
+        assertEquals(friend._id, r._id)
+    }
+
+    @Test
     fun canUpdateMulti() {
         col.insertMany(listOf(Friend("John"), Friend("John")))
         col.updateMany("{name:'John'}", "{$unset:{name:1}}")
@@ -76,18 +97,6 @@ class UpdateTest : AllCategoriesKMongoBaseTest<Friend>() {
         val r = col.findOne("{name:'Johnny'}")
         assertEquals("Johnny", r!!.name)
         assertNull(r.address)
-    }
-
-    @Test
-    fun canUpdateTheSameDocument() {
-        val friend = Friend("John", "123 Wall Street")
-        col.insertOne(friend)
-        friend.name = "Johnny"
-        col.updateOne(friend)
-        val r = col.findOne("{name:'Johnny'}")
-        assertEquals("Johnny", r!!.name)
-        assertEquals("123 Wall Street", r.address)
-        assertEquals(friend._id, r._id)
     }
 
 }
