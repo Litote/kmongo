@@ -17,13 +17,14 @@
 package org.bson.codecs.pojo
 
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.companionObjectInstance
 
 /**
  *
  */
-internal class KotlinInstanceCreator<T : Any>(val kClass: KClass<T>) : InstanceCreator<T> {
+internal class KotlinInstanceCreator<T : Any>(val kClass: KClass<T>, val instantiator: KFunction<*>) : InstanceCreator<T> {
 
     private val properties: MutableMap<String, Any?> = mutableMapOf()
 
@@ -33,34 +34,31 @@ internal class KotlinInstanceCreator<T : Any>(val kClass: KClass<T>) : InstanceC
 
     @Suppress("UNCHECKED_CAST")
     override fun getInstance(): T {
-        //TODO better
-        val primaryConstructor = kClass.primaryConstructor!!
-
-        val params = primaryConstructor
+        val params = instantiator
                 .parameters
                 .mapNotNull { paramDef ->
-                    if (paramDef.kind == KParameter.Kind.INSTANCE || paramDef.kind == KParameter.Kind.EXTENSION_RECEIVER) {
-                        // we shouldn't have an instance or receiver parameter and if we do, just go with default Java-ish behavior
-                        TODO()
-                    }
-                    val value = properties[paramDef.name]
-                    val isMissing = !properties.containsKey(paramDef.name)
-
-                    if (isMissing && paramDef.isOptional) {
-                        null
+                    if (paramDef.kind == KParameter.Kind.INSTANCE) {
+                        paramDef to kClass.companionObjectInstance
                     } else {
+                        val name = paramDef.name
+                        val value = properties[name]
+                        val isMissing = !properties.containsKey(name)
 
-                        if (value == null && !paramDef.type.isMarkedNullable) {
-                            throw MissingKotlinParameterException(
-                                    "Instantiation of ${kClass} value failed for property ${paramDef.name} due to missing (therefore NULL) value for creator parameter ${paramDef.name} which is a non-nullable type"
-                            )
+                        if (isMissing && paramDef.isOptional) {
+                            null
+                        } else {
+                            if (value == null && !paramDef.type.isMarkedNullable) {
+                                throw MissingKotlinParameterException(
+                                        "Instantiation of $kClass value failed for property $name due to missing (therefore NULL) value for creator parameter $name which is a non-nullable type"
+                                )
+                            }
+                            paramDef to value
                         }
-                        paramDef to value
                     }
                 }
                 .toMap()
 
-        return primaryConstructor.callBy(params)
+        return instantiator.callBy(params) as T
     }
 
 }

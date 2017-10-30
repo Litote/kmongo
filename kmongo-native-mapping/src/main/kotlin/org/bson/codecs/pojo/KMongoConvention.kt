@@ -16,11 +16,16 @@
 
 package org.bson.codecs.pojo
 
+import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonId
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
@@ -38,7 +43,7 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
     companion object {
         private val metadataFqName = "kotlin.Metadata"
 
-        private fun Class<*>.isKotlinClass(): Boolean {
+        fun Class<*>.isKotlinClass(): Boolean {
             return this.declaredAnnotations.singleOrNull { it.annotationClass.java.name == metadataFqName } != null
         }
 
@@ -53,12 +58,19 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
             return TypeData.builder<Any>(c).build()
         }
 
-        private fun KProperty<*>.getDeclaredAnnotations(owner: KClass<*>): List<Annotation> {
+        private fun getDeclaredAnnotations(property: KProperty<*>, owner: KClass<*>): List<Annotation> {
             return listOfNotNull(
-                    owner.primaryConstructor?.parameters?.find { it.name == name }?.annotations,
-                    javaField?.declaredAnnotations?.toList(),
-                    getter.javaMethod?.declaredAnnotations?.toList()
+                    getInstantiator(owner)?.parameters?.find { it.name == property.name }?.annotations,
+                    owner.primaryConstructor?.parameters?.find { it.name == property.name }?.annotations,
+                    property.javaField?.declaredAnnotations?.toList(),
+                    property.getter.javaMethod?.declaredAnnotations?.toList()
             ).flatMap { it }
+        }
+
+        fun getInstantiator(owner: KClass<*>): KFunction<*>? {
+            return owner.constructors.find { it.findAnnotation<BsonCreator>() != null }
+                    ?: owner.companionObject?.functions?.find { it.findAnnotation<BsonCreator>() != null }
+                    ?: owner.primaryConstructor
         }
     }
 
@@ -76,7 +88,7 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
             classModelBuilder.type.kotlin.memberProperties.forEach {
                 it.isAccessible = true
                 if (!it.returnType.isSubtypeOf(Collection::class.starProjectedType)
-                    && it.javaField?.run { !Modifier.isTransient(modifiers) } ?: true) {
+                        && it.javaField?.run { !Modifier.isTransient(modifiers) } ?: true) {
                     classModelBuilder.removeProperty(it.name)
                     val typeData = getTypeData(it)
                     val propertyMetadata = PropertyMetadata<Any>(it.name, classModelBuilder.type.simpleName, typeData)
@@ -87,7 +99,7 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                     }
 
                     val propertyName = it.name
-                    val declaredAnnotations = it.getDeclaredAnnotations(type.kotlin)
+                    val declaredAnnotations = getDeclaredAnnotations(it, type.kotlin)
                     val propertyBuilder =
                             PropertyModel.builder<Any>()
                                     .propertyName(propertyName)

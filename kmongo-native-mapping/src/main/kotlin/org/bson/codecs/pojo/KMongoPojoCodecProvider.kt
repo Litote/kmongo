@@ -43,7 +43,7 @@ internal class KMongoPojoCodecProvider(val serialization: PropertySerialization<
                             listOf(
                                     KMongoConvention(serialization),
                                     Conventions.CLASS_AND_PROPERTY_CONVENTION,
-                                    Conventions.ANNOTATION_CONVENTION,
+                                    KMongoAnnotationConvention,
                                     EmptyObjectConvention())
                     )
                     .automatic(true)

@@ -17,6 +17,7 @@
 package org.litote.kmongo
 
 import org.bson.Document
+import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonDiscriminator
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.codecs.pojo.annotations.BsonIgnore
@@ -40,6 +41,53 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
 
     data class OtherClass(val ok: Boolean = true)
 
+    data class WithBsonCreatorConstructor(
+            @BsonProperty("n") val name: String,
+            @BsonProperty("o") val optional: String? = null,
+            @BsonId val id: Id<WithBsonCreatorConstructor> = newId()
+    ) {
+
+        @BsonCreator
+        constructor(name: String, id: Id<WithBsonCreatorConstructor>) : this(name, null, id)
+    }
+
+    data class WithBsonCreatorConstructorAndBsonProperty(
+            val name: String,
+            @BsonProperty("o") val optional: String? = null,
+            @BsonId val id: Id<WithBsonCreatorConstructorAndBsonProperty> = newId()
+    ) {
+
+        @BsonCreator
+        constructor(@BsonProperty("n") name: String, id: Id<WithBsonCreatorConstructorAndBsonProperty>)
+                : this(name, null, id)
+    }
+
+    data class WithBsonCompanionInstantiatorMethod(
+            @BsonProperty("n") val name: String,
+            @BsonProperty("o") val optional: String? = null,
+            @BsonId val id: Id<WithBsonCompanionInstantiatorMethod> = newId()
+    ) {
+
+        companion object {
+            @BsonCreator
+            fun create(name: String, id: Id<WithBsonCompanionInstantiatorMethod>)
+                    = WithBsonCompanionInstantiatorMethod(name, null, id)
+        }
+    }
+
+    data class WithBsonCompanionInstantiatorMethodWithBsonProperty(
+            val name: String,
+            @BsonProperty("o") val optional: String? = null,
+            @BsonId val id: Id<WithBsonCompanionInstantiatorMethodWithBsonProperty> = newId()
+    ) {
+
+        companion object {
+            @BsonCreator
+            fun create(@BsonProperty("n") name: String, id: Id<WithBsonCompanionInstantiatorMethodWithBsonProperty>)
+                    = WithBsonCompanionInstantiatorMethodWithBsonProperty(name, null, id)
+        }
+    }
+
     override fun getDefaultCollectionClass(): KClass<WithAnnotations> {
         return WithAnnotations::class
     }
@@ -53,4 +101,54 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
                 col.withDocumentClass<Document>().find().first())
         assertEquals(a.copy(ignore = null), col.find().first())
     }
+
+    @Test
+    fun insertAndLoadWorksWithBsonCreator() {
+        val a = WithBsonCreatorConstructor("Joe", "op")
+        val c = col.withDocumentClass<WithBsonCreatorConstructor>()
+        c.insertOne(a)
+        val r = c.withDocumentClass<Document>().find().first()
+        assertEquals(
+                Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
+                r)
+        assertEquals(a.copy(optional = null), c.find().first())
+    }
+
+    @Test
+    fun insertAndLoadWorksWithBsonCreatorWithPropertyOnConstructor() {
+        val a = WithBsonCreatorConstructorAndBsonProperty("Joe", "op")
+        val c = col.withDocumentClass<WithBsonCreatorConstructorAndBsonProperty>()
+        c.insertOne(a)
+        val r = c.withDocumentClass<Document>().find().first()
+        assertEquals(
+                Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
+                r)
+        assertEquals(a.copy(optional = null), c.find().first())
+    }
+
+    @Test
+    fun insertAndLoadWorksWithBsonCreatorOnCompanionFunction() {
+        val a = WithBsonCompanionInstantiatorMethod("Joe", "op")
+        val c = col.withDocumentClass<WithBsonCompanionInstantiatorMethod>()
+        c.insertOne(a)
+        val r = c.withDocumentClass<Document>().find().first()
+        assertEquals(
+                Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
+                r)
+        assertEquals(a.copy(optional = null), c.find().first())
+    }
+
+    @Test
+    fun insertAndLoadWorksWithBsonCreatorOnCompanionFunctionWithBsonProperty() {
+        val a = WithBsonCompanionInstantiatorMethodWithBsonProperty("Joe", "op")
+        val c = col.withDocumentClass<WithBsonCompanionInstantiatorMethodWithBsonProperty>()
+        c.insertOne(a)
+        val r = c.withDocumentClass<Document>().find().first()
+        assertEquals(
+                Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
+                r)
+        assertEquals(a.copy(optional = null), c.find().first())
+    }
+
+
 }
