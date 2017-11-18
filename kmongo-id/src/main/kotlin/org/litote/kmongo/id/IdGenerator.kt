@@ -17,6 +17,7 @@
 package org.litote.kmongo.id
 
 import org.litote.kmongo.Id
+import kotlin.reflect.KClass
 
 /**
  * A generator of Ids.
@@ -41,6 +42,16 @@ interface IdGenerator {
         private var initialized: Boolean = false
 
     }
+
+    /**
+     * The class of the id.
+     */
+    val idClass: KClass<out Id<*>>
+
+    /**
+     * The class of the wrapped id.
+     */
+    val wrappedIdClass: KClass<out Any>
 
     /**
      * Generate a new id.

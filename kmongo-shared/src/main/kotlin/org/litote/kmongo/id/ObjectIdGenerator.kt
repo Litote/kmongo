@@ -18,11 +18,16 @@ package org.litote.kmongo.id
 
 import org.bson.types.ObjectId
 import org.litote.kmongo.Id
+import kotlin.reflect.KClass
 
 /**
  * [ObjectId] generator.
  */
 object ObjectIdGenerator : IdGenerator {
+
+    override val idClass: KClass<out Id<*>> = WrappedObjectId::class
+
+    override val wrappedIdClass: KClass<out Any> = ObjectId::class
 
     override fun <T> generateNewId(): Id<T> = WrappedObjectId(ObjectId())
 }

@@ -29,6 +29,7 @@
 
     <modules>
         <module>kmongo-id</module>
+        <module>kmongo-id-jackson</module>
         <module>kmongo-shared-tests</module>
         <module>kmongo-shared</module>
         <module>kmongo-property</module>
