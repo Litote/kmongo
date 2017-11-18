@@ -16,21 +16,18 @@
 
 package org.litote.kmongo.id.jackson
 
-import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.KeyDeserializer
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdGenerator
 
 /**
- * Add support for serialization and deserialization of [Id] to or from json [String].
- * The [IdGenerator] used must have a public constructor with only one String argument.
+ * Deserialize a [String] to an [Id] for a key.
  * @param idGenerator if null [IdGenerator.defaultGenerator] is used
  */
-class IdJacksonModule(idGenerator: IdGenerator? = null) : SimpleModule() {
+class StringToIdKeyDeserializer(private val idGenerator: IdGenerator? = null) : KeyDeserializer() {
 
-    init {
-        addSerializer(Id::class.java, IdToStringSerializer())
-        addDeserializer(Id::class.java, StringToIdDeserializer(idGenerator))
-        addKeySerializer(Id::class.java, IdToStringSerializer())
-        addKeyDeserializer(Id::class.java, StringToIdKeyDeserializer())
-    }
+    override fun deserializeKey(key: String, ctxt: DeserializationContext): Any
+            = StringToIdDeserializer.deserialize(idGenerator, key, ctxt)
+
 }
