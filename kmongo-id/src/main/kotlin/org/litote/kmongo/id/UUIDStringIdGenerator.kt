@@ -18,11 +18,16 @@ package org.litote.kmongo.id
 
 import org.litote.kmongo.Id
 import java.util.UUID
+import kotlin.reflect.KClass
 
 /**
  * Generator of [StringId] based on [UUID].
  */
 object UUIDStringIdGenerator : IdGenerator {
+
+    override val idClass: KClass<out Id<*>> = StringId::class
+
+    override val wrappedIdClass: KClass<out Any> = String::class
 
     override fun <T> generateNewId(): Id<T> = StringId(UUID.randomUUID().toString())
 }

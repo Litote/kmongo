@@ -24,6 +24,8 @@ import org.litote.kmongo.Id
  */
 data class WrappedObjectId<T>(val id: ObjectId) : Id<T> {
 
+    constructor(id: String) : this(ObjectId(id))
+
     override fun toString(): String {
         return id.toString()
     }

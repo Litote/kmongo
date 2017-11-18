@@ -17,8 +17,14 @@
 package org.litote.kmongo
 
 import org.litote.kmongo.id.IdGenerator
+import org.litote.kmongo.id.StringId
 
 /**
  * Generate a new [Id] with the [IdGenerator.defaultGenerator].
  */
 fun <T> newId(): Id<T> = IdGenerator.defaultGenerator.generateNewId()
+
+/**
+ * Create a new [Id] from the current [String].
+ */
+fun <T> String.toId(): Id<T> = StringId(this)

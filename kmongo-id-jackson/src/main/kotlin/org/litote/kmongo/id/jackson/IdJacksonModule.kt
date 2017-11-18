@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.id
+package org.litote.kmongo.id.jackson
 
-import org.bson.types.ObjectId
+import com.fasterxml.jackson.databind.module.SimpleModule
 import org.litote.kmongo.Id
-import kotlin.reflect.KClass
+import org.litote.kmongo.id.IdGenerator
 
 /**
- * [ObjectId] based String generator.
+ * Add support for serialization and deserialization of [Id].
+ * The [IdGenerator] used must have a public constructor with only one String argument.
  */
-object ObjectIdToStringGenerator : IdGenerator {
+class IdJacksonModule(val idGenerator: IdGenerator = IdGenerator.defaultGenerator) : SimpleModule() {
 
-    override val idClass: KClass<out Id<*>> = StringId::class
-
-    override val wrappedIdClass: KClass<out Any> = String::class
-
-    override fun <T> generateNewId(): Id<T> = StringId(ObjectId().toHexString())
+    init {
+        addSerializer(Id::class.java, IdToStringSerializer())
+        addDeserializer(Id::class.java, StringToIdDeserializer(this))
+    }
 }

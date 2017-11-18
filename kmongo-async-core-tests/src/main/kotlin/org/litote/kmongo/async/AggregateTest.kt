@@ -138,8 +138,9 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
     fun shouldPopulateIds() {
         friendCol.aggregate<Friend>("{$project: {_id: '\$_id', name: '\$name'}}")
                 .toList {
-                    l, _ ->
+                    l, t ->
                     asyncTest {
+                        t?.printStackTrace()
                         assertEquals(3, l!!.size)
                         assertTrue (l.all { it._id != null })
                     }
