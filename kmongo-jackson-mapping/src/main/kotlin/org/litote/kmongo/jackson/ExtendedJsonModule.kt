@@ -26,6 +26,8 @@ import org.bson.types.MinKey
 import org.bson.types.ObjectId
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
+import org.litote.kmongo.id.jackson.IdKeySerializer
+import org.litote.kmongo.id.jackson.IdToStringSerializer
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -174,6 +176,7 @@ internal class ExtendedJsonModule : SimpleModule() {
         addSerializer(MinKey::class.java, MinKeyExtendedJsonSerializer)
 
         addSerializer(Id::class.java, IdSerializer)
+        addKeySerializer(Id::class.java, IdKeySerializer())
 
         addSerializer(Date::class.java, DateExtendedJsonSerializer)
         addSerializer(Calendar::class.java, CalendarExtendedJsonSerializer)
