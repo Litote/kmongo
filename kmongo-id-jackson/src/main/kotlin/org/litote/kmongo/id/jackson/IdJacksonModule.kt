@@ -30,7 +30,7 @@ class IdJacksonModule(idGenerator: IdGenerator? = null) : SimpleModule() {
     init {
         addSerializer(Id::class.java, IdToStringSerializer())
         addDeserializer(Id::class.java, StringToIdDeserializer(idGenerator))
-        addKeySerializer(Id::class.java, IdToStringSerializer())
-        addKeyDeserializer(Id::class.java, StringToIdKeyDeserializer())
+        addKeySerializer(Id::class.java, IdKeySerializer())
+        addKeyDeserializer(Id::class.java, IdKeyDeserializer(idGenerator))
     }
 }

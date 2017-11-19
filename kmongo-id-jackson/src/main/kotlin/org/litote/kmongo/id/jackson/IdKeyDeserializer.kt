@@ -25,7 +25,7 @@ import org.litote.kmongo.id.IdGenerator
  * Deserialize a [String] to an [Id] for a key.
  * @param idGenerator if null [IdGenerator.defaultGenerator] is used
  */
-class StringToIdKeyDeserializer(private val idGenerator: IdGenerator? = null) : KeyDeserializer() {
+class IdKeyDeserializer(private val idGenerator: IdGenerator? = null) : KeyDeserializer() {
 
     override fun deserializeKey(key: String, ctxt: DeserializationContext): Any
             = StringToIdDeserializer.deserialize(idGenerator, key, ctxt)
