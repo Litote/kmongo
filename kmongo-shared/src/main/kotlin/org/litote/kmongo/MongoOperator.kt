@@ -222,6 +222,7 @@ enum class MongoOperator {
     /*type,*/
     date,
     numberLong,
+    numberDecimal,
     timestamp,
     /*regex,*/
     options,
