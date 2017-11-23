@@ -16,20 +16,25 @@
 
 package org.litote.kmongo
 
-import com.github.fakemongo.Fongo
-import com.mongodb.MongoClient.getDefaultCodecRegistry
-import org.bson.codecs.configuration.CodecRegistries.fromRegistries
-import org.litote.kmongo.service.ClassMappingType
-
+import com.mongodb.client.model.Filters
+import org.junit.Rule
+import org.junit.Test
+import org.litote.kmongo.model.Friend
+import kotlin.test.assertEquals
 
 /**
  *
  */
-internal object FongoTestClient {
+class KFlapdoodleRuleTest : KMongoRootTest() {
 
-    val fongo = Fongo(
-            "test",
-            Fongo.DEFAULT_SERVER_VERSION,
-            fromRegistries(getDefaultCodecRegistry(), ClassMappingType.codecRegistry())
-    )
+    @Rule
+    @JvmField
+    val rule = KFlapdoodleRule.rule<Friend>(true)
+
+    @Test
+    fun testRandomRule() {
+        val friend = Friend("bob")
+        rule.col.insertOne(friend)
+        assertEquals(friend, rule.col.findOneAndDelete(Filters.eq("_id", friend._id)))
+    }
 }

@@ -41,7 +41,7 @@ class KFongoRule<T : Any>(val defaultDocumentClass: KClass<T>,
     }
 
     val database: MongoDatabase by lazy {
-        FongoTestClient.fongo.getDatabase(dbName)
+        KFongo.getDatabase(dbName)
     }
 
     inline fun <reified T : Any> getCollection(): MongoCollection<T>

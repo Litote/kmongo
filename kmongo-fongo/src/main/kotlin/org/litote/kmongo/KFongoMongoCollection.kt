@@ -16,29 +16,25 @@
 
 package org.litote.kmongo
 
+import com.github.fakemongo.junit.FongoRule
 import com.mongodb.client.MongoCollection
-import org.junit.Rule
-import org.litote.kmongo.model.Friend
-import kotlin.reflect.KClass
+import com.mongodb.client.model.IndexOptions
+import org.bson.conversions.Bson
 
 /**
- *
+ * A custom collection class to customize behaviour of Fongo.
  */
-abstract class KMongoBaseTest<T : Any> : KMongoRootTest() {
+internal class KFongoMongoCollection<T>(val col: MongoCollection<T>) : MongoCollection<T> by col {
 
-    @Suppress("LeakingThis")
-    @Rule
-    @JvmField
-    val rule = KFlapdoodleRule(getDefaultCollectionClass())
-
-    val col by lazy { rule.col }
-
-    val database by lazy { rule.database }
-
-    inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection()
-
-    inline fun <reified T : Any> dropCollection() = rule.dropCollection<T>()
-
-    @Suppress("UNCHECKED_CAST")
-    open fun getDefaultCollectionClass(): KClass<T> = Friend::class as KClass<T>
+    override fun createIndex(keys: Bson, indexOptions: IndexOptions): String {
+        return col.createIndex(
+                keys,
+                indexOptions.apply {
+                    //simulate index name generation
+                    if (name == null) {
+                        name(FongoRule.randomName())
+                    }
+                }
+        )
+    }
 }

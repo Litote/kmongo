@@ -17,28 +17,19 @@
 package org.litote.kmongo
 
 import com.mongodb.client.MongoCollection
-import org.junit.Rule
-import org.litote.kmongo.model.Friend
-import kotlin.reflect.KClass
+import com.mongodb.client.MongoDatabase
+import org.bson.Document
 
 /**
- *
+ * A custom database class to customize behaviour of Fongo.
  */
-abstract class KMongoBaseTest<T : Any> : KMongoRootTest() {
+internal class KFongoMongoDatabase(val db: MongoDatabase) : MongoDatabase by db {
 
-    @Suppress("LeakingThis")
-    @Rule
-    @JvmField
-    val rule = KFlapdoodleRule(getDefaultCollectionClass())
+    override fun getCollection(collectionName: String): MongoCollection<Document> {
+        return KFongoMongoCollection(db.getCollection(collectionName))
+    }
 
-    val col by lazy { rule.col }
-
-    val database by lazy { rule.database }
-
-    inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection()
-
-    inline fun <reified T : Any> dropCollection() = rule.dropCollection<T>()
-
-    @Suppress("UNCHECKED_CAST")
-    open fun getDefaultCollectionClass(): KClass<T> = Friend::class as KClass<T>
+    override fun <TDocument : Any?> getCollection(collectionName: String, documentClass: Class<TDocument>): MongoCollection<TDocument> {
+        return KFongoMongoCollection(db.getCollection(collectionName, documentClass))
+    }
 }

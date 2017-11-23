@@ -22,11 +22,13 @@ import org.litote.kmongo.service.MongoClientProvider
 /**
  *
  */
-object FlapdoodleTestClient {
+object KFlapdoodle {
 
-    internal val instance: MongoClient by lazy {
+    val mongoClient: MongoClient by lazy {
         createClient(EmbeddedMongo.mongodProcess.config.net().port)
     }
+
+    fun getDatabase(dbName: String = "test") = mongoClient.getDatabase(dbName)
 
     private fun createClient(port: Int): MongoClient {
         return MongoClientProvider.createMongoClient<MongoClient>("127.0.0.1:$port")
