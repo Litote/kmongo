@@ -29,20 +29,20 @@ import kotlin.reflect.KClass
 /**
  * A [org.junit.Rule] to help writing tests for KMongo using [Flapdoodle](http://flapdoodle-oss.github.io/de.flapdoodle.embed.mongo/).
  */
-class FlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
-                              val generateRandomCollectionName: Boolean = false,
-                              val dbName: String = "test") : TestRule {
+class KFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
+                               val generateRandomCollectionName: Boolean = false,
+                               val dbName: String = "test") : TestRule {
 
     companion object {
 
-        inline fun <reified T : Any> rule(generateRandomCollectionName: Boolean = false): FlapdoodleRule<T>
-                = FlapdoodleRule(T::class, generateRandomCollectionName)
+        inline fun <reified T : Any> rule(generateRandomCollectionName: Boolean = false): KFlapdoodleRule<T>
+                = KFlapdoodleRule(T::class, generateRandomCollectionName)
 
     }
 
-    val mongoClient: MongoClient = FlapdoodleTestClient.instance
+    val mongoClient: MongoClient = KFlapdoodle.mongoClient
     val database: MongoDatabase by lazy {
-        mongoClient.getDatabase(dbName)
+        KFlapdoodle.getDatabase(dbName)
     }
 
     inline fun <reified T : Any> getCollection(): MongoCollection<T>

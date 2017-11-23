@@ -21,7 +21,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.categories.Category
-import org.litote.kmongo.FlapdoodleRule
+import org.litote.kmongo.KFlapdoodleRule
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.NativeMappingCategory
@@ -37,7 +37,7 @@ class Issue1ExceptionWhenGeneratin_IdOfPrivateClass : KMongoRootTest() {
 
     private lateinit var col: MongoCollection<PrivateClass>
 
-    private val rule = FlapdoodleRule(PrivateClass::class)
+    private val rule = KFlapdoodleRule(PrivateClass::class)
 
     @Before
     fun before() {
