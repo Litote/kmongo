@@ -27,7 +27,7 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.jackson.IdKeySerializer
-import org.litote.kmongo.id.jackson.IdToStringSerializer
+import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -162,6 +162,15 @@ internal class ExtendedJsonModule : SimpleModule() {
         }
     }
 
+    object BigDecimalSerializer : JsonSerializer<BigDecimal>() {
+
+        override fun serialize(bigDecimal: BigDecimal, generator: JsonGenerator, provider: SerializerProvider) {
+            generator.writeStartObject()
+            generator.writeStringField("\$numberDecimal", bigDecimal.toString())
+            generator.writeEndObject()
+        }
+    }
+
     override fun setupModule(context: SetupContext) {
         super.setupModule(context)
 
@@ -174,6 +183,7 @@ internal class ExtendedJsonModule : SimpleModule() {
         addSerializer(BsonTimestamp::class.java, BsonTimestampExtendedJsonSerializer)
         addSerializer(MaxKey::class.java, MaxKeyExtendedJsonSerializer)
         addSerializer(MinKey::class.java, MinKeyExtendedJsonSerializer)
+        addSerializer(BigDecimal::class.java, BigDecimalSerializer)
 
         addSerializer(Id::class.java, IdSerializer)
         addKeySerializer(Id::class.java, IdKeySerializer())
