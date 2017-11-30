@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.databind.node.ValueNode
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
+import org.litote.bson4jackson.types.Decimal128
 import org.bson.types.MaxKey
 import org.bson.types.MinKey
 import org.bson.types.ObjectId
@@ -53,6 +54,7 @@ import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetDateTimeExtendedJsonSe
 import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.ZonedDateTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.KMongoBsonFactory.KMongoBsonGenerator
+import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -351,6 +353,20 @@ internal class BsonModule : SimpleModule() {
         }
     }
 
+    private object BigDecimalBsonSerializer : JsonSerializer<BigDecimal>() {
+
+        override fun serialize(decimal: BigDecimal, generator: JsonGenerator, provider: SerializerProvider) {
+            generator.writeNumber(decimal)
+        }
+    }
+
+    private object BigDecimalBsonDeserializer : JsonDeserializer<BigDecimal>() {
+
+        override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): BigDecimal {
+            return (jp.embeddedObject as Decimal128).bigDecimalValue()
+        }
+    }
+
     override fun setupModule(context: SetupContext) {
         super.setupModule(context)
 
@@ -367,6 +383,8 @@ internal class BsonModule : SimpleModule() {
         addDeserializer(MaxKey::class.java, MaxKeyBsonDeserializer)
         addSerializer(MinKey::class.java, MinKeyBsonSerializer)
         addDeserializer(MinKey::class.java, MinKeyBsonDeserializer)
+        addSerializer(BigDecimal::class.java, BigDecimalBsonSerializer)
+        addDeserializer(BigDecimal::class.java, BigDecimalBsonDeserializer)
 
         addSerializer(Id::class.java, IdBsonSerializer)
         addDeserializer(Id::class.java, IdBsonDeserializer)

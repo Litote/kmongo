@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.litote.bson4jackson.BsonGenerator
 import org.litote.bson4jackson.BsonParser
 
 internal object ObjectMapperFactory {
@@ -33,6 +34,7 @@ internal object ObjectMapperFactory {
     fun createBsonObjectMapper(): ObjectMapper {
         val bsonFactory = KMongoBsonFactory()
         bsonFactory.enable(BsonParser.Feature.HONOR_DOCUMENT_LENGTH)
+        bsonFactory.enable(BsonGenerator.Feature.WRITE_BIGDECIMALS_AS_DECIMAL128)
 
         return configureBson(ObjectMapper(bsonFactory))
     }
