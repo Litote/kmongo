@@ -18,6 +18,7 @@ package org.litote.kmongo.jackson
 import com.fasterxml.jackson.core.Base64Variants
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_FLOAT
 import com.fasterxml.jackson.core.JsonToken.VALUE_STRING
 import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -31,10 +32,10 @@ import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.databind.node.ValueNode
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
-import org.litote.bson4jackson.types.Decimal128
 import org.bson.types.MaxKey
 import org.bson.types.MinKey
 import org.bson.types.ObjectId
+import org.litote.bson4jackson.types.Decimal128
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.jackson.IdKeyDeserializer
@@ -363,7 +364,11 @@ internal class BsonModule : SimpleModule() {
     private object BigDecimalBsonDeserializer : JsonDeserializer<BigDecimal>() {
 
         override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): BigDecimal {
-            return (jp.embeddedObject as Decimal128).bigDecimalValue()
+            return if (jp.currentToken == VALUE_NUMBER_FLOAT) {
+                BigDecimal(jp.doubleValue)
+            } else {
+                (jp.embeddedObject as Decimal128).bigDecimalValue()
+            }
         }
     }
 
