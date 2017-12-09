@@ -73,6 +73,7 @@
         <plugin.surefire.version>2.20.1</plugin.surefire.version>
         <plugin.source.version>3.0.1</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
+        <plugin.jar.version>3.0.2</plugin.jar.version>
         <plugin.dokka.version>0.9.15</plugin.dokka.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
@@ -306,6 +307,11 @@
                         <useManifestOnlyJar>false</useManifestOnlyJar>
                         <failIfNoTests>false</failIfNoTests>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${plugin.jar.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
