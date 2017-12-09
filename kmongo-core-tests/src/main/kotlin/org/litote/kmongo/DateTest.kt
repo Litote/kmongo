@@ -28,6 +28,7 @@ import java.time.OffsetTime
 import java.time.ZoneOffset
 import java.time.ZoneOffset.UTC
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
@@ -50,13 +51,13 @@ class DateTest : AllCategoriesKMongoBaseTest<DateValue>() {
         constructor(offset: ZoneOffset) : this(
                 Date(),
                 Calendar.getInstance(TimeZone.getTimeZone("UTC")),
-                LocalDateTime.now(),
+                LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
                 LocalDate.now(),
-                LocalTime.now(),
-                ZonedDateTime.now(offset),
-                OffsetDateTime.now(offset),
-                OffsetTime.now(offset),
-                Instant.now())
+                LocalTime.now().truncatedTo(ChronoUnit.MILLIS),
+                ZonedDateTime.now(offset).truncatedTo(ChronoUnit.MILLIS),
+                OffsetDateTime.now(offset).truncatedTo(ChronoUnit.MILLIS),
+                OffsetTime.now(offset).truncatedTo(ChronoUnit.MILLIS),
+                Instant.now().truncatedTo(ChronoUnit.MILLIS))
     }
 
     override fun getDefaultCollectionClass(): KClass<DateValue> {

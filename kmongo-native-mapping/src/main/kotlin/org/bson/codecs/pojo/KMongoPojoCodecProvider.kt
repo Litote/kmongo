@@ -34,7 +34,7 @@ import kotlin.reflect.KClass
 /**
  *
  */
-internal class KMongoPojoCodecProvider(val serialization: PropertySerialization<Any> = PropertyModelSerializationImpl()) : CodecProvider {
+internal class KMongoPojoCodecProvider(serialization: PropertySerialization<Any> = PropertyModelSerializationImpl()) : CodecProvider {
 
     private val pojoCodecProvider =
             PojoCodecProvider
@@ -84,8 +84,12 @@ internal class KMongoPojoCodecProvider(val serialization: PropertySerialization<
     }
 
     override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? {
-        return pojoCodecProvider.get(clazz, registry)?.let {
-            KMongoPojoCodec(it as PojoCodec<T>, registry)
+        return if(clazz.isEnum) {
+            null
+        } else {
+            pojoCodecProvider.get(clazz, registry)?.let {
+                KMongoPojoCodec(it as PojoCodec<T>, registry)
+            }
         }
     }
 }

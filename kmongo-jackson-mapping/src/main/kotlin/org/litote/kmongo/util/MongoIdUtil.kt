@@ -29,6 +29,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
@@ -55,10 +56,15 @@ internal object MongoIdUtil {
     fun getAnnotatedMongoIdProperty(type: KClass<*>): KProperty1<*, *>?
             =
             try {
-                type.memberProperties.find { p ->
-                    p.javaField?.isAnnotationPresent(BsonId::class.java) == true
-                            || p.getter.javaMethod?.isAnnotationPresent(BsonId::class.java) == true
-                            || p.findAnnotation<MongoId>() != null
+                val parameter = type.primaryConstructor?.parameters?.firstOrNull{ it.findAnnotation<BsonId>() != null }
+                if(parameter != null) {
+                    type.memberProperties.firstOrNull { it.name == parameter.name }
+                } else {
+                    type.memberProperties.find { p ->
+                        p.javaField?.isAnnotationPresent(BsonId::class.java) == true
+                                || p.getter.javaMethod?.isAnnotationPresent(BsonId::class.java) == true
+                                || p.findAnnotation<MongoId>() != null
+                    }
                 }
             } catch (error: KotlinReflectionInternalError) {
                 //ignore

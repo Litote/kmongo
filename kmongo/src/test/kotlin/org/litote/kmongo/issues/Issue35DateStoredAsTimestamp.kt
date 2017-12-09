@@ -29,6 +29,7 @@ import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
 import org.litote.kmongo.issues.Issue35DateStoredAsTimestamp.TestWrapper
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
@@ -103,7 +104,7 @@ class Issue35DateStoredAsTimestamp : AllCategoriesKMongoBaseTest<TestWrapper>() 
 
     @Test
     fun testSaveAndLoad() {
-        val d = LocalDateTime.now()
+        val d = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)
         col.insertOne(TestWrapper(Impl(AnyValueWrapper(TestData::class.java, TestData(1222L, d)))))
         assertEquals(d, ((col.findOne("{}")!!.w as Impl).any.value as TestData).d)
     }
