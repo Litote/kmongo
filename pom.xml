@@ -51,6 +51,7 @@
         <module>kmongo-coroutine-core-tests</module>
         <module>kmongo-coroutine</module>
         <module>kmongo-coroutine-native</module>
+        <module>kmongo-coverage</module>
     </modules>
 
     <properties>
@@ -75,6 +76,7 @@
         <plugin.dokka.version>0.9.15</plugin.dokka.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
+        <plugin.jacoco.version>0.7.9</plugin.jacoco.version>
 
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
@@ -185,13 +187,22 @@
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-native</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-async-native</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-coroutine-native</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-flapdoodle</artifactId>
-                <scope>test</scope>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -381,7 +392,7 @@
                     </sourceLinks>
                     <externalDocumentationLinks>
                         <link>
-                            <url>http://mongodb.github.io/mongo-java-driver/3.5/javadoc/</url>
+                            <url>http://mongodb.github.io/mongo-java-driver/3.6/javadoc/</url>
                         </link>
                     </externalDocumentationLinks>
                 </configuration>
@@ -407,6 +418,18 @@
                         <phase>verify</phase>
                         <goals>
                             <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${plugin.jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                 </executions>

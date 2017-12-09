@@ -20,10 +20,10 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-root</artifactId>
-        <version>3.5.0-SNAPSHOT</version>
+        <version>3.6.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>kmongo</artifactId>
+    <artifactId>kmongo-dokka</artifactId>
     <name>KMongo dokka</name>
     <description>KMongo dokka generator</description>
 
