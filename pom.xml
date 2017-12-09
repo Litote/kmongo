@@ -55,8 +55,8 @@
     <properties>
         <!-- dependencies -->
         <kotlin.version>1.2.0</kotlin.version>
-        <mongo.version>3.5.0</mongo.version>
-        <coroutine.version>0.19</coroutine.version>
+        <mongo.version>3.6.0</mongo.version>
+        <coroutine.version>0.20</coroutine.version>
         <jackson.version>2.9.2</jackson.version>
         <jackson-module.version>2.9.2</jackson-module.version>
         <bson4jackson.version>2.9.0-SNAPSHOT</bson4jackson.version>

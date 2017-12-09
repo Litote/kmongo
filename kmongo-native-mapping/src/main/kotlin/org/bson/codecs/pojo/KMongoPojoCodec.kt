@@ -42,6 +42,7 @@ internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>, registry: CodecRe
         PojoCodecImpl<T>(
                 originalCodec.classModel,
                 registry,
+                PropertyCodecRegistryImpl(this, registry, null),
                 DiscriminatorLookup(emptyMap(), emptySet()),
                 ConcurrentHashMap<ClassModel<*>, Codec<*>>(),
                 true)
