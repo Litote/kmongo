@@ -35,7 +35,6 @@
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-flapdoodle</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
