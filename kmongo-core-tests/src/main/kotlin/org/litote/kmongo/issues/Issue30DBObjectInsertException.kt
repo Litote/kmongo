@@ -21,12 +21,7 @@ import com.mongodb.DBObject
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.junit.Test
-import org.junit.experimental.categories.Categories
-import org.junit.experimental.categories.Category
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
-import org.litote.kmongo.JacksonMappingCategory
-import org.litote.kmongo.KMongoBaseTest
-import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.findOneById
 import org.litote.kmongo.json
 import org.litote.kmongo.withDocumentClass
@@ -36,7 +31,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class Issue30DBObjectInsertException : KMongoBaseTest<Issue30DBObjectInsertException.User>() {
+class Issue30DBObjectInsertException : AllCategoriesKMongoBaseTest<Issue30DBObjectInsertException.User>() {
 
     data class User(val _id: ObjectId,
                     val userId: String,
@@ -52,7 +47,6 @@ class Issue30DBObjectInsertException : KMongoBaseTest<Issue30DBObjectInsertExcep
         return User::class
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
     @Test
     fun testSave() {
         val dbObject = BasicDBObject()
@@ -63,7 +57,6 @@ class Issue30DBObjectInsertException : KMongoBaseTest<Issue30DBObjectInsertExcep
         assertEquals(user, col.findOneById(user._id))
     }
 
-    @Category(JacksonMappingCategory::class)
     @Test
     fun testSave2() {
         val user = User2(ObjectId(), "id", Document.parse(Account("a").json))
