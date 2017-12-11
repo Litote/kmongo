@@ -38,18 +38,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>, registry: CodecRegistry) : PojoCodec<T>(), CollectibleCodec<T> {
 
-    val pojoCodec = if (originalCodec.classModel.type == Pair::class.java) {
-        PojoCodecImpl<T>(
-                originalCodec.classModel,
-                registry,
-                PropertyCodecRegistryImpl(this, registry, null),
-                DiscriminatorLookup(emptyMap(), emptySet()),
-                ConcurrentHashMap<ClassModel<*>, Codec<*>>(),
-                true)
-    } else {
-        originalCodec
-    }
-
+    private val pojoCodec = originalCodec
 
     override fun getClassModel(): ClassModel<T> {
         return pojoCodec.classModel
