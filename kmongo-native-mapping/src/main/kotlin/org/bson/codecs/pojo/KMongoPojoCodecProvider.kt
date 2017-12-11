@@ -46,16 +46,8 @@ internal class KMongoPojoCodecProvider(serialization: PropertySerialization<Any>
                                     KMongoAnnotationConvention,
                                     EmptyObjectConvention())
                     )
+                    .register(PairPropertyCodecProvider, TriplePropertyCodecProvider)
                     .automatic(true)
-                   /* .register(
-                            ClassModel.builder(Pair::class.java)
-                                    .propertyNameToTypeParameterMap(
-                                            mapOf(
-                                                    "first" to TypeParameterMap.builder().addIndex(0).build(),
-                                                    "second" to TypeParameterMap.builder().addIndex(1).build()
-                                            )
-                                    ).build()
-                    )*/
                     .build()
 
 

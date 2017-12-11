@@ -35,6 +35,7 @@ import java.time.LocalDate
 import java.time.Month.MAY
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -122,12 +123,22 @@ class UsageTest : KMongoBaseTest<Jedi>() {
 
     @Category(JacksonMappingCategory::class)
     @Test
-    fun testInsertNullField() {
+    fun testInsertNullFieldForJacksonMapping() {
         database.getCollection<TFighter>().insertOne(TFighter("v1", null))
         val doc = database.getCollection("tfighter").findOne()
 
         assertEquals("v1", doc!!.get("version"))
         assertTrue(doc.containsKey("pilot"))
+    }
+
+    @Category(NativeMappingCategory::class)
+    @Test
+    fun testInsertNullFieldForNativeMapping() {
+        database.getCollection<TFighter>().insertOne(TFighter("v1", null))
+        val doc = database.getCollection("tfighter").findOne()
+
+        assertEquals("v1", doc!!.get("version"))
+        assertFalse(doc.containsKey("pilot"))
     }
 }
 

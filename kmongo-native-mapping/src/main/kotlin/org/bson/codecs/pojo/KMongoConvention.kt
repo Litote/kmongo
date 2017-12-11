@@ -23,6 +23,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
@@ -48,14 +50,35 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
         }
 
         private fun getTypeData(property: KProperty<*>): TypeData<Any> {
-            val returnType = property.returnType.javaType
-            @Suppress("UNCHECKED_CAST")
-            val c: Class<Any> = when (returnType) {
-                is Class<*> -> returnType as Class<Any>
-                else -> (property.returnType.classifier as KClass<*>).java as Class<Any>
-            }
+            return getTypeData(property.returnType)
+        }
 
-            return TypeData.builder<Any>(c).build()
+        private fun getTypeData(type: KType): TypeData<Any> {
+            val returnType = type.javaType
+
+            var c: Class<Any> = Any::class.java
+            if (returnType is Class<*>) {
+                @Suppress("UNCHECKED_CAST")
+                c = returnType as Class<Any>
+            } else {
+                val classifier = type.classifier
+                if(classifier is KClass<*>) {
+                    @Suppress("UNCHECKED_CAST")
+                    c = classifier.java as Class<Any>
+                } else {
+                    val paramType = (classifier as? KTypeParameter)?.upperBounds?.firstOrNull()?.let { getTypeData(it) }
+                    if (paramType != null) {
+                        return paramType
+                    }
+                }
+            }
+            val result = TypeData.builder<Any>(c)
+            type.arguments.forEach {
+                if (it.type != null) {
+                    result.addTypeParameter(getTypeData(it.type as KType))
+                }
+            }
+            return result.build()
         }
 
         private fun getDeclaredAnnotations(property: KProperty<*>, owner: KClass<*>): List<Annotation> {
@@ -109,7 +132,9 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                                     .readAnnotations(propertyMetadata.readAnnotations + declaredAnnotations)
                                     .writeAnnotations(propertyMetadata.writeAnnotations + declaredAnnotations)
                                     .propertySerialization(serialization)
-                                    .propertyAccessor(PropertyAccessorImpl<Any>(propertyMetadata));
+                                    .propertyAccessor(PropertyAccessorImpl<Any>(propertyMetadata))
+
+
 
                     classModelBuilder.addProperty(propertyBuilder)
 
@@ -124,14 +149,5 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                 }
             }
         }
-        /*if (type is Pair<*, *>) {
-            classModelBuilder
-                    .propertyNameToTypeParameterMap(
-                            mapOf(
-                                    "first" to TypeParameterMap.builder().addIndex(0, 0).build(),
-                                    "second" to TypeParameterMap.builder().addIndex(1, 1).build()
-                            )
-                    )
-        } */
     }
 }
