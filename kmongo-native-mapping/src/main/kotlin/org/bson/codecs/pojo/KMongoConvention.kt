@@ -24,7 +24,6 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
-import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
@@ -62,14 +61,9 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                 c = returnType as Class<Any>
             } else {
                 val classifier = type.classifier
-                if(classifier is KClass<*>) {
+                if (classifier is KClass<*>) {
                     @Suppress("UNCHECKED_CAST")
                     c = classifier.java as Class<Any>
-                } else {
-                    val paramType = (classifier as? KTypeParameter)?.upperBounds?.firstOrNull()?.let { getTypeData(it) }
-                    if (paramType != null) {
-                        return paramType
-                    }
                 }
             }
             val result = TypeData.builder<Any>(c)

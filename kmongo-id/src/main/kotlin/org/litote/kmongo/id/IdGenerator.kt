@@ -18,6 +18,7 @@ package org.litote.kmongo.id
 
 import org.litote.kmongo.Id
 import kotlin.reflect.KClass
+import kotlin.reflect.full.valueParameters
 
 /**
  * A generator of Ids.
@@ -57,4 +58,15 @@ interface IdGenerator {
      * Generate a new id.
      */
     fun <T> generateNewId(): Id<T>
+
+    /**
+     * Create a new id from its String representation.
+     */
+    fun create(s: String)
+            = idClass
+            .constructors
+            .firstOrNull { it.valueParameters.size == 1 && it.valueParameters.first().type.classifier == String::class }
+            ?.call(s)
+            ?: error("no constructor with a single string arg found for $idClass}")
+
 }

@@ -27,4 +27,10 @@
     <name>Id interface</name>
     <description>Agnostic id interface - does not depend of the mongo java driver</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+    </dependencies>
 </project>

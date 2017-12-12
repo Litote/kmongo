@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdGenerator
-import kotlin.reflect.full.valueParameters
 
 /**
  * Deserialize a [String] to an [Id].
@@ -31,16 +30,8 @@ class StringToIdDeserializer(private val idGenerator: IdGenerator? = null) : Jso
 
     internal companion object {
 
-        fun deserialize(idGenerator: IdGenerator? = null, s: String, ctxt: DeserializationContext): Id<*> {
-
-            fun generator() = idGenerator ?: IdGenerator.defaultGenerator
-            return generator()
-                    .idClass
-                    .constructors
-                    .firstOrNull { it.valueParameters.size == 1 && it.valueParameters.first().type.classifier == String::class }
-                    ?.call(s)
-                    ?: error("no constructor with a single string arg found for ${generator().idClass}")
-        }
+        fun deserialize(idGenerator: IdGenerator? = null, s: String, ctxt: DeserializationContext): Id<*>
+                = (idGenerator ?: IdGenerator.defaultGenerator).create(s)
     }
 
 

@@ -21,7 +21,6 @@ import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.experimental.categories.Category
 import org.litote.kmongo.IdTest.Article
 import org.litote.kmongo.MongoOperator.oid
 import org.litote.kmongo.id.IdGenerator
@@ -34,13 +33,13 @@ import kotlin.test.assertTrue
 /**
  *
  */
-class IdTest : KMongoBaseTest<Article>() {
+class IdTest : AllCategoriesKMongoBaseTest<Article>() {
 
     data class Article(
             val _id: Id<Article> = newId(),
             val title: String,
             val shopId: Id<Shop>? = null,
-            val articleIds:Set<Id<Article>> = setOf(_id)) {
+            val articleIds: Set<Id<Article>> = setOf(_id)) {
 
         constructor(title: String, shopId: Id<Shop>? = null) : this(newId(), title, shopId)
 
@@ -50,8 +49,8 @@ class IdTest : KMongoBaseTest<Article>() {
             val _id: Id<Article2> = newId(),
             val title: String,
             val shopId: Id<Shop>? = null,
-            val articleIds:Set<Id<Article2>> = setOf(_id),
-            val mapWithIds:Map<Id<Article2>, Boolean> = mapOf(_id to true)) {
+            val articleIds: Set<Id<Article2>> = setOf(_id),
+            val mapWithIds: Map<Id<Article2>, Boolean> = mapOf(_id to true)) {
 
         constructor(title: String, shopId: Id<Shop>? = null) : this(newId(), title, shopId)
 
@@ -60,7 +59,7 @@ class IdTest : KMongoBaseTest<Article>() {
     data class Shop(
             val name: String,
             @BsonId val id: Id<Shop> = newId()
-            )
+    )
 
     lateinit var shopCol: MongoCollection<Shop>
     lateinit var article2Col: MongoCollection<Article2>
@@ -87,7 +86,6 @@ class IdTest : KMongoBaseTest<Article>() {
         IdGenerator.defaultGenerator = ObjectIdGenerator
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
     @Test
     fun extendedJsonShouldBeHandledWell() {
         stringGenerator()
@@ -102,7 +100,7 @@ class IdTest : KMongoBaseTest<Article>() {
         assertTrue(
                 json.contains("\"articleIds\":[\"${article._id}\"]")
         )
-        
+
         objectIdGenerator()
         val objectIdArticle = Article("ok")
         val jsonWithObjectId = objectIdArticle.json.replace(" ", "")
@@ -117,7 +115,6 @@ class IdTest : KMongoBaseTest<Article>() {
         )
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
     @Test
     fun savingAndRetrievingObjectShouldBeOk() {
         stringGenerator()
@@ -135,7 +132,6 @@ class IdTest : KMongoBaseTest<Article>() {
         assertEquals(shop, shopCol.findOneById(shop.id))
     }
 
-    @Category(JacksonMappingCategory::class)
     @Test
     fun extendedJsonShouldBeHandledWellWithObjectContainingMapWithIds() {
         stringGenerator()
@@ -171,7 +167,6 @@ class IdTest : KMongoBaseTest<Article>() {
         )
     }
 
-    @Category(JacksonMappingCategory::class)
     @Test
     fun savingAndRetrievingObjectShouldBeOkWithObjectContainingMapWithIds() {
         stringGenerator()
