@@ -46,7 +46,10 @@ internal class KMongoPojoCodecProvider(serialization: PropertySerialization<Any>
                                     KMongoAnnotationConvention,
                                     EmptyObjectConvention())
                     )
-                    .register(PairPropertyCodecProvider, TriplePropertyCodecProvider)
+                    .register(
+                            PairPropertyCodecProvider,
+                            TriplePropertyCodecProvider,
+                            KeyObjectMapPropertyCodecProvider)
                     .automatic(true)
                     .build()
 
