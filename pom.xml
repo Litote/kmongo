@@ -56,12 +56,12 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.2.0</kotlin.version>
+        <kotlin.version>1.2.10</kotlin.version>
         <mongo.version>3.6.0</mongo.version>
         <coroutine.version>0.20</coroutine.version>
-        <jackson.version>2.9.2</jackson.version>
+        <jackson.version>2.9.3</jackson.version>
         <jackson-module.version>2.9.2</jackson-module.version>
-        <bson4jackson.version>2.9.0-SNAPSHOT</bson4jackson.version>
+        <bson4jackson.version>2.9.0</bson4jackson.version>
 
         <!-- test dependencies -->
         <flapdoodle.version>2.0.0</flapdoodle.version>
