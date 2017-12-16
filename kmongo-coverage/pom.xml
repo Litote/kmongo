@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>kmongo-coverage</artifactId>
+    <packaging>pom</packaging>
     <name>KMongo coverage</name>
     <description>KMongo coverage module</description>
 
