@@ -67,12 +67,12 @@
                         <arg>-Xcoroutines=enable</arg>
                     </args>
                     <sourceDirs>
-                        <sourceDirs>${project.basedir}/../kmongo-shared/src/main/kotlin</sourceDirs>
-                        <sourceDirs>${project.basedir}/../kmongo-jackson-mapping/src/main/kotlin</sourceDirs>
-                        <sourceDirs>${project.basedir}/../kmongo-core/src/main/kotlin</sourceDirs>
-                        <sourceDirs>${project.basedir}/../kmongo-async-shared/src/main/kotlin</sourceDirs>
-                        <sourceDirs>${project.basedir}/../kmongo-async-core/src/main/kotlin</sourceDirs>
-                        <sourceDirs>${project.basedir}/../kmongo-coroutine-core/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/kmongo-shared/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/kmongo-jackson-mapping/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/kmongo-core/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/kmongo-async-shared/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/kmongo-async-core/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/kmongo-coroutine-core/src/main/kotlin</sourceDirs>
                     </sourceDirs>
                 </configuration>
 
@@ -110,37 +110,37 @@
                     <reportNotDocumented>false</reportNotDocumented>
                     <sourceLinks>
                         <link>
-                            <dir>${project.basedir}/../kmongo-shared/src/main/kotlin</dir>
+                            <dir>${project.basedir}/kmongo-shared/src/main/kotlin</dir>
                             <url>https://github.com/Litote/kmongo/blob/master/kmongo-shared/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
                         <link>
-                            <dir>${project.basedir}/../kmongo-jackson-mapping/src/main/kotlin</dir>
+                            <dir>${project.basedir}/kmongo-jackson-mapping/src/main/kotlin</dir>
                             <url>https://github.com/Litote/kmongo/blob/master/kmongo-jackson-mapping/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
                         <link>
-                            <dir>${project.basedir}/../kmongo-core/src/main/kotlin</dir>
+                            <dir>${project.basedir}/kmongo-core/src/main/kotlin</dir>
                             <url>https://github.com/Litote/kmongo/blob/master/kmongo-core/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
                         <link>
-                            <dir>${project.basedir}/../kmongo-async-shared/src/main/kotlin</dir>
+                            <dir>${project.basedir}/kmongo-async-shared/src/main/kotlin</dir>
                             <url>https://github.com/Litote/kmongo/blob/master/kmongo-async-shared/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
                         <link>
-                            <dir>${project.basedir}/../kmongo-async-core/src/main/kotlin</dir>
+                            <dir>${project.basedir}/kmongo-async-core/src/main/kotlin</dir>
                             <url>https://github.com/Litote/kmongo/blob/master/kmongo-async-core/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
                         <link>
-                            <dir>${project.basedir}/../kmongo-coroutine-core/src/main/kotlin</dir>
+                            <dir>${project.basedir}/kmongo-coroutine-core/src/main/kotlin</dir>
                             <url>https://github.com/Litote/kmongo/blob/master/kmongo-coroutine-core/src/main/kotlin
                             </url>
                             <urlSuffix>#L</urlSuffix>
@@ -149,12 +149,12 @@
                     <outputDir>target/dokka</outputDir>
                     <outputFormat>html</outputFormat>
                     <sourceDirectories>
-                        <dir>${project.basedir}/../kmongo-shared/src/main/kotlin</dir>
-                        <dir>${project.basedir}/../kmongo-jackson-mapping/src/main/kotlin</dir>
-                        <dir>${project.basedir}/../kmongo-core/src/main/kotlin</dir>
-                        <dir>${project.basedir}/../kmongo-async-shared/src/main/kotlin</dir>
-                        <dir>${project.basedir}/../kmongo-async-core/src/main/kotlin</dir>
-                        <dir>${project.basedir}/../kmongo-coroutine-core/src/main/kotlin</dir>
+                        <dir>${project.basedir}/kmongo-shared/src/main/kotlin</dir>
+                        <dir>${project.basedir}/kmongo-jackson-mapping/src/main/kotlin</dir>
+                        <dir>${project.basedir}/kmongo-core/src/main/kotlin</dir>
+                        <dir>${project.basedir}/kmongo-async-shared/src/main/kotlin</dir>
+                        <dir>${project.basedir}/kmongo-async-core/src/main/kotlin</dir>
+                        <dir>${project.basedir}/kmongo-coroutine-core/src/main/kotlin</dir>
                     </sourceDirectories>
                     <externalDocumentationLinks>
                         <link>
