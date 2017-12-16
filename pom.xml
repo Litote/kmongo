@@ -302,11 +302,6 @@
                         <failIfNoTests>false</failIfNoTests>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>${plugin.jar.version}</version>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
