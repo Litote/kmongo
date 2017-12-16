@@ -530,6 +530,7 @@
             </activation>
             <properties>
                 <gpg.skip>false</gpg.skip>
+                <jacoco.skip>true</jacoco.skip>
             </properties>
         </profile>
         <profile>
