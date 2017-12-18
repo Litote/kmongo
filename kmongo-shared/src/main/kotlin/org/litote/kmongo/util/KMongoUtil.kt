@@ -34,11 +34,17 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
 import org.bson.types.ObjectId
+import org.litote.kmongo.MongoOperator.addToSet
+import org.litote.kmongo.MongoOperator.bit
 import org.litote.kmongo.MongoOperator.currentDate
 import org.litote.kmongo.MongoOperator.inc
 import org.litote.kmongo.MongoOperator.max
 import org.litote.kmongo.MongoOperator.min
 import org.litote.kmongo.MongoOperator.mul
+import org.litote.kmongo.MongoOperator.pop
+import org.litote.kmongo.MongoOperator.pull
+import org.litote.kmongo.MongoOperator.pullAll
+import org.litote.kmongo.MongoOperator.push
 import org.litote.kmongo.MongoOperator.rename
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
@@ -57,7 +63,12 @@ object KMongoUtil {
     val EMPTY_JSON = "{}"
     private val SPACE_REPLACE_PATTERN = Pattern.compile("\\\$\\s+")
     private val QUOTE_REPLACE_MATCHER = Matcher.quoteReplacement("\$")
-    private val UPDATE_OPERATORS = listOf(inc, mul, rename, setOnInsert, set, unset, min, max, currentDate).map { it.toString() }
+    private val UPDATE_OPERATORS =
+            listOf(
+                    inc, mul, rename, setOnInsert, set, unset, min, max, currentDate,
+                    addToSet, pop, pull, push, pullAll,
+                    bit
+            ).map { it.toString() }
 
     fun toBson(json: String): BsonDocument
             = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
@@ -140,7 +151,7 @@ object KMongoUtil {
             throw IllegalArgumentException("$obj has to contain _id field")
         } else {
             @Suppress("UNCHECKED_CAST")
-            return ClassMappingType.getIdValue<Any, Any>(idProperty as KProperty1<Any, Any>, obj) ?: error("id is null")
+            return ClassMappingType.getIdValue(idProperty as KProperty1<Any, Any>, obj) ?: error("id is null")
         }
     }
 
