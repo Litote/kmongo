@@ -1,0 +1,4 @@
+kmongo-core-tests/**
+kmongo-async-core-tests/**
+kmongo-coroutine-core-tests/**
+kmongo-shared-tests/**
