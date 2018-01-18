@@ -56,15 +56,15 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.2.10</kotlin.version>
-        <mongo.version>3.6.0</mongo.version>
-        <coroutine.version>0.20</coroutine.version>
+        <kotlin.version>1.2.20</kotlin.version>
+        <mongo.version>3.6.1</mongo.version>
+        <coroutine.version>0.21.2</coroutine.version>
         <jackson.version>2.9.3</jackson.version>
-        <jackson-module.version>2.9.2</jackson-module.version>
+        <jackson-module.version>2.9.3</jackson-module.version>
         <bson4jackson.version>2.9.0</bson4jackson.version>
 
         <!-- test dependencies -->
-        <flapdoodle.version>2.0.0</flapdoodle.version>
+        <flapdoodle.version>2.0.1</flapdoodle.version>
         <fongo.version>2.1.0</fongo.version>
         <sl4j.version>1.7.25</sl4j.version>
         <junit.version>4.12</junit.version>
@@ -77,7 +77,7 @@
         <plugin.dokka.version>0.9.15</plugin.dokka.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
-        <plugin.jacoco.version>0.7.9</plugin.jacoco.version>
+        <plugin.jacoco.version>0.8.0</plugin.jacoco.version>
 
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
