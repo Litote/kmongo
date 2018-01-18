@@ -16,47 +16,12 @@
 
 package org.litote.kmongo.jackson
 
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.introspect.Annotated
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.databind.ser.BeanPropertyFilter
-import com.fasterxml.jackson.databind.ser.FilterProvider
-import com.fasterxml.jackson.databind.ser.PropertyFilter
-import com.fasterxml.jackson.databind.ser.PropertyWriter
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter
-import org.litote.kmongo.util.MongoIdUtil
 
 
 internal class FilterIdModule : SimpleModule() {
-
-    object IdPropertyFilter : SimpleBeanPropertyFilter() {
-
-        private fun include(pojo: Any?, writer: PropertyWriter): Boolean {
-            return if (pojo == null) true
-            else writer.name != MongoIdUtil.findIdProperty(pojo.javaClass.kotlin)?.name
-        }
-
-        override fun serializeAsField(pojo: Any?, jgen: JsonGenerator, provider: SerializerProvider, writer: PropertyWriter) {
-            if (include(pojo, writer)) {
-                writer.serializeAsField(pojo, jgen, provider)
-            } else if (!jgen.canOmitFields()) { // since 2.3
-                writer.serializeAsOmittedField(pojo, jgen, provider)
-            }
-        }
-    }
-
-    object IdPropertyFilterProvider : FilterProvider() {
-
-        override fun findFilter(filterId: Any): BeanPropertyFilter? {
-            throw UnsupportedOperationException()
-        }
-
-        override fun findPropertyFilter(filterId: Any, valueToFilter: Any): PropertyFilter {
-            return IdPropertyFilter
-        }
-    }
 
     object FilterIdIntrospector : NopAnnotationIntrospector() {
 
