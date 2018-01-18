@@ -17,11 +17,11 @@ package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.core.JsonEncoding
 import com.fasterxml.jackson.core.io.IOContext
-import org.litote.bson4jackson.BsonConstants
-import org.litote.bson4jackson.BsonFactory
-import org.litote.bson4jackson.BsonGenerator
-import org.litote.bson4jackson.BsonParser
-import org.litote.bson4jackson.types.Timestamp
+import de.undercouch.bson4jackson.BsonConstants
+import de.undercouch.bson4jackson.BsonFactory
+import de.undercouch.bson4jackson.BsonGenerator
+import de.undercouch.bson4jackson.BsonParser
+import de.undercouch.bson4jackson.types.Timestamp
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
 import org.bson.types.ObjectId
@@ -86,7 +86,7 @@ internal class KMongoBsonFactory : BsonFactory() {
 
         override fun getEmbeddedObject(): Any {
             val embedded = super.getEmbeddedObject()
-            if (embedded is org.litote.bson4jackson.types.ObjectId) {
+            if (embedded is de.undercouch.bson4jackson.types.ObjectId) {
                 return convertToNativeObjectId(embedded)
             }
             if (embedded is Timestamp) {
@@ -99,7 +99,7 @@ internal class KMongoBsonFactory : BsonFactory() {
             return BsonTimestamp(ts.time, ts.inc)
         }
 
-        private fun convertToNativeObjectId(id: org.litote.bson4jackson.types.ObjectId): org.bson.types.ObjectId {
+        private fun convertToNativeObjectId(id: de.undercouch.bson4jackson.types.ObjectId): org.bson.types.ObjectId {
             return org.bson.types.ObjectId.createFromLegacyFormat(id.time, id.machine, id.inc)
         }
     }

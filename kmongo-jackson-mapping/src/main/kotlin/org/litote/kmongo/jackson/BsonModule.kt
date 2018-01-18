@@ -35,7 +35,7 @@ import org.bson.types.Binary
 import org.bson.types.MaxKey
 import org.bson.types.MinKey
 import org.bson.types.ObjectId
-import org.litote.bson4jackson.types.Decimal128
+import de.undercouch.bson4jackson.types.Decimal128
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.jackson.IdKeyDeserializer
