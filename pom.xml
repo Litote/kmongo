@@ -229,8 +229,8 @@
             </dependency>
 
             <dependency>
-                <groupId>org.litote</groupId>
-                <artifactId>bson4jackson-fork</artifactId>
+                <groupId>de.undercouch</groupId>
+                <artifactId>bson4jackson</artifactId>
                 <version>${bson4jackson.version}</version>
                 <exclusions>
                     <exclusion>
