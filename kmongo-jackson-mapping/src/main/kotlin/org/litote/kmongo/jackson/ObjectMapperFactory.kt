@@ -52,9 +52,6 @@ internal object ObjectMapperFactory {
     }
 
     fun createFilterIdObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
-        val newObjectMapper = objectMapper.copy()
-                .setFilterProvider(FilterIdModule.IdPropertyFilterProvider)
-                .registerModule(FilterIdModule())
-        return newObjectMapper
+        return objectMapper.copy().registerModule(FilterIdModule())
     }
 }

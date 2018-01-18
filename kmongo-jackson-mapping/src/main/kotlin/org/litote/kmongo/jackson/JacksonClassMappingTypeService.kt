@@ -22,8 +22,15 @@ import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.ObjectWriter
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.databind.ser.BeanPropertyFilter
+import com.fasterxml.jackson.databind.ser.FilterProvider
+import com.fasterxml.jackson.databind.ser.PropertyFilter
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter.SerializeExceptFilter
 import com.mongodb.BasicDBObject
 import com.mongodb.DBObject
 import com.mongodb.DBRef
@@ -51,7 +58,14 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
     }
 
     override fun filterIdToBson(obj: Any): BsonDocument {
-        return RawBsonDocument(KMongoConfiguration.filterIdBsonMapper.writeValueAsBytes(obj))
+        val idProperty = MongoIdUtil.findIdProperty(obj.javaClass.kotlin)
+        return RawBsonDocument(
+                if (idProperty == null) {
+                    KMongoConfiguration.bsonMapper.writeValueAsBytes(obj)
+                } else {
+                    filterIdWriter(obj, idProperty, KMongoConfiguration.filterIdBsonMapper)
+                            .writeValueAsBytes(obj)
+                })
     }
 
     override fun toExtendedJson(obj: Any?): String {
@@ -59,7 +73,29 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
     }
 
     override fun filterIdToExtendedJson(obj: Any): String {
-        return KMongoConfiguration.filterIdExtendedJsonMapper.writeValueAsString(obj)
+        val idProperty = MongoIdUtil.findIdProperty(obj.javaClass.kotlin)
+        return if (idProperty == null) {
+            toExtendedJson(obj)
+        } else {
+            filterIdWriter(obj, idProperty, KMongoConfiguration.filterIdExtendedJsonMapper)
+                    .writeValueAsString(obj)
+        }
+    }
+
+    private fun filterIdWriter(obj: Any, idProperty: KProperty1<*, *>, mapper: ObjectMapper): ObjectWriter {
+        return mapper.writer(
+                object : FilterProvider() {
+                    override fun findFilter(filterId: Any): BeanPropertyFilter? {
+                        throw UnsupportedOperationException()
+                    }
+
+                    override fun findPropertyFilter(filterId: Any, valueToFilter: Any): PropertyFilter? {
+                        return if (valueToFilter === obj) {
+                            SerializeExceptFilter(setOf(idProperty.name))
+                        } else SimpleBeanPropertyFilter.serializeAll()
+                    }
+                }
+        )
     }
 
     override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? {
