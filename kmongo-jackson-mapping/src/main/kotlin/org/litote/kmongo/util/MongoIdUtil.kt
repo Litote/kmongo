@@ -25,12 +25,15 @@ import org.bson.BsonValue
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 import org.litote.kmongo.MongoId
+import org.litote.kmongo.util.MongoIdUtil.IdPropertyWrapper.Companion.NO_ID
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
+import kotlin.reflect.jvm.internal.ReflectProperties.lazySoft
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
@@ -40,36 +43,58 @@ import kotlin.reflect.jvm.javaMethod
  */
 internal object MongoIdUtil {
 
-    //TODO need to cache something here
-    fun findIdProperty(type: KClass<*>): KProperty1<*, *>?
-            = getAnnotatedMongoIdProperty(type) ?: getIdProperty(type)
+    private sealed class IdPropertyWrapper {
 
-    private fun getIdProperty(type: KClass<*>): KProperty1<*, *>?
-            =
-            try {
-                type.memberProperties.find { "_id" == it.name }
-            } catch (error: KotlinReflectionInternalError) {
-                //ignore
-                null
+        companion object {
+            val NO_ID = NoIdProperty()
+        }
+
+        val property: KProperty1<*, *>?
+            get() = when (this) {
+                is NoIdProperty -> null
+                is IdProperty -> prop
             }
 
-    fun getAnnotatedMongoIdProperty(type: KClass<*>): KProperty1<*, *>?
-            =
-            try {
-                val parameter = type.primaryConstructor?.parameters?.firstOrNull{ it.findAnnotation<BsonId>() != null }
-                if(parameter != null) {
-                    type.memberProperties.firstOrNull { it.name == parameter.name }
-                } else {
-                    type.memberProperties.find { p ->
-                        p.javaField?.isAnnotationPresent(BsonId::class.java) == true
-                                || p.getter.javaMethod?.isAnnotationPresent(BsonId::class.java) == true
-                                || p.findAnnotation<MongoId>() != null
-                    }
+        class NoIdProperty : IdPropertyWrapper()
+        class IdProperty(val prop: KProperty1<*, *>) : IdPropertyWrapper()
+    }
+
+    private val propertyIdCache: MutableMap<KClass<*>, IdPropertyWrapper>
+            by lazySoft { ConcurrentHashMap<KClass<*>, IdPropertyWrapper>() }
+
+    fun findIdProperty(type: KClass<*>): KProperty1<*, *>? =
+        propertyIdCache.getOrPut(type) {
+            (getAnnotatedMongoIdProperty(type)
+                    ?: getIdProperty(type))
+                ?.let { IdPropertyWrapper.IdProperty(it) }
+                    ?: NO_ID
+
+        }.property
+
+    fun getIdProperty(type: KClass<*>): KProperty1<*, *>? =
+        try {
+            type.memberProperties.find { "_id" == it.name }
+        } catch (error: KotlinReflectionInternalError) {
+            //ignore
+            null
+        }
+
+    fun getAnnotatedMongoIdProperty(type: KClass<*>): KProperty1<*, *>? =
+        try {
+            val parameter = type.primaryConstructor?.parameters?.firstOrNull { it.findAnnotation<BsonId>() != null }
+            if (parameter != null) {
+                type.memberProperties.firstOrNull { it.name == parameter.name }
+            } else {
+                type.memberProperties.find { p ->
+                    p.javaField?.isAnnotationPresent(BsonId::class.java) == true
+                            || p.getter.javaMethod?.isAnnotationPresent(BsonId::class.java) == true
+                            || p.findAnnotation<MongoId>() != null
                 }
-            } catch (error: KotlinReflectionInternalError) {
-                //ignore
-                null
             }
+        } catch (error: KotlinReflectionInternalError) {
+            //ignore
+            null
+        }
 
     fun getIdValue(idProperty: KProperty1<*, *>, instance: Any): Any? {
         idProperty.isAccessible = true
