@@ -31,6 +31,20 @@ class MongoIdUtilTest : KMongoRootTest() {
     class WithMongoId(@MongoId val key: ObjectId? = null)
 
     @Test
+    fun `idProperty extension returns the id property`() {
+        assertEquals(
+            MongoIdUtil.findIdProperty(WithMongoId::class),
+            WithMongoId::class.idProperty
+        )
+    }
+
+    @Test
+    fun `idValue extension returns the id value`() {
+        val id = ObjectId()
+        assertEquals(id, WithMongoId(id).idValue)
+    }
+
+    @Test
     fun findIdPropertyShouldFindMongoIdAnnotatedField() {
         val p = MongoIdUtil.findIdProperty(WithMongoId::class)
         assertEquals("key", p!!.name)
