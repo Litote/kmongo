@@ -39,8 +39,19 @@ import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
 
 /**
- *
+ * Returns the Mongo Id property of the [KClass],
+ * or null if no id property is found.
  */
+val KClass<*>.idProperty: KProperty1<*, *>?
+    get() = MongoIdUtil.findIdProperty(this)
+
+/**
+ * Returns the Mongo Id value (which can be null),
+ * or null if no id property is found.
+ */
+val Any?.idValue: Any?
+    get() = this?.javaClass?.kotlin?.idProperty?.let { (it)(this) }
+
 internal object MongoIdUtil {
 
     private sealed class IdPropertyWrapper {
@@ -71,7 +82,7 @@ internal object MongoIdUtil {
 
         }.property
 
-    fun getIdProperty(type: KClass<*>): KProperty1<*, *>? =
+    private fun getIdProperty(type: KClass<*>): KProperty1<*, *>? =
         try {
             type.memberProperties.find { "_id" == it.name }
         } catch (error: KotlinReflectionInternalError) {
