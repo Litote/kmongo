@@ -20,6 +20,7 @@ import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.DateTest.DateValue
 import java.time.Instant
+import java.time.Instant.now
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -34,6 +35,7 @@ import java.util.Date
 import java.util.TimeZone
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -41,23 +43,31 @@ import kotlin.test.assertTrue
  */
 class DateTest : AllCategoriesKMongoBaseTest<DateValue>() {
 
-    data class DateValue(val date: Date?, val calendar: Calendar?,
-                         val localDateTime: LocalDateTime?, val localDate: LocalDate?, val localTime: LocalTime?,
-                         var zonedDateTime: ZonedDateTime?, var offsetDateTime: OffsetDateTime?, var offsetTime: OffsetTime?,
-                         val instant: Instant?) {
+    data class DateValue(
+        val date: Date?,
+        val calendar: Calendar?,
+        val localDateTime: LocalDateTime?,
+        val localDate: LocalDate?,
+        val localTime: LocalTime?,
+        var zonedDateTime: ZonedDateTime?,
+        var offsetDateTime: OffsetDateTime?,
+        var offsetTime: OffsetTime?,
+        val instant: Instant?
+    ) {
 
         constructor() : this(UTC)
 
-        constructor(offset: ZoneOffset) : this(
-                Date(),
-                Calendar.getInstance(TimeZone.getTimeZone("UTC")),
-                LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
-                LocalDate.now(),
-                LocalTime.now().truncatedTo(ChronoUnit.MILLIS),
-                ZonedDateTime.now(offset).truncatedTo(ChronoUnit.MILLIS),
-                OffsetDateTime.now(offset).truncatedTo(ChronoUnit.MILLIS),
-                OffsetTime.now(offset).truncatedTo(ChronoUnit.MILLIS),
-                Instant.now().truncatedTo(ChronoUnit.MILLIS))
+        constructor(offset: ZoneOffset, instant: Instant = now()) : this(
+            Date.from(instant),
+            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { time = Date.from(instant) },
+            LocalDateTime.ofInstant(instant, offset).truncatedTo(ChronoUnit.MILLIS),
+            LocalDate.ofInstant(instant, offset),
+            LocalTime.ofInstant(instant, offset).truncatedTo(ChronoUnit.MILLIS),
+            ZonedDateTime.ofInstant(instant, offset).truncatedTo(ChronoUnit.MILLIS),
+            OffsetDateTime.ofInstant(instant, offset).truncatedTo(ChronoUnit.MILLIS),
+            OffsetTime.ofInstant(instant, offset).truncatedTo(ChronoUnit.MILLIS),
+            instant.truncatedTo(ChronoUnit.MILLIS)
+        )
     }
 
     override fun getDefaultCollectionClass(): KClass<DateValue> {
@@ -105,25 +115,26 @@ class DateTest : AllCategoriesKMongoBaseTest<DateValue>() {
 
     @Test
     fun testUTCDateStorageInMongoWithUTCCurrentTimeZone() {
-        testUTCDateStorage(0, "GMT", "00:00:00")
+        testUTCDateStorage("GMT", "00:00:00")
     }
 
     @Test
     fun testUTCDateStorageInMongoWithGMT1CurrentTimeZone() {
-        testUTCDateStorage(1, "GMT+1:00", "01:00:00")
+        testUTCDateStorage("GMT+1:00", "01:00:00")
     }
 
     @Test
     fun testUTCDateStorageInMongoWithGMTminus1CurrentTimeZone() {
-        testUTCDateStorage(-1, "GMT-1:00", "23:00:00")
+        testUTCDateStorage("GMT-1:00", "23:00:00")
     }
 
-    private fun testUTCDateStorage(modifier: Int, timezone: String, timeDate: String) {
+    private fun testUTCDateStorage(timezone: String, timeDate: String) {
         val defaultTimezone = TimeZone.getDefault()
         TimeZone.setDefault(TimeZone.getTimeZone(timezone))
         try {
             val value = DateValue()
             col.insertOne(value)
+            assertNotNull(col.findOne())
             val loadedValue = col.withDocumentClass<Document>().findOne()!!
             val date = loadedValue.get("date") as Date
             val dateToString = date.toString()
@@ -142,13 +153,16 @@ class DateTest : AllCategoriesKMongoBaseTest<DateValue>() {
             val calendar = Calendar.getInstance()
             calendar.time = date
 
-            assertEquals(calendar.get(Calendar.HOUR_OF_DAY), hour(calendarDateTime.get(Calendar.HOUR_OF_DAY) - modifier))
+            assertEquals(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                hour(calendarDateTime.get(Calendar.HOUR_OF_DAY))
+            )
             assertEquals(dateToString.substring(13, 19), localDateTime.toString().substring(13, 19))
 
             val localTime = loadedValue.get("localTime") as Date
             val calendarTime = Calendar.getInstance()
             calendarTime.time = localTime
-            assertEquals(calendar.get(Calendar.HOUR_OF_DAY), hour(calendarTime.get(Calendar.HOUR_OF_DAY) - modifier))
+            assertEquals(calendar.get(Calendar.HOUR_OF_DAY), hour(calendarTime.get(Calendar.HOUR_OF_DAY)))
             assertEquals(dateToString.substring(13, 19), localTime.toString().substring(13, 19))
         } finally {
             TimeZone.setDefault(defaultTimezone)
