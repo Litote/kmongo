@@ -26,7 +26,6 @@ import org.bson.codecs.pojo.KMongoPojoCodecService.codecRegistryWithNullSerializ
 import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
-import org.litote.kmongo.service.ClassMappingType
 import org.litote.kmongo.service.ClassMappingTypeService
 import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.io.StringWriter
