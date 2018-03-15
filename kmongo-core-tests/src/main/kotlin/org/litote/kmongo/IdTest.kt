@@ -36,44 +36,54 @@ import kotlin.test.assertTrue
 class IdTest : AllCategoriesKMongoBaseTest<Article>() {
 
     data class Article(
-            val _id: Id<Article> = newId(),
-            val title: String,
-            val shopId: Id<Shop>? = null,
-            val articleIds: Set<Id<Article>> = setOf(_id)) {
+        val _id: Id<Article> = newId(),
+        val title: String,
+        val shopId: Id<Shop>? = null,
+        val articleIds: Set<Id<Article>> = setOf(_id)
+    ) {
 
         constructor(title: String, shopId: Id<Shop>? = null) : this(newId(), title, shopId)
 
     }
 
     data class Article2(
-            val _id: Id<Article2> = newId(),
-            val title: String,
-            val shopId: Id<Shop>? = null,
-            val articleIds: Set<Id<Article2>> = setOf(_id),
-            val mapWithIds: Map<Id<Article2>, Boolean> = mapOf(_id to true)) {
+        val _id: Id<Article2> = newId(),
+        val title: String,
+        val shopId: Id<Shop>? = null,
+        val articleIds: Set<Id<Article2>> = setOf(_id),
+        val mapWithIds: Map<Id<Article2>, Boolean> = mapOf(_id to true)
+    ) {
 
         constructor(title: String, shopId: Id<Shop>? = null) : this(newId(), title, shopId)
 
     }
 
     data class Shop(
-            val name: String,
-            @BsonId val id: Id<Shop> = newId()
+        val name: String,
+        @BsonId val id: Id<Shop> = newId()
+    )
+
+    data class Article3(
+        val _id: Long,
+        val title: String
     )
 
     lateinit var shopCol: MongoCollection<Shop>
     lateinit var article2Col: MongoCollection<Article2>
+    lateinit var article3Col: MongoCollection<Article3>
 
     @Before
     fun setup() {
-        shopCol = getCollection<Shop>()
-        article2Col = getCollection<Article2>()
+        shopCol = getCollection()
+        article2Col = getCollection()
+        article3Col = getCollection()
     }
 
     @After
     fun tearDown() {
         dropCollection<Shop>()
         dropCollection<Article2>()
+        dropCollection<Article3>()
     }
 
     override fun getDefaultCollectionClass(): KClass<Article> = Article::class
@@ -92,26 +102,26 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         val article = Article("ok")
         val json = article.json.replace(" ", "")
         assertTrue(
-                json.contains("{\"_id\":\"${article._id}\"")
+            json.contains("{\"_id\":\"${article._id}\"")
         )
         assertTrue(
-                json.contains("\"title\":\"ok\"")
+            json.contains("\"title\":\"ok\"")
         )
         assertTrue(
-                json.contains("\"articleIds\":[\"${article._id}\"]")
+            json.contains("\"articleIds\":[\"${article._id}\"]")
         )
 
         objectIdGenerator()
         val objectIdArticle = Article("ok")
         val jsonWithObjectId = objectIdArticle.json.replace(" ", "")
         assertTrue(
-                jsonWithObjectId.contains("{\"_id\":{\"$oid\":\"${objectIdArticle._id}\"}")
+            jsonWithObjectId.contains("{\"_id\":{\"$oid\":\"${objectIdArticle._id}\"}")
         )
         assertTrue(
-                jsonWithObjectId.contains("\"title\":\"ok\"")
+            jsonWithObjectId.contains("\"title\":\"ok\"")
         )
         assertTrue(
-                jsonWithObjectId.contains("\"articleIds\":[{\"$oid\":\"${objectIdArticle._id}\"}]")
+            jsonWithObjectId.contains("\"articleIds\":[{\"$oid\":\"${objectIdArticle._id}\"}]")
         )
     }
 
@@ -138,32 +148,32 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         val article = Article2("ok")
         val json = article.json.replace(" ", "")
         assertTrue(
-                json.contains("{\"_id\":\"${article._id}\"")
+            json.contains("{\"_id\":\"${article._id}\"")
         )
         assertTrue(
-                json.contains("\"title\":\"ok\"")
+            json.contains("\"title\":\"ok\"")
         )
         assertTrue(
-                json.contains("\"articleIds\":[\"${article._id}\"]")
+            json.contains("\"articleIds\":[\"${article._id}\"]")
         )
         assertTrue(
-                json.contains("\"mapWithIds\":{\"${article._id}\":true}")
+            json.contains("\"mapWithIds\":{\"${article._id}\":true}")
         )
 
         objectIdGenerator()
         val objectIdArticle = Article2("ok")
         val jsonWithObjectId = objectIdArticle.json.replace(" ", "")
         assertTrue(
-                jsonWithObjectId.contains("{\"_id\":{\"$oid\":\"${objectIdArticle._id}\"}")
+            jsonWithObjectId.contains("{\"_id\":{\"$oid\":\"${objectIdArticle._id}\"}")
         )
         assertTrue(
-                jsonWithObjectId.contains("\"title\":\"ok\"")
+            jsonWithObjectId.contains("\"title\":\"ok\"")
         )
         assertTrue(
-                jsonWithObjectId.contains("\"articleIds\":[{\"$oid\":\"${objectIdArticle._id}\"}]")
+            jsonWithObjectId.contains("\"articleIds\":[{\"$oid\":\"${objectIdArticle._id}\"}]")
         )
         assertTrue(
-                jsonWithObjectId.contains("\"mapWithIds\":{\"${objectIdArticle._id}\":true}")
+            jsonWithObjectId.contains("\"mapWithIds\":{\"${objectIdArticle._id}\":true}")
         )
     }
 
@@ -182,5 +192,12 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         article2Col.save(objectIdArticle)
         assertEquals(objectIdArticle, article2Col.findOneById(objectIdArticle._id))
         assertEquals(shop, shopCol.findOneById(shop.id))
+    }
+
+    @Test
+    fun longIdTest() {
+        val a = Article3(Long.MAX_VALUE, "a")
+        article3Col.insertOne(a)
+        assertEquals(a, article3Col.findOne("{_id:{${MongoOperator.type}:'long'}}"))
     }
 }
