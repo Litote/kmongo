@@ -17,7 +17,6 @@
 package org.litote.kmongo
 
 import com.mongodb.client.model.Filters
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.litote.kmongo.KFongoRule.Companion.rule
@@ -33,8 +32,6 @@ class KFongoRuleTest : KMongoRootTest() {
     @JvmField
     val rule = rule<Friend>()
 
-    //TODO remove ignore when this is fixed https://github.com/fakemongo/fongo/issues/316
-    @Ignore
     @Test
     fun testSaveAndFind() {
         val friend = Friend("bob")
