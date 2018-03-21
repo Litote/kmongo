@@ -19,6 +19,8 @@ import org.bson.conversions.Bson
 import org.litote.kmongo.path
 import kotlin.reflect.KProperty
 
+val <T> KProperty<T>.proj: String get() = "\$${path()}"
+
 fun <T> KProperty<T>.computed(expression: T): Bson = Projections.computed(path(), expression)
 
 fun <T> KProperty<T>.elemMatch(): Bson = Projections.elemMatch(path())

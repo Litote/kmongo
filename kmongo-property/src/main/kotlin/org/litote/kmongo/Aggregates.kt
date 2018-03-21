@@ -38,6 +38,6 @@ fun project(vararg properties: Pair<KProperty<*>, Boolean>): Bson {
     return Aggregates.project(Filters.and(properties.map { it.first eq it.second }))
 }
 
-fun project(properties: Map<KProperty<*>, String>): Bson {
+fun project(properties: Map<out KProperty<*>, String>): Bson {
     return Aggregates.project(Filters.and(properties.map { it.key eq it.value }))
 }

@@ -16,6 +16,7 @@
 
 package org.litote.kmongo
 
+import com.mongodb.client.model.Filters.and
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.model.Friend
@@ -44,7 +45,10 @@ class FindOneTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canFindOneWithLambda() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"))
         val friend = col.findOne {
-            Friend::name eq "John" and (Friend::address eq "22 Wall Street Avenue")
+            and(
+                Friend::name eq "John",
+                Friend::address eq "22 Wall Street Avenue"
+            )
         }
         assertEquals("John", friend!!.name)
     }

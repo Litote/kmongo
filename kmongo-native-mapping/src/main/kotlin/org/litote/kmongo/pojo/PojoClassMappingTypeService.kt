@@ -30,8 +30,10 @@ import org.litote.kmongo.service.ClassMappingTypeService
 import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.io.StringWriter
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.javaGetter
 
 /**
  *
@@ -46,11 +48,12 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         val bsonDocument = BsonDocument()
         val bsonWriter = BsonDocumentWriter(bsonDocument)
         codecRegistryWithNullSerialization
-                .get(obj.javaClass)
-                ?.encode(
-                        bsonWriter,
-                        obj,
-                        EncoderContext.builder().build())
+            .get(obj.javaClass)
+            ?.encode(
+                bsonWriter,
+                obj,
+                EncoderContext.builder().build()
+            )
         bsonDocument.remove("_id")
         return bsonDocument
     }
@@ -68,21 +71,23 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
             else -> {
                 val writer = StringWriter()
                 val jsonWriter = JsonWriter(
-                        writer,
-                        JsonWriterSettings
-                                .builder()
-                                .indent(false)
-                                .outputMode(JsonMode.EXTENDED)
-                                .build())
+                    writer,
+                    JsonWriterSettings
+                        .builder()
+                        .indent(false)
+                        .outputMode(JsonMode.EXTENDED)
+                        .build()
+                )
                 //create a fake document to bypass bson writer built-in checks
                 jsonWriter.writeStartDocument()
                 jsonWriter.writeName("tmp")
                 codecRegistry()
-                        .get(obj.javaClass)
-                        ?.encode(
-                                jsonWriter,
-                                obj,
-                                EncoderContext.builder().build())
+                    .get(obj.javaClass)
+                    ?.encode(
+                        jsonWriter,
+                        obj,
+                        EncoderContext.builder().build()
+                    )
                 jsonWriter.writeEndDocument()
                 writer.toString().run {
                     substring("{ \"tmp\" :".length, length - "}".length).trim()
@@ -93,12 +98,12 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
 
     override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? {
         return KMongoPojoCodecService
-                .codecProvider
-                .getClassModel(type)
-                .idPropertyModel
-                ?.run {
-                    type.memberProperties.find { it.name == name }
-                }
+            .codecProvider
+            .getClassModel(type)
+            .idPropertyModel
+            ?.run {
+                type.memberProperties.find { it.name == name }
+            }
     }
 
     override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? {
@@ -113,5 +118,10 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         }
     }
 
-
+    override fun <R> getPath(property: KProperty<R>): String {
+        //TODO native mapping
+        return if (property.javaGetter?.declaringClass?.kotlin?.let { findIdProperty(it) } == property)
+            "_id"
+        else property.name
+    }
 }

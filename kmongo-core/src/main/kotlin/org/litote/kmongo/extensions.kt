@@ -36,6 +36,7 @@ import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.InsertOneOptions
 import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.WriteModel
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
@@ -46,11 +47,12 @@ import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
 import org.litote.kmongo.util.KMongoUtil.extractId
 import org.litote.kmongo.util.KMongoUtil.filterIdToBson
 import org.litote.kmongo.util.KMongoUtil.idFilterQuery
-import org.litote.kmongo.util.KMongoUtil.setModifier
 import org.litote.kmongo.util.KMongoUtil.toBson
 import org.litote.kmongo.util.KMongoUtil.toBsonList
+import org.litote.kmongo.util.KMongoUtil.toBsonModifier
 import org.litote.kmongo.util.KMongoUtil.toExtendedJson
 import org.litote.kmongo.util.KMongoUtil.toWriteModel
+import kotlin.reflect.KProperty1
 
 //*******
 //MongoDatabase extension methods
@@ -64,8 +66,8 @@ import org.litote.kmongo.util.KMongoUtil.toWriteModel
  * @return the collection
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-inline fun <reified T : Any> MongoDatabase.getCollection(collectionName: String): MongoCollection<T>
-        = getCollectionOfName(collectionName)
+inline fun <reified T : Any> MongoDatabase.getCollection(collectionName: String): MongoCollection<T> =
+    getCollectionOfName(collectionName)
 
 /**
  * Gets a collection.
@@ -74,8 +76,8 @@ inline fun <reified T : Any> MongoDatabase.getCollection(collectionName: String)
  * @param <T>            the default target type of the collection to return
  * @return the collection
  */
-inline fun <reified T : Any> MongoDatabase.getCollectionOfName(collectionName: String): MongoCollection<T>
-        = getCollection(collectionName, T::class.java)
+inline fun <reified T : Any> MongoDatabase.getCollectionOfName(collectionName: String): MongoCollection<T> =
+    getCollection(collectionName, T::class.java)
 
 /**
  * Gets a collection.
@@ -85,8 +87,8 @@ inline fun <reified T : Any> MongoDatabase.getCollectionOfName(collectionName: S
  * @return the collection
  * @see defaultCollectionName
  */
-inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T>
-        = getCollection(defaultCollectionName(T::class), T::class.java)
+inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T> =
+    getCollection(defaultCollectionName(T::class), T::class.java)
 
 /**
  * Executes the given command in the context of the current database with the given read preference.
@@ -95,8 +97,8 @@ inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T>
  * @param readPreference the {@link com.mongodb.ReadPreference} to be used when executing the command
  * @param <TResult>      the type of the class to use instead of {@code Document}.
  */
-inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String, readPreference: ReadPreference): TResult
-        = runCommand(toBson(command), readPreference, TResult::class.java)
+inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String, readPreference: ReadPreference): TResult =
+    runCommand(toBson(command), readPreference, TResult::class.java)
 
 /**
  * Executes the given command in the context of the current database with the given read preference.
@@ -104,8 +106,8 @@ inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String, rea
  * @param command        the command to be run
  * @param <TResult>      the type of the class to use instead of {@code Document}.
  */
-inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String): TResult
-        = runCommand(command, readPreference)
+inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String): TResult =
+    runCommand(command, readPreference)
 
 
 //*******
@@ -118,8 +120,8 @@ inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String): TR
  * @param <NewTDocument> the default class to cast any documents returned from the database into.
  * @return a new MongoCollection instance with the different default class
  */
-inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument>
-        = withDocumentClass(NewTDocument::class.java)
+inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument> =
+    withDocumentClass(NewTDocument::class.java)
 
 /**
  * Counts the number of documents in the collection according to the given options.
@@ -129,8 +131,8 @@ inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): 
  *
  * @return the number of documents in the collection
  */
-fun <T> MongoCollection<T>.count(filter: String, options: CountOptions = CountOptions()): Long
-        = count(toBson(filter), options)
+fun <T> MongoCollection<T>.count(filter: String, options: CountOptions = CountOptions()): Long =
+    count(toBson(filter), options)
 
 /**
  * Gets the distinct values of the specified field name.
@@ -141,8 +143,39 @@ fun <T> MongoCollection<T>.count(filter: String, options: CountOptions = CountOp
  *
  * @return an iterable of distinct values
  */
-inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String, filter: String = EMPTY_JSON): DistinctIterable<TResult>
-        = distinct(fieldName, toBson(filter), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.distinct(
+    fieldName: String,
+    filter: String = EMPTY_JSON
+): DistinctIterable<TResult> = distinct(fieldName, toBson(filter), TResult::class.java)
+
+
+/**
+ * Gets the distinct values of the specified field.
+ *
+ * @param fieldName   the field
+ * @param filter      the query filter
+ * @param <TResult>   the target type of the iterable.
+ *
+ * @return an iterable of distinct values
+ */
+inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
+    field: KProperty1<T, TResult>,
+    filter: Bson = emptyBson
+): DistinctIterable<TResult> = distinct(field.path(), filter, TResult::class.java)
+
+/**
+ * Gets the distinct values of the specified field.
+ *
+ * @param fieldName   the field
+ * @param filter      the query filter
+ * @param <TResult>   the target type of the iterable.
+ *
+ * @return an iterable of distinct values
+ */
+inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
+    field: KPropertyPath<TResult>,
+    filter: Bson = emptyBson
+): DistinctIterable<TResult> = distinct(field.path, filter, TResult::class.java)
 
 /**
  * Finds all documents in the collection.
@@ -150,8 +183,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
  * @param filter the query filter
  * @return the find iterable interface
  */
-fun <T> MongoCollection<T>.find(filter: String = EMPTY_JSON): FindIterable<T>
-        = find(toBson(filter))
+fun <T> MongoCollection<T>.find(filter: String = EMPTY_JSON): FindIterable<T> = find(toBson(filter))
 
 
 /**
@@ -160,8 +192,7 @@ fun <T> MongoCollection<T>.find(filter: String = EMPTY_JSON): FindIterable<T>
  * @param filter the query filter
  * @return the first item returned or null
  */
-fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T?
-        = find(filter).first()
+fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T? = find(filter).first()
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -169,8 +200,7 @@ fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T?
  * @param filter the query filter
  * @return the first item returned or null
  */
-fun <T> MongoCollection<T>.findOne(filter: Bson): T?
-        = find(filter).first()
+fun <T> MongoCollection<T>.findOne(filter: Bson): T? = find(filter).first()
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -178,8 +208,7 @@ fun <T> MongoCollection<T>.findOne(filter: Bson): T?
  * @param filters the query filters
  * @return the first item returned or null
  */
-fun <T> MongoCollection<T>.findOne(vararg filters: Bson): T?
-        = find(Filters.and(filters.toList())).first()
+fun <T> MongoCollection<T>.findOne(vararg filters: Bson): T? = find(Filters.and(filters.toList())).first()
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -187,8 +216,7 @@ fun <T> MongoCollection<T>.findOne(vararg filters: Bson): T?
  * @param filters the query filters
  * @return the first item returned or null
  */
-inline fun <reified T : Any> MongoCollection<T>.findOne(filters: () -> Bson): T?
-        = findOne(filters.invoke())
+inline fun <reified T : Any> MongoCollection<T>.findOne(filters: () -> Bson): T? = findOne(filters.invoke())
 
 /**
  * Finds the document that match the id parameter.
@@ -196,8 +224,7 @@ inline fun <reified T : Any> MongoCollection<T>.findOne(filters: () -> Bson): T?
  * @param id       the object id
  * @return the first item returned or null
  */
-fun <T> MongoCollection<T>.findOneById(id: Any): T?
-        = findOne(idFilterQuery(id))
+fun <T> MongoCollection<T>.findOneById(id: Any): T? = findOne(idFilterQuery(id))
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.
@@ -207,8 +234,8 @@ fun <T> MongoCollection<T>.findOneById(id: Any): T?
  *
  * @return an iterable containing the result of the aggregation operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregateIterable<TResult>
-        = aggregate(toBsonList(pipeline, codecRegistry), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregateIterable<TResult> =
+    aggregate(toBsonList(pipeline, codecRegistry), TResult::class.java)
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.
@@ -218,8 +245,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
  *
  * @return an iterable containing the result of the aggregation operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregateIterable<TResult>
-        = aggregate(pipeline.toList(), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregateIterable<TResult> =
+    aggregate(pipeline.toList(), TResult::class.java)
 
 /**
  * Aggregates documents according to the specified map-reduce function.
@@ -231,8 +258,10 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
  *  @return an iterable containing the result of the map-reduce operation
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-inline fun <reified TResult : Any> MongoCollection<*>.mapReduce(mapFunction: String, reduceFunction: String): MapReduceIterable<TResult>
-        = mapReduceWith(mapFunction, reduceFunction)
+inline fun <reified TResult : Any> MongoCollection<*>.mapReduce(
+    mapFunction: String,
+    reduceFunction: String
+): MapReduceIterable<TResult> = mapReduceWith(mapFunction, reduceFunction)
 
 /**
  * Aggregates documents according to the specified map-reduce function.
@@ -243,8 +272,10 @@ inline fun <reified TResult : Any> MongoCollection<*>.mapReduce(mapFunction: Str
  *
  *  @return an iterable containing the result of the map-reduce operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.mapReduceWith(mapFunction: String, reduceFunction: String): MapReduceIterable<TResult>
-        = mapReduce(mapFunction, reduceFunction, TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.mapReduceWith(
+    mapFunction: String,
+    reduceFunction: String
+): MapReduceIterable<TResult> = mapReduce(mapFunction, reduceFunction, TResult::class.java)
 
 /**
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
@@ -257,8 +288,10 @@ inline fun <reified TResult : Any> MongoCollection<*>.mapReduceWith(mapFunction:
  * @throws com.mongodb.MongoCommandException      if the write failed due to document validation reasons
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String, options: InsertOneOptions = InsertOneOptions())
-        = withDocumentClass<BsonDocument>().insertOne(toBson(document, T::class), options)
+inline fun <reified T : Any> MongoCollection<T>.insertOne(
+    document: String,
+    options: InsertOneOptions = InsertOneOptions()
+) = withDocumentClass<BsonDocument>().insertOne(toBson(document, T::class), options)
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -272,8 +305,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String, opti
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult
-        = deleteOne(toBson(filter))
+fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult = deleteOne(toBson(filter))
 
 /**
  * Removes at most one document from the id parameter.  If no documents match, the collection is not
@@ -285,8 +317,7 @@ fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.deleteOneById(id: Any): DeleteResult
-        = deleteOne(idFilterQuery(id))
+fun <T> MongoCollection<T>.deleteOneById(id: Any): DeleteResult = deleteOne(idFilterQuery(id))
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -299,8 +330,7 @@ fun <T> MongoCollection<T>.deleteOneById(id: Any): DeleteResult
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.deleteMany(filter: String): DeleteResult
-        = deleteMany(toBson(filter))
+fun <T> MongoCollection<T>.deleteMany(filter: String): DeleteResult = deleteMany(toBson(filter))
 
 /**
  * Save the document.
@@ -335,8 +365,11 @@ fun <T : Any> MongoCollection<T>.save(document: T) {
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, options: UpdateOptions = UpdateOptions()): UpdateResult
-        = replaceOne(idFilterQuery(id), replacement, options)
+fun <T : Any> MongoCollection<T>.replaceOneById(
+    id: Any,
+    replacement: T,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult = replaceOne(idFilterQuery(id), replacement, options)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -349,8 +382,10 @@ fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, options
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T, options: UpdateOptions = UpdateOptions()): UpdateResult
-        = replaceOneById(extractId(replacement, T::class), replacement, options)
+inline fun <reified T : Any> MongoCollection<T>.replaceOne(
+    replacement: T,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult = replaceOneById(extractId(replacement, T::class), replacement, options)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -364,8 +399,11 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T, optio
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions = UpdateOptions()): UpdateResult
-        = withDocumentClass<BsonDocument>().replaceOne(toBson(filter), filterIdToBson(replacement), options)
+fun <T : Any> MongoCollection<T>.replaceOne(
+    filter: String,
+    replacement: T,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult = withDocumentClass<BsonDocument>().replaceOne(toBson(filter), filterIdToBson(replacement), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -380,8 +418,11 @@ fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, opti
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: UpdateOptions = UpdateOptions()): UpdateResult
-        = updateOne(toBson(filter), toBson(update), options)
+fun <T> MongoCollection<T>.updateOne(
+    filter: String,
+    update: String,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult = updateOne(toBson(filter), toBson(update), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -396,8 +437,11 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: Up
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.updateOne(filter: String, update: Any, options: UpdateOptions = UpdateOptions()): UpdateResult
-        = updateOne(filter, setModifier(update), options)
+fun <T> MongoCollection<T>.updateOne(
+    filter: String,
+    update: Any,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult = updateOne(toBson(filter), toBsonModifier(update), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -411,8 +455,29 @@ fun <T> MongoCollection<T>.updateOne(filter: String, update: Any, options: Updat
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, options: UpdateOptions = UpdateOptions()): UpdateResult
-        = updateOneById(extractId(target, T::class), target, options)
+inline fun <reified T : Any> MongoCollection<T>.updateOne(
+    target: T,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult = updateOneById(extractId(target, T::class), target, options)
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+ *
+ * @param filter   a document describing the query filter
+ * @param update   the update object
+ * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+fun <T> MongoCollection<T>.updateOne(
+    filter: Bson,
+    target: Any,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult = updateOne(filter, toBsonModifier(target), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -426,8 +491,29 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, options: Up
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, options: UpdateOptions = UpdateOptions()): UpdateResult
-        = updateOne(idFilterQuery(id), update, options)
+fun <T> MongoCollection<T>.updateOneById(
+    id: Any,
+    update: String,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult = updateOne(idFilterQuery(id), update, options)
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+ *
+ * @param id        the object id
+ * @param update    a document describing the update. The update to apply must include only update operators.
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+fun <T> MongoCollection<T>.updateOneById(
+    id: Any,
+    update: Bson,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult = updateOne(idFilterQuery(id), update, options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -442,14 +528,8 @@ fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, options: Updat
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, options: UpdateOptions = UpdateOptions()): UpdateResult
-        =
-        //strange but update can be a String
-        if (update is String) {
-            updateOneById(idFilterQuery(id), update, options)
-        } else {
-            updateOne(idFilterQuery(id), setModifier(update), options)
-        }
+fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, options: UpdateOptions = UpdateOptions()): UpdateResult =
+    updateOne(idFilterQuery(id), toBsonModifier(update), options)
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -464,8 +544,11 @@ fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, options: UpdateOp
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T : Any> MongoCollection<T>.updateMany(filter: String, update: String, updateOptions: UpdateOptions = UpdateOptions()): UpdateResult
-        = updateMany(toBson(filter), toBson(update), updateOptions)
+fun <T : Any> MongoCollection<T>.updateMany(
+    filter: String,
+    update: String,
+    updateOptions: UpdateOptions = UpdateOptions()
+): UpdateResult = updateMany(toBson(filter), toBson(update), updateOptions)
 
 /**
  * Atomically find a document and remove it.
@@ -475,8 +558,10 @@ fun <T : Any> MongoCollection<T>.updateMany(filter: String, update: String, upda
  *
  * @return the document that was removed.  If no documents matched the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()): T?
-        = findOneAndDelete(toBson(filter), options)
+fun <T> MongoCollection<T>.findOneAndDelete(
+    filter: String,
+    options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
+): T? = findOneAndDelete(toBson(filter), options)
 
 /**
  * Atomically find a document and replace it.
@@ -489,8 +574,11 @@ fun <T> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndD
  * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
  * returned
  */
-fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()): T?
-        = findOneAndReplace(toBson(filter), replacement, options)
+fun <T> MongoCollection<T>.findOneAndReplace(
+    filter: String,
+    replacement: T,
+    options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
+): T? = findOneAndReplace(toBson(filter), replacement, options)
 
 /**
  * Atomically find a document and update it.
@@ -503,8 +591,11 @@ fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, opt
  * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
  * returned
  */
-fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()): T?
-        = findOneAndUpdate(toBson(filter), toBson(update), options)
+fun <T> MongoCollection<T>.findOneAndUpdate(
+    filter: String,
+    update: String,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): T? = findOneAndUpdate(toBson(filter), toBson(update), options)
 
 /**
  * Create an index with the given keys and options.
@@ -513,8 +604,8 @@ fun <T> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, opti
  * @param indexOptions the options for the index
  * @return the index name
  */
-fun <T> MongoCollection<T>.createIndex(keys: String, indexOptions: IndexOptions = IndexOptions()): String
-        = createIndex(toBson(keys), indexOptions)
+fun <T> MongoCollection<T>.createIndex(keys: String, indexOptions: IndexOptions = IndexOptions()): String =
+    createIndex(toBson(keys), indexOptions)
 
 
 /**
@@ -544,8 +635,7 @@ fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions 
  * @return the list indexes iterable interface
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexesIterable<TResult>
-        = listTypedIndexes()
+inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexesIterable<TResult> = listTypedIndexes()
 
 /**
  * Get all the indexes in this collection.
@@ -553,8 +643,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexes
  * @param <TResult>   the target document type of the iterable.
  * @return the list indexes iterable interface
  */
-inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesIterable<TResult>
-        = listIndexes(TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesIterable<TResult> =
+    listIndexes(TResult::class.java)
 
 
 /**
@@ -563,16 +653,14 @@ inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIn
  * @param keys the keys of the index to remove
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-fun <T> MongoCollection<T>.dropIndex(keys: String)
-        = dropIndexOfKeys(keys)
+fun <T> MongoCollection<T>.dropIndex(keys: String) = dropIndexOfKeys(keys)
 
 /**
  * Drops the index given the keys used to create it.
 
  * @param json the keys of the index to remove
  */
-fun <T> MongoCollection<T>.dropIndexOfKeys(json: String)
-        = dropIndex(toBson(json))
+fun <T> MongoCollection<T>.dropIndexOfKeys(json: String) = dropIndex(toBson(json))
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -582,9 +670,24 @@ fun <T> MongoCollection<T>.dropIndexOfKeys(json: String)
  *
  * @return the result of the bulk write
  */
-inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String, options: BulkWriteOptions = BulkWriteOptions()): BulkWriteResult
-        = withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), options)
+inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
+    vararg requests: String,
+    options: BulkWriteOptions = BulkWriteOptions()
+): BulkWriteResult =
+    withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), options)
 
+/**
+ * Executes a mix of inserts, updates, replaces, and deletes.
+
+ * @param requests the writes to execute
+ * @param options  the options to apply to the bulk write operation
+ *
+ * @return the result of the bulk write
+ */
+inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
+    vararg requests: WriteModel<T>,
+    options: BulkWriteOptions = BulkWriteOptions()
+): BulkWriteResult = bulkWrite(requests.toList(), options)
 
 //*******
 //IndexModel extension methods
@@ -596,8 +699,8 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: Strin
  * @param keys the index keys
  * @param options the index options
  */
-fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel
-        = IndexModel(toBson(keys), options)
+fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel =
+    IndexModel(toBson(keys), options)
 
 //*******
 //DistinctIterable extension methods
@@ -609,8 +712,7 @@ fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()):
  * @param filter the filter, which may be null
  * @return this
  */
-fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T>
-        = filter(toBson(filter))
+fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T> = filter(toBson(filter))
 
 //*******
 //FindIterable extension methods
@@ -622,8 +724,7 @@ fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T>
  * @param filter the filter, which may be null
  * @return this
  */
-fun <T> FindIterable<T>.filter(filter: String): FindIterable<T>
-        = filter(toBson(filter))
+fun <T> FindIterable<T>.filter(filter: String): FindIterable<T> = filter(toBson(filter))
 
 /**
  * Sets the query modifiers to apply to this operation.
@@ -631,8 +732,7 @@ fun <T> FindIterable<T>.filter(filter: String): FindIterable<T>
  * @param modifiers the query modifiers to apply
  * @return this
  */
-fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T>
-        = modifiers(toBson(modifiers))
+fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T> = modifiers(toBson(modifiers))
 
 /**
  * Sets a document describing the fields to return for all matching documents.
@@ -640,8 +740,7 @@ fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T>
  * @param projection the project document
  * @return this
  */
-fun <T> FindIterable<T>.projection(projection: String): FindIterable<T>
-        = projection(toBson(projection))
+fun <T> FindIterable<T>.projection(projection: String): FindIterable<T> = projection(toBson(projection))
 
 /**
  * Sets the sort criteria to apply to the query.
@@ -649,8 +748,7 @@ fun <T> FindIterable<T>.projection(projection: String): FindIterable<T>
  * @param sort the sort criteria
  * @return this
  */
-fun <T> FindIterable<T>.sort(sort: String): FindIterable<T>
-        = sort(toBson(sort))
+fun <T> FindIterable<T>.sort(sort: String): FindIterable<T> = sort(toBson(sort))
 
 //*******
 //MapReduceIterable extension methods
@@ -662,8 +760,7 @@ fun <T> FindIterable<T>.sort(sort: String): FindIterable<T>
  * @param scope the global variables that are accessible in the map, reduce and finalize functions.
  * @return this
  */
-fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T>
-        = scope(toBson(scope))
+fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T> = scope(toBson(scope))
 
 /**
  * Sets the sort criteria to apply to the query.
@@ -671,8 +768,7 @@ fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T>
  * @param sort the sort criteria, which may be null
  * @return this
  */
-fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T>
-        = sort(toBson(sort))
+fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T> = sort(toBson(sort))
 
 /**
  * Sets the query filter to apply to the query.
@@ -680,8 +776,7 @@ fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T>
  * @param filter the filter to apply to the query
  * @return this
  */
-fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T>
-        = filter(toBson(filter))
+fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T> = filter(toBson(filter))
 
 //*******
 //MongoIterable extension methods
@@ -693,8 +788,7 @@ fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T>
  * @param target   the collection to insert into
  * @param callback a callback that will be passed the target containing all documents
  */
-fun <TResult> MongoIterable<TResult>.toList(): List<TResult>
-        = into(mutableListOf<TResult>())
+fun <TResult> MongoIterable<TResult>.toList(): List<TResult> = into(mutableListOf<TResult>())
 
 //*******
 //json extension property
@@ -719,6 +813,5 @@ val String.bson: BsonDocument
 /**
  * Format this string to remove space(s) between $ and next char
  */
-fun String.formatJson(): String
-        = KMongoUtil.formatJson(this)
+fun String.formatJson(): String = KMongoUtil.formatJson(this)
 

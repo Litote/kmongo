@@ -16,25 +16,23 @@
 
 package org.litote.kmongo
 
+import com.mongodb.client.model.Filters
 import org.bson.codecs.pojo.annotations.BsonId
-import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
+import org.junit.Test
+import kotlin.test.assertEquals
 
 /**
  *
  */
-operator fun <T1, T2> KProperty<T1?>.div(p2: KProperty1<T1, T2?>): KPropertyPath<T2?> = KPropertyPath(this, p2)
+class KPropertyPathTest {
 
-operator fun <T1, T2> KProperty<T1?>.div(p2: KProperty<T2?>): KPropertyPath<T2?> = KPropertyPath(this, p2)
+    data class Friend(val name: String, val i: Int, @BsonId val id: String)
 
-
-internal fun <T> KProperty<T>.path(): String {
-    //TODO specific mapping
-    return /*annotations
-            .find { it.annotationClass == JsonProperty::class }
-            ?.let { (it as JsonProperty).value }
-            ?:*/ annotations
-            .find { it.annotationClass == BsonId::class }
-            ?.let { "_id" }
-            ?: this.name
+    @Test
+    fun `simple equals test`() {
+        assertEquals(
+            Filters.eq("name", "A").toString(),
+            (Friend::name eq "A").toString()
+        )
+    }
 }

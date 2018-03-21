@@ -54,7 +54,6 @@ class BsonIdTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
         assertEquals(stringId._id, stringIdCol.findOne(stringId::_id eq stringId._id)!!._id)
     }
 
-    /*
     @Test
     fun testEqualityWithMongoId() {
         val withMongoId = WithMongoId()
@@ -68,8 +67,9 @@ class BsonIdTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
         val withMongoId = WithMongoStringId("keyValue")
         val withMongoIdCol = col.withDocumentClass<WithMongoStringId>()
         withMongoIdCol.insertOne(withMongoId.json)
-        assertEquals(withMongoId.key, withMongoIdCol.findOne(withMongoId::key eq withMongoId.key)!!.key)
-    } */
+        val filter = withMongoId::key eq withMongoId.key
+        assertEquals(withMongoId.key, withMongoIdCol.findOne(filter)!!.key)
+    }
 
     @Test
     fun testEqualityWithCompositeId() {
@@ -79,12 +79,11 @@ class BsonIdTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
         assertEquals(compositeId._id, compositeIdCol.findOne(compositeId::_id eq compositeId._id)!!._id)
     }
 
-    /*
     @Test
     fun testEqualityWithCompositeKey() {
         val compositeKey = CompositeKey(Key("alpha", 2))
         val compositeKeyCol = col.withDocumentClass<CompositeKey>()
         compositeKeyCol.insertOne(compositeKey)
         assertEquals(compositeKey.key, compositeKeyCol.findOne(compositeKey::key eq compositeKey.key)!!.key)
-    } */
+    }
 }

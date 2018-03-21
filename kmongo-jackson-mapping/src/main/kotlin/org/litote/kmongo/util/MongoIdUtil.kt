@@ -28,6 +28,7 @@ import org.litote.kmongo.MongoId
 import org.litote.kmongo.util.MongoIdUtil.IdPropertyWrapper.Companion.NO_ID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties

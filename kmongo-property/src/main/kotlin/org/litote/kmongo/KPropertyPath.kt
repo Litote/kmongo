@@ -33,7 +33,7 @@ class KPropertyPath<T>(previous: KPropertyPath<*>?, property: KProperty<T?>) {
 
     constructor(previous: KProperty<Any?>, property: KProperty<T?>) : this(KPropertyPath(null as (KPropertyPath<*>?), previous), property)
 
-    val path: String = "${previous?.path}${if (previous == null) "" else "."}${property.path()}"
+    val path: String = "${previous?.path ?: ""}${if (previous == null) "" else "."}${property.path()}"
 
     operator fun <T2> div(p2: KProperty1<T, T2?>): KPropertyPath<T2?> = KPropertyPath(this, p2)
 

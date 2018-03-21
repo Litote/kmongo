@@ -54,11 +54,14 @@ infix fun <T> KProperty<T>.type(type: BsonType): Bson = Filters.type(path(), typ
 
 fun <T> KProperty<T>.mod(divisor: Long, remainder: Long): Bson = Filters.mod(path(), divisor, remainder)
 
-infix fun KProperty<String>.regex(regex: String): Bson = Filters.regex(path(), regex)
+infix fun KProperty<String?>.regex(regex: String): Bson = Filters.regex(path(), regex)
 
-infix fun KProperty<String>.regex(regex: Pattern): Bson = Filters.regex(path(), regex)
+infix fun KProperty<String?>.regex(regex: Pattern): Bson = Filters.regex(path(), regex)
 
-fun KProperty<String>.regex(pattern: String, options: String): Bson = Filters.regex(path(), pattern, options)
+fun KProperty<String?>.regex(pattern: String, options: String): Bson = Filters.regex(path(), pattern, options)
+
+infix fun KProperty<String?>.regex(regex: Regex): Bson = Filters.regex(path(), regex.toPattern())
+
 
 infix fun <T> KProperty<T>.all(values: Iterable<T>): Bson = Filters.all(path(), values)
 
@@ -76,22 +79,25 @@ infix fun <T> KProperty<T>.bitsAnySet(bitmask: Long): Bson = Filters.bitsAnySet(
 
 infix fun <T> KProperty<T>.geoWithin(geometry: Geometry): Bson = Filters.geoWithin(path(), geometry)
 
-fun <T> KProperty<T>.geoWithinBox(lowerLeftX: Double, lowerLeftY: Double, upperRightX: Double, upperRightY: Double): Bson = Filters.geoWithinBox(path(), lowerLeftX, lowerLeftY, upperRightX, upperRightY)
+fun <T> KProperty<T>.geoWithinBox(
+    lowerLeftX: Double,
+    lowerLeftY: Double,
+    upperRightX: Double,
+    upperRightY: Double
+): Bson = Filters.geoWithinBox(path(), lowerLeftX, lowerLeftY, upperRightX, upperRightY)
 
 infix fun <T> KProperty<T>.geoWithinPolygon(points: List<List<Double>>): Bson = Filters.geoWithinPolygon(path(), points)
 
-fun <T> KProperty<T>.geoWithinCenter(x: Double, y: Double, radius: Double): Bson = Filters.geoWithinCenter(path(), x, y, radius)
+fun <T> KProperty<T>.geoWithinCenter(x: Double, y: Double, radius: Double): Bson =
+    Filters.geoWithinCenter(path(), x, y, radius)
 
-fun <T> KProperty<T>.geoWithinCenterSphere(x: Double, y: Double, radius: Double): Bson = Filters.geoWithinCenterSphere(path(), x, y, radius)
+fun <T> KProperty<T>.geoWithinCenterSphere(x: Double, y: Double, radius: Double): Bson =
+    Filters.geoWithinCenterSphere(path(), x, y, radius)
 
 infix fun <T> KProperty<T>.geoIntersects(geometry: Geometry): Bson = Filters.geoIntersects(path(), geometry)
 
-fun <T> KProperty<T>.near(geometry: Point, maxDistance: Double?, minDistance: Double?): Bson = Filters.near(path(), geometry, maxDistance, minDistance)
+fun <T> KProperty<T>.near(geometry: Point, maxDistance: Double?, minDistance: Double?): Bson =
+    Filters.near(path(), geometry, maxDistance, minDistance)
 
-fun <T> KProperty<T>.nearSphere(geometry: Point, maxDistance: Double?, minDistance: Double?): Bson = Filters.nearSphere(path(), geometry, maxDistance, minDistance)
-
-
-infix fun Bson.and(item: Bson): Bson = Filters.and(listOf(this, item))
-
-infix fun Bson.or(item: Bson): Bson = Filters.or(listOf(this, item))
-
+fun <T> KProperty<T>.nearSphere(geometry: Point, maxDistance: Double?, minDistance: Double?): Bson =
+    Filters.nearSphere(path(), geometry, maxDistance, minDistance)

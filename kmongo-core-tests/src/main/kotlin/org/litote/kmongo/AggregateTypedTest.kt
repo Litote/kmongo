@@ -23,8 +23,8 @@ import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.AggregateTypedTest.Article
 import org.litote.kmongo.model.Friend
+import proj
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -46,7 +46,7 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
         col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"))
         col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"))
 
-        friendCol = getCollection<Friend>()
+        friendCol = getCollection()
         friendCol.insertOne(Friend("William"))
         friendCol.insertOne(Friend("John"))
         friendCol.insertOne(Friend("Richard"))
@@ -61,7 +61,9 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Test
     fun canAggregate() {
-        val l = col.aggregate<Article>(match(Article::author eq "Maberry Jonathan")).toList()
+        val l = col.aggregate<Article>(
+            match(Article::author eq "Maberry Jonathan")
+        ).toList()
         assertEquals(1, l.size)
     }
 
@@ -83,7 +85,8 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Test
     fun canAggregateWithManyMatch() {
-        val l = col.aggregate<Article>(match(Article::tags contains "virus", Article::tags contains "pandemic")).toList()
+        val l =
+            col.aggregate<Article>(match(Article::tags contains "virus", Article::tags contains "pandemic")).toList()
         assertEquals(1, l.size)
         assertEquals("World War Z", l.first().title)
     }
@@ -97,12 +100,13 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
     @Test
     fun shouldPopulateIds() {
         val l = friendCol.aggregate<Friend>(
-                project(
-                        mapOf(
-                                Friend::_id to "\$_id",
-                                Friend::name to "\$name"
-                        ) as Map<KProperty<*>, String>
-                )).toList()
+            project(
+                mapOf(
+                    Friend::_id to "\$_id",
+                    Friend::name to Friend::name.proj
+                )
+            )
+        ).toList()
         assertEquals(3, l.size)
         assertTrue(l.all { it._id != null })
         assertTrue(l.all { it.name != null })
