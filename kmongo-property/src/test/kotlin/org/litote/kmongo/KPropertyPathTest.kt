@@ -19,6 +19,7 @@ package org.litote.kmongo
 import com.mongodb.client.model.Filters
 import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.Test
+import java.math.BigDecimal
 import kotlin.test.assertEquals
 
 /**
@@ -26,13 +27,19 @@ import kotlin.test.assertEquals
  */
 class KPropertyPathTest {
 
-    data class Friend(val name: String, val i: Int, @BsonId val id: String)
+    data class Friend(val name: String, val i: Int, @BsonId val id: String, val gift: Gift)
+
+    data class Gift(val amount:BigDecimal)
 
     @Test
     fun `simple equals test`() {
         assertEquals(
             Filters.eq("name", "A").toString(),
             (Friend::name eq "A").toString()
+        )
+        assertEquals(
+            Filters.eq("gift.amount", BigDecimal.ZERO).toString(),
+            ((Friend::gift / Gift::amount) eq BigDecimal.ZERO).toString()
         )
     }
 }

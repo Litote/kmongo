@@ -73,7 +73,7 @@ object KMongoUtil {
             bit
         ).map { it.toString() }
 
-    fun toBson(json: String): BsonDocument = if (json == EMPTY_JSON) EMPTY_BSON else BsonDocument.parse(json)
+    fun toBson(json: String): BsonDocument = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
 
     fun <T : Any> toBson(json: String, type: KClass<T>): BsonDocument =
         generateIfAbsentAndMayBeMoveId(toBson(json), type)

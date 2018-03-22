@@ -164,20 +164,6 @@ inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
 ): DistinctIterable<TResult> = distinct(field.path(), filter, TResult::class.java)
 
 /**
- * Gets the distinct values of the specified field.
- *
- * @param fieldName   the field
- * @param filter      the query filter
- * @param <TResult>   the target type of the iterable.
- *
- * @return an iterable of distinct values
- */
-inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
-    field: KPropertyPath<TResult>,
-    filter: Bson = emptyBson
-): DistinctIterable<TResult> = distinct(field.path, filter, TResult::class.java)
-
-/**
  * Finds all documents in the collection.
  *
  * @param filter the query filter

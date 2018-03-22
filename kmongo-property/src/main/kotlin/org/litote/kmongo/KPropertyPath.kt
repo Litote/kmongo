@@ -16,90 +16,59 @@
 
 package org.litote.kmongo
 
-import com.mongodb.client.model.Filters
-import com.mongodb.client.model.geojson.Geometry
-import com.mongodb.client.model.geojson.Point
-import org.bson.BsonType
-import org.bson.conversions.Bson
-import java.util.regex.Pattern
-import kotlin.internal.NoInfer
-import kotlin.reflect.KProperty
+import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeParameter
+import kotlin.reflect.KVisibility
 
 /**
+ * A property path, operations on which take one receiver as a parameter.
  *
+ * @param T the type of the receiver which should be used to obtain the value of the property.
+ * @param R the type of the property.
  */
-class KPropertyPath<T>(previous: KPropertyPath<*>?, property: KProperty<T?>) {
+internal class KPropertyPath<T, R>(
+    private val previous: KPropertyPath<T, *>?,
+    private val property: KProperty1<*, R?>
+) : KProperty1<T, R> {
 
-    constructor(previous: KProperty<Any?>, property: KProperty<T?>) : this(KPropertyPath(null as (KPropertyPath<*>?), previous), property)
+    @Suppress("UNCHECKED_CAST")
+    constructor(previous: KProperty1<*, Any?>, property: KProperty1<*, R?>) :
+            this(
+                if (property is KPropertyPath<*, *>)
+                    property as KPropertyPath<T, *>?
+                else
+                    KPropertyPath<T, Any?>(
+                        null as (KPropertyPath<T, *>?),
+                        previous
+                    ),
+                property
+            )
 
     val path: String = "${previous?.path ?: ""}${if (previous == null) "" else "."}${property.path()}"
 
-    operator fun <T2> div(p2: KProperty1<T, T2?>): KPropertyPath<T2?> = KPropertyPath(this, p2)
+    override val annotations: List<Annotation> get() = property.annotations
+    override val getter: KProperty1.Getter<T, R> get() = error("getter on KPropertyPath is not implemented")
+    override val isAbstract: Boolean get() = previous?.isAbstract ?: false || property.isAbstract
+    override val isConst: Boolean get() = previous?.isConst ?: false && property.isConst
+    override val isFinal: Boolean get() = previous?.isFinal ?: false && property.isFinal
+    override val isLateinit: Boolean get() = previous?.isLateinit ?: false && property.isLateinit
+    override val isOpen: Boolean get() = previous?.isOpen ?: false && property.isOpen
+    override val name: String get() = property.name
+    override val parameters: List<KParameter> get() = property.parameters
+    override val returnType: KType get() = property.returnType
+    override val typeParameters: List<KTypeParameter> get() = property.typeParameters
+    override val visibility: KVisibility? get() = property.visibility
 
-    operator fun <T2> div(p2: KProperty<T2?>): KPropertyPath<T2?> = KPropertyPath(this, p2)
+    override fun invoke(p1: T): R = error("invoke on KPropertyPath is not implemented")
 
-    //filters
-    infix fun eq(item: @NoInfer T): Bson = Filters.eq<T>(path, item)
+    override fun call(vararg args: Any?): R = error("call on KPropertyPath is not implemented")
 
-    infix fun <V, T : Collection<V>> KProperty<T>.contains(item: @NoInfer V): Bson = Filters.eq<V>(path, item)
+    override fun callBy(args: Map<KParameter, Any?>): R = error("callBy on KPropertyPath is not implemented")
 
-    infix fun ne(item: @NoInfer T): Bson = Filters.ne<T>(path, item)
+    override fun get(receiver: T): R = error("get on KPropertyPath is not implemented")
 
-    infix fun lt(item: T): Bson = Filters.lt(path, item)
-
-    infix fun gt(item: T): Bson = Filters.gt(path, item)
-
-    infix fun lte(item: T): Bson = Filters.lte(path, item)
-
-    infix fun gte(item: T): Bson = Filters.gte(path, item)
-
-    infix fun `in`(values: Iterable<T>): Bson = Filters.`in`(path, values)
-
-    infix fun nin(values: Iterable<T>): Bson = Filters.nin(path, values)
-
-    fun exists(): Bson = Filters.exists(path)
-
-    infix fun exists(exists: Boolean): Bson = Filters.exists(path, exists)
-
-    infix fun type(type: BsonType): Bson = Filters.type(path, type)
-
-    fun mod(divisor: Long, remainder: Long): Bson = Filters.mod(path, divisor, remainder)
-
-    infix fun regex(regex: String): Bson = Filters.regex(path, regex)
-
-    infix fun regex(regex: Pattern): Bson = Filters.regex(path, regex)
-
-    fun regex(pattern: String, options: String): Bson = Filters.regex(path, pattern, options)
-
-    infix fun all(values: Iterable<T>): Bson = Filters.all(path, values)
-
-    infix fun elemMatch(filter: Bson): Bson = Filters.elemMatch(path, filter)
-
-    infix fun size(size: Int): Bson = Filters.size(path, size)
-
-    infix fun bitsAllClear(bitmask: Long): Bson = Filters.bitsAllClear(path, bitmask)
-
-    infix fun bitsAllSet(bitmask: Long): Bson = Filters.bitsAllSet(path, bitmask)
-
-    infix fun bitsAnyClear(bitmask: Long): Bson = Filters.bitsAnyClear(path, bitmask)
-
-    infix fun bitsAnySet(bitmask: Long): Bson = Filters.bitsAnySet(path, bitmask)
-
-    infix fun geoWithin(geometry: Geometry): Bson = Filters.geoWithin(path, geometry)
-
-    fun geoWithinBox(lowerLeftX: Double, lowerLeftY: Double, upperRightX: Double, upperRightY: Double): Bson = Filters.geoWithinBox(path, lowerLeftX, lowerLeftY, upperRightX, upperRightY)
-
-    infix fun geoWithinPolygon(points: List<List<Double>>): Bson = Filters.geoWithinPolygon(path, points)
-
-    fun geoWithinCenter(x: Double, y: Double, radius: Double): Bson = Filters.geoWithinCenter(path, x, y, radius)
-
-    fun geoWithinCenterSphere(x: Double, y: Double, radius: Double): Bson = Filters.geoWithinCenterSphere(path, x, y, radius)
-
-    infix fun geoIntersects(geometry: Geometry): Bson = Filters.geoIntersects(path, geometry)
-
-    fun near(geometry: Point, maxDistance: Double?, minDistance: Double?): Bson = Filters.near(path, geometry, maxDistance, minDistance)
-
-    fun nearSphere(geometry: Point, maxDistance: Double?, minDistance: Double?): Bson = Filters.nearSphere(path, geometry, maxDistance, minDistance)
+    override fun getDelegate(receiver: T): Any? = error("getDelegate on KPropertyPath is not implemented")
 
 }

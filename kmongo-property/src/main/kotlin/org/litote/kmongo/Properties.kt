@@ -23,11 +23,9 @@ import kotlin.reflect.KProperty1
 /**
  *
  */
-operator fun <T1, T2> KProperty<T1?>.div(p2: KProperty1<T1, T2?>): KPropertyPath<T2?> = KPropertyPath(this, p2)
-
-operator fun <T1, T2> KProperty<T1?>.div(p2: KProperty<T2?>): KPropertyPath<T2?> = KPropertyPath(this, p2)
-
+operator fun <T0, T1, T2> KProperty1<T0, T1?>.div(p2: KProperty1<T1, T2?>): KProperty1<T0, T2?> =
+    KPropertyPath(this, p2)
 
 fun <T> KProperty<T>.path(): String {
-    return ClassMappingType.getPath(this)
+    return if (this is KPropertyPath<*, T>) path else ClassMappingType.getPath(this)
 }
