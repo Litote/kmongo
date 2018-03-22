@@ -48,6 +48,7 @@ import java.math.BigInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 
 /**
@@ -197,10 +198,35 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
         return CodecRegistries.fromProviders(KMongoConfiguration.jacksonCodecProvider)
     }
 
-    override fun <R> getPath(property: KProperty<R>): String {
-        //TODO jackson mapping
-        return if (findIdProperty(property.javaGetter!!.declaringClass.kotlin)?.name == property.name)
+    override fun <T> getPath(property: KProperty<T>): String {
+        val owner = property.javaField?.declaringClass
+                ?: property.javaGetter?.declaringClass
+        return if (
+            owner?.kotlin
+                ?.let {
+                    findIdProperty(it)?.name == property.name
+                } == true
+        )
             "_id"
-        else property.name
+        else KMongoConfiguration
+            .extendedJsonMapper
+            .deserializationConfig 
+            ?.let { config ->
+                owner?.let {
+                    config
+                        .classIntrospector
+                        .forDeserialization(
+                            config,
+                            KMongoConfiguration.extendedJsonMapper.constructType(it),
+                            config
+                        )
+                        .findProperties()
+                        .firstOrNull {
+                            it.accessor.member.name == property.javaGetter?.name
+                                    || it.accessor.member.name == property.javaField?.name }
+                }
+            }
+            ?.name
+                ?: property.name
     }
 }

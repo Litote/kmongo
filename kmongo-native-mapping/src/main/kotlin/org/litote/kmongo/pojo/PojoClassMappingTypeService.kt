@@ -20,9 +20,11 @@ import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
+import org.bson.codecs.pojo.KMongoConvention
 import org.bson.codecs.pojo.KMongoPojoCodecService
 import org.bson.codecs.pojo.KMongoPojoCodecService.codecRegistry
 import org.bson.codecs.pojo.KMongoPojoCodecService.codecRegistryWithNullSerialization
+import org.bson.codecs.pojo.annotations.BsonProperty
 import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
@@ -33,6 +35,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 
 /**
@@ -118,10 +121,20 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         }
     }
 
-    override fun <R> getPath(property: KProperty<R>): String {
-        //TODO native mapping
-        return if (property.javaGetter?.declaringClass?.kotlin?.let { findIdProperty(it) } == property)
+    override fun <T> getPath(property: KProperty<T>): String {
+        val owner = property.javaField?.declaringClass
+                ?: property.javaGetter?.declaringClass
+
+        return if (owner?.kotlin?.let { findIdProperty(it) }?.name == property.name)
             "_id"
-        else property.name
+        else {
+            owner?.let {
+                KMongoConvention
+                    .getDeclaredAnnotations(property, it.kotlin)
+                    .filterIsInstance<BsonProperty>()
+                    .firstOrNull()
+                    ?.value
+            } ?: property.name
+        }
     }
 }

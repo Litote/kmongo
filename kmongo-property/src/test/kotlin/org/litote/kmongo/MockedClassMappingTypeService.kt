@@ -44,5 +44,5 @@ class MockedClassMappingTypeService : ClassMappingTypeService {
 
     override fun codecRegistry(): CodecRegistry = error("not implemented")
 
-    override fun <R> getPath(property: KProperty<R>): String = property.name
+    override fun <T> getPath(property: KProperty<T>): String = property.name
 }

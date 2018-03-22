@@ -75,7 +75,7 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
             return result.build()
         }
 
-        private fun getDeclaredAnnotations(property: KProperty<*>, owner: KClass<*>): List<Annotation> {
+        fun getDeclaredAnnotations(property: KProperty<*>, owner: KClass<*>): List<Annotation> {
             return listOfNotNull(
                     getInstantiator(owner)?.parameters?.find { it.name == property.name }?.annotations,
                     owner.primaryConstructor?.parameters?.find { it.name == property.name }?.annotations,

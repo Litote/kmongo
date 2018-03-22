@@ -44,5 +44,5 @@ interface ClassMappingTypeService {
 
     fun codecRegistry(): CodecRegistry
 
-    fun <R> getPath(property: KProperty<R>): String
+    fun <T> getPath(property: KProperty<T>): String
 }
