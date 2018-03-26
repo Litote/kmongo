@@ -28,7 +28,6 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
 import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.CountOptions
-import com.mongodb.client.model.Filters
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.FindOneAndUpdateOptions
@@ -189,12 +188,12 @@ fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T? = find(filte
 fun <T> MongoCollection<T>.findOne(filter: Bson): T? = find(filter).first()
 
 /**
- * Finds the first document that match the filter in the collection.
+ * Finds the first document that match the filters in the collection.
  *
  * @param filters the query filters
  * @return the first item returned or null
  */
-fun <T> MongoCollection<T>.findOne(vararg filters: Bson): T? = find(Filters.and(filters.toList())).first()
+fun <T> MongoCollection<T>.findOne(vararg filters: Bson): T? = find(and(*filters)).first()
 
 /**
  * Finds the first document that match the filter in the collection.

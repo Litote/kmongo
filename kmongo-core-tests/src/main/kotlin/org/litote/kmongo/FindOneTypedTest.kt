@@ -16,7 +16,6 @@
 
 package org.litote.kmongo
 
-import com.mongodb.client.model.Filters.and
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.model.Friend

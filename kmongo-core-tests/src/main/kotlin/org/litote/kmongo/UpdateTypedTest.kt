@@ -20,7 +20,7 @@ import org.junit.Test
 import org.litote.kmongo.model.Friend
 import set
 import unset
-import updateUpsert
+import upsert
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -70,7 +70,7 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
 
     @Test
     fun canUpsert() {
-        col.updateOne(emptyBson, set(Friend::name, "John"), updateUpsert())
+        col.updateOne(emptyBson, set(Friend::name, "John"), upsert())
         val r = col.findOne(Friend::name eq "John")
         assertEquals("John", r!!.name)
     }

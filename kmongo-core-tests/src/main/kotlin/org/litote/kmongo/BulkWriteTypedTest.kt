@@ -25,7 +25,7 @@ import replaceOne
 import set
 import updateMany
 import updateOne
-import updateUpsert
+import upsert
 import kotlin.test.assertEquals
 
 /**
@@ -43,7 +43,7 @@ class BulkWriteTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
                     updateOne(
                         ::name eq "Fred",
                         set(::address, "221B Baker Street"),
-                        updateUpsert()
+                        upsert()
                     ),
                     updateMany(
                         emptyBson,
@@ -52,7 +52,7 @@ class BulkWriteTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
                     replaceOne(
                         ::name eq "Max",
                         Friend("Joe"),
-                        updateUpsert()
+                        upsert()
                     ),
                     deleteOne(::name eq "Max"),
                     deleteMany(emptyBson)

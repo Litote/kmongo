@@ -14,21 +14,127 @@
  * limitations under the License.
  */
 
+import com.mongodb.client.model.Aggregates
 import com.mongodb.client.model.Projections
 import org.bson.conversions.Bson
 import org.litote.kmongo.path
 import kotlin.reflect.KProperty
 
-val <T> KProperty<T>.proj: String get() = "\$${path()}"
+val <T> KProperty<T>.projection: String get() = "\$${path()}"
 
+/**
+ * Creates a projection of a property whose value is computed from the given expression.  Projection with an expression is only supported
+ * using the $project aggregation pipeline stage.
+ *
+ * @param expression    the expression
+ * @param <TExpression> the expression type
+ * @return the projection
+ * @see Aggregates#project(Bson)
+ */
 fun <T> KProperty<T>.computed(expression: T): Bson = Projections.computed(path(), expression)
 
+/**
+ * Creates a projection that includes all of the given properties.
+ *
+ * @param properties the field names
+ * @return the projection
+ */
+fun include(vararg properties: KProperty<*>): Bson = include(properties.toList())
+
+/**
+ * Creates a projection that includes all of the given properties.
+ *
+ * @param properties the field names
+ * @return the projection
+ */
+fun include(properties: Iterable<KProperty<*>>): Bson = Projections.include(properties.map { it.path() })
+
+/**
+ * Creates a projection that excludes all of the given properties.
+ *
+ * @param properties the field names
+ * @return the projection
+ */
+fun exclude(vararg properties: KProperty<*>): Bson = exclude(properties.toList())
+
+/**
+ * Creates a projection that excludes all of the given properties.
+ *
+ * @param properties the field names
+ * @return the projection
+ */
+fun exclude(properties: Iterable<KProperty<*>>): Bson = Projections.exclude(properties.map { it.path() })
+
+/**
+ * Creates a projection that excludes the _id field.  This suppresses the automatic inclusion of _id that is the default, even when
+ * other fields are explicitly included.
+ *
+ * @return the projection
+ */
+fun excludeId(): Bson = Projections.excludeId()
+
+/**
+ * Creates a projection that includes for the given property only the first element of an array that matches the query filter.  This is
+ * referred to as the positional $ operator.
+ *
+ * @return the projection
+ * @mongodb.driver.manual reference/operator/projection/positional/#projection Project the first matching element ($ operator)
+ */
 fun <T> KProperty<T>.elemMatch(): Bson = Projections.elemMatch(path())
 
+/**
+ * Creates a projection that includes for the given property only the first element of the array value of that field that matches the given
+ * query filter.
+ *
+ * @param filter    the filter to apply
+ * @return the projection
+ * @mongodb.driver.manual reference/operator/projection/elemMatch elemMatch
+ */
 fun <T> KProperty<T>.elemMatch(filter: Bson): Bson = Projections.elemMatch(path(), filter)
 
+/**
+ * Creates a projection to the given property of the textScore, for use with text queries.
+ *
+ * @return the projection
+ * @mongodb.driver.manual reference/operator/projection/meta/#projection textScore
+ */
 fun <T> KProperty<T>.metaTextScore(): Bson = Projections.metaTextScore(path())
 
+/**
+ * Creates a projection to the given property of a slice of the array value of that field.
+ *
+ * @param limit     the number of elements to project.
+ * @return the projection
+ * @mongodb.driver.manual reference/operator/projection/slice Slice
+ */
 fun <T> KProperty<T>.slice(limit: Int): Bson = Projections.slice(path(), limit)
 
+/**
+ * Creates a projection to the given property of a slice of the array value of that field.
+ *
+ * @param skip      the number of elements to skip before applying the limit
+ * @param limit     the number of elements to project
+ * @return the projection
+ * @mongodb.driver.manual reference/operator/projection/slice Slice
+ */
 fun <T> KProperty<T>.slice(skip: Int, limit: Int): Bson = Projections.slice(path(), skip, limit)
+
+
+/**
+ * Creates a projection that combines the list of projections into a single one.  If there are duplicate keys, the last one takes
+ * precedence.
+ *
+ * @param projections the list of projections to combine
+ * @return the combined projection
+ */
+fun fields(vararg projections: Bson): Bson = Projections.fields(*projections)
+
+/**
+ * Creates a projection that combines the list of projections into a single one.  If there are duplicate keys, the last one takes
+ * precedence.
+ *
+ * @param projections the list of projections to combine
+ * @return the combined projection
+ * @mongodb.driver.manual
+ */
+fun fields(projections: List<Bson>): Bson = Projections.fields(projections)

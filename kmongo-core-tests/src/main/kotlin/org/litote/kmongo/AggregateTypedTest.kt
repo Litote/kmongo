@@ -17,13 +17,12 @@
 package org.litote.kmongo
 
 import com.mongodb.client.MongoCollection
-import com.mongodb.client.model.Aggregates
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.AggregateTypedTest.Article
 import org.litote.kmongo.model.Friend
-import proj
+import projection
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -93,7 +92,7 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Test
     fun canAggregateWithManyOperators() {
-        val l = col.aggregate<Article>(match(Article::tags contains "virus"), Aggregates.limit(1)).toList()
+        val l = col.aggregate<Article>(match(Article::tags contains "virus"), limit(1)).toList()
         assertEquals(1, l.size)
     }
 
@@ -103,7 +102,7 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
             project(
                 mapOf(
                     Friend::_id to "\$_id",
-                    Friend::name to Friend::name.proj
+                    Friend::name to Friend::name.projection
                 )
             )
         ).toList()

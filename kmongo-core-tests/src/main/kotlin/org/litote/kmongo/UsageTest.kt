@@ -16,8 +16,6 @@
 
 package org.litote.kmongo
 
-import com.mongodb.client.model.Aggregates.match
-import com.mongodb.client.model.Aggregates.sample
 import com.mongodb.client.model.Filters.lt
 import org.bson.types.ObjectId
 import org.junit.Before

@@ -17,15 +17,13 @@
 package org.litote.kmongo
 
 import avg
-import com.mongodb.client.model.Aggregates.group
-import com.mongodb.client.model.Aggregates.sample
 import max
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.UsageTypedTest.Jedi
 import org.litote.kmongo.model.Friend
-import proj
+import projection
 import java.time.LocalDate
 import java.time.Month
 import kotlin.reflect.KClass
@@ -79,8 +77,8 @@ class UsageTypedTest : KMongoBaseTest<Jedi>() {
         val (averageAge, maxAge) = col.aggregate<Pair<Int, Int>>(
             group(
                 null,
-                Pair<Int, Int>::first avg Jedi::age.proj,
-                Pair<Int, Int>::second max Jedi::age.proj
+                Pair<Int, Int>::first avg Jedi::age.projection,
+                Pair<Int, Int>::second max Jedi::age.projection
             )
         ).first()
         assertEquals((896 + 19) / 2, averageAge)
