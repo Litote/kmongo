@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.litote.kmongo</groupId>
+        <artifactId>kmongo-root</artifactId>
+        <version>3.6.4-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>kmongo-rxjava2-native</artifactId>
+    <name>KMongo rxjava2 native</name>
+    <description>KMongo rxjava2 client with native object mapping</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-rxjava2-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-native-mapping</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-rxjava2-core-tests</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <groups>org.litote.kmongo.NativeMappingCategory</groups>
+                    <dependenciesToScan>
+                        <dependency>org.litote.kmongo:kmongo-rxjava2-core-tests</dependency>
+                    </dependenciesToScan>
+                    <includes>
+                        <include>**/Test*.java</include>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*TestCase.java</include>
+                        <include>**/*Issue*.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <!-- We must generate a -javadoc JAR file to publish on Maven Central -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>empty-javadoc-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>javadoc</classifier>
+                            <classesDirectory>${basedir}/../empty</classesDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

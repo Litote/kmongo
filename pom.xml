@@ -50,6 +50,10 @@
         <module>kmongo-coroutine-core-tests</module>
         <module>kmongo-coroutine</module>
         <module>kmongo-coroutine-native</module>
+        <module>kmongo-rxjava2-core</module>
+        <module>kmongo-rxjava2-core-tests</module>
+        <module>kmongo-rxjava2</module>
+        <module>kmongo-rxjava2-native</module>
         <module>kmongo-coverage</module>
         <module>kmongo-dokka</module>
     </modules>
@@ -59,6 +63,8 @@
         <kotlin.version>1.2.30</kotlin.version>
         <mongo.version>3.6.3</mongo.version>
         <coroutine.version>0.22.5</coroutine.version>
+        <rxjava.version>2.1.12</rxjava.version>
+        <rxkotlin.version>2.2.0</rxkotlin.version>
         <jackson.version>2.9.3</jackson.version>
         <jackson-module.version>2.9.3</jackson-module.version>
         <bson4jackson.version>2.9.0</bson4jackson.version>
@@ -183,6 +189,21 @@
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-rxjava2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-rxjava2-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-rxjava2-core-tests</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-async-shared</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -199,6 +220,11 @@
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-coroutine-native</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-rxjava2-native</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -262,6 +288,17 @@
                 <groupId>org.jetbrains.kotlinx</groupId>
                 <artifactId>kotlinx-coroutines-core</artifactId>
                 <version>${coroutine.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.reactivex.rxjava2</groupId>
+                <artifactId>rxjava</artifactId>
+                <version>${rxjava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.reactivex.rxjava2</groupId>
+                <artifactId>rxkotlin</artifactId>
+                <version>2.2.0</version>
             </dependency>
 
             <dependency>

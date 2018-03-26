@@ -67,6 +67,11 @@
             <artifactId>kotlinx-coroutines-core</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>io.reactivex.rxjava2</groupId>
+            <artifactId>rxjava</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.litote.kmongo</groupId>
