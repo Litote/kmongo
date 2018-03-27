@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>kmongo-rxjava2</artifactId>
-    <name>KMongo coroutine</name>
+    <name>KMongo rxjava2</name>
     <description>KMongo rxjava2 client</description>
 
     <dependencies>
