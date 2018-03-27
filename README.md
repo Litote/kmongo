@@ -18,4 +18,5 @@ Forum: [https://groups.google.com/forum/#!forum/kmongo](https://groups.google.co
 
 ## Contributors
 
-* [Deny Prasetyo](https://github.com/jasoet)
+* [Deny Prasetyo](https://github.com/jasoet)  (kmongo-coroutine)
+* [Dilius](https://github.com/diliuskh) (kmongo-rxjava2)
