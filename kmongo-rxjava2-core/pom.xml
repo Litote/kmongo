@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.litote.kmongo</groupId>
+        <artifactId>kmongo-root</artifactId>
+        <version>3.6.4-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>kmongo-rxjava2-core</artifactId>
+    <name>KMongo rxjava2 core</name>
+    <description>Mongo rxjava2 client core extensions</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-async-shared</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.reactivex.rxjava2</groupId>
+            <artifactId>rxjava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.reactivex.rxjava2</groupId>
+            <artifactId>rxkotlin</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    
+</project>
