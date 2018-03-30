@@ -16,7 +16,8 @@
   ~  */
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.litote.kmongo</groupId>
@@ -33,6 +34,7 @@
         <module>kmongo-shared-tests</module>
         <module>kmongo-shared</module>
         <module>kmongo-property</module>
+        <module>kmongo-annotation-processor</module>
         <module>kmongo-jackson-mapping</module>
         <module>kmongo-native-mapping</module>
         <module>kmongo-flapdoodle</module>
@@ -60,7 +62,7 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.2.30</kotlin.version>
+        <kotlin.version>1.2.31</kotlin.version>
         <mongo.version>3.6.3</mongo.version>
         <coroutine.version>0.22.5</coroutine.version>
         <rxjava.version>2.1.12</rxjava.version>
@@ -68,6 +70,9 @@
         <jackson.version>2.9.3</jackson.version>
         <jackson-module.version>2.9.3</jackson-module.version>
         <bson4jackson.version>2.9.0</bson4jackson.version>
+
+        <!-- annotations processor -->
+        <kotlin-poet.version>0.7.0</kotlin-poet.version>
 
         <!-- test dependencies -->
         <flapdoodle.version>2.0.3</flapdoodle.version>
@@ -105,6 +110,12 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-reflect</artifactId>
                 <version>${kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup</groupId>
+                <artifactId>kotlinpoet</artifactId>
+                <version>${kotlin-poet.version}</version>
             </dependency>
 
             <dependency>
@@ -528,7 +539,7 @@
             <name>Apache License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
-            <comments />
+            <comments/>
         </license>
     </licenses>
 

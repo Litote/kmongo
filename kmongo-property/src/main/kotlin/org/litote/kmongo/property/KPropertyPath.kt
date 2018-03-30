@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.property
 
+import org.litote.kmongo.path
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeParameter
 import kotlin.reflect.KVisibility
+import kotlin.reflect.full.declaredMembers
+
+/**
+ * Find a property for class [R] of name [name].
+ * Useful for private properties.
+ */
+@Suppress("UNCHECKED_CAST")
+inline fun <reified R, T> findProperty(name: String): KProperty1<R, T?> =
+    R::class.declaredMembers.first { it.name == name } as KProperty1<R, T?>
+
 
 /**
  * A property path, operations on which take one receiver as a parameter.
@@ -28,13 +39,13 @@ import kotlin.reflect.KVisibility
  * @param T the type of the receiver which should be used to obtain the value of the property.
  * @param R the type of the property.
  */
-internal class KPropertyPath<T, R>(
+open class KPropertyPath<T, R>(
     private val previous: KPropertyPath<T, *>?,
     private val property: KProperty1<*, R?>
 ) : KProperty1<T, R> {
 
     @Suppress("UNCHECKED_CAST")
-    constructor(previous: KProperty1<*, Any?>, property: KProperty1<*, R?>) :
+    internal constructor(previous: KProperty1<*, Any?>, property: KProperty1<*, R?>) :
             this(
                 if (property is KPropertyPath<*, *>)
                     property as KPropertyPath<T, *>?
@@ -46,7 +57,8 @@ internal class KPropertyPath<T, R>(
                 property
             )
 
-    val path: String = "${previous?.path ?: ""}${if (previous == null) "" else "."}${property.path()}"
+    internal val path: String get() =
+        "${previous?.path ?: ""}${if (previous == null) "" else "."}${property.path()}"
 
     override val annotations: List<Annotation> get() = property.annotations
     override val getter: KProperty1.Getter<T, R> get() = error("getter on KPropertyPath is not implemented")
@@ -55,7 +67,7 @@ internal class KPropertyPath<T, R>(
     override val isFinal: Boolean get() = previous?.isFinal ?: false && property.isFinal
     override val isLateinit: Boolean get() = previous?.isLateinit ?: false && property.isLateinit
     override val isOpen: Boolean get() = previous?.isOpen ?: false && property.isOpen
-    override val name: String get() = property.name
+    override val name: String get() = path
     override val parameters: List<KParameter> get() = property.parameters
     override val returnType: KType get() = property.returnType
     override val typeParameters: List<KTypeParameter> get() = property.typeParameters

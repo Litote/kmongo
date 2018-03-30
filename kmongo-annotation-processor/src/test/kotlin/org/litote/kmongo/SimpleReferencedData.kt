@@ -16,20 +16,14 @@
 
 package org.litote.kmongo
 
-import org.litote.kmongo.property.KPropertyPath
-import org.litote.kmongo.service.ClassMappingType
-import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
-
 /**
- * Returns a composed property. For example Friend.address / Address.postalCode = "friend.address.postalCode".
+ *
  */
-operator fun <T0, T1, T2> KProperty1<T0, T1?>.div(p2: KProperty1<T1, T2?>): KProperty1<T0, T2?> =
-    KPropertyPath(this, p2)
+@Data
+class SimpleReferencedData {
 
-/**
- * Returns a mongo path of a property.
- */
-fun <T> KProperty<T>.path(): String {
-    return (this as? KPropertyPath<*, T>)?.path ?: ClassMappingType.getPath(this)
+    private val version: Int = 0
+    private val pojo2: SimpleReferenced2Data? = null
+    val pojo: TestData? = null
+    private val subPojo: SubData? = null
 }
