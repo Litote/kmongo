@@ -1,8 +1,25 @@
+/*
+ * Copyright (C) 2017 Litote
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.litote.kmongo
+
 import com.mongodb.client.model.Sorts
 import org.bson.BsonDocument
 import org.bson.BsonInt32
 import org.bson.conversions.Bson
-import org.litote.kmongo.path
 import kotlin.reflect.KProperty
 
 /*
@@ -58,10 +75,10 @@ fun descending(vararg properties: KProperty<*>): Bson = descending(properties.to
 fun descending(properties: List<KProperty<*>>): Bson = Sorts.descending(properties.map { it.path() })
 
 /**
- * Create a sort specification for the text score meta projection on the given property.
+ * Create a sort specification for the text score meta getProjection on the given property.
  *
  * @return the sort specification
- * @mongodb.driver.manual reference/operator/projection/meta/#sort textScore
+ * @mongodb.driver.manual reference/operator/getProjection/meta/#sort textScore
  */
 fun <T> KProperty<T>.sortByMetaTextScore(): Bson = Sorts.metaTextScore(path())
 
@@ -72,7 +89,8 @@ fun <T> KProperty<T>.sortByMetaTextScore(): Bson = Sorts.metaTextScore(path())
  * @param ascending if the sort is ascending
  * @return the combined sort specification
  */
-fun orderBy(vararg sorts: KProperty<*>, ascending: Boolean = true): Bson = orderBy(sorts.toList(), ascending)
+fun orderBy(vararg sorts: KProperty<*>, ascending: Boolean = true): Bson =
+    orderBy(sorts.toList(), ascending)
 
 /**
  * Combine multiple sort specifications.  If any properties are repeated, the last one takes precedence.

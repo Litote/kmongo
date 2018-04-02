@@ -16,16 +16,8 @@
 
 package org.litote.kmongo
 
-import deleteMany
-import deleteOne
-import insertOne
 import org.junit.Test
 import org.litote.kmongo.model.Friend
-import replaceOne
-import set
-import updateMany
-import updateOne
-import upsert
 import kotlin.test.assertEquals
 
 /**

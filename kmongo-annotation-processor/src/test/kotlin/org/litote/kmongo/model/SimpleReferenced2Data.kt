@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.model
+
+import org.litote.kmongo.Data
 
 /**
  *

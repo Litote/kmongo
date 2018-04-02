@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.property
 
 import com.mongodb.client.model.Filters
+import org.litote.kmongo.div
+import org.litote.kmongo.eq
 import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.Test
 import java.math.BigDecimal

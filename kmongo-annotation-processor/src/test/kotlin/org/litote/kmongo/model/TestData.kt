@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.model
+
+import org.litote.kmongo.Data
+import org.litote.kmongo.Id
+import org.litote.kmongo.model.other.SimpleReferencedData
+import java.util.Date
+import java.util.Locale
 
 /**
  *
  */
 @Data
-data class SubData2(val a1: Int = 0) : NotAnnotatedData() {
-
-}
+open class TestData(
+    val set: Set<SimpleReferencedData> = emptySet(),
+    val name: String? = null,
+    val date: Date? = null,
+    val referenced: SimpleReferencedData? = null,
+    val map: Map<Id<Locale>, Set<String>> = emptyMap()
+)

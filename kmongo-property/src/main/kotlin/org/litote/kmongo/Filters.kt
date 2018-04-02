@@ -46,7 +46,7 @@ infix fun <T> KProperty<T>.eq(value: @NoInfer T): Bson = Filters.eq<T>(path(), v
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/eq/#op._S_eq
  */
-infix fun <T> KProperty<Collection<T>>.contains(value: @NoInfer T): Bson = Filters.eq<T>(path(), value)
+infix fun <T> KProperty<Collection<T>?>.contains(value: @NoInfer T): Bson = Filters.eq<T>(path(), value)
 
 /**
  * Creates a filter that matches all documents where the value of the field name does not equal the specified value.
@@ -167,7 +167,7 @@ fun and(filters: Iterable<Bson>): Bson = Filters.and(filters)
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/and $and
  */
-fun and(vararg filters: Bson): Bson = Filters.and(*filters)
+fun and(vararg filters: Bson?): Bson = Filters.and(*filters.filterNotNull().toTypedArray())
 
 /**
  * Creates a filter that preforms a logical OR of the provided list of filters.
@@ -185,7 +185,7 @@ fun or(filters: Iterable<Bson>): Bson = Filters.or(filters)
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/or $or
  */
-fun or(vararg filters: Bson): Bson = Filters.or(*filters)
+fun or(vararg filters: Bson?): Bson = Filters.or(*filters.filterNotNull().toTypedArray())
 
 /**
  * Creates a filter that matches all documents that do not match the passed in filter.
@@ -358,7 +358,7 @@ fun <T> KProperty<T>.all(vararg values: T): Bson = Filters.all(path(), *values)
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/elemMatch $elemMatch
  */
-infix fun <T> KProperty<T>.elemMatch(filter: Bson): Bson = Filters.elemMatch(path(), filter)
+infix fun <T> KProperty<Collection<T>>.elemMatch(filter: Bson): Bson = Filters.elemMatch(path(), filter)
 
 /**
  * Creates a filter that matches all documents where the value of a property is an array of the specified size.

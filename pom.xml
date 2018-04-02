@@ -29,6 +29,7 @@
     <url>http://litote.org/kmongo</url>
 
     <modules>
+        <module>kmongo-data</module>
         <module>kmongo-id</module>
         <module>kmongo-id-jackson</module>
         <module>kmongo-shared-tests</module>
@@ -246,6 +247,11 @@
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-fongo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-data</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

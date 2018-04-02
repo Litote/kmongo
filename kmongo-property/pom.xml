@@ -34,6 +34,10 @@
             <artifactId>kmongo-shared</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-data</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-core</artifactId>
             <scope>provided</scope>
@@ -46,6 +50,12 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test-junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

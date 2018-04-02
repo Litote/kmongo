@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.model
+
+import org.litote.kmongo.Data
 
 /**
  *
  */
 @Data
-class SimpleReferencedData {
+class SubData : TestData() {
 
-    private val version: Int = 0
-    private val pojo2: SimpleReferenced2Data? = null
-    val pojo: TestData? = null
-    private val subPojo: SubData? = null
+    private val s: String? = null
 }

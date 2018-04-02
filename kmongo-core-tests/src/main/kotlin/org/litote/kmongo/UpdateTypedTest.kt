@@ -18,9 +18,6 @@ package org.litote.kmongo
 
 import org.junit.Test
 import org.litote.kmongo.model.Friend
-import set
-import unset
-import upsert
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 

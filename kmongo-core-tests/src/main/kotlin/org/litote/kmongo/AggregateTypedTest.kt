@@ -22,7 +22,6 @@ import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.AggregateTypedTest.Article
 import org.litote.kmongo.model.Friend
-import projection
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

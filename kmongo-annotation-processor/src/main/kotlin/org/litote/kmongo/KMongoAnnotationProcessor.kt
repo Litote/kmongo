@@ -35,7 +35,6 @@ import java.nio.file.Paths
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment
 import javax.annotation.processing.SupportedAnnotationTypes
-import javax.annotation.processing.SupportedSourceVersion
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
@@ -43,7 +42,9 @@ import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 import javax.tools.StandardLocation
 import kotlin.reflect.KProperty1
@@ -51,28 +52,50 @@ import kotlin.reflect.jvm.internal.impl.name.FqName
 import kotlin.reflect.jvm.internal.impl.platform.JavaToKotlinClassMap
 
 /**
- *
+ * TODO check internal private protected on class
+ * TODO java9 support
  */
 @SupportedAnnotationTypes("org.litote.kmongo.Data")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 class KMongoAnnotationProcessor : AbstractProcessor() {
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        try {
-            for (element in roundEnv.getElementsAnnotatedWith(Data::class.java)) {
+        return try {
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.NOTE,
+                annotations.toString()
+            )
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.NOTE,
+                processingEnv.options.toString()
+            )
+
+            val dataElements = roundEnv.getElementsAnnotatedWith(Data::class.java)
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.NOTE,
+                dataElements.toString()
+            )
+            for (element in dataElements) {
                 if (element.kind != ElementKind.CLASS) {
                     error("$element is annotated with @Data but is not a class")
                 }
                 registerSuperclasses(element as TypeElement)
             }
-            for (element in roundEnv.getElementsAnnotatedWith(Data::class.java)) {
+            for (element in dataElements) {
                 process(element as TypeElement)
             }
+            dataElements.isNotEmpty()
         } catch (e: Throwable) {
             processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, e.stackTrace())
+            false
         }
+    }
 
-        return false
+    override fun getSupportedSourceVersion(): SourceVersion {
+        processingEnv.messager.printMessage(
+            Diagnostic.Kind.NOTE,
+            SourceVersion.latest().toString()
+        )
+        return SourceVersion.latest()
     }
 
     private fun registerSuperclasses(element: TypeElement) {
@@ -141,8 +164,60 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
             .superclass(superclass)
             .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
 
-        if(!element.modifiers.contains(FINAL)) {
+        val collectionSuperclass: TypeName =
+            if (superMirrorClass is DeclaredType && superMirrorClass.toString() != "java.lang.Object") {
+                val superElement = superMirrorClass.asElement() as TypeElement
+                ParameterizedTypeName.get(
+                    ClassName(
+                        processingEnv.elementUtils.getPackageOf(superElement).qualifiedName.toString(),
+                        "${generatedClassName(superElement)}Col"
+                    ),
+                    TypeVariableName("T")
+                )
+            } else {
+                ParameterizedTypeName.get(
+                    KPropertyPath::class.asClassName(),
+                    TypeVariableName("T"),
+                    ParameterizedTypeName.get(
+                        ClassName("kotlin.collections", "Collection"),
+                        sourceClassName
+                    ).asNullable()
+                )
+            }
+
+        val collectionClassBuilder = TypeSpec.classBuilder("${className}Col")
+            .addTypeVariable(TypeVariableName("T"))
+            .primaryConstructor(
+                FunSpec
+                    .constructorBuilder()
+                    .addParameter(
+                        "previous",
+                        ParameterizedTypeName.get(
+                            KPropertyPath::class.asClassName(),
+                            TypeVariableName("T"),
+                            TypeVariableName("*")
+                        ).asNullable()
+                    )
+                    .addParameter(
+                        "property",
+                        ParameterizedTypeName.get(
+                            KProperty1::class.asClassName(),
+                            TypeVariableName("*"),
+                            ParameterizedTypeName.get(
+                                ClassName("kotlin.collections", "Collection"),
+                                sourceClassName
+                            ).asNullable()
+                        )
+                    )
+                    .build()
+            )
+            .superclass(collectionSuperclass)
+            .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
+
+
+        if (!element.modifiers.contains(FINAL)) {
             classBuilder.addModifiers(KModifier.OPEN)
+            collectionClassBuilder.addModifiers(KModifier.OPEN)
         }
 
         val companionObject = TypeSpec.companionObjectBuilder()
@@ -153,25 +228,44 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
                     Diagnostic.Kind.NOTE,
                     "${e.simpleName}-${e.asType()}"
                 )
-                val returnType = processingEnv.typeUtils.asElement(e.asType()) as? TypeElement
-                val packageOfReturnType =
-                    if (returnType == null) "" else processingEnv.elementUtils.getPackageOf(returnType).qualifiedName.toString()
-                processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, e.asType().toString())
-                val type = processingEnv.typeUtils.asElement(e.asType())
+                val type = e.asType()
+                val returnType = processingEnv.typeUtils.asElement(type) as? TypeElement
+                processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, type.toString())
                 if (type != null) {
                     processingEnv.messager.printMessage(
                         Diagnostic.Kind.NOTE,
-                        "${e.asType()}-annot: ${type.getAnnotation(Data::class.java)}"
+                        "$type-annot: ${type.getAnnotation(Data::class.java)}"
                     )
                 }
-                val annotated = type?.getAnnotation(Data::class.java) != null
+                val annotatedCollection = type.run {
+                    if (this is ArrayType) {
+                        processingEnv.typeUtils.asElement(componentType).getAnnotation(Data::class.java) != null
+                    } else if (this is DeclaredType
+                        && processingEnv.typeUtils.isAssignable(
+                            processingEnv.typeUtils.erasure(this),
+                            processingEnv.elementUtils.getTypeElement("java.util.Collection").asType()
+                        )
+                    ) {
+                        typeArguments.firstOrNull()?.run {
+                            processingEnv.typeUtils.asElement(this).getAnnotation(Data::class.java) != null
+                        } == true
+                    } else {
+                        false
+                    }
+                }
+                val annotated = returnType?.getAnnotation(Data::class.java) != null || annotatedCollection
                 val propertyType = e.javaToKotlinType()
-                val filePropertyClass: TypeName =
+                val packageOfReturnType =
+                    if (returnType == null) ""
+                    else if (annotatedCollection) enclosedCollectionPackage(type)
+                    else processingEnv.elementUtils.getPackageOf(returnType).qualifiedName.toString()
+
+                val companionPropertyClass: TypeName =
                     if (annotated) {
                         ParameterizedTypeName.get(
                             ClassName(
                                 packageOfReturnType,
-                                generatedClassName(returnType!!)
+                                generatedClassProperty(type, annotatedCollection)
                             ),
                             sourceClassName
                         )
@@ -186,7 +280,7 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
                 val propertyReference =
                     if (element
                             .enclosedElements
-                            .firstOrNull { it.simpleName.toString() == "get${capitalize(e.simpleName.toString())}" }
+                            .firstOrNull { it.simpleName.toString() == "get${e.simpleName.toString().capitalize()}" }
                             ?.modifiers
                             ?.contains(PRIVATE) != false
                     ) {
@@ -210,12 +304,12 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
                 //add companion property
                 companionObject.addProperty(
                     PropertySpec
-                        .varBuilder(generatedClassName(e), filePropertyClass)
+                        .varBuilder(generatedCompanionFieldName(e), companionPropertyClass)
                         .mutable(false)
                         .getter(
                             FunSpec.getterBuilder().apply {
                                 if (annotated) {
-                                    addCode("return %1T(null,%2L)", filePropertyClass, propertyReference)
+                                    addCode("return %1T(null,%2L)", companionPropertyClass, propertyReference)
                                 } else {
                                     addCode("return %1L", propertyReference)
                                 }
@@ -229,7 +323,7 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
                         ParameterizedTypeName.get(
                             ClassName(
                                 packageOfReturnType,
-                                generatedClassName(returnType!!)
+                                generatedClassProperty(type, annotatedCollection)
                             ),
                             TypeVariableName("T")
                         )
@@ -244,14 +338,34 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
                 //add class property
                 classBuilder.addProperty(
                     PropertySpec
-                        .varBuilder(e.simpleName.toString(), classPropertyClass)
+                        .varBuilder(generatedFieldName(e), classPropertyClass)
                         .mutable(false)
                         .getter(
                             FunSpec.getterBuilder().apply {
                                 addCode(
                                     "return %1L(this,%2L)\n",
                                     if (annotated) {
-                                        generatedClassName(returnType!!)
+                                        generatedClassProperty(type, annotatedCollection)
+                                    } else {
+                                        KPropertyPath::class.asClassName()
+                                    },
+                                    propertyReference
+                                )
+                            }.build()
+                        )
+                        .build()
+                )
+
+                collectionClassBuilder.addProperty(
+                    PropertySpec
+                        .varBuilder(generatedFieldName(e), classPropertyClass)
+                        .mutable(false)
+                        .getter(
+                            FunSpec.getterBuilder().apply {
+                                addCode(
+                                    "return %1L(this,%2L)\n",
+                                    if (annotated) {
+                                        generatedClassProperty(type, annotatedCollection)
                                     } else {
                                         KPropertyPath::class.asClassName()
                                     },
@@ -264,12 +378,13 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
             }
         }
 
-        //add class
+        //add classes
         fileBuilder.addType(
             classBuilder
                 .companionObject(companionObject.build())
                 .build()
         )
+        fileBuilder.addType(collectionClassBuilder.build())
 
         val kotlinFile = fileBuilder.build()
         processingEnv.messager.printMessage(
@@ -293,23 +408,84 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
     }
 
     //see https://github.com/square/kotlinpoet/issues/236
-    private fun Element.javaToKotlinType(): TypeName {
-        val className = JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(this.asType().asTypeName().toString()))
-            ?.asSingleFqName()?.asString()
-        return if (className == null) {
-            (this as? TypeElement)?.asClassName() ?: asType().asTypeName()
+    private fun Element.javaToKotlinType(): TypeName =
+        asType().asTypeName().javaToKotlinType()
+
+    private fun TypeName.javaToKotlinType(): TypeName {
+        return if (this is ParameterizedTypeName) {
+            ParameterizedTypeName.get(
+                rawType.javaToKotlinType() as ClassName,
+                *typeArguments.map { it.javaToKotlinType() }.toTypedArray()
+            )
         } else {
-            ClassName.bestGuess(className)
+            val className =
+                JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(toString()))
+                    ?.asSingleFqName()?.asString()
+
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.NOTE,
+                "$this == $className"
+            )
+
+            return if (className == null) {
+                this
+            } else {
+                ClassName.bestGuess(className)
+            }
         }
     }
 
-    private fun generatedClassName(element: Element): String {
-        return "${element.simpleName}_"
+    private fun generatedClassName(element: Element): String =
+        "${element.simpleName}_"
+
+    private fun enclosedCollectionPackage(type: TypeMirror): String =
+        processingEnv.elementUtils.getPackageOf(
+            if (type is ArrayType) {
+                processingEnv.typeUtils.asElement(type.componentType)
+            } else {
+                processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments.first())
+            }
+        ).qualifiedName.toString()
+
+    private fun generatedClassProperty(type: TypeMirror, annotatedCollection: Boolean): String =
+        if (annotatedCollection) {
+            (if (type is ArrayType) {
+                (processingEnv.typeUtils.asElement(type.componentType) as TypeElement).simpleName
+            } else {
+                (processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments.first()) as TypeElement).simpleName
+            }).let { "${it}_Col" }
+        } else {
+            "${processingEnv.typeUtils.asElement(type).simpleName}_"
+        }
+
+    companion object {
+        val KPROPERTY_PATH_FIELDS = setOf(
+            "annotations",
+            "getter",
+            "isAbstract",
+            "isConst",
+            "isFinal",
+            "isLateinit",
+            "isOpen",
+            "name",
+            "parameters",
+            "returnType",
+            "visibility"
+        )
     }
 
+    private fun generatedCompanionFieldName(element: Element): String {
+        return element.simpleName.toString().capitalize()
+    }
 
-    private fun capitalize(line: String): String {
-        return Character.toUpperCase(line[0]) + line.substring(1)
+    private fun generatedFieldName(element: Element): String {
+        return element.simpleName.toString().let {
+            if (KPROPERTY_PATH_FIELDS.contains(it)) {
+                "${it}_"
+            } else {
+                it
+            }
+        }
     }
 
     private fun Throwable.stackTrace(): String {

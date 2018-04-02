@@ -28,6 +28,7 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
 import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.CountOptions
+import com.mongodb.client.model.DeleteOptions
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.FindOneAndUpdateOptions
@@ -51,6 +52,7 @@ import org.litote.kmongo.util.KMongoUtil.toBsonList
 import org.litote.kmongo.util.KMongoUtil.toBsonModifier
 import org.litote.kmongo.util.KMongoUtil.toExtendedJson
 import org.litote.kmongo.util.KMongoUtil.toWriteModel
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
 //*******
@@ -170,6 +172,13 @@ inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
  */
 fun <T> MongoCollection<T>.find(filter: String = EMPTY_JSON): FindIterable<T> = find(toBson(filter))
 
+/**
+ * Finds all documents in the collection.
+ *
+ * @param filters the query filters
+ * @return the find iterable interface
+ */
+fun <T> MongoCollection<T>.find(vararg filters: Bson?): FindIterable<T> = find(and(*filters))
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -177,7 +186,7 @@ fun <T> MongoCollection<T>.find(filter: String = EMPTY_JSON): FindIterable<T> = 
  * @param filter the query filter
  * @return the first item returned or null
  */
-fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T? = find(filter).first()
+fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T? = find(filter).firstOrNull()
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -185,7 +194,7 @@ fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON): T? = find(filte
  * @param filter the query filter
  * @return the first item returned or null
  */
-fun <T> MongoCollection<T>.findOne(filter: Bson): T? = find(filter).first()
+fun <T> MongoCollection<T>.findOne(filter: Bson): T? = find(filter).firstOrNull()
 
 /**
  * Finds the first document that match the filters in the collection.
@@ -193,7 +202,8 @@ fun <T> MongoCollection<T>.findOne(filter: Bson): T? = find(filter).first()
  * @param filters the query filters
  * @return the first item returned or null
  */
-fun <T> MongoCollection<T>.findOne(vararg filters: Bson): T? = find(and(*filters)).first()
+fun <T> MongoCollection<T>.findOne(vararg filters: Bson?): T? =
+    find(*filters).firstOrNull()
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -308,14 +318,28 @@ fun <T> MongoCollection<T>.deleteOneById(id: Any): DeleteResult = deleteOne(idFi
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
  *
  * @param filter the query filter to apply the the delete operation
- *
+ * @param options  the options to apply to the delete operation
  * @return the result of the remove many operation
  *
  * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the delete command
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.deleteMany(filter: String): DeleteResult = deleteMany(toBson(filter))
+fun <T> MongoCollection<T>.deleteMany(filter: String, options : DeleteOptions = DeleteOptions()): DeleteResult = deleteMany(toBson(filter), options)
+
+/**
+ * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
+ *
+ * @param filter the query filter to apply the the delete operation
+ * @param options  the options to apply to the delete operation
+ * @return the result of the remove many operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the delete command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+fun <T> MongoCollection<T>.deleteMany(vararg filters: Bson?, options : DeleteOptions = DeleteOptions()): DeleteResult = deleteMany(and(*filters), options)
+
 
 /**
  * Save the document.
@@ -536,6 +560,25 @@ fun <T : Any> MongoCollection<T>.updateMany(
 ): UpdateResult = updateMany(toBson(filter), toBson(update), updateOptions)
 
 /**
+ * Update all documents in the collection according to the specified arguments.
+ *
+ * @param filter        a document describing the query filter, which may not be null.
+ * @param update        a document describing the update, which may not be null. The update to apply must include only update operators.
+ * @param updateOptions the options to apply to the update operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+fun <T : Any> MongoCollection<T>.updateMany(
+    filter: Bson,
+    vararg updates: SetTo<*>,
+    updateOptions: UpdateOptions = UpdateOptions()
+): UpdateResult = updateMany(filter, set(*updates), updateOptions)
+
+/**
  * Atomically find a document and remove it.
 
  * @param filter  the query filter to find the document with
@@ -592,6 +635,53 @@ fun <T> MongoCollection<T>.findOneAndUpdate(
 fun <T> MongoCollection<T>.createIndex(keys: String, indexOptions: IndexOptions = IndexOptions()): String =
     createIndex(toBson(keys), indexOptions)
 
+/**
+ * Create an index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+
+ * @param keys an object describing the index key(s), which may not be null.
+ * @param indexOptions the options for the index
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.ensureIndex(keys: Bson, indexOptions: IndexOptions = IndexOptions()) {
+    try {
+        createIndex(keys, indexOptions)
+    } catch (e: MongoCommandException) {
+        //there is an exception if the parameters of an existing index are changed.
+        //then drop the index and create a new one
+        dropIndex(keys)
+        createIndex(keys, indexOptions)
+    }
+}
+
+/**
+ * Create an ascending with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+
+ * @param keys the properties, which must contain at least one
+ * @param indexOptions the options for the index
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.ensureIndex(
+    vararg properties: KProperty<*>,
+    indexOptions: IndexOptions = IndexOptions()
+) = ensureIndex(ascending(*properties), indexOptions)
+
+/**
+ * Create an [IndexOptions.unique] index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+
+ * @param keys the properties, which must contain at least one
+ * @param indexOptions the options for the index
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.ensureUniqueIndex(
+    vararg properties: KProperty<*>,
+    indexOptions: IndexOptions = IndexOptions()
+) = ensureIndex(properties = *properties, indexOptions = indexOptions.unique(true))
 
 /**
  * Create an index with the given keys and options.

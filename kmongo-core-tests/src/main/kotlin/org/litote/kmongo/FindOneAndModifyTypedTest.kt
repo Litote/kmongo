@@ -17,14 +17,11 @@
 package org.litote.kmongo
 
 import com.mongodb.client.model.ReturnDocument
-import findOneAndUpdateUpsert
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.model.ExposableFriend
 import org.litote.kmongo.model.Friend
-import set
-import setOnInsert
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 

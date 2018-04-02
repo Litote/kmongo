@@ -16,11 +16,9 @@
 
 package org.litote.kmongo
 
+import kotlin.reflect.KProperty
+
 /**
  *
  */
-@Data
-class SubData : TestData() {
-
-    private val s: String? = null
-}
+data class SetTo<out T>(val property: KProperty<T>, val value: T?)

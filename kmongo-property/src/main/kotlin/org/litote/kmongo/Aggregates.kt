@@ -104,7 +104,7 @@ fun match(filter: Bson): Bson = Aggregates.match(filter)
 
 /**
  * Creates a $match pipeline stage with $and on each filter.
- * @param projection the projection
+ * @param getProjection the getProjection
  * @return the $project pipeline stage
  */
 fun match(vararg filters: Bson): Bson {
@@ -112,9 +112,9 @@ fun match(vararg filters: Bson): Bson {
 }
 
 /**
- * Creates a $project pipeline stage for the specified projection
+ * Creates a $project pipeline stage for the specified getProjection
  *
- * @param projection the projection
+ * @param projection the getProjection
  * @return the $project pipeline stage
  * @see Projections
  *

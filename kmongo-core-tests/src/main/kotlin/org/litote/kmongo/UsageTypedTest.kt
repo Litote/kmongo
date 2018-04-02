@@ -16,14 +16,11 @@
 
 package org.litote.kmongo
 
-import avg
-import max
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.UsageTypedTest.Jedi
 import org.litote.kmongo.model.Friend
-import projection
 import java.time.LocalDate
 import java.time.Month
 import kotlin.reflect.KClass

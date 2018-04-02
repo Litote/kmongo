@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.model
+
+import org.litote.kmongo.Data
 
 /**
  *
  */
-open class NotAnnotatedData {
+@Data
+data class SubData2(val a1: Int = 0) : NotAnnotatedData() {
 
-    var test:String? = null
 }

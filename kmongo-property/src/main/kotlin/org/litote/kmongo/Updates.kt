@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package org.litote.kmongo
+
 import com.mongodb.client.model.DeleteManyModel
 import com.mongodb.client.model.DeleteOneModel
 import com.mongodb.client.model.DeleteOptions
@@ -26,8 +28,9 @@ import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.Updates
 import org.bson.conversions.Bson
-import org.litote.kmongo.path
 import kotlin.reflect.KProperty
+
+infix fun <T> KProperty<T>.setTo(value: T): SetTo<T> = SetTo(this, value)
 
 /**
  * Combine a list of updates into a single update.
@@ -50,11 +53,21 @@ fun combine(updates: List<Bson>): Bson = Updates.combine(updates)
  *
  * @param property the property
  * @param value     the value
- * @param <TItem>   the value type
+ * @param <T>   the value type
  * @return the update
  * @mongodb.driver.manual reference/operator/update/set/ $set
  */
 fun <T> set(property: KProperty<T>, value: T): Bson = Updates.set(property.path(), value)
+
+/**
+ * Creates an update that sets the values of the properties to the specified values.
+ *
+ * @param properties the properties to update
+ * @return the update
+ * @mongodb.driver.manual reference/operator/update/set/ $set
+ */
+fun set(vararg properties: SetTo<*>): Bson =
+    combine(properties.map { set(it.property, it.value) })
 
 /**
  * Creates an update that deletes the property with the given name.
@@ -207,11 +220,21 @@ fun <T> pushEach(property: KProperty<T>, values: List<T>, options: PushOptions =
  *
  * @param property the property
  * @param value     the value
- * @param <TItem>   the value type
+ * @param <T>   the value type
  * @return the update
  * @mongodb.driver.manual reference/operator/update/pull/ $pull
  */
 fun <T> pull(property: KProperty<T>, value: T): Bson = Updates.pull(property.path(), value)
+
+/**
+ * Creates an update that removes all instances of the given value from the array value of the property.
+ *
+ * @param property the property
+ * @param filter     the value
+ * @return the update
+ * @mongodb.driver.manual reference/operator/update/pull/ $pull
+ */
+fun pullByFilter(property: KProperty<*>, filter: Bson): Bson = Updates.pull(property.path(), filter)
 
 /**
  * Creates an update that removes from an array all elements that match the given filter.

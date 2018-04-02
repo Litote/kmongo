@@ -17,6 +17,8 @@
 package org.litote.kmongo
 
 import org.junit.Test
+import org.litote.kmongo.model.SubData2_
+import org.litote.kmongo.model.TestData_
 import kotlin.test.assertEquals
 
 /**
@@ -26,28 +28,32 @@ class PathTest {
 
     @Test
     fun testSimplePropertyPath() {
-        assertEquals("date", TestData_.date_.name)
-        assertEquals("referenced", TestData_.referenced_.name)
+        assertEquals("date", TestData_.Date.name)
+        assertEquals("referenced", TestData_.Referenced.name)
         assertEquals(
             "referenced.pojo2.price",
-            TestData_.referenced_.pojo2.price.name
+            TestData_.Referenced.pojo2.price.name
+        )
+        assertEquals(
+            "org.litote.kmongo.set.pojo2.price",
+            TestData_.Set.pojo2.price.name
         )
         assertEquals(
             "referenced.pojo.referenced.version",
-            TestData_.referenced_.pojo.referenced.version.name
+            TestData_.Referenced.pojo.referenced.version.name
         )
         assertEquals(
             "referenced.subPojo.s",
-            TestData_.referenced_.subPojo.s.name
+            TestData_.Referenced.subPojo.s.name
         )
 
         assertEquals(
             "referenced.subPojo.referenced.version",
-            TestData_.referenced_.subPojo.referenced.version.name
+            TestData_.Referenced.subPojo.referenced.version.name
         )
         assertEquals(
             "a1",
-            SubData2_.a1_.name
+            SubData2_.A1.name
         )
 
         /*

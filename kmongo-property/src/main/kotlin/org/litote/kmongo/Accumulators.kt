@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+package org.litote.kmongo
+
 import com.mongodb.client.model.Accumulators
 import com.mongodb.client.model.BsonField
-import org.litote.kmongo.path
 import kotlin.reflect.KProperty
 
 /**
