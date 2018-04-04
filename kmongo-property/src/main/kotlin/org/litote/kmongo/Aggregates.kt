@@ -27,7 +27,11 @@ import com.mongodb.client.model.GraphLookupOptions
 import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Sorts
 import com.mongodb.client.model.UnwindOptions
+import org.bson.BsonDocument
+import org.bson.BsonDocumentWriter
+import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
+import java.time.temporal.TemporalAccessor
 import kotlin.reflect.KProperty
 
 /**
@@ -111,6 +115,9 @@ fun match(vararg filters: Bson): Bson {
     return Aggregates.match(and(*filters))
 }
 
+fun document(vararg elements: Bson?): Bson = and(*elements)
+
+fun document(elements: Iterable<Bson>): Bson = and(elements)
 /**
  * Creates a $project pipeline stage for the specified getProjection
  *
@@ -132,7 +139,7 @@ fun project(projection: Bson): Bson = Aggregates.project(projection)
  * @mongodb.driver.manual reference/operator/aggregation/project/ $project
  */
 fun project(vararg properties: KProperty<*>): Bson {
-    return Aggregates.project(Filters.and(properties.map { it eq true }))
+    return Aggregates.project(document(properties.map { it from true }))
 }
 
 /**
@@ -144,8 +151,21 @@ fun project(vararg properties: KProperty<*>): Bson {
  *
  * @mongodb.driver.manual reference/operator/aggregation/project/ $project
  */
-fun project(vararg properties: Pair<KProperty<*>, Boolean>): Bson {
-    return Aggregates.project(Filters.and(properties.map { it.first eq it.second }))
+fun project(vararg properties: Pair<KProperty<*>, Any?>): Bson {
+    return Aggregates.project(document(properties.map { it.first from it.second }))
+}
+
+/**
+ * Creates a $project pipeline stage for all specified properties
+ *
+ * @param projections the properties to project
+ * @return the $project pipeline stage
+ * @see Projections
+ *
+ * @mongodb.driver.manual reference/operator/aggregation/project/ $project
+ */
+fun project(vararg projections: Bson): Bson {
+    return Aggregates.project(document(*projections))
 }
 
 /**
@@ -157,8 +177,8 @@ fun project(vararg properties: Pair<KProperty<*>, Boolean>): Bson {
  *
  * @mongodb.driver.manual reference/operator/aggregation/project/ $project
  */
-fun project(properties: Map<out KProperty<*>, String>): Bson {
-    return Aggregates.project(Filters.and(properties.map { it.key eq it.value }))
+fun project(properties: Map<out KProperty<*>, Any?>): Bson {
+    return Aggregates.project(document(properties.map { it.key from it.value }))
 }
 
 /**
@@ -245,8 +265,12 @@ fun facet(vararg facets: Facet): Bson = Aggregates.facet(*facets)
  * @mongodb.driver.manual reference/operator/aggregation/graphLookup/ $graphLookup
  */
 fun <TExpression> graphLookup(
-    from: String, startWith: TExpression, connectFromField: String,
-    connectToField: String, fieldAs: String, options: GraphLookupOptions = GraphLookupOptions()
+    from: String,
+    startWith: TExpression,
+    connectFromField: String,
+    connectToField: String,
+    fieldAs: String,
+    options: GraphLookupOptions = GraphLookupOptions()
 ): Bson = Aggregates.graphLookup(from, startWith, connectFromField, connectToField, fieldAs, options)
 
 /**
@@ -313,3 +337,58 @@ fun <TExpression> replaceRoot(value: TExpression): Bson = Aggregates.replaceRoot
  * @mongodb.driver.manual reference/operator/aggregation/sample/  $sample
  */
 fun sample(size: Int): Bson = Aggregates.sample(size)
+
+private class CondExpression<BooleanExpression : Any, ThenExpression : Any, ElseExpression : Any>(
+    val booleanExpression: BooleanExpression,
+    val thenExpression: ThenExpression,
+    val elseExpression: ElseExpression
+) : Bson {
+
+    override fun <TDocument> toBsonDocument(
+        documentClass: Class<TDocument>,
+        codecRegistry: CodecRegistry
+    ): BsonDocument {
+        val writer = BsonDocumentWriter(BsonDocument())
+
+        writer.writeStartDocument()
+        writer.writeName("\$cond")
+        writer.writeStartArray()
+        encodeValue(writer, booleanExpression, codecRegistry)
+        encodeValue(writer, thenExpression, codecRegistry)
+        encodeValue(writer, elseExpression, codecRegistry)
+        writer.writeEndArray()
+        writer.writeEndDocument()
+
+        return writer.document
+    }
+}
+
+/**
+ * Returns a $cond expression from a Boolean property.
+ */
+fun <ThenExpression : Any, ElseExpression : Any> cond(
+    booleanExpression: KProperty<Boolean>,
+    thenExpression: ThenExpression,
+    elseExpression: ElseExpression
+): Bson = cond(booleanExpression.projection, thenExpression, elseExpression)
+
+/**
+ * Returns a $cond expression.
+ */
+fun <BooleanExpression : Any, ThenExpression : Any, ElseExpression : Any> cond(
+    booleanExpression: BooleanExpression,
+    thenExpression: ThenExpression,
+    elseExpression: ElseExpression
+): Bson = CondExpression(booleanExpression, thenExpression, elseExpression)
+
+fun dayOfYear(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$dayOfYear", property.projection)
+
+fun dayOfMonth(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$dayOfMonth", property.projection)
+
+fun dayOfWeek(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$dayOfWeek", property.projection)
+
+fun year(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$year", property.projection)

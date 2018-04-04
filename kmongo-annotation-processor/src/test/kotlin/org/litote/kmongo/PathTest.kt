@@ -35,7 +35,7 @@ class PathTest {
             TestData_.Referenced.pojo2.price.name
         )
         assertEquals(
-            "org.litote.kmongo.set.pojo2.price",
+            "set.pojo2.price",
             TestData_.Set.pojo2.price.name
         )
         assertEquals(

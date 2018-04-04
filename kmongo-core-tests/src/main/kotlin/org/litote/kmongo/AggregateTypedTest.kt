@@ -97,12 +97,21 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Test
     fun shouldPopulateIds() {
+        val l0 = friendCol.aggregate<Friend>(
+            project(
+                Friend::_id from "\$_id",
+                Friend::name from Friend::name
+            )
+        ).toList()
+        assertEquals(3, l0.size)
+        assertTrue(l0.all { it._id != null })
+        assertTrue(l0.all { it.name != null })
+        assertTrue(l0.all { it.address == null })
+
         val l = friendCol.aggregate<Friend>(
             project(
-                mapOf(
-                    Friend::_id to "\$_id",
-                    Friend::name to Friend::name.projection
-                )
+                Friend::_id to "\$_id",
+                Friend::name to Friend::name
             )
         ).toList()
         assertEquals(3, l.size)

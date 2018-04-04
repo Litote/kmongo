@@ -22,20 +22,22 @@ import com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_FLOAT
 import com.fasterxml.jackson.core.JsonToken.VALUE_STRING
 import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.BinaryNode
 import com.fasterxml.jackson.databind.node.POJONode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.databind.node.ValueNode
+import de.undercouch.bson4jackson.types.Decimal128
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
 import org.bson.types.MaxKey
 import org.bson.types.MinKey
 import org.bson.types.ObjectId
-import de.undercouch.bson4jackson.types.Decimal128
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.jackson.IdKeyDeserializer
@@ -55,6 +57,7 @@ import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetDateTimeExtendedJsonSe
 import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.ZonedDateTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.KMongoBsonFactory.KMongoBsonGenerator
+import org.litote.kmongo.path
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -67,6 +70,7 @@ import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
+import kotlin.reflect.KProperty
 
 
 internal class BsonModule : SimpleModule() {
@@ -211,57 +215,51 @@ internal class BsonModule : SimpleModule() {
             }
         }
 
-        fun date(temporal: T): Date
-                = Date(epochMillis(temporal))
+        fun date(temporal: T): Date = Date(epochMillis(temporal))
 
         abstract fun epochMillis(temporal: T): Long
     }
 
     private object CalendarBsonSerializer : TemporalBsonSerializer<Calendar>() {
-        override fun epochMillis(temporal: Calendar): Long
-                = CalendarExtendedJsonSerializer.epochMillis(temporal)
+        override fun epochMillis(temporal: Calendar): Long = CalendarExtendedJsonSerializer.epochMillis(temporal)
     }
 
     private object ZonedDateTimeBsonSerializer : TemporalBsonSerializer<ZonedDateTime>() {
 
-        override fun epochMillis(temporal: ZonedDateTime): Long
-                = ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal)
+        override fun epochMillis(temporal: ZonedDateTime): Long =
+            ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal)
     }
 
     private object OffsetDateTimeBsonSerializer : TemporalBsonSerializer<OffsetDateTime>() {
 
-        override fun epochMillis(temporal: OffsetDateTime): Long
-                = OffsetDateTimeExtendedJsonSerializer.epochMillis(temporal)
+        override fun epochMillis(temporal: OffsetDateTime): Long =
+            OffsetDateTimeExtendedJsonSerializer.epochMillis(temporal)
     }
 
     private object LocalDateBsonSerializer : TemporalBsonSerializer<LocalDate>() {
 
-        override fun epochMillis(temporal: LocalDate): Long
-                = LocalDateExtendedJsonSerializer.epochMillis(temporal)
+        override fun epochMillis(temporal: LocalDate): Long = LocalDateExtendedJsonSerializer.epochMillis(temporal)
     }
 
     private object LocalTimeBsonSerializer : TemporalBsonSerializer<LocalTime>() {
 
-        override fun epochMillis(temporal: LocalTime): Long
-                = LocalTimeExtendedJsonSerializer.epochMillis(temporal)
+        override fun epochMillis(temporal: LocalTime): Long = LocalTimeExtendedJsonSerializer.epochMillis(temporal)
     }
 
     private object OffsetTimeBsonSerializer : TemporalBsonSerializer<OffsetTime>() {
 
-        override fun epochMillis(temporal: OffsetTime): Long
-                = OffsetTimeExtendedJsonSerializer.epochMillis(temporal)
+        override fun epochMillis(temporal: OffsetTime): Long = OffsetTimeExtendedJsonSerializer.epochMillis(temporal)
     }
 
     private object InstantBsonSerializer : TemporalBsonSerializer<Instant>() {
 
-        override fun epochMillis(temporal: Instant): Long
-                = InstantExtendedJsonSerializer.epochMillis(temporal)
+        override fun epochMillis(temporal: Instant): Long = InstantExtendedJsonSerializer.epochMillis(temporal)
     }
 
     private object LocalDateTimeBsonSerializer : TemporalBsonSerializer<LocalDateTime>() {
 
-        override fun epochMillis(temporal: LocalDateTime): Long
-                = LocalDateTimeExtendedJsonSerializer.epochMillis(temporal)
+        override fun epochMillis(temporal: LocalDateTime): Long =
+            LocalDateTimeExtendedJsonSerializer.epochMillis(temporal)
     }
 
     private abstract class TemporalBsonDeserializer<T> : JsonDeserializer<T>() {
@@ -283,51 +281,44 @@ internal class BsonModule : SimpleModule() {
     private object CalendarBsonDeserializer : TemporalBsonDeserializer<Calendar>() {
 
         override fun toObject(date: Date): Calendar =
-                Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                    time = date
-                }
+            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                time = date
+            }
     }
 
     private object ZonedDateTimeBsonDeserializer : TemporalBsonDeserializer<ZonedDateTime>() {
 
-        override fun toObject(date: Date): ZonedDateTime
-                = ZonedDateTime.ofInstant(date.toInstant(), UTC)
+        override fun toObject(date: Date): ZonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), UTC)
     }
 
     private object OffsetDateTimeBsonDeserializer : TemporalBsonDeserializer<OffsetDateTime>() {
 
-        override fun toObject(date: Date): OffsetDateTime
-                = OffsetDateTime.ofInstant(date.toInstant(), UTC)
+        override fun toObject(date: Date): OffsetDateTime = OffsetDateTime.ofInstant(date.toInstant(), UTC)
     }
 
     private object LocalDateTimeBsonDeserializer : TemporalBsonDeserializer<LocalDateTime>() {
 
-        override fun toObject(date: Date): LocalDateTime
-                = LocalDateTime.ofInstant(date.toInstant(), UTC)
+        override fun toObject(date: Date): LocalDateTime = LocalDateTime.ofInstant(date.toInstant(), UTC)
     }
 
     private object LocalDateBsonDeserializer : TemporalBsonDeserializer<LocalDate>() {
 
-        override fun toObject(date: Date): LocalDate
-                = LocalDateTimeBsonDeserializer.toObject(date).toLocalDate()
+        override fun toObject(date: Date): LocalDate = LocalDateTimeBsonDeserializer.toObject(date).toLocalDate()
     }
 
     private object LocalTimeBsonDeserializer : TemporalBsonDeserializer<LocalTime>() {
 
-        override fun toObject(date: Date): LocalTime
-                = LocalDateTimeBsonDeserializer.toObject(date).toLocalTime()
+        override fun toObject(date: Date): LocalTime = LocalDateTimeBsonDeserializer.toObject(date).toLocalTime()
     }
 
     private object OffsetTimeBsonDeserializer : TemporalBsonDeserializer<OffsetTime>() {
 
-        override fun toObject(date: Date): OffsetTime
-                = OffsetDateTimeBsonDeserializer.toObject(date).toOffsetTime()
+        override fun toObject(date: Date): OffsetTime = OffsetDateTimeBsonDeserializer.toObject(date).toOffsetTime()
     }
 
     private object InstantBsonDeserializer : TemporalBsonDeserializer<Instant>() {
 
-        override fun toObject(date: Date): Instant
-                = date.toInstant()
+        override fun toObject(date: Date): Instant = date.toInstant()
     }
 
     private object IdBsonSerializer : JsonSerializer<Id<*>>() {
@@ -372,6 +363,17 @@ internal class BsonModule : SimpleModule() {
         }
     }
 
+    private object KPropertySerializer : JsonSerializer<KProperty<*>>() {
+
+        override fun serialize(property: KProperty<*>, generator: JsonGenerator, provider: SerializerProvider) {
+            generator.writeString(property.path())
+        }
+
+        override fun acceptJsonFormatVisitor(visitor: JsonFormatVisitorWrapper, type: JavaType) {
+            visitor.expectStringFormat(type)
+        }
+    }
+
     override fun setupModule(context: SetupContext) {
         super.setupModule(context)
 
@@ -412,5 +414,7 @@ internal class BsonModule : SimpleModule() {
         addDeserializer(LocalTime::class.java, LocalTimeBsonDeserializer)
         addDeserializer(OffsetTime::class.java, OffsetTimeBsonDeserializer)
         addDeserializer(Calendar::class.java, CalendarBsonDeserializer)
+
+        addSerializer(KProperty::class.java, KPropertySerializer)
     }
 }

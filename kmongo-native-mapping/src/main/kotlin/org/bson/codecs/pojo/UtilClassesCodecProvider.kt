@@ -29,7 +29,9 @@ import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.StringId
 import org.litote.kmongo.id.WrappedObjectId
+import org.litote.kmongo.path
 import java.util.Locale
+import kotlin.reflect.KProperty
 
 /**
  *
@@ -44,8 +46,8 @@ internal object UtilClassesCodecProvider : CodecProvider {
 
         override fun getEncoderClass(): Class<Locale> = Locale::class.java
 
-        override fun decode(reader: BsonReader, decoderContext: DecoderContext): Locale?
-                = Locale.forLanguageTag(reader.readString())
+        override fun decode(reader: BsonReader, decoderContext: DecoderContext): Locale? =
+            Locale.forLanguageTag(reader.readString())
     }
 
     private object IdCodec : Codec<Id<*>> {
@@ -63,26 +65,42 @@ internal object UtilClassesCodecProvider : CodecProvider {
 
         override fun decode(reader: BsonReader, decoderContext: DecoderContext): Id<*>? {
             return IdTransformer.wrapId(
-                    when (reader.currentBsonType) {
-                        BsonType.STRING -> reader.readString()
-                        BsonType.OBJECT_ID -> reader.readObjectId()
-                        else -> error("unsupported id token ${reader.currentBsonType}")
-                    }
+                when (reader.currentBsonType) {
+                    BsonType.STRING -> reader.readString()
+                    BsonType.OBJECT_ID -> reader.readObjectId()
+                    else -> error("unsupported id token ${reader.currentBsonType}")
+                }
             )
         }
 
     }
 
+    private object KPropertyCodec : Codec<KProperty<*>> {
+        override fun getEncoderClass(): Class<KProperty<*>> = KProperty::class.java
+
+        override fun encode(writer: BsonWriter, value: KProperty<*>, encoderContext: EncoderContext?) {
+            writer.writeString(value.path())
+        }
+
+        override fun decode(reader: BsonReader, decoderContext: DecoderContext): KProperty<*> {
+            error("decoding property is not supported")
+        }
+    }
+
     private val codecsMap: Map<Class<*>, Codec<*>> = listOf(LocaleCodec, IdCodec)
-            .map { it.encoderClass to it }
-            .toMap() +
+        .map { it.encoderClass to it }
+        .toMap() +
             mapOf(
-                    StringId::class.java to IdCodec,
-                    WrappedObjectId::class.java to IdCodec
+                StringId::class.java to IdCodec,
+                WrappedObjectId::class.java to IdCodec
             )
 
     override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? {
         @Suppress("UNCHECKED_CAST")
-        return codecsMap[clazz] as Codec<T>?
+        return if (KProperty::class.java.isAssignableFrom(clazz)) {
+            KPropertyCodec
+        } else {
+            codecsMap[clazz]
+        } as Codec<T>?
     }
 }

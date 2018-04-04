@@ -106,6 +106,21 @@ class DateTest : AllCategoriesKMongoBaseTest<DateValue>() {
     }
 
     @Test
+    fun testInsertAndLoadByValue() {
+        val value = DateValue()
+        col.insertOne(value)
+        assertEquals(value, col.findOne(value::instant eq value.instant))
+        assertEquals(value, col.findOne(value::date eq value.date))
+        assertEquals(value, col.findOne(value::calendar eq value.calendar))
+        assertEquals(value, col.findOne(value::localDate eq value.localDate))
+        assertEquals(value, col.findOne(value::localDateTime eq value.localDateTime))
+        assertEquals(value, col.findOne(value::localTime eq value.localTime))
+        assertEquals(value, col.findOne(value::offsetDateTime eq value.offsetDateTime))
+        assertEquals(value, col.findOne(value::offsetTime eq value.offsetTime))
+        assertEquals(value, col.findOne(value::zonedDateTime eq value.zonedDateTime))
+    }
+
+    @Test
     fun testNullAndLoad() {
         val value = DateValue(null, null, null, null, null, null, null, null, null)
         col.insertOne(value.json)
