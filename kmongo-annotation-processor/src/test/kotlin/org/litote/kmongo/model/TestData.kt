@@ -28,9 +28,14 @@ import java.util.Locale
 @Data
 open class TestData(
     val set: Set<SimpleReferencedData> = emptySet(),
-    val list: List<List<Boolean>> = emptyList(),
+    //TODO support nullable generic
+    //val list: List<List<Boolean?>> = emptyList(),
     val name: String? = null,
     val date: Date? = null,
     val referenced: SimpleReferencedData? = null,
     val map: Map<Id<Locale>, Set<String>> = emptyMap()
-)
+) {
+    companion object {
+        val test: String = "should not be serialized"
+    }
+}

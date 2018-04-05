@@ -38,6 +38,7 @@ import javax.annotation.processing.SupportedAnnotationTypes
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.TypeElement
@@ -52,11 +53,16 @@ import kotlin.reflect.jvm.internal.impl.name.FqName
 import kotlin.reflect.jvm.internal.impl.platform.JavaToKotlinClassMap
 
 /**
- * TODO check internal private protected on class
+ * TODO check internal private protected on class -> kotlin metadata
+ * TODO support nullable generic -> kotlin metadata
  * TODO java9 support
+ * TODO map support
  */
 @SupportedAnnotationTypes("org.litote.kmongo.Data")
 class KMongoAnnotationProcessor : AbstractProcessor() {
+
+    private val notSupportedModifiers =
+        setOf(Modifier.STATIC, Modifier.TRANSIENT)
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
         return try {
@@ -223,7 +229,7 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
         val companionObject = TypeSpec.companionObjectBuilder()
 
         for (e in element.enclosedElements) {
-            if (e is VariableElement) {
+            if (e is VariableElement && e.modifiers.none { notSupportedModifiers.contains(it) }) {
                 processingEnv.messager.printMessage(
                     Diagnostic.Kind.NOTE,
                     "${e.simpleName}-${e.asType()}"
@@ -470,7 +476,8 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
             "name",
             "parameters",
             "returnType",
-            "visibility"
+            "visibility",
+            "path"
         )
     }
 

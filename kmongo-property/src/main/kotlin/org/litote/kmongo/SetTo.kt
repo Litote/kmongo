@@ -19,6 +19,6 @@ package org.litote.kmongo
 import kotlin.reflect.KProperty
 
 /**
- *
+ * A property set to a new value used in update operations.
  */
 data class SetTo<out T>(val property: KProperty<T>, val value: T?)

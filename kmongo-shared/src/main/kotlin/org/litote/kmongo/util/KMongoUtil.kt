@@ -28,9 +28,10 @@ import org.bson.BsonBoolean
 import org.bson.BsonDocument
 import org.bson.BsonObjectId
 import org.bson.BsonString
-import org.bson.RawBsonDocument
+import org.bson.Document
 import org.bson.codecs.BsonArrayCodec
 import org.bson.codecs.DecoderContext
+import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
@@ -51,6 +52,7 @@ import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
 import org.litote.kmongo.MongoOperator.unset
 import org.litote.kmongo.service.ClassMappingType
+import org.litote.kmongo.service.MongoClientProvider
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
@@ -62,7 +64,6 @@ import kotlin.reflect.KProperty1
 object KMongoUtil {
 
     const val EMPTY_JSON: String = "{}"
-    val EMPTY_BSON: RawBsonDocument = RawBsonDocument.parse(EMPTY_JSON)
 
     private val SPACE_REPLACE_PATTERN = Pattern.compile("\\\$\\s+")
     private val QUOTE_REPLACE_MATCHER = Matcher.quoteReplacement("\$")
@@ -118,7 +119,20 @@ object KMongoUtil {
         return SPACE_REPLACE_PATTERN.matcher(json).replaceAll(QUOTE_REPLACE_MATCHER)
     }
 
-    fun toExtendedJson(obj: Any): String = ClassMappingType.toExtendedJson(obj)
+    fun toExtendedJson(obj: Any): String =
+        if (obj is Bson) {
+            obj
+                .toBsonDocument(
+                    Document::class.java,
+                    CodecRegistries.fromRegistries(
+                        MongoClientProvider.defaultCodecRegistry(),
+                        ClassMappingType.codecRegistry()
+                    )
+                )
+                .toJson()
+        } else {
+            ClassMappingType.toExtendedJson(obj)
+        }
 
     private fun filterIdToExtendedJson(obj: Any): String = ClassMappingType.filterIdToExtendedJson(obj)
 

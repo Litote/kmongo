@@ -161,7 +161,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(
  */
 inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
     field: KProperty1<T, TResult>,
-    filter: Bson = emptyBson
+    filter: Bson = EMPTY_BSON
 ): DistinctIterable<TResult> = distinct(field.path(), filter, TResult::class.java)
 
 /**
@@ -303,6 +303,20 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
 fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult = deleteOne(toBson(filter))
 
 /**
+ * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
+ * modified.
+ *
+ * @param filters the query filters to apply the the delete operation
+ *
+ * @return the result of the remove one operation
+ *
+ *  @throws com.mongodb.MongoWriteException       if the write failed due some other failure specific to the delete command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?): DeleteResult = deleteOne(and(*filters))
+
+/**
  * Removes at most one document from the id parameter.  If no documents match, the collection is not
  * modified.
  *
@@ -325,7 +339,8 @@ fun <T> MongoCollection<T>.deleteOneById(id: Any): DeleteResult = deleteOne(idFi
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.deleteMany(filter: String, options : DeleteOptions = DeleteOptions()): DeleteResult = deleteMany(toBson(filter), options)
+fun <T> MongoCollection<T>.deleteMany(filter: String, options: DeleteOptions = DeleteOptions()): DeleteResult =
+    deleteMany(toBson(filter), options)
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -338,8 +353,8 @@ fun <T> MongoCollection<T>.deleteMany(filter: String, options : DeleteOptions = 
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.deleteMany(vararg filters: Bson?, options : DeleteOptions = DeleteOptions()): DeleteResult = deleteMany(and(*filters), options)
-
+fun <T> MongoCollection<T>.deleteMany(vararg filters: Bson?, options: DeleteOptions = DeleteOptions()): DeleteResult =
+    deleteMany(and(*filters), options)
 
 /**
  * Save the document.
@@ -491,6 +506,25 @@ fun <T> MongoCollection<T>.updateOne(
 /**
  * Update a single document in the collection according to the specified arguments.
  *
+ * @param filter   a document describing the query filter
+ * @param updates   the setTo describing the updates
+ * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+fun <T : Any> MongoCollection<T>.updateOne(
+    filter: Bson,
+    vararg updates: SetTo<*>,
+    updateOptions: UpdateOptions = UpdateOptions()
+): UpdateResult = updateOne(filter, set(*updates), updateOptions)
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+ *
  * @param id        the object id
  * @param update    a document describing the update. The update to apply must include only update operators.
  *
@@ -563,7 +597,7 @@ fun <T : Any> MongoCollection<T>.updateMany(
  * Update all documents in the collection according to the specified arguments.
  *
  * @param filter        a document describing the query filter, which may not be null.
- * @param update        a document describing the update, which may not be null. The update to apply must include only update operators.
+ * @param updates        a document describing the update, which may not be null. The update to apply must include only update operators.
  * @param updateOptions the options to apply to the update operation
  *
  * @return the result of the update one operation
@@ -818,12 +852,39 @@ fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T> = modifier
 fun <T> FindIterable<T>.projection(projection: String): FindIterable<T> = projection(toBson(projection))
 
 /**
+ * Sets a document describing the fields to return for all matching documents.
+ *
+ * @param projections the properties of the returned fields
+ * @return this
+ */
+fun <T> FindIterable<T>.projection(vararg projections: KProperty<*>): FindIterable<T> =
+    projection(include(*projections))
+
+
+/**
  * Sets the sort criteria to apply to the query.
  *
  * @param sort the sort criteria
  * @return this
  */
 fun <T> FindIterable<T>.sort(sort: String): FindIterable<T> = sort(toBson(sort))
+
+/**
+ * Sets the sort criteria with specified ascending properties to apply to the query.
+ *
+ * @param properties the properties
+ * @return this
+ */
+fun <T> FindIterable<T>.ascendingSort(vararg properties: KProperty<*>): FindIterable<T> = sort(ascending(*properties))
+
+/**
+ * Sets the sort criteria with specified descending properties to apply to the query.
+ *
+ * @param properties the properties
+ * @return this
+ */
+fun <T> FindIterable<T>.descendingSort(vararg properties: KProperty<*>): FindIterable<T> = sort(descending(*properties))
+
 
 //*******
 //MapReduceIterable extension methods

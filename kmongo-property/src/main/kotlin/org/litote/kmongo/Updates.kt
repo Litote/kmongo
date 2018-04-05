@@ -30,6 +30,12 @@ import com.mongodb.client.model.Updates
 import org.bson.conversions.Bson
 import kotlin.reflect.KProperty
 
+/**
+ * Generates a [SetTo] used in updateOne or updateMany operations.
+ *
+ * @param the value to set.
+ * @return the SetTo instance.
+ */
 infix fun <T> KProperty<T>.setTo(value: T): SetTo<T> = SetTo(this, value)
 
 /**

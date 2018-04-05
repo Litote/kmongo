@@ -115,9 +115,23 @@ fun match(vararg filters: Bson): Bson {
     return Aggregates.match(and(*filters))
 }
 
-fun document(vararg elements: Bson?): Bson = and(*elements)
+/**
+ * Produce a bson document with the specified elements.
+ *
+ * @param elements the element of the document (key:value)
+ * @return the document as Bson
+ */
+fun document(vararg elements: Bson?): Bson = document(elements.filterNotNull())
 
-fun document(elements: Iterable<Bson>): Bson = and(elements)
+/**
+ * Produce a bson document with the specified elements.
+ *
+ * @param elements the element of the document (key:value)
+ * @return the document as Bson
+ */
+fun document(elements: Collection<Bson>): Bson =
+    if (elements.isEmpty()) EMPTY_BSON else and(elements)
+
 /**
  * Creates a $project pipeline stage for the specified getProjection
  *
@@ -364,31 +378,54 @@ private class CondExpression<BooleanExpression : Any, ThenExpression : Any, Else
 }
 
 /**
- * Returns a $cond expression from a Boolean property.
- */
-fun <ThenExpression : Any, ElseExpression : Any> cond(
-    booleanExpression: KProperty<Boolean>,
-    thenExpression: ThenExpression,
-    elseExpression: ElseExpression
-): Bson = cond(booleanExpression.projection, thenExpression, elseExpression)
-
-/**
  * Returns a $cond expression.
+ *
+ * @param booleanExpression the boolean expression
+ * @param thenExpression the then expression
+ * @param elseExpression the else expression
  */
 fun <BooleanExpression : Any, ThenExpression : Any, ElseExpression : Any> cond(
     booleanExpression: BooleanExpression,
     thenExpression: ThenExpression,
     elseExpression: ElseExpression
-): Bson = CondExpression(booleanExpression, thenExpression, elseExpression)
+): Bson = CondExpression(
+    if (booleanExpression is KProperty<*>) {
+        booleanExpression.projection
+    } else {
+        booleanExpression
+    },
+    if (thenExpression is KProperty<*>) {
+        thenExpression.projection
+    } else {
+        thenExpression
+    },
+    if (elseExpression is KProperty<*>) {
+        elseExpression.projection
+    } else {
+        elseExpression
+    }
+)
 
+/**
+ * Builds $dayOfYear expression for this property .
+ */
 fun dayOfYear(property: KProperty<TemporalAccessor?>): Bson =
     Projections.computed("\$dayOfYear", property.projection)
 
+/**
+ * Builds $dayOfMonth expression for this property .
+ */
 fun dayOfMonth(property: KProperty<TemporalAccessor?>): Bson =
     Projections.computed("\$dayOfMonth", property.projection)
 
+/**
+ * Builds $dayOfWeek expression for this property .
+ */
 fun dayOfWeek(property: KProperty<TemporalAccessor?>): Bson =
     Projections.computed("\$dayOfWeek", property.projection)
 
+/**
+ * Builds $year expression for this property .
+ */
 fun year(property: KProperty<TemporalAccessor?>): Bson =
     Projections.computed("\$year", property.projection)

@@ -99,7 +99,7 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                 && !type.isEnum
                 && !type.isAssignableFrom(Collection::class.java)
                 && type.isKotlinClass()) {
-            val instanceCreatorFactory = KotlinInstanceCreatorFactory<Any>(type.kotlin as KClass<Any>)
+            val instanceCreatorFactory = KotlinInstanceCreatorFactory(type.kotlin as KClass<Any>)
             (classModelBuilder as ClassModelBuilder<Any>).instanceCreatorFactory(instanceCreatorFactory)
 
             classModelBuilder.type.kotlin.memberProperties.forEach {

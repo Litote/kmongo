@@ -67,7 +67,7 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
 
     @Test
     fun canUpsert() {
-        col.updateOne(emptyBson, set(Friend::name, "John"), upsert())
+        col.updateOne(EMPTY_BSON, set(Friend::name, "John"), upsert())
         val r = col.findOne(Friend::name eq "John")
         assertEquals("John", r!!.name)
     }

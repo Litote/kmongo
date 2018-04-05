@@ -16,10 +16,11 @@
 
 package org.litote.kmongo
 
+import org.bson.RawBsonDocument
 import org.bson.conversions.Bson
-import org.litote.kmongo.util.KMongoUtil.EMPTY_BSON
+import org.litote.kmongo.util.KMongoUtil
 
 /**
  * An immutable empty [Bson].
  */
-val emptyBson: Bson = EMPTY_BSON
+val EMPTY_BSON: Bson = RawBsonDocument.parse(KMongoUtil.EMPTY_JSON)
