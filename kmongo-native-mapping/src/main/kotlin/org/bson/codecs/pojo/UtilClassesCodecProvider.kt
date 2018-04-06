@@ -29,7 +29,7 @@ import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.StringId
 import org.litote.kmongo.id.WrappedObjectId
-import org.litote.kmongo.path
+import org.litote.kmongo.projection
 import java.util.Locale
 import kotlin.reflect.KProperty
 
@@ -79,7 +79,7 @@ internal object UtilClassesCodecProvider : CodecProvider {
         override fun getEncoderClass(): Class<KProperty<*>> = KProperty::class.java
 
         override fun encode(writer: BsonWriter, value: KProperty<*>, encoderContext: EncoderContext?) {
-            writer.writeString(value.path())
+            writer.writeString(value.projection)
         }
 
         override fun decode(reader: BsonReader, decoderContext: DecoderContext): KProperty<*> {

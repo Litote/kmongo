@@ -22,9 +22,14 @@ import com.mongodb.async.client.MapReduceIterable
 import com.mongodb.async.client.MongoIterable
 import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
+import org.bson.BsonDocument
+import org.litote.kmongo.ascending
+import org.litote.kmongo.descending
+import org.litote.kmongo.include
 import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.toBson
 import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.reflect.KProperty
 
 
 /**
@@ -55,8 +60,8 @@ suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<
  * @param keys the index keys
  * @param options the index options
  */
-fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel
-        = IndexModel(toBson(keys), options)
+fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel =
+    IndexModel(toBson(keys), options)
 
 //*******
 //DistinctIterable extension methods
@@ -68,8 +73,7 @@ fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()):
  * @param filter the filter, which may be null
  * @return this
  */
-fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T>
-        = filter(toBson(filter))
+fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T> = filter(toBson(filter))
 
 //*******
 //FindIterable extension methods
@@ -81,8 +85,15 @@ fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T>
  * @param filter the filter, which may be null
  * @return this
  */
-fun <T> FindIterable<T>.filter(filter: String): FindIterable<T>
-        = filter(toBson(filter))
+fun <T> FindIterable<T>.filter(filter: String): FindIterable<T> = filter(toBson(filter))
+
+/**
+ * Sets the query filter to apply to the query.
+ *
+ * @param filter the filter, which may be null
+ * @return this
+ */
+suspend fun <T> FindIterable<T>.first(): T? = singleResult { first(it) }
 
 /**
  * Sets the query modifiers to apply to this operation.
@@ -90,8 +101,7 @@ fun <T> FindIterable<T>.filter(filter: String): FindIterable<T>
  * @param modifiers the query modifiers to apply
  * @return this
  */
-fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T>
-        = modifiers(toBson(modifiers))
+fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T> = modifiers(toBson(modifiers))
 
 /**
  * Sets a document describing the fields to return for all matching documents.
@@ -99,8 +109,16 @@ fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T>
  * @param projection the project document
  * @return this
  */
-fun <T> FindIterable<T>.projection(projection: String): FindIterable<T>
-        = projection(toBson(projection))
+fun <T> FindIterable<T>.projection(projection: String): FindIterable<T> = projection(toBson(projection))
+
+/**
+ * Sets a document describing the fields to return for all matching documents.
+ *
+ * @param projections the properties of the returned fields
+ * @return this
+ */
+fun <T> FindIterable<T>.projection(vararg projections: KProperty<*>): FindIterable<T> =
+    projection(include(*projections))
 
 /**
  * Sets the sort criteria to apply to the query.
@@ -108,8 +126,25 @@ fun <T> FindIterable<T>.projection(projection: String): FindIterable<T>
  * @param sort the sort criteria
  * @return this
  */
-fun <T> FindIterable<T>.sort(sort: String): FindIterable<T>
-        = sort(toBson(sort))
+fun <T> FindIterable<T>.sort(sort: String): FindIterable<T> = sort(toBson(sort))
+
+
+/**
+ * Sets the sort criteria with specified ascending properties to apply to the query.
+ *
+ * @param properties the properties
+ * @return this
+ */
+fun <T> FindIterable<T>.ascendingSort(vararg properties: KProperty<*>): FindIterable<T> = sort(ascending(*properties))
+
+/**
+ * Sets the sort criteria with specified descending properties to apply to the query.
+ *
+ * @param properties the properties
+ * @return this
+ */
+fun <T> FindIterable<T>.descendingSort(vararg properties: KProperty<*>): FindIterable<T> = sort(descending(*properties))
+
 
 //*******
 //MapReduceIterable extension methods
@@ -121,8 +156,7 @@ fun <T> FindIterable<T>.sort(sort: String): FindIterable<T>
  * @param scope the global variables that are accessible in the map, reduce and finalize functions.
  * @return this
  */
-fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T>
-        = scope(toBson(scope))
+fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T> = scope(toBson(scope))
 
 /**
  * Sets the sort criteria to apply to the query.
@@ -130,8 +164,7 @@ fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T>
  * @param sort the sort criteria, which may be null
  * @return this
  */
-fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T>
-        = sort(toBson(sort))
+fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T> = sort(toBson(sort))
 
 /**
  * Sets the query filter to apply to the query.
@@ -139,8 +172,7 @@ fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T>
  * @param filter the filter to apply to the query
  * @return this
  */
-fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T>
-        = filter(toBson(filter))
+fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T> = filter(toBson(filter))
 
 //*******
 //MongoIterable extension methods
@@ -168,10 +200,16 @@ suspend fun <TResult> MongoIterable<TResult>.toList(): MutableList<TResult> {
 val Any.json: String
     get() = KMongoUtil.toExtendedJson(this)
 
+/**
+ * Get the [org.bson.BsonValue] of this string.
+ *
+ * @throws Exception if the string content is not a valid json document format
+ */
+val String.bson: BsonDocument
+    get() = toBson(this)
 
 /**
  * Format this string to remove space(s) between $ and next char
  */
-fun String.formatJson(): String
-        = KMongoUtil.formatJson(this)
+fun String.formatJson(): String = KMongoUtil.formatJson(this)
 

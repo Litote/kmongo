@@ -26,6 +26,7 @@ import com.mongodb.async.client.MongoCollection
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.CountOptions
+import com.mongodb.client.model.DeleteOptions
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.FindOneAndUpdateOptions
@@ -33,11 +34,22 @@ import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.InsertManyOptions
 import com.mongodb.client.model.InsertOneOptions
 import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.WriteModel
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
 import org.bson.conversions.Bson
+import org.litote.kmongo.EMPTY_BSON
+import org.litote.kmongo.SetTo
+import org.litote.kmongo.and
+import org.litote.kmongo.ascending
+import org.litote.kmongo.path
+import org.litote.kmongo.set
 import org.litote.kmongo.util.KMongoUtil
+import org.litote.kmongo.util.KMongoUtil.idFilterQuery
+import org.litote.kmongo.util.KMongoUtil.setModifier
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 
 /**
  * Create a new MongoCollection instance with a different default class to cast any documents returned from the database into..
@@ -45,8 +57,8 @@ import org.litote.kmongo.util.KMongoUtil
  * @param <NewTDocument> the default class to cast any documents returned from the database into.
  * @return a new MongoCollection instance with the different default class
  */
-inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument>
-        = withDocumentClass(NewTDocument::class.java)
+inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument> =
+    withDocumentClass(NewTDocument::class.java)
 
 /**
  * Counts the number of documents
@@ -63,17 +75,7 @@ suspend fun <T> MongoCollection<T>.count(): Long {
  * @param filter   the query filter
  * @return count of filtered collection
  */
-suspend fun <T> MongoCollection<T>.count(filter: String): Long {
-    return count(filter, CountOptions())
-}
-
-/**
- * Counts the number of documents in the collection according to the given options.
- *
- * @param filter   the query filter
- * @return count of filtered collection
- */
-suspend fun <T> MongoCollection<T>.count(filter: String, options: CountOptions): Long {
+suspend fun <T> MongoCollection<T>.count(filter: String, options: CountOptions = CountOptions()): Long {
     return singleResult { count(KMongoUtil.toBson(filter), options, it) } ?: 0L
 }
 
@@ -84,8 +86,8 @@ suspend fun <T> MongoCollection<T>.count(filter: String, options: CountOptions):
  * @param <TResult>   the target type of the iterable
  * @return an iterable of distinct values
  */
-inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctIterable<TResult>
-        = distinct(fieldName, KMongoUtil.EMPTY_JSON)
+inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctIterable<TResult> =
+    distinct(fieldName, KMongoUtil.EMPTY_JSON)
 
 /**
  * Gets the distinct values of the specified field name.
@@ -95,8 +97,24 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
  * @param <TResult>   the target type of the iterable
  * @return an iterable of distinct values
  */
-inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String, filter: String): DistinctIterable<TResult>
-        = distinct(fieldName, KMongoUtil.toBson(filter), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.distinct(
+    fieldName: String,
+    filter: String
+): DistinctIterable<TResult> = distinct(fieldName, KMongoUtil.toBson(filter), TResult::class.java)
+
+/**
+ * Gets the distinct values of the specified field.
+ *
+ * @param field   the field
+ * @param filter      the query filter
+ * @param <TResult>   the target type of the iterable.
+ *
+ * @return an iterable of distinct values
+ */
+inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
+    field: KProperty1<T, TResult>,
+    filter: Bson = EMPTY_BSON
+): DistinctIterable<TResult> = distinct(field.path(), filter, TResult::class.java)
 
 /**
  * Finds all documents that match the filter in the collection.
@@ -104,8 +122,15 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
  * @param  filter the query filter
  * @return the find iterable interface
  */
-fun <T : Any> MongoCollection<T>.find(filter: String): FindIterable<T>
-        = find(KMongoUtil.toBson(filter))
+fun <T : Any> MongoCollection<T>.find(filter: String): FindIterable<T> = find(KMongoUtil.toBson(filter))
+
+/**
+ * Finds all documents in the collection.
+ *
+ * @param filters the query filters
+ * @return the find iterable interface
+ */
+fun <T> MongoCollection<T>.find(vararg filters: Bson?): FindIterable<T> = find(and(*filters))
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -126,12 +151,21 @@ suspend fun <T : Any> MongoCollection<T>.findOne(filter: Bson): T? {
 }
 
 /**
+ * Finds the first document that match the filters in the collection.
+ *
+ * @param filters the query filters
+ * @return the first item returned or null
+ */
+suspend fun <T> MongoCollection<T>.findOne(vararg filters: Bson?): T? =
+    find(*filters).first()
+
+/**
  * Finds the document that match the id parameter.
  *
  * @param id       the object id
  */
 suspend fun <T : Any> MongoCollection<T>.findOneById(id: Any): T? {
-    return findOne(KMongoUtil.idFilterQuery(id))
+    return findOne(idFilterQuery(id))
 }
 
 /**
@@ -143,8 +177,8 @@ suspend fun <T : Any> MongoCollection<T>.findOneById(id: Any): T? {
  * @param <TResult>   the target document type of the iterable
  * @return an iterable containing the result of the aggregation operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregateIterable<TResult>
-        = aggregate(KMongoUtil.toBsonList(pipeline, codecRegistry), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregateIterable<TResult> =
+    aggregate(KMongoUtil.toBsonList(pipeline, codecRegistry), TResult::class.java)
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
@@ -155,8 +189,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
  * @param <TResult>   the target document type of the iterable
  * @return an iterable containing the result of the aggregation operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregateIterable<TResult>
-        = aggregate(pipeline.toList(), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregateIterable<TResult> =
+    aggregate(pipeline.toList(), TResult::class.java)
 
 /**
  * Aggregates documents according to the specified map-reduce function.
@@ -167,8 +201,10 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
  * *
  * @return an iterable containing the result of the map-reduce operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.mapReduceTyped(mapFunction: String, reduceFunction: String): MapReduceIterable<TResult>
-        = mapReduce(mapFunction, reduceFunction, TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.mapReduceTyped(
+    mapFunction: String,
+    reduceFunction: String
+): MapReduceIterable<TResult> = mapReduce(mapFunction, reduceFunction, TResult::class.java)
 
 /**
  * Inserts one or more documents.  A call to this method is equivalent to a call to the {@code bulkWrite} method
@@ -179,45 +215,28 @@ inline fun <reified TResult : Any> MongoCollection<*>.mapReduceTyped(mapFunction
  * @throws com.mongodb.MongoException          if the write failed due some other failure
  * @see com.mongodb.async.client.MongoCollection#bulkWrite
  */
-suspend fun <T : Any> MongoCollection<T>.insertMany(documents: List<T>, options: InsertManyOptions): Void? {
+suspend fun <T : Any> MongoCollection<T>.insertMany(
+    documents: List<T>,
+    options: InsertManyOptions = InsertManyOptions()
+): Void? {
     return singleResult { insertMany(documents, options, it) }
 }
 
 /**
- * Inserts one or more documents.  A call to this method is equivalent to a call to the {@code bulkWrite} method
+ * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
  *
- * @param documents the documents to insert
- * @throws com.mongodb.MongoBulkWriteException if there's an exception in the bulk write operation
- * @throws com.mongodb.MongoException          if the write failed due some other failure
- * @see com.mongodb.async.client.MongoCollection#bulkWrite
- */
-suspend fun <T : Any> MongoCollection<T>.insertMany(documents: List<T>): Void? {
-    return insertMany(documents, InsertManyOptions())
-}
-
-/**
- * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
-
- * @param document the document to insert
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
- */
-suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(document: TDocument): Void? {
-    return insertOne(document, InsertOneOptions())
-}
-
-/**
- * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
-
  * @param document the document to insert
  * @param options  the options to apply to the operation
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoCommandException      returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the insert command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoCommandException      if the write failed due to document validation reasons
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(document: TDocument, options: InsertOneOptions): Void? {
+suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(
+    document: TDocument,
+    options: InsertOneOptions = InsertOneOptions()
+): Void? {
     return singleResult { insertOne(document, options, it) }
 }
 
@@ -225,36 +244,33 @@ suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(document: TDo
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
  *
  * @param document the document to insert
- *
- * @throws com.mongodb.MongoWriteException
- * @throws com.mongodb.MongoWriteConcernException
- * @throws com.mongodb.MongoCommandException
- * @throws com.mongodb.MongoException
- */
-suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String): Void?
-        = insertOne(document, InsertOneOptions())
-
-/**
- * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
- *
- * @param document the document to insert
  * @param options  the options to apply to the operation
  *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoCommandException      returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the insert command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoCommandException      if the write failed due to document validation reasons
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String, options: InsertOneOptions): Void? {
-    return singleResult { withDocumentClass<BsonDocument>().insertOne(KMongoUtil.toBson(document, T::class), options, it) }
+suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(
+    document: String,
+    options: InsertOneOptions = InsertOneOptions()
+): Void? {
+    return singleResult {
+        withDocumentClass<BsonDocument>().insertOne(
+            KMongoUtil.toBson(document, T::class),
+            options,
+            it
+        )
+    }
 }
-
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
  * modified.
  *
  * @param filter   the query filter to apply the the delete operation
+ *
+ * @return the result of the remove one operation
  *
  * @throws com.mongodb.MongoWriteException
  * @throws com.mongodb.MongoWriteConcernException
@@ -263,6 +279,21 @@ suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(document: Stri
 suspend fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult? {
     return singleResult { deleteOne(KMongoUtil.toBson(filter), it) }
 }
+
+/**
+ * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
+ * modified.
+ *
+ * @param filters the query filters to apply the the delete operation
+ *
+ * @return the result of the remove one operation
+ *
+ * @throws com.mongodb.MongoWriteException       if the write failed due some other failure specific to the delete command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?): DeleteResult =
+    deleteOne(and(*filters))
 
 /**
  * Removes at most one document from the id parameter.  If no documents match, the collection is not
@@ -275,22 +306,44 @@ suspend fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult? {
  * @throws com.mongodb.MongoException
  */
 suspend fun <T> MongoCollection<T>.deleteOneById(id: Any): DeleteResult? {
-    return deleteOne(KMongoUtil.idFilterQuery(id))
+    return deleteOne(idFilterQuery(id))
 }
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
  *
  * @param filter   the query filter to apply the the delete operation
+ * @param options  the options to apply to the delete operation
+ *
+ * @return the result of the remove many operation
  *
  * @throws com.mongodb.MongoWriteException
  * @throws com.mongodb.MongoWriteConcernException
  * @throws com.mongodb.MongoException
  */
-suspend fun <T> MongoCollection<T>.deleteMany(filter: String): DeleteResult? {
-    return singleResult { deleteMany(KMongoUtil.toBson(filter), it) }
+suspend fun <T> MongoCollection<T>.deleteMany(
+    filter: String,
+    options: DeleteOptions = DeleteOptions()
+): DeleteResult? {
+    return singleResult { deleteMany(KMongoUtil.toBson(filter), options, it) }
 }
 
+/**
+ * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
+ *
+ * @param filters   the query filters to apply the the delete operation
+ * @param options  the options to apply to the delete operation
+ *
+ * @return the result of the remove many operation
+ *
+ * @throws com.mongodb.MongoWriteException
+ * @throws com.mongodb.MongoWriteConcernException
+ * @throws com.mongodb.MongoException
+ */
+suspend fun <T> MongoCollection<T>.deleteMany(
+    vararg filters: Bson?,
+    options: DeleteOptions = DeleteOptions()
+): DeleteResult? = singleResult { deleteMany(and(*filters), options, it) }
 
 /**
  * Save the document.
@@ -318,42 +371,39 @@ suspend fun <T : Any> MongoCollection<T>.save(document: T): Void? {
  *
  * @param id          the object id
  * @param replacement the replacement document
- *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
- */
-suspend fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T): UpdateResult? {
-    return replaceOneById(id, replacement, UpdateOptions())
-}
-
-
-/**
- * Replace a document in the collection according to the specified arguments.
- *
- * @param id          the object id
- * @param replacement the replacement document
  * @param options     the options to apply to the replace operation
  *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ * @return the result of the replace one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, options: UpdateOptions): UpdateResult? {
-    return replaceOne(KMongoUtil.idFilterQuery(id), replacement, options)
+suspend fun <T : Any> MongoCollection<T>.replaceOneById(
+    id: Any,
+    replacement: T,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return replaceOne(idFilterQuery(id), replacement, options)
 }
 
 /**
  * Replace a document in the collection according to the specified arguments.
  *
  * @param replacement the document to replace - must have an non null id
+ * @param options     the options to apply to the replace operation
  *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ * @return the result of the replace one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T): UpdateResult? {
-    return replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement)
+suspend inline fun <reified T : Any> MongoCollection<T>.replaceOne(
+    replacement: T,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement, options)
 }
 
 /**
@@ -362,44 +412,26 @@ suspend inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: 
  * @param filter      the query filter to apply to the replace operation
  * @param replacement the replacement document
  * @param options     the options to apply to the replace operation
- * @param callback    the callback passed the result of the replace one operation
  *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ * @return the result of the replace one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T, options: UpdateOptions): UpdateResult? {
-    return singleResult { withDocumentClass<BsonDocument>().replaceOne(KMongoUtil.toBson(filter), KMongoUtil.filterIdToBson(replacement), options, it) }
-}
-
-/**
- * Replace a document in the collection according to the specified arguments.
- *
- * @param filter      the query filter to apply to the replace operation
- * @param replacement the replacement document
- * @param callback    the callback passed the result of the replace one operation
- *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
- */
-suspend fun <T : Any> MongoCollection<T>.replaceOne(filter: String, replacement: T): UpdateResult? {
-    return replaceOne(filter, replacement, UpdateOptions())
-}
-
-/**
- * Update a single document in the collection according to the specified arguments.
- *
- * @param filter   a document describing the query filter
- * @param update   a document describing the update. The update to apply must include only update operators.
- * @param callback the callback passed the result of the update one operation
- *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
- */
-suspend fun <T> MongoCollection<T>.updateOne(filter: String, update: String): UpdateResult? {
-    return updateOne(filter, update, UpdateOptions())
+suspend fun <T : Any> MongoCollection<T>.replaceOne(
+    filter: String,
+    replacement: T,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return singleResult {
+        withDocumentClass<BsonDocument>().replaceOne(
+            KMongoUtil.toBson(filter),
+            KMongoUtil.filterIdToBson(replacement),
+            options,
+            it
+        )
+    }
 }
 
 /**
@@ -408,13 +440,18 @@ suspend fun <T> MongoCollection<T>.updateOne(filter: String, update: String): Up
  * @param filter   a document describing the query filter
  * @param update   a document describing the update. The update to apply must include only update operators.
  * @param options  the options to apply to the update operation
- * @param callback the callback passed the result of the update one operation
  *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: UpdateOptions): UpdateResult? {
+suspend fun <T> MongoCollection<T>.updateOne(
+    filter: String,
+    update: String,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult? {
     return singleResult { updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options, it) }
 }
 
@@ -423,92 +460,106 @@ suspend fun <T> MongoCollection<T>.updateOne(filter: String, update: String, opt
  *
  * @param filter   a document describing the query filter
  * @param update   the update object
- * @param callback the callback passed the result of the update one operation
+ * @param options  the options to apply to the update operation
  *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend fun <T> MongoCollection<T>.updateOne(filter: String, update: Any): UpdateResult? {
-    return updateOne(filter, KMongoUtil.setModifier(update), UpdateOptions())
+suspend fun <T> MongoCollection<T>.updateOne(
+    filter: String,
+    update: Any,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult? = updateOne(filter, setModifier(update), options)
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+ *
+ * @param filter   a document describing the query filter
+ * @param target  the update object - must have an non null id
+ * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
+    filter: Bson,
+    target: T,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return singleResult { updateOne(filter, KMongoUtil.toBsonModifier(target), options, it) }
 }
 
 /**
  * Update a single document in the collection according to the specified arguments.
  *
  * @param target  the update object - must have an non null id
- * @param callback  the callback passed the result of the update one operation
+ * @param options  the options to apply to the update operation
  *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T): UpdateResult? {
-    return updateOneById(KMongoUtil.extractId(target, T::class), target)
+suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
+    target: T,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return updateOneById(KMongoUtil.extractId(target, T::class), target, options)
 }
 
 /**
  * Update a single document in the collection according to the specified arguments.
  *
  * @param id        the object id
- * @param update    a document describing the update. The update to apply must include only update operators.
- * @param callback  the callback passed the result of the update one operation
- *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
- */
-suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: String): UpdateResult?
-        = updateOneById(id, update, UpdateOptions())
-
-/**
- * Update a single document in the collection according to the specified arguments.
- *
- * @param id        the object id
- * @param update    a document describing the update. The update to apply must include only update operators.
- * @param options  the options to apply to the update operation
- * @param callback  the callback passed the result of the update one operation
- *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
- */
-suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: String, options: UpdateOptions): UpdateResult?
-        = updateOne(KMongoUtil.idFilterQuery(id), update, options)
-
-/**
- * Update a single document in the collection according to the specified arguments.
- *
- * @param id        the object id
- * @param update    the update object
- * @param callback  the callback passed the result of the update one operation
- *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
- */
-suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any): UpdateResult?
-        = updateOneById(id, update, UpdateOptions())
-
-/**
- * Update a single document in the collection according to the specified arguments.
- *
- * @param id        the object id
  * @param update    the update object
  * @param options  the options to apply to the update operation
- * @param callback  the callback passed the result of the update one operation
  *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, options: UpdateOptions): UpdateResult? {
-    //strange but update can be a String
-    return if (update is String) {
-        updateOneById(KMongoUtil.idFilterQuery(id), update, options)
-    } else {
-        updateOne(KMongoUtil.idFilterQuery(id), KMongoUtil.setModifier(update), options)
+suspend fun <T> MongoCollection<T>.updateOneById(
+    id: Any,
+    update: Any,
+    options: UpdateOptions = UpdateOptions()
+): UpdateResult? =
+    singleResult {
+        updateOne(
+            idFilterQuery(id).bson,
+            KMongoUtil.toBsonModifier(update),
+            options,
+            it
+        )
     }
+
+/**
+ * Update all documents in the collection according to the specified arguments.
+ *
+ * @param filter   a document describing the query filter
+ * @param update   a document describing the update. The update to apply must include only update operators.
+ * @param updateOptions the options to apply to the update operation
+ *
+ * @return the result of the update many operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T> MongoCollection<T>.updateMany(
+    filter: String,
+    update: String,
+    updateOptions: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return singleResult { updateMany(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), updateOptions, it) }
 }
 
 /**
@@ -516,51 +567,33 @@ suspend fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, options: 
  *
  * @param filter   a document describing the query filter
  * @param update   a document describing the update. The update to apply must include only update operators.
- * @param options  the options to apply to the update operation
- * @param callback the callback passed the result of the update one operation
+ * @param updateOptions the options to apply to the update operation
  *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
+ * @return the result of the update many operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend fun <T> MongoCollection<T>.updateMany(filter: String, update: String, options: UpdateOptions): UpdateResult? {
-    return singleResult { updateMany(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options, it) }
-}
-
-/**
- * Update all documents in the collection according to the specified arguments.
- *
- * @param filter   a document describing the query filter
- * @param update   a document describing the update. The update to apply must include only update operators.
- * @param callback the callback passed the result of the update one operation
- *
- * @throws com.mongodb.MongoWriteException        returned via the callback
- * @throws com.mongodb.MongoWriteConcernException returned via the callback
- * @throws com.mongodb.MongoException             returned via the callback
- */
-suspend fun <T> MongoCollection<T>.updateMany(filter: String, update: String): UpdateResult? {
-    return updateMany(filter, update, UpdateOptions())
-}
+suspend fun <T> MongoCollection<T>.updateMany(
+    filter: Bson,
+    vararg updates: SetTo<*>,
+    updateOptions: UpdateOptions = UpdateOptions()
+): UpdateResult? = singleResult { updateMany(filter, set(*updates), updateOptions, it) }
 
 /**
  * Atomically find a document and remove it.
  *
  * @param filter   the query filter to find the document with
  * @param options  the options to apply to the operation
- * @param callback the callback passed the document that was removed.  If no documents matched the query filter, then null will be returned
- */
-suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(filter: String, options: FindOneAndDeleteOptions): T? {
-    return singleResult { findOneAndDelete(KMongoUtil.toBson(filter), options, it) }
-}
-
-/**
- * Atomically find a document and remove it.
  *
- * @param filter   the query filter to find the document with
- * @param callback the callback passed the document that was removed.  If no documents matched the query filter, then null will be returned
+ * @return the document that was removed.  If no documents matched the query filter, then null will be returned
  */
-suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(filter: String): T? {
-    return findOneAndDelete(filter, FindOneAndDeleteOptions())
+suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(
+    filter: String,
+    options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
+): T? {
+    return singleResult { findOneAndDelete(KMongoUtil.toBson(filter), options, it) }
 }
 
 /**
@@ -570,26 +603,16 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(filter: String): T? {
  * @param replacement the replacement document
  * @param options     the options to apply to the operation
  *
- * @param callback    the callback passed the document that was replaced.  Depending on the value of the `returnDocument`
- *                    property, this will either be the document as it was before the update or as it is after the update.  If no
- *                    documents matched the query filter, then null will be returned
+ * @return the document that was replaced.  Depending on the value of the `returnOriginal` property, this will either be the
+ * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
+ * returned
  */
-suspend fun <T> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T, options: FindOneAndReplaceOptions): T? {
+suspend fun <T> MongoCollection<T>.findOneAndReplace(
+    filter: String,
+    replacement: T,
+    options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
+): T? {
     return singleResult { findOneAndReplace(KMongoUtil.toBson(filter), replacement, options, it) }
-}
-
-/**
- * Atomically find a document and replace it.
- *
- * @param filter      the query filter to apply the the replace operation
- * @param replacement the replacement document
- *
- * @param callback    the callback passed the document that was replaced.  Depending on the value of the `returnDocument`
- *                    property, this will either be the document as it was before the update or as it is after the update.  If no
- *                    documents matched the query filter, then null will be returned
- */
-suspend fun <T : Any> MongoCollection<T>.findOneAndReplace(filter: String, replacement: T): T? {
-    return findOneAndReplace(filter, replacement, FindOneAndReplaceOptions())
 }
 
 /**
@@ -599,46 +622,29 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndReplace(filter: String, repla
  * @param update   a document describing the update. The update to apply must include only update operators.
  * @param options  the options to apply to the operation
  *
- * @param callback the callback passed the document that was updated.  Depending on the value of the `returnOriginal` property,
- *                 this will either be the document as it was before the update or as it is after the update.  If no documents matched
- *                  the query filter, then null will be returned
+ * @return the document that was updated.  Depending on the value of the `returnOriginal` property, this will either be the
+ * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
+ * returned
  */
-suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(filter: String, update: String, options: FindOneAndUpdateOptions): T? {
+suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(
+    filter: String,
+    update: String,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): T? {
     return singleResult { findOneAndUpdate(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options, it) }
 }
 
 /**
- * Atomically find a document and update it.
- *
- * @param filter   a document describing the query filter
- * @param update   a document describing the update. The update to apply must include only update operators.
- *
- * @param callback the callback passed the document that was updated.  Depending on the value of the `returnOriginal` property,
- *                 this will either be the document as it was before the update or as it is after the update.  If no documents matched
- *                  the query filter, then null will be returned
- */
-suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(filter: String, update: String): T? {
-    return findOneAndUpdate(filter, update, FindOneAndUpdateOptions())
-}
-
-/**
  * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
-
- * @param key      an object describing the index key(s)
- * @param callback the callback that is completed once the index has been created
- */
-suspend fun <T> MongoCollection<T>.createIndex(key: String): String? {
-    return createIndex(key, IndexOptions())
-}
-
-/**
- * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
-
+ *
  * @param key      an object describing the index key(s)
  * @param options  the options for the index
- * @param callback the callback that is completed once the index has been created
+ * @return the index name
  */
-suspend fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions): String? {
+suspend fun <T> MongoCollection<T>.createIndex(
+    key: String,
+    options: IndexOptions = IndexOptions()
+): String? {
     return singleResult { createIndex(KMongoUtil.toBson(key), options, it) }
 }
 
@@ -647,13 +653,14 @@ suspend fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOption
  * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
  * already exists, then drop the existing index and create a new one.
  *
- * If successful, the callback will be executed with the name of the created index as the result.
- *
- * @param key      an object describing the index key(s)
- * @param options  the options for the index
- * @param callback the callback that is completed once the index has been created
+ * @param keys      an object describing the index key(s)
+ * @param indexOptions  the options for the index
+ * @return the index name
  */
-suspend fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions = IndexOptions()) {
+suspend fun <T> MongoCollection<T>.ensureIndex(
+    keys: String,
+    indexOptions: IndexOptions = IndexOptions()
+): String? =
     try {
         createIndex(keys, indexOptions)
     } catch (e: MongoCommandException) {
@@ -662,23 +669,70 @@ suspend fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: Index
         dropIndex(keys)
         createIndex(keys, indexOptions)
     }
-}
 
+/**
+ * Create an index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+ *
+ * @param keys      an object describing the index key(s)
+ * @param indexOptions  the options for the index
+ * @return the index name
+ */
+suspend fun <T> MongoCollection<T>.ensureIndex(
+    keys: Bson,
+    indexOptions: IndexOptions = IndexOptions()
+): String? =
+    try {
+        singleResult { createIndex(keys, indexOptions, it) }
+    } catch (e: MongoCommandException) {
+        //there is an exception if the parameters of an existing index are changed.
+        //then drop the index and create a new one
+        singleResult<Void> { dropIndex(keys, it) }
+        singleResult { createIndex(keys, indexOptions, it) }
+    }
+
+/**
+ * Create an index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+ *
+ * @param properties    the properties, which must contain at least one
+ * @param indexOptions  the options for the index
+ * @return the index name
+ */
+suspend fun <T> MongoCollection<T>.ensureIndex(
+    vararg properties: KProperty<*>,
+    indexOptions: IndexOptions = IndexOptions()
+): String? = ensureIndex(ascending(*properties), indexOptions)
+
+/**
+ * Create an [IndexOptions.unique] index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+ *
+ * @param properties    the properties, which must contain at least one
+ * @param indexOptions  the options for the index
+ * @return the index name
+ */
+suspend fun <T> MongoCollection<T>.ensureUniqueIndex(
+    vararg properties: KProperty<*>,
+    indexOptions: IndexOptions = IndexOptions()
+): String? = ensureIndex(ascending(*properties), indexOptions.unique(true))
 
 /**
  * Get all the indexes in this collection.
-
+ *
  * @param <TResult>   the target document type of the iterable.
  * @return the list indexes iterable interface
  */
-inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesIterable<TResult>
-        = listIndexes(TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesIterable<TResult> =
+    listIndexes(TResult::class.java)
 
 /**
  * Drops the index given the keys used to create it.
-
+ *
  * @param keys the keys of the index to remove
- * @param callback  the callback that is completed once the index has been dropped
  */
 suspend fun <T> MongoCollection<T>.dropIndex(keys: String): Void? {
     return singleResult { dropIndex(KMongoUtil.toBson(keys), it) }
@@ -686,21 +740,57 @@ suspend fun <T> MongoCollection<T>.dropIndex(keys: String): Void? {
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
-
+ *
  * @param requests the writes to execute
- * @param callback the callback passed the result of the bulk write
+ *
+ * @return the result of the bulk write
  */
 suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String): BulkWriteResult? {
-    return singleResult { withDocumentClass<BsonDocument>().bulkWrite(KMongoUtil.toWriteModel(requests, codecRegistry, T::class), BulkWriteOptions(), it) }
+    return singleResult {
+        withDocumentClass<BsonDocument>().bulkWrite(
+            KMongoUtil.toWriteModel(
+                requests,
+                codecRegistry,
+                T::class
+            ), BulkWriteOptions(), it
+        )
+    }
 }
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
-
+ *
  * @param requests the writes to execute
  * @param options  the options to apply to the bulk write operation
- * @param callback the callback passed the result of the bulk write
+ *
+ * @return the result of the bulk write
  */
-suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(vararg requests: String, options: BulkWriteOptions): BulkWriteResult? {
-    return singleResult { withDocumentClass<BsonDocument>().bulkWrite(KMongoUtil.toWriteModel(requests, codecRegistry, T::class), options, it) }
+suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
+    vararg requests: String,
+    options: BulkWriteOptions = BulkWriteOptions()
+): BulkWriteResult? {
+    return singleResult {
+        withDocumentClass<BsonDocument>().bulkWrite(
+            KMongoUtil.toWriteModel(
+                requests,
+                codecRegistry,
+                T::class
+            ), options, it
+        )
+    }
+}
+
+/**
+ * Executes a mix of inserts, updates, replaces, and deletes.
+ *
+ * @param requests the writes to execute
+ * @param options  the options to apply to the bulk write operation
+ *
+ * @return the result of the bulk write
+ */
+suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
+    vararg requests: WriteModel<T>,
+    options: BulkWriteOptions = BulkWriteOptions()
+): BulkWriteResult? {
+    return singleResult { bulkWrite(requests.toList(), options, it) }
 }

@@ -17,11 +17,14 @@
 package org.litote.kmongo
 
 import com.mongodb.client.MongoCollection
+import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.AggregateTypedTest.Article
 import org.litote.kmongo.model.Friend
+import java.time.Instant
+import java.time.LocalDate
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -31,10 +34,19 @@ import kotlin.test.assertTrue
  */
 class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
 
-    data class Article(val title: String, val author: String, val tags: List<String>) {
+    data class Article(
+        val title: String,
+        val author: String,
+        val tags: List<String>,
+        val date: Instant = Instant.now(),
+        val count: Int = 1,
+        val ok: Boolean = true
+    ) {
 
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())
     }
+
+    data class Result(@BsonId val title: String, val averageYear: Double, val count: Int)
 
     lateinit var friendCol: MongoCollection<Friend>
 
@@ -87,6 +99,42 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
             col.aggregate<Article>(match(Article::tags contains "virus", Article::tags contains "pandemic")).toList()
         assertEquals(1, l.size)
         assertEquals("World War Z", l.first().title)
+    }
+
+    @Test
+    fun `can aggregate complex queries and deserialize in object`() {
+
+        val r = col.aggregate<Result>(
+            match(
+                Article::tags contains "virus"
+            ),
+            project(
+                Article::title from Article::title,
+                Article::ok from cond(Article::ok, 1, 0),
+                Result::averageYear from year(Article::date)
+            ),
+            group(
+                Article::title,
+                Result::count sum Article::ok,
+                Result::averageYear avg Result::averageYear
+            ),
+            sort(
+                ascending(
+                    Result::title
+                )
+            )
+        )
+            .toList()
+
+        assertEquals(2, r.size)
+        assertEquals(
+            Result("World War Z", LocalDate.now().year.toDouble(), 1),
+            r.first()
+        )
+        assertEquals(
+            Result("Zombie Panic", LocalDate.now().year.toDouble(), 1),
+            r.last()
+        )
     }
 
     @Test

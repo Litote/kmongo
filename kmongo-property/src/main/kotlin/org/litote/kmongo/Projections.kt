@@ -35,7 +35,8 @@ val <T> KProperty<T>.projection: String get() = "\$${path()}"
  * @return the projection
  * @see Aggregates#project(Bson)
  */
-infix fun <T> KProperty<T>.from(expression: T): Bson = Projections.computed(path(), expression)
+infix fun <T> KProperty<T>.from(expression: T): Bson =
+    Projections.computed(path(), expression)
 
 /**
  * Creates a projection that includes all of the given properties.

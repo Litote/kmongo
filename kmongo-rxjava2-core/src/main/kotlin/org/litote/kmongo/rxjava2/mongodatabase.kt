@@ -47,7 +47,10 @@ inline fun <reified TResult : Any> MongoDatabase.runCommand(command: Bson): Mayb
  * @param <TResult>      the type of the class to use instead of `Document`.
  * @return TResult object result of the command
  */
-inline fun <reified TResult : Any> MongoDatabase.runCommand(command: Bson, readPreference: ReadPreference): Maybe<TResult> {
+inline fun <reified TResult : Any> MongoDatabase.runCommand(
+    command: Bson,
+    readPreference: ReadPreference
+): Maybe<TResult> {
     return maybeResult { runCommand(command, readPreference, TResult::class.java, it) }
 }
 
@@ -58,7 +61,10 @@ inline fun <reified TResult : Any> MongoDatabase.runCommand(command: Bson, readP
  * @param readPreference the {@link com.mongodb.ReadPreference} to be used when executing the command
  * @param <TResult>      the type of the class to use instead of {@code Document}.
  */
-inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String, readPreference: ReadPreference): Maybe<TResult> {
+inline fun <reified TResult : Any> MongoDatabase.runCommand(
+    command: String,
+    readPreference: ReadPreference
+): Maybe<TResult> {
     return maybeResult { runCommand(KMongoUtil.toBson(command), readPreference, TResult::class.java, it) }
 }
 
@@ -110,7 +116,8 @@ fun MongoDatabase.createCollection(collectionName: String, options: CreateCollec
  * @return the collection
  * @see defaultCollectionName
  */
-inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T> = getCollection(defaultCollectionName(T::class), T::class.java)
+inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T> =
+    getCollection(defaultCollectionName(T::class), T::class.java)
 
 
 /**
@@ -121,7 +128,8 @@ inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T> =
  * @return the collection
  * @see defaultCollectionName
  */
-inline fun <reified T : Any> MongoDatabase.getCollectionOfName(name: String): MongoCollection<T> = getCollection(name, T::class.java)
+inline fun <reified T : Any> MongoDatabase.getCollectionOfName(name: String): MongoCollection<T> =
+    getCollection(name, T::class.java)
 
 /**
  * Creates a view with the given name, backing collection/view name, and aggregation pipeline that defines the view.
@@ -144,7 +152,12 @@ fun MongoDatabase.createView(viewName: String, viewOn: String, pipeline: List<Bs
  * @param createViewOptions various options for creating the view
  * @mongodb.driver.manual reference/command/create Create Command
  */
-fun MongoDatabase.createView(viewName: String, viewOn: String, pipeline: List<Bson>, createViewOptions: CreateViewOptions): Completable {
+fun MongoDatabase.createView(
+    viewName: String,
+    viewOn: String,
+    pipeline: List<Bson>,
+    createViewOptions: CreateViewOptions
+): Completable {
     return completableResult { this.createView(viewName, viewOn, pipeline, createViewOptions, it) }
 }
 

@@ -32,8 +32,7 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canUpdateMulti() {
-        col.insertMany(listOf(Friend("John"), Friend("John")), {
-            _, _ ->
+        col.insertMany(listOf(Friend("John"), Friend("John")), { _, _ ->
             col.updateMany("{name:'John'}", "{$unset:{name:1}}") { _, _ ->
                 col.count("{name:{$exists:true}}", { r, _ ->
                     asyncTest {
@@ -48,14 +47,14 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
     fun canUpdateByObjectId() {
         val friend = Friend("Paul")
         col.insertOne(friend, { _, _ ->
-            col.updateOneById(friend._id!!, "{$set:{name:'John'}}", { _, _ ->
+            col.updateOneById(friend._id!!, "{$set:{name:'John'}}") { _, _ ->
                 col.findOne("{name:'John'}", { r, _ ->
                     asyncTest {
                         assertEquals("John", r!!.name)
                         assertEquals(friend._id, r._id)
                     }
                 })
-            })
+            }
         })
     }
 
@@ -75,7 +74,7 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
         val friend = Friend("John", "123 Wall Street")
         col.insertOne(friend, { _, _ ->
             val preexistingDocument = Friend(friend._id!!, "Johnny")
-            col.updateOne("{name:'John'}", preexistingDocument, { _, _ ->
+            col.updateOne("{name:'John'}", preexistingDocument) { _, _ ->
                 col.findOne("{name:'Johnny'}", { r, _ ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
@@ -83,7 +82,7 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
                         assertEquals(friend._id, r._id)
                     }
                 })
-            })
+            }
         })
     }
 
@@ -92,14 +91,14 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
         val friend = Friend("John", "123 Wall Street")
         col.insertOne(friend, { _, _ ->
             val newDocument = Friend("Johnny")
-            col.updateOne("{name:'John'}", newDocument, { _, _ ->
+            col.updateOne("{name:'John'}", newDocument) { _, _ ->
                 col.findOne("{name:'Johnny'}", { r, _ ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
                         assertNull(r.address)
                     }
                 })
-            })
+            }
         })
     }
 
@@ -108,7 +107,7 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
         val friend = Friend("John", "123 Wall Street")
         col.insertOne(friend, { _, _ ->
             friend.name = "Johnny"
-            col.updateOne(friend, { _, _ ->
+            col.updateOne(friend) { _, _ ->
                 col.findOne("{name:'Johnny'}", { r, _ ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
@@ -116,7 +115,7 @@ class UpdateTest : KMongoAsyncBaseTest<Friend>() {
                         assertEquals(friend._id, r._id)
                     }
                 })
-            })
+            }
         })
     }
 

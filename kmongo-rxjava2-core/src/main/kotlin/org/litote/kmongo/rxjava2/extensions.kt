@@ -19,13 +19,25 @@ package org.litote.kmongo.rxjava2
 import com.mongodb.Block
 import com.mongodb.async.AsyncBatchCursor
 import com.mongodb.async.SingleResultCallback
-import com.mongodb.async.client.*
+import com.mongodb.async.client.DistinctIterable
+import com.mongodb.async.client.FindIterable
+import com.mongodb.async.client.MapReduceIterable
+import com.mongodb.async.client.MongoIterable
 import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
-import io.reactivex.*
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.Single
+import org.bson.BsonDocument
+import org.litote.kmongo.ascending
+import org.litote.kmongo.descending
+import org.litote.kmongo.include
 import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.toBson
+import kotlin.reflect.KProperty
 
 
 /**
@@ -90,7 +102,8 @@ inline fun completableResult(crossinline callback: (SingleResultCallback<Void>) 
  * @param keys the index keys
  * @param options the index options
  */
-fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel = IndexModel(toBson(keys), options)
+fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel =
+    IndexModel(toBson(keys), options)
 
 //*******
 //DistinctIterable extension methods
@@ -133,12 +146,40 @@ fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T> = modifier
 fun <T> FindIterable<T>.projection(projection: String): FindIterable<T> = projection(toBson(projection))
 
 /**
+ * Sets a document describing the fields to return for all matching documents.
+ *
+ * @param projections the properties of the returned fields
+ * @return this
+ */
+fun <T> FindIterable<T>.projection(vararg projections: KProperty<*>): FindIterable<T> =
+    projection(include(*projections))
+
+/**
  * Sets the sort criteria to apply to the query.
  *
  * @param sort the sort criteria
  * @return this
  */
 fun <T> FindIterable<T>.sort(sort: String): FindIterable<T> = sort(toBson(sort))
+
+/**
+ * Sets the sort criteria with specified ascending properties to apply to the query.
+ *
+ * @param properties the properties
+ * @return this
+ */
+fun <T> FindIterable<T>.ascendingSort(vararg properties: KProperty<*>): FindIterable<T> =
+    sort(ascending(*properties))
+
+/**
+ * Sets the sort criteria with specified descending properties to apply to the query.
+ *
+ * @param properties the properties
+ * @return this
+ */
+fun <T> FindIterable<T>.descendingSort(vararg properties: KProperty<*>): FindIterable<T> =
+    sort(descending(*properties))
+
 
 //*******
 //MapReduceIterable extension methods
@@ -159,6 +200,25 @@ fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T> = scope(
  * @return this
  */
 fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T> = sort(toBson(sort))
+
+/**
+ * Sets the sort criteria with specified ascending properties to apply to the query.
+ *
+ * @param properties the properties
+ * @return this
+ */
+fun <T> MapReduceIterable<T>.ascendingSort(vararg properties: KProperty<*>): MapReduceIterable<T> =
+    sort(ascending(*properties))
+
+/**
+ * Sets the sort criteria with specified descending properties to apply to the query.
+ *
+ * @param properties the properties
+ * @return this
+ */
+fun <T> MapReduceIterable<T>.descendingSort(vararg properties: KProperty<*>): MapReduceIterable<T> =
+    sort(descending(*properties))
+
 
 /**
  * Sets the query filter to apply to the query.
@@ -183,16 +243,16 @@ fun <TResult> MongoIterable<TResult>.toObservable(): Observable<TResult> {
                 source.onError(t1)
             } else {
                 loopCursor(cursor,
-                        Block<TResult> { res ->
-                            source.onNext(res)
-                        },
-                        SingleResultCallback { _, t2 ->
-                            if (t2 != null) {
-                                source.onError(t2)
-                            } else {
-                                source.onComplete()
-                            }
-                        })
+                    Block<TResult> { res ->
+                        source.onNext(res)
+                    },
+                    SingleResultCallback { _, t2 ->
+                        if (t2 != null) {
+                            source.onError(t2)
+                        } else {
+                            source.onComplete()
+                        }
+                    })
             }
         }
     }
@@ -205,24 +265,26 @@ fun <TResult> MongoIterable<TResult>.toFlowable(mode: BackpressureStrategy = Bac
                 source.onError(t1)
             } else {
                 loopCursor(cursor,
-                        Block<TResult> { res ->
-                            source.onNext(res)
-                        },
-                        SingleResultCallback { _, t2 ->
-                            if (t2 != null) {
-                                source.onError(t2)
-                            } else {
-                                source.onComplete()
-                            }
-                        })
+                    Block<TResult> { res ->
+                        source.onNext(res)
+                    },
+                    SingleResultCallback { _, t2 ->
+                        if (t2 != null) {
+                            source.onError(t2)
+                        } else {
+                            source.onComplete()
+                        }
+                    })
             }
         }
     }, mode)
 }
 
-private fun <TResult> MongoIterable<TResult>.loopCursor(batchCursor: AsyncBatchCursor<TResult>,
-                                                        block: Block<in TResult>,
-                                                        callback: SingleResultCallback<Void>) {
+private fun <TResult> MongoIterable<TResult>.loopCursor(
+    batchCursor: AsyncBatchCursor<TResult>,
+    block: Block<in TResult>,
+    callback: SingleResultCallback<Void>
+) {
     batchCursor.next { results, t ->
         if (t != null || results == null) {
             batchCursor.close()
@@ -254,6 +316,13 @@ private fun <TResult> MongoIterable<TResult>.loopCursor(batchCursor: AsyncBatchC
 val Any.json: String
     get() = KMongoUtil.toExtendedJson(this)
 
+/**
+ * Get the [org.bson.BsonValue] of this string.
+ *
+ * @throws Exception if the string content is not a valid json document format
+ */
+val String.bson: BsonDocument
+    get() = toBson(this)
 
 /**
  * Format this string to remove space(s) between $ and next char

@@ -57,13 +57,13 @@ class DeleteTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canRemoveAll() {
         col.insertMany(listOf(Friend("John"), Friend("Peter")), { _, _ ->
-            col.deleteMany("{}", { _, _ ->
+            col.deleteMany("{}") { _, _ ->
                 col.count({ c, _ ->
                     asyncTest {
                         assertEquals(0, c)
                     }
                 })
-            })
+            }
         })
     }
 }

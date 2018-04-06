@@ -353,9 +353,9 @@ fun <TExpression> replaceRoot(value: TExpression): Bson = Aggregates.replaceRoot
 fun sample(size: Int): Bson = Aggregates.sample(size)
 
 private class CondExpression<BooleanExpression : Any, ThenExpression : Any, ElseExpression : Any>(
-    val booleanExpression: BooleanExpression,
-    val thenExpression: ThenExpression,
-    val elseExpression: ElseExpression
+    val booleanExpression: BooleanExpression?,
+    val thenExpression: ThenExpression?,
+    val elseExpression: ElseExpression?
 ) : Bson {
 
     override fun <TDocument> toBsonDocument(
@@ -388,23 +388,7 @@ fun <BooleanExpression : Any, ThenExpression : Any, ElseExpression : Any> cond(
     booleanExpression: BooleanExpression,
     thenExpression: ThenExpression,
     elseExpression: ElseExpression
-): Bson = CondExpression(
-    if (booleanExpression is KProperty<*>) {
-        booleanExpression.projection
-    } else {
-        booleanExpression
-    },
-    if (thenExpression is KProperty<*>) {
-        thenExpression.projection
-    } else {
-        thenExpression
-    },
-    if (elseExpression is KProperty<*>) {
-        elseExpression.projection
-    } else {
-        elseExpression
-    }
-)
+): Bson = CondExpression(booleanExpression, thenExpression, elseExpression)
 
 /**
  * Builds $dayOfYear expression for this property .

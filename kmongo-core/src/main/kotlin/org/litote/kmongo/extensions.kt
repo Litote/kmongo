@@ -153,7 +153,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(
 /**
  * Gets the distinct values of the specified field.
  *
- * @param fieldName   the field
+ * @param field   the field
  * @param filter      the query filter
  * @param <TResult>   the target type of the iterable.
  *
@@ -296,7 +296,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
  *
  * @return the result of the remove one operation
  *
- *  @throws com.mongodb.MongoWriteException       if the write failed due some other failure specific to the delete command
+ * @throws com.mongodb.MongoWriteException       if the write failed due some other failure specific to the delete command
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
@@ -310,7 +310,7 @@ fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult = deleteOne(t
  *
  * @return the result of the remove one operation
  *
- *  @throws com.mongodb.MongoWriteException       if the write failed due some other failure specific to the delete command
+ * @throws com.mongodb.MongoWriteException       if the write failed due some other failure specific to the delete command
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
@@ -322,7 +322,7 @@ fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?): DeleteResult = dele
  *
  * @param id   the object id
  *
- *  @throws com.mongodb.MongoWriteException       if the write failed due some other failure specific to the delete command
+ * @throws com.mongodb.MongoWriteException       if the write failed due some other failure specific to the delete command
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
@@ -333,6 +333,7 @@ fun <T> MongoCollection<T>.deleteOneById(id: Any): DeleteResult = deleteOne(idFi
  *
  * @param filter the query filter to apply the the delete operation
  * @param options  the options to apply to the delete operation
+ *
  * @return the result of the remove many operation
  *
  * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the delete command
@@ -345,8 +346,9 @@ fun <T> MongoCollection<T>.deleteMany(filter: String, options: DeleteOptions = D
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
  *
- * @param filter the query filter to apply the the delete operation
+ * @param filters the query filters to apply the the delete operation
  * @param options  the options to apply to the delete operation
+ *
  * @return the result of the remove many operation
  *
  * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the delete command
@@ -526,42 +528,6 @@ fun <T : Any> MongoCollection<T>.updateOne(
  * Update a single document in the collection according to the specified arguments.
  *
  * @param id        the object id
- * @param update    a document describing the update. The update to apply must include only update operators.
- *
- * @return the result of the update one operation
- *
- * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
- * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
- * @throws com.mongodb.MongoException             if the write failed due some other failure
- */
-fun <T> MongoCollection<T>.updateOneById(
-    id: Any,
-    update: String,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOne(idFilterQuery(id), update, options)
-
-/**
- * Update a single document in the collection according to the specified arguments.
- *
- * @param id        the object id
- * @param update    a document describing the update. The update to apply must include only update operators.
- *
- * @return the result of the update one operation
- *
- * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
- * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
- * @throws com.mongodb.MongoException             if the write failed due some other failure
- */
-fun <T> MongoCollection<T>.updateOneById(
-    id: Any,
-    update: Bson,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOne(idFilterQuery(id), update, options)
-
-/**
- * Update a single document in the collection according to the specified arguments.
- *
- * @param id        the object id
  * @param update    the update object
  * @param options  the options to apply to the update operation
  *
@@ -614,7 +580,7 @@ fun <T : Any> MongoCollection<T>.updateMany(
 
 /**
  * Atomically find a document and remove it.
-
+ *
  * @param filter  the query filter to find the document with
  * @param options the options to apply to the operation
  *
@@ -627,7 +593,7 @@ fun <T> MongoCollection<T>.findOneAndDelete(
 
 /**
  * Atomically find a document and replace it.
-
+ *
  * @param filter      the query filter to apply the the replace operation
  * @param replacement the replacement document
  * @param options     the options to apply to the operation
@@ -644,7 +610,7 @@ fun <T> MongoCollection<T>.findOneAndReplace(
 
 /**
  * Atomically find a document and update it.
-
+ *
  * @param filter  a document describing the query filter, which may not be null.
  * @param update  a document describing the update, which may not be null. The update to apply must include only update operators.
  * @param options the options to apply to the operation
@@ -661,7 +627,7 @@ fun <T> MongoCollection<T>.findOneAndUpdate(
 
 /**
  * Create an index with the given keys and options.
-
+ *
  * @param keys                an object describing the index key(s), which may not be null.
  * @param indexOptions the options for the index
  * @return the index name
@@ -673,13 +639,13 @@ fun <T> MongoCollection<T>.createIndex(keys: String, indexOptions: IndexOptions 
  * Create an index with the given keys and options.
  * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
  * already exists, then drop the existing index and create a new one.
-
+ *
  * @param keys an object describing the index key(s), which may not be null.
  * @param indexOptions the options for the index
  * @return the index name
  */
-fun <T> MongoCollection<T>.ensureIndex(keys: Bson, indexOptions: IndexOptions = IndexOptions()) {
-    try {
+fun <T> MongoCollection<T>.ensureIndex(keys: Bson, indexOptions: IndexOptions = IndexOptions()): String {
+    return try {
         createIndex(keys, indexOptions)
     } catch (e: MongoCommandException) {
         //there is an exception if the parameters of an existing index are changed.
@@ -693,7 +659,7 @@ fun <T> MongoCollection<T>.ensureIndex(keys: Bson, indexOptions: IndexOptions = 
  * Create an ascending with the given keys and options.
  * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
  * already exists, then drop the existing index and create a new one.
-
+ *
  * @param keys the properties, which must contain at least one
  * @param indexOptions the options for the index
  * @return the index name
@@ -701,13 +667,13 @@ fun <T> MongoCollection<T>.ensureIndex(keys: Bson, indexOptions: IndexOptions = 
 fun <T> MongoCollection<T>.ensureIndex(
     vararg properties: KProperty<*>,
     indexOptions: IndexOptions = IndexOptions()
-) = ensureIndex(ascending(*properties), indexOptions)
+): String = ensureIndex(ascending(*properties), indexOptions)
 
 /**
  * Create an [IndexOptions.unique] index with the given keys and options.
  * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
  * already exists, then drop the existing index and create a new one.
-
+ *
  * @param keys the properties, which must contain at least one
  * @param indexOptions the options for the index
  * @return the index name
@@ -715,19 +681,19 @@ fun <T> MongoCollection<T>.ensureIndex(
 fun <T> MongoCollection<T>.ensureUniqueIndex(
     vararg properties: KProperty<*>,
     indexOptions: IndexOptions = IndexOptions()
-) = ensureIndex(properties = *properties, indexOptions = indexOptions.unique(true))
+): String = ensureIndex(properties = *properties, indexOptions = indexOptions.unique(true))
 
 /**
  * Create an index with the given keys and options.
  * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
  * already exists, then drop the existing index and create a new one.
-
+ *
  * @param keys an object describing the index key(s), which may not be null.
  * @param indexOptions the options for the index
  * @return the index name
  */
-fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions = IndexOptions()) {
-    try {
+fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions = IndexOptions()): String {
+    return try {
         createIndex(keys, indexOptions)
     } catch (e: MongoCommandException) {
         //there is an exception if the parameters of an existing index are changed.
@@ -739,7 +705,7 @@ fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions 
 
 /**
  * Get all the indexes in this collection.
-
+ *
  * @param <TResult>   the target document type of the iterable.
  * @return the list indexes iterable interface
  */
@@ -748,7 +714,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.listIndexes(): ListIndexes
 
 /**
  * Get all the indexes in this collection.
-
+ *
  * @param <TResult>   the target document type of the iterable.
  * @return the list indexes iterable interface
  */
@@ -758,7 +724,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIn
 
 /**
  * Drops the index given the keys used to create it.
-
+ *
  * @param keys the keys of the index to remove
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
@@ -766,14 +732,14 @@ fun <T> MongoCollection<T>.dropIndex(keys: String) = dropIndexOfKeys(keys)
 
 /**
  * Drops the index given the keys used to create it.
-
+ *
  * @param json the keys of the index to remove
  */
 fun <T> MongoCollection<T>.dropIndexOfKeys(json: String) = dropIndex(toBson(json))
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
-
+ *
  * @param requests the writes to execute
  * @param options  the options to apply to the bulk write operation
  *
@@ -787,7 +753,7 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
-
+ *
  * @param requests the writes to execute
  * @param options  the options to apply to the bulk write operation
  *

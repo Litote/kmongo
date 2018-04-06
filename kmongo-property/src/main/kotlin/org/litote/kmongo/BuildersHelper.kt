@@ -28,7 +28,6 @@ import kotlin.reflect.KProperty
 internal fun <TItem : Any> encodeValue(writer: BsonDocumentWriter, value: TItem?, codecRegistry: CodecRegistry) {
     when (value) {
         null -> writer.writeNull()
-        is KProperty<*> -> BsonString(value.path())
         is Bson -> @Suppress("UNCHECKED_CAST")
         (codecRegistry.get(BsonDocument::class.java) as Encoder<Any>).encode(
             writer,

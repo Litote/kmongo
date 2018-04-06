@@ -57,7 +57,7 @@ import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetDateTimeExtendedJsonSe
 import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.ZonedDateTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.KMongoBsonFactory.KMongoBsonGenerator
-import org.litote.kmongo.path
+import org.litote.kmongo.projection
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -366,7 +366,7 @@ internal class BsonModule : SimpleModule() {
     private object KPropertySerializer : JsonSerializer<KProperty<*>>() {
 
         override fun serialize(property: KProperty<*>, generator: JsonGenerator, provider: SerializerProvider) {
-            generator.writeString(property.path())
+            generator.writeString(property.projection)
         }
 
         override fun acceptJsonFormatVisitor(visitor: JsonFormatVisitorWrapper, type: JavaType) {

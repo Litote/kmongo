@@ -29,7 +29,8 @@ import kotlin.reflect.KProperty
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/sum/ $sum
  */
-infix fun <T> KProperty<T>.sum(expression: T): BsonField = Accumulators.sum(path(), expression)
+infix fun <T> KProperty<T>.sum(expression: T): BsonField =
+    Accumulators.sum(path(), expression)
 
 /**
  * Gets a field name for a $group operation representing the average of the values of the given expression when applied to all
@@ -40,7 +41,8 @@ infix fun <T> KProperty<T>.sum(expression: T): BsonField = Accumulators.sum(path
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/avg/ $avg
  */
-infix fun <T> KProperty<T>.avg(expression: T): BsonField = Accumulators.avg(path(), expression)
+infix fun <T> KProperty<T>.avg(expression: T): BsonField =
+    Accumulators.avg(path(), expression)
 
 /**
  * Gets a field name for a $group operation representing the value of the given expression when applied to the first member of
@@ -51,7 +53,8 @@ infix fun <T> KProperty<T>.avg(expression: T): BsonField = Accumulators.avg(path
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/first/ $first
  */
-infix fun <T> KProperty<T>.first(expression: T): BsonField = Accumulators.first(path(), expression)
+infix fun <T> KProperty<T>.first(expression: T): BsonField =
+    Accumulators.first(path(), expression)
 
 /**
  * Gets a field name for a $group operation representing the value of the given expression when applied to the last member of
@@ -62,7 +65,8 @@ infix fun <T> KProperty<T>.first(expression: T): BsonField = Accumulators.first(
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/last/ $last
  */
-infix fun <T> KProperty<T>.last(expression: T): BsonField = Accumulators.last(path(), expression)
+infix fun <T> KProperty<T>.last(expression: T): BsonField =
+    Accumulators.last(path(), expression)
 
 /**
  * Gets a field name for a $group operation representing the maximum of the values of the given expression when applied to all
@@ -73,7 +77,8 @@ infix fun <T> KProperty<T>.last(expression: T): BsonField = Accumulators.last(pa
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/max/ $max
  */
-infix fun <T> KProperty<T>.max(expression: T): BsonField = Accumulators.max(path(), expression)
+infix fun <T> KProperty<T>.max(expression: T): BsonField =
+    Accumulators.max(path(), expression)
 
 /**
  * Gets a field name for a $group operation representing the minimum of the values of the given expression when applied to all
@@ -84,7 +89,8 @@ infix fun <T> KProperty<T>.max(expression: T): BsonField = Accumulators.max(path
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/min/ $min
  */
-infix fun <T> KProperty<T>.min(expression: T): BsonField = Accumulators.min(path(), expression)
+infix fun <T> KProperty<T>.min(expression: T): BsonField =
+    Accumulators.min(path(), expression)
 
 /**
  * Gets a field name for a $group operation representing an array of all values that results from applying an expression to each
@@ -95,7 +101,8 @@ infix fun <T> KProperty<T>.min(expression: T): BsonField = Accumulators.min(path
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/push/ $push
  */
-infix fun <T> KProperty<T>.push(expression: T): BsonField = Accumulators.push(path(), expression)
+infix fun <T> KProperty<T>.push(expression: T): BsonField =
+    Accumulators.push(path(), expression)
 
 /**
  * Gets a field name for a $group operation representing all unique values that results from applying the given expression to each
@@ -106,7 +113,8 @@ infix fun <T> KProperty<T>.push(expression: T): BsonField = Accumulators.push(pa
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/addToSet/ $addToSet
  */
-infix fun <T> KProperty<T>.addToSet(expression: T): BsonField = Accumulators.addToSet(path(), expression)
+infix fun <T> KProperty<T>.addToSet(expression: T): BsonField =
+    Accumulators.addToSet(path(), expression)
 
 /**
  * Gets a field name for a $group operation representing the sample standard deviation of the values of the given expression
@@ -120,7 +128,8 @@ infix fun <T> KProperty<T>.addToSet(expression: T): BsonField = Accumulators.add
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/stdDevPop/ $stdDevPop
  */
-infix fun <T> KProperty<T>.stdDevPop(expression: T): BsonField = Accumulators.stdDevPop(path(), expression)
+infix fun <T> KProperty<T>.stdDevPop(expression: T): BsonField =
+    Accumulators.stdDevPop(path(), expression)
 
 /**
  * Gets a field name for a $group operation representing the sample standard deviation of the values of the given expression
@@ -133,4 +142,5 @@ infix fun <T> KProperty<T>.stdDevPop(expression: T): BsonField = Accumulators.st
  * @return the field
  * @mongodb.driver.manual reference/operator/aggregation/stdDevSamp/ $stdDevSamp
  */
-infix fun <T> KProperty<T>.stdDevSamp(expression: T): BsonField = Accumulators.stdDevSamp(path(), expression)
+infix fun <T> KProperty<T>.stdDevSamp(expression: T): BsonField =
+    Accumulators.stdDevSamp(path(), expression)
