@@ -66,6 +66,7 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
         return try {
+            /*
             processingEnv.messager.printMessage(
                 Diagnostic.Kind.NOTE,
                 annotations.toString()
@@ -73,13 +74,13 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
             processingEnv.messager.printMessage(
                 Diagnostic.Kind.NOTE,
                 processingEnv.options.toString()
-            )
+            ) */
 
             val dataElements = roundEnv.getElementsAnnotatedWith(Data::class.java)
-            processingEnv.messager.printMessage(
+            /*processingEnv.messager.printMessage(
                 Diagnostic.Kind.NOTE,
                 dataElements.toString()
-            )
+            ) */
             for (element in dataElements) {
                 if (element.kind != ElementKind.CLASS) {
                     error("$element is annotated with @Data but is not a class")
@@ -97,20 +98,20 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
     }
 
     override fun getSupportedSourceVersion(): SourceVersion {
-        processingEnv.messager.printMessage(
+        /*processingEnv.messager.printMessage(
             Diagnostic.Kind.NOTE,
             SourceVersion.latest().toString()
-        )
+        )*/
         return SourceVersion.latest()
     }
 
     private fun registerSuperclasses(element: TypeElement) {
         val superclass = element.superclass
         if (superclass is DeclaredType && superclass.toString() != "java.lang.Object") {
-            processingEnv.messager.printMessage(
-                Diagnostic.Kind.NOTE,
-                "$element : $superclass - ${superclass.getAnnotation(Data::class.java)}"
-            )
+            /* processingEnv.messager.printMessage(
+                 Diagnostic.Kind.NOTE,
+                 "$element : $superclass - ${superclass.getAnnotation(Data::class.java)}"
+             )*/
             val superElement = superclass.asElement() as TypeElement
             if (superElement.getAnnotation(Data::class.java) == null) {
                 registerSuperclasses(superElement)
@@ -230,18 +231,18 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
 
         for (e in element.enclosedElements) {
             if (e is VariableElement && e.modifiers.none { notSupportedModifiers.contains(it) }) {
-                processingEnv.messager.printMessage(
+                /*processingEnv.messager.printMessage(
                     Diagnostic.Kind.NOTE,
                     "${e.simpleName}-${e.asType()}"
-                )
+                )*/
                 val type = e.asType()
                 val returnType = processingEnv.typeUtils.asElement(type) as? TypeElement
-                processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, type.toString())
+                //processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, type.toString())
                 if (type != null) {
-                    processingEnv.messager.printMessage(
-                        Diagnostic.Kind.NOTE,
-                        "$type-annot: ${type.getAnnotation(Data::class.java)}"
-                    )
+                    /* processingEnv.messager.printMessage(
+                         Diagnostic.Kind.NOTE,
+                         "$type-annot: ${type.getAnnotation(Data::class.java)}"
+                     )*/
                 }
                 val annotatedCollection = type.run {
                     if (this is ArrayType) {
@@ -393,14 +394,14 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
         fileBuilder.addType(collectionClassBuilder.build())
 
         val kotlinFile = fileBuilder.build()
-        processingEnv.messager.printMessage(
+        /*processingEnv.messager.printMessage(
             Diagnostic.Kind.NOTE,
             processingEnv.filer.getResource(
                 StandardLocation.SOURCE_OUTPUT,
                 kotlinFile.packageName,
                 kotlinFile.name
             ).name
-        )
+        ) */
 
         kotlinFile.writeTo(
             Paths.get(
@@ -428,10 +429,10 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
                 JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(toString()))
                     ?.asSingleFqName()?.asString()
 
-            processingEnv.messager.printMessage(
+            /*processingEnv.messager.printMessage(
                 Diagnostic.Kind.NOTE,
                 "$this == $className"
-            )
+            )*/
 
             return if (className == null) {
                 this
