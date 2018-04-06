@@ -19,6 +19,7 @@ package org.litote.kmongo.issues
 import com.mongodb.client.model.Filters
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
+import org.litote.kmongo.eq
 import org.litote.kmongo.findOne
 import org.litote.kmongo.issues.Issue12EqToLocaleQueryCrash.ClassWithLocalField
 import java.util.Locale
@@ -42,6 +43,8 @@ class Issue12EqToLocaleQueryCrash : AllCategoriesKMongoBaseTest<ClassWithLocalFi
         col.insertOne(l)
         val l2 = col.findOne(Filters.eq("locale", Locale.ENGLISH))
         assertEquals(l, l2)
+        val l3 = col.findOne(l::locale eq Locale.ENGLISH)
+        assertEquals(l, l3)
     }
 
 }

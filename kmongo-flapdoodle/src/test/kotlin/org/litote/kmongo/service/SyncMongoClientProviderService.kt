@@ -29,21 +29,22 @@ import org.bson.codecs.configuration.CodecRegistry
  */
 internal class SyncMongoClientProviderService : MongoClientProviderService<MongoClient> {
 
-    private fun codec(): CodecRegistry =
-            fromRegistries(getDefaultCodecRegistry(), ClassMappingType.codecRegistry())
-
     override fun createMongoClient(): MongoClient {
         error("unsupported")
     }
 
     override fun createMongoClient(connectionString: String): MongoClient {
         return MongoClient(
-                ServerAddress(connectionString),
-                MongoClientOptions.builder().codecRegistry(codec()).build()
+            ServerAddress(connectionString),
+            MongoClientOptions.builder().codecRegistry(defaultCodecRegistry()).build()
         )
     }
 
     override fun createMongoClient(connectionString: ConnectionString): MongoClient {
         error("unsupported")
     }
+
+    override fun defaultCodecRegistry(): CodecRegistry =
+        fromRegistries(getDefaultCodecRegistry(), ClassMappingType.codecRegistry())
+
 }

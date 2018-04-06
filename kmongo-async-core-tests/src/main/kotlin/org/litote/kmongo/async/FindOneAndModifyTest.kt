@@ -36,77 +36,75 @@ class FindOneAndModifyTest : KMongoAsyncBaseTest<Friend>() {
     @Test
     fun canFindAndUpdateOne() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"),
-                { _, _ ->
-                    col.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}", { _, _ ->
-                        col.findOne("{name:'John'}", {
-                            friend, _ ->
-                            asyncTest {
-                                assertEquals("John", friend!!.name)
-                                assertEquals("A better place", friend.address)
-                            }
-                        })
+            { _, _ ->
+                col.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}") { _, _ ->
+                    col.findOne("{name:'John'}", { friend, _ ->
+                        asyncTest {
+                            assertEquals("John", friend!!.name)
+                            assertEquals("A better place", friend.address)
+                        }
                     })
-                })
+                }
+            })
     }
 
     @Test
     fun canFindAndUpdateWithNullValue() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"),
-                { _, _ ->
-                    col.findOneAndUpdate("{name:'John'}", "{$set: {address: null}}", { _, _ ->
-                        col.findOne("{name:'John'}", {
-                            friend, _ ->
-                            asyncTest {
-                                assertEquals("John", friend!!.name)
-                                assertNull(friend.address)
-                            }
-                        })
+            { _, _ ->
+                col.findOneAndUpdate("{name:'John'}", "{$set: {address: null}}") { _, _ ->
+                    col.findOne("{name:'John'}", { friend, _ ->
+                        asyncTest {
+                            assertEquals("John", friend!!.name)
+                            assertNull(friend.address)
+                        }
                     })
-                })
+                }
+            })
     }
 
     @Test
     fun canFindAndUpdateWithDocument() {
         val col2 = col.withDocumentClass<Document>()
         col.insertOne(Friend("John", "22 Wall Street Avenue"),
-                { _, _ ->
-                    col2.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}", { _, _ ->
-                        col2.findOne("{name:'John'}", {
-                            friend, _ ->
-                            asyncTest {
-                                assertEquals("John", friend!!.get("name"))
-                                assertEquals("A better place", friend.get("address"))
-                            }
-                        })
+            { _, _ ->
+                col2.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}") { _, _ ->
+                    col2.findOne("{name:'John'}", { friend, _ ->
+                        asyncTest {
+                            assertEquals("John", friend!!.get("name"))
+                            assertEquals("A better place", friend.get("address"))
+                        }
                     })
-                })
+                }
+            })
     }
 
     @Test
     fun canUpsertByObjectId() {
         val expected = Friend(ObjectId(), "John")
         col.findOneAndUpdate(
-                "{_id:${expected._id!!.json}}",
-                "{$setOnInsert: {name: 'John'}}",
-                FindOneAndUpdateOptions().upsert(true).returnDocument(AFTER), { r, _ ->
+            "{_id:${expected._id!!.json}}",
+            "{$setOnInsert: {name: 'John'}}",
+            FindOneAndUpdateOptions().upsert(true).returnDocument(AFTER)
+        ) { r, _ ->
             asyncTest {
                 assertEquals(expected, r)
             }
-
-        })
+        }
     }
 
     @Test
     fun canUpsertByStringId() {
         val expected = ExposableFriend(ObjectId().toString(), "John")
         col.withDocumentClass<ExposableFriend>().findOneAndUpdate(
-                "{_id:${expected._id.json}}",
-                "{$setOnInsert: {name: 'John'}}",
-                FindOneAndUpdateOptions().upsert(true).returnDocument(AFTER), { r, _ ->
+            "{_id:${expected._id.json}}",
+            "{$setOnInsert: {name: 'John'}}",
+            FindOneAndUpdateOptions().upsert(true).returnDocument(AFTER)
+        ) { r, _ ->
             asyncTest {
                 assertEquals(expected, r)
             }
 
-        })
+        }
     }
 }

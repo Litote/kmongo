@@ -33,6 +33,10 @@
             <artifactId>kmongo-shared</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-property</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-core</artifactId>
             <scope>provided</scope>

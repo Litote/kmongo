@@ -43,6 +43,7 @@ internal object KMongoAnnotationConvention : Convention {
                 processPropertyAnnotations(classModelBuilder, propertyModelBuilder)
             }
 
+            @Suppress("UNCHECKED_CAST")
             (classModelBuilder as ClassModelBuilder<Any>).instanceCreatorFactory(KotlinInstanceCreatorFactory(type.kotlin) as InstanceCreatorFactory<Any>)
 
             cleanPropertyBuilders(classModelBuilder)

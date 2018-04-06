@@ -17,6 +17,7 @@
 package org.litote.kmongo.service
 
 import com.mongodb.ConnectionString
+import org.bson.codecs.configuration.CodecRegistry
 import java.io.Closeable
 
 /**
@@ -46,4 +47,11 @@ interface MongoClientProviderService<T : Closeable> {
      * @return the client
      */
     fun createMongoClient(connectionString: ConnectionString): T
+
+    /**
+     * Returns the default codec registry.
+     *
+     * @return the default codec registry.
+     */
+    fun defaultCodecRegistry(): CodecRegistry
 }

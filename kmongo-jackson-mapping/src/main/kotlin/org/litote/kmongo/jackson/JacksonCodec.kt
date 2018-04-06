@@ -17,11 +17,13 @@ package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonAnyFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonBooleanFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNullFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor
@@ -36,33 +38,79 @@ import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.json.JsonReader
 import org.bson.types.ObjectId
+import org.litote.kmongo.Id
+import org.litote.kmongo.id.StringId
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.`object`
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.array
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.boolean
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.date
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.integer
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.map
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.number
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.objectId
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.string
 import org.litote.kmongo.util.MongoIdUtil
 import java.io.IOException
 import java.io.UncheckedIOException
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.OffsetDateTime
+import java.time.OffsetTime
+import java.time.ZonedDateTime
+import java.util.Calendar
 import kotlin.reflect.jvm.javaField
 
 /**
  *
  */
-internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
-                                     val notBsonObjectMapper: ObjectMapper,
-                                     val codecRegistry: CodecRegistry,
-                                     val type: Class<T>) : Codec<T>, CollectibleCodec<T> {
+internal class JacksonCodec<T : Any>(
+    val bsonObjectMapper: ObjectMapper,
+    val notBsonObjectMapper: ObjectMapper,
+    val codecRegistry: CodecRegistry,
+    val type: Class<T>
+) : Codec<T>, CollectibleCodec<T> {
 
     class VisitorWrapper : JsonFormatVisitorWrapper.Base() {
 
         enum class JsonType {
-            string, array, number, map, `object`, integer, boolean
+            string, array, number, map, `object`, integer, boolean, objectId, date
         }
 
         var jsonType: JsonType? = null
+
+        private val dateTimeClasses =
+            setOf(
+                Instant::class,
+                ZonedDateTime::class,
+                OffsetDateTime::class,
+                LocalDate::class,
+                LocalDateTime::class,
+                LocalTime::class,
+                OffsetTime::class
+            )
+
+        override fun expectNullFormat(type: JavaType?): JsonNullFormatVisitor? {
+            return null
+        }
+
+        override fun expectAnyFormat(type: JavaType): JsonAnyFormatVisitor? {
+            if (type.rawClass?.let { Id::class.java.isAssignableFrom(it) } == true) {
+                if (type.rawClass == StringId::class.java) {
+                    jsonType = string
+                } else {
+                    jsonType = objectId
+                }
+            } else if (dateTimeClasses.contains(type.rawClass.kotlin)
+                || Calendar::class.java.isAssignableFrom(type.rawClass)
+            ) {
+                jsonType = date
+            } else {
+                jsonType = `object`
+            }
+            return null
+        }
 
         override fun expectStringFormat(type: JavaType?): JsonStringFormatVisitor? {
             jsonType = string
@@ -131,12 +179,14 @@ internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
                         rawBsonDocumentCodec.encode(writer, RawBsonDocument(bytes), encoderContext)
                     }
 
-                    string, integer, number, boolean -> {
+                    string, integer, number, boolean, objectId, date -> {
                         val jsonReader = JsonReader(notBsonObjectMapper.writeValueAsString(value))
                         when (visitor.jsonType) {
                             number -> writer.writeDouble(jsonReader.readDouble())
                             integer -> writer.writeInt64(jsonReader.readInt64())
                             boolean -> writer.writeBoolean(jsonReader.readBoolean())
+                            objectId -> writer.writeObjectId(jsonReader.readObjectId())
+                            date -> writer.writeDateTime(jsonReader.readDateTime())
                             else -> writer.writeString(jsonReader.readString())
                         }
                     }
@@ -162,8 +212,7 @@ internal class JacksonCodec<T : Any>(val bsonObjectMapper: ObjectMapper,
         }
     }
 
-    override fun documentHasId(document: T): Boolean
-            = MongoIdUtil.findIdProperty(document.javaClass.kotlin) != null
+    override fun documentHasId(document: T): Boolean = MongoIdUtil.findIdProperty(document.javaClass.kotlin) != null
 
     override fun generateIdIfAbsentFromDocument(document: T): T {
         val idProperty = MongoIdUtil.findIdProperty(document.javaClass.kotlin)

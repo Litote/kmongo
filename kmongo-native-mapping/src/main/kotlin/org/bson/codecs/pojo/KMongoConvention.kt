@@ -75,7 +75,7 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
             return result.build()
         }
 
-        private fun getDeclaredAnnotations(property: KProperty<*>, owner: KClass<*>): List<Annotation> {
+        fun getDeclaredAnnotations(property: KProperty<*>, owner: KClass<*>): List<Annotation> {
             return listOfNotNull(
                     getInstantiator(owner)?.parameters?.find { it.name == property.name }?.annotations,
                     owner.primaryConstructor?.parameters?.find { it.name == property.name }?.annotations,
@@ -99,7 +99,7 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
                 && !type.isEnum
                 && !type.isAssignableFrom(Collection::class.java)
                 && type.isKotlinClass()) {
-            val instanceCreatorFactory = KotlinInstanceCreatorFactory<Any>(type.kotlin as KClass<Any>)
+            val instanceCreatorFactory = KotlinInstanceCreatorFactory(type.kotlin as KClass<Any>)
             (classModelBuilder as ClassModelBuilder<Any>).instanceCreatorFactory(instanceCreatorFactory)
 
             classModelBuilder.type.kotlin.memberProperties.forEach {

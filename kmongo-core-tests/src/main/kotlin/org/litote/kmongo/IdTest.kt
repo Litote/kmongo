@@ -200,4 +200,21 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         article3Col.insertOne(a)
         assertEquals(a, article3Col.findOne("{_id:{${MongoOperator.type}:'long'}}"))
     }
+
+    @Test
+    fun `query id with dsl is ok`() {
+        stringGenerator()
+        val shop = Shop("Shop")
+        val article = Article2("ok", shop.id)
+        article2Col.save(article)
+        shopCol.save(shop)
+        assertEquals(article, article2Col.findOne(article::_id eq article._id))
+        assertEquals(shop, shopCol.findOne(shop::id eq shop.id))
+
+        objectIdGenerator()
+        val objectIdArticle = Article2("ok", shop.id)
+        article2Col.save(objectIdArticle)
+        assertEquals(objectIdArticle, article2Col.findOne(objectIdArticle::_id eq objectIdArticle._id))
+        assertEquals(shop, shopCol.findOne(shop::id eq shop.id))
+    }
 }

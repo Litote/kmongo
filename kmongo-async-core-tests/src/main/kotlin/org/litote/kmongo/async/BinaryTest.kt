@@ -44,16 +44,13 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
         val expectedId = Binary("friend2".toByteArray())
         val expected = BinaryFriend(expectedId, "friend2")
 
-        col.insertOne(expected, {
-            _, _ ->
+        col.insertOne(expected, { _, _ ->
             expected.name = "new friend"
-            col.updateOne("{_id:${expectedId.json}}", expected, {
-                _, _ ->
-                col.findOne ("{_id:${expectedId.json}}", {
-                    r, _ ->
+            col.updateOne("{_id:${expectedId.json}}", expected) { _, _ ->
+                col.findOne("{_id:${expectedId.json}}", { r, _ ->
                     asyncTest { assertEquals(expected, r) }
                 })
-            })
+            }
         })
     }
 
@@ -62,10 +59,8 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
         val expectedId = Binary("friend".toByteArray())
         val expected = BinaryFriend(expectedId, "friend")
 
-        col.insertOne(expected, {
-            _, _ ->
-            col.findOne ("{_id:${expectedId.json}}", {
-                r, _ ->
+        col.insertOne(expected, { _, _ ->
+            col.findOne("{_id:${expectedId.json}}", { r, _ ->
                 asyncTest { assertEquals(expected, r) }
             })
         })
@@ -74,10 +69,8 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
 
     @Test
     fun testRemove() {
-        col.deleteOne("{_id:${friendId.json}}", {
-            _, _ ->
-            col.findOne ("{_id:${friendId.json}}", {
-                r, _ ->
+        col.deleteOne("{_id:${friendId.json}}", { _, _ ->
+            col.findOne("{_id:${friendId.json}}", { r, _ ->
                 asyncTest { assertNull(r) }
             })
         })
@@ -88,12 +81,9 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
 
         val doc = BinaryFriend(Binary("abcde".toByteArray()))
 
-        col.insertOne(doc, {
-            _, _ ->
-            col.count("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}", {
-                count, _ ->
-                col.findOne ("{_id:${doc._id.json}}", {
-                    r, _ ->
+        col.insertOne(doc, { _, _ ->
+            col.count("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}", { count, _ ->
+                col.findOne("{_id:${doc._id.json}}", { r, _ ->
                     asyncTest {
                         assertEquals(1, count)
                         assertEquals(doc._id.type, r!!._id.type)

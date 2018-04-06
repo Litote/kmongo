@@ -20,9 +20,11 @@ import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
+import org.bson.codecs.pojo.KMongoConvention
 import org.bson.codecs.pojo.KMongoPojoCodecService
 import org.bson.codecs.pojo.KMongoPojoCodecService.codecRegistry
 import org.bson.codecs.pojo.KMongoPojoCodecService.codecRegistryWithNullSerialization
+import org.bson.codecs.pojo.annotations.BsonProperty
 import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
@@ -30,8 +32,11 @@ import org.litote.kmongo.service.ClassMappingTypeService
 import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.io.StringWriter
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaGetter
 
 /**
  *
@@ -46,11 +51,12 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         val bsonDocument = BsonDocument()
         val bsonWriter = BsonDocumentWriter(bsonDocument)
         codecRegistryWithNullSerialization
-                .get(obj.javaClass)
-                ?.encode(
-                        bsonWriter,
-                        obj,
-                        EncoderContext.builder().build())
+            .get(obj.javaClass)
+            ?.encode(
+                bsonWriter,
+                obj,
+                EncoderContext.builder().build()
+            )
         bsonDocument.remove("_id")
         return bsonDocument
     }
@@ -68,21 +74,23 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
             else -> {
                 val writer = StringWriter()
                 val jsonWriter = JsonWriter(
-                        writer,
-                        JsonWriterSettings
-                                .builder()
-                                .indent(false)
-                                .outputMode(JsonMode.EXTENDED)
-                                .build())
+                    writer,
+                    JsonWriterSettings
+                        .builder()
+                        .indent(false)
+                        .outputMode(JsonMode.EXTENDED)
+                        .build()
+                )
                 //create a fake document to bypass bson writer built-in checks
                 jsonWriter.writeStartDocument()
                 jsonWriter.writeName("tmp")
                 codecRegistry()
-                        .get(obj.javaClass)
-                        ?.encode(
-                                jsonWriter,
-                                obj,
-                                EncoderContext.builder().build())
+                    .get(obj.javaClass)
+                    ?.encode(
+                        jsonWriter,
+                        obj,
+                        EncoderContext.builder().build()
+                    )
                 jsonWriter.writeEndDocument()
                 writer.toString().run {
                     substring("{ \"tmp\" :".length, length - "}".length).trim()
@@ -93,12 +101,12 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
 
     override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? {
         return KMongoPojoCodecService
-                .codecProvider
-                .getClassModel(type)
-                .idPropertyModel
-                ?.run {
-                    type.memberProperties.find { it.name == name }
-                }
+            .codecProvider
+            .getClassModel(type)
+            .idPropertyModel
+            ?.run {
+                type.memberProperties.find { it.name == name }
+            }
     }
 
     override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? {
@@ -113,5 +121,20 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         }
     }
 
+    override fun <T> getPath(property: KProperty<T>): String {
+        val owner = property.javaField?.declaringClass
+                ?: property.javaGetter?.declaringClass
 
+        return if (owner?.kotlin?.let { findIdProperty(it) }?.name == property.name)
+            "_id"
+        else {
+            owner?.let {
+                KMongoConvention
+                    .getDeclaredAnnotations(property, it.kotlin)
+                    .filterIsInstance<BsonProperty>()
+                    .firstOrNull()
+                    ?.value
+            } ?: property.name
+        }
+    }
 }

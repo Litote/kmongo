@@ -28,8 +28,10 @@ import org.bson.BsonBoolean
 import org.bson.BsonDocument
 import org.bson.BsonObjectId
 import org.bson.BsonString
+import org.bson.Document
 import org.bson.codecs.BsonArrayCodec
 import org.bson.codecs.DecoderContext
+import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
@@ -50,6 +52,7 @@ import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
 import org.litote.kmongo.MongoOperator.unset
 import org.litote.kmongo.service.ClassMappingType
+import org.litote.kmongo.service.MongoClientProvider
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
@@ -60,21 +63,21 @@ import kotlin.reflect.KProperty1
  */
 object KMongoUtil {
 
-    val EMPTY_JSON = "{}"
+    const val EMPTY_JSON: String = "{}"
+
     private val SPACE_REPLACE_PATTERN = Pattern.compile("\\\$\\s+")
     private val QUOTE_REPLACE_MATCHER = Matcher.quoteReplacement("\$")
     private val UPDATE_OPERATORS =
-            listOf(
-                    inc, mul, rename, setOnInsert, set, unset, min, max, currentDate,
-                    addToSet, pop, pull, push, pullAll,
-                    bit
-            ).map { it.toString() }
+        listOf(
+            inc, mul, rename, setOnInsert, set, unset, min, max, currentDate,
+            addToSet, pop, pull, push, pullAll,
+            bit
+        ).map { it.toString() }
 
-    fun toBson(json: String): BsonDocument
-            = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
+    fun toBson(json: String): BsonDocument = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
 
-    fun <T : Any> toBson(json: String, type: KClass<T>): BsonDocument
-            = generateIfAbsentAndMayBeMoveId(toBson(json), type)
+    fun <T : Any> toBson(json: String, type: KClass<T>): BsonDocument =
+        generateIfAbsentAndMayBeMoveId(toBson(json), type)
 
     private fun <T : Any> generateIfAbsentAndMayBeMoveId(document: BsonDocument, type: KClass<T>): BsonDocument {
         if (!document.containsKey("_id")) {
@@ -102,36 +105,50 @@ object KMongoUtil {
         return document
     }
 
-    fun toBsonList(json: Array<out String>, codecRegistry: CodecRegistry): List<Bson>
-            =
-            if (json.size == 1 && isJsonArray(json[0])) {
-                BsonArrayCodec(codecRegistry).decode(JsonReader(json[0]), DecoderContext.builder().build())
-                        .map { it as BsonDocument }
-            } else {
-                json.map { toBson(it) }
-            }
+    fun toBsonList(json: Array<out String>, codecRegistry: CodecRegistry): List<Bson> =
+        if (json.size == 1 && isJsonArray(json[0])) {
+            BsonArrayCodec(codecRegistry).decode(JsonReader(json[0]), DecoderContext.builder().build())
+                .map { it as BsonDocument }
+        } else {
+            json.map { toBson(it) }
+        }
 
-    fun filterIdToBson(obj: Any): BsonDocument
-            = ClassMappingType.filterIdToBson(obj)
+    fun filterIdToBson(obj: Any): BsonDocument = ClassMappingType.filterIdToBson(obj)
 
     fun formatJson(json: String): String {
         return SPACE_REPLACE_PATTERN.matcher(json).replaceAll(QUOTE_REPLACE_MATCHER)
     }
 
-    fun toExtendedJson(obj: Any): String
-            = ClassMappingType.toExtendedJson(obj)
+    fun toExtendedJson(obj: Any): String =
+        if (obj is Bson) {
+            obj
+                .toBsonDocument(
+                    Document::class.java,
+                    CodecRegistries.fromRegistries(
+                        MongoClientProvider.defaultCodecRegistry(),
+                        ClassMappingType.codecRegistry()
+                    )
+                )
+                .toJson()
+        } else {
+            ClassMappingType.toExtendedJson(obj)
+        }
 
-    private fun filterIdToExtendedJson(obj: Any): String
-            = ClassMappingType.filterIdToExtendedJson(obj)
+    private fun filterIdToExtendedJson(obj: Any): String = ClassMappingType.filterIdToExtendedJson(obj)
 
-    private fun isJsonArray(json: String)
-            = json.trim().startsWith('[')
+    private fun isJsonArray(json: String) = json.trim().startsWith('[')
 
-    fun idFilterQuery(id: Any): String
-            = "{_id:${toExtendedJson(id)}}"
+    //TODO use bson
+    fun idFilterQuery(id: Any): String = "{_id:${toExtendedJson(id)}}"
 
-    private fun containsUpdateOperator(map: Map<*, *>): Boolean
-            = UPDATE_OPERATORS.any { map.contains(it) }
+    private fun containsUpdateOperator(map: Map<*, *>): Boolean = UPDATE_OPERATORS.any { map.contains(it) }
+
+    fun toBsonModifier(obj: Any): Bson =
+        when (obj) {
+            is Bson -> obj
+            is String -> toBson(obj)
+            else -> toBson(setModifier(obj))
+        }
 
     fun setModifier(obj: Any): String {
         return if (obj is Map<*, *> && containsUpdateOperator(obj)) {
@@ -155,14 +172,17 @@ object KMongoUtil {
         }
     }
 
-    fun <T : Any> toWriteModel(json: Array<out String>, codecRegistry: CodecRegistry, type: KClass<T>): List<WriteModel<BsonDocument>>
-            =
-            if (json.size == 1 && isJsonArray(json[0])) {
-                BsonArrayCodec(codecRegistry).decode(JsonReader(json[0]), DecoderContext.builder().build())
-                        .map { toWriteModel(it as BsonDocument, type) }
-            } else {
-                json.map { toWriteModel(toBson(it), type) }
-            }
+    fun <T : Any> toWriteModel(
+        json: Array<out String>,
+        codecRegistry: CodecRegistry,
+        type: KClass<T>
+    ): List<WriteModel<BsonDocument>> =
+        if (json.size == 1 && isJsonArray(json[0])) {
+            BsonArrayCodec(codecRegistry).decode(JsonReader(json[0]), DecoderContext.builder().build())
+                .map { toWriteModel(it as BsonDocument, type) }
+        } else {
+            json.map { toWriteModel(toBson(it), type) }
+        }
 
     private fun <T : Any> toWriteModel(bson: BsonDocument, type: KClass<T>): WriteModel<BsonDocument> {
         if (bson.containsKey("insertOne")) {
@@ -170,36 +190,41 @@ object KMongoUtil {
         } else if (bson.containsKey("updateOne")) {
             val updateOne = bson.getDocument("updateOne")
             return UpdateOneModel<BsonDocument>(
-                    updateOne.getDocument("filter"),
-                    updateOne.getDocument("update"),
-                    UpdateOptions().upsert(updateOne.getBoolean("upsert", BsonBoolean.FALSE).value))
+                updateOne.getDocument("filter"),
+                updateOne.getDocument("update"),
+                UpdateOptions().upsert(updateOne.getBoolean("upsert", BsonBoolean.FALSE).value)
+            )
         } else if (bson.containsKey("updateMany")) {
             val updateMany = bson.getDocument("updateMany")
             return UpdateManyModel<BsonDocument>(
-                    updateMany.getDocument("filter"),
-                    updateMany.getDocument("update"),
-                    UpdateOptions().upsert(updateMany.getBoolean("upsert", BsonBoolean.FALSE).value))
+                updateMany.getDocument("filter"),
+                updateMany.getDocument("update"),
+                UpdateOptions().upsert(updateMany.getBoolean("upsert", BsonBoolean.FALSE).value)
+            )
         } else if (bson.containsKey("replaceOne")) {
             val replaceOne = bson.getDocument("replaceOne")
             return ReplaceOneModel<BsonDocument>(
-                    replaceOne.getDocument("filter"),
-                    replaceOne.getDocument("replacement"),
-                    UpdateOptions().upsert(replaceOne.getBoolean("upsert", BsonBoolean.FALSE).value))
+                replaceOne.getDocument("filter"),
+                replaceOne.getDocument("replacement"),
+                UpdateOptions().upsert(replaceOne.getBoolean("upsert", BsonBoolean.FALSE).value)
+            )
         } else if (bson.containsKey("deleteOne")) {
             val deleteOne = bson.getDocument("deleteOne")
             return DeleteOneModel<BsonDocument>(
-                    deleteOne.getDocument("filter"))
+                deleteOne.getDocument("filter")
+            )
         } else if (bson.containsKey("deleteMany")) {
             val deleteMany = bson.getDocument("deleteMany")
             return DeleteManyModel<BsonDocument>(
-                    deleteMany.getDocument("filter"))
+                deleteMany.getDocument("filter")
+            )
         } else {
             throw IllegalArgumentException("unknown write model : $bson")
         }
     }
 
-    fun defaultCollectionName(clazz: KClass<*>): String
-            = CollectionNameFormatter.defaultCollectionNameBuilder.invoke(clazz)
+    fun defaultCollectionName(clazz: KClass<*>): String =
+        CollectionNameFormatter.defaultCollectionNameBuilder.invoke(clazz)
 
     fun getIdValue(value: Any): Any? {
         //check map
@@ -208,7 +233,10 @@ object KMongoUtil {
         }
         val idProperty = ClassMappingType.findIdProperty(value.javaClass.kotlin)
         @Suppress("UNCHECKED_CAST")
-        return if (idProperty == null) null else ClassMappingType.getIdValue<Any, Any>(idProperty as KProperty1<Any, Any>, value)
+        return if (idProperty == null) null else ClassMappingType.getIdValue<Any, Any>(
+            idProperty as KProperty1<Any, Any>,
+            value
+        )
     }
 
 }

@@ -71,7 +71,7 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
     fun canAggregateWithMultipleDocuments() {
         val l = col.aggregate<Article>("{$match:{tags:'virus'}}").toList()
         assertEquals(2, l.size)
-        assertTrue (l.all { it.tags.contains("virus") })
+        assertTrue(l.all { it.tags.contains("virus") })
     }
 
     @Test
@@ -79,14 +79,14 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
         val tag = "pandemic"
         val l = col.aggregate<Article>("{$match:{tags:'$tag'}}").toList()
         assertEquals(1, l.size)
-        assertEquals ("World War Z", l.first().title)
+        assertEquals("World War Z", l.first().title)
     }
 
     @Test
     fun canAggregateWithManyMatch() {
         val l = col.aggregate<Article>("{$match:{$and:[{tags:'virus'}, {tags:'pandemic'}]}}").toList()
         assertEquals(1, l.size)
-        assertEquals ("World War Z", l.first().title)
+        assertEquals("World War Z", l.first().title)
     }
 
     @Test
@@ -99,7 +99,7 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
     fun shouldCheckIfCommandHasErrors() {
         try {
             col.aggregate<Article>("{\$invalid:{}}").toList()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             assertTrue(e is MongoCommandException)
             return
         }
@@ -111,7 +111,27 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
     fun shouldPopulateIds() {
         val l = friendCol.aggregate<Friend>("{$project: {_id: '\$_id', name: '\$name'}}").toList()
         assertEquals(3, l.size)
-        assertTrue (l.all { it._id != null })
+        assertTrue(l.all { it._id != null })
+        assertTrue(l.all { it.name != null })
+        assertTrue(l.all { it.address == null })
+
+        val l2 = friendCol.aggregate<Friend>("{$project: {_id: 1, name: 1}}").toList()
+        assertEquals(3, l2.size)
+        assertTrue(l2.all { it._id != null })
+        assertTrue(l2.all { it.name != null })
+        assertTrue(l2.all { it.address == null })
+
+        val l3 = friendCol.aggregate<Friend>("{$project: { name: 1}}").toList()
+        assertEquals(3, l3.size)
+        assertTrue(l3.all { it._id != null })
+        assertTrue(l3.all { it.name != null })
+        assertTrue(l3.all { it.address == null })
+
+        val l4 = friendCol.aggregate<Friend>("{$project: {_id: 0, name: 1}}").toList()
+        assertEquals(3, l4.size)
+        assertTrue(l4.all { it._id == null })
+        assertTrue(l4.all { it.name != null })
+        assertTrue(l4.all { it.address == null })
     }
 
 

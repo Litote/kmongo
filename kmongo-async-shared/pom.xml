@@ -30,7 +30,7 @@
     <dependencies>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-shared</artifactId>
+            <artifactId>kmongo-property</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
