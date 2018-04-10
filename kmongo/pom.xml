@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-root</artifactId>
-        <version>3.6.4-SNAPSHOT</version>
+        <version>3.7.0-rc0</version>
     </parent>
 
     <artifactId>kmongo</artifactId>
