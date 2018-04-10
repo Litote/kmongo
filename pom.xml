@@ -64,7 +64,7 @@
     <properties>
         <!-- dependencies -->
         <kotlin.version>1.2.31</kotlin.version>
-        <mongo.version>3.6.3</mongo.version>
+        <mongo.version>3.7.0-rc0</mongo.version>
         <coroutine.version>0.22.5</coroutine.version>
         <rxjava.version>2.1.12</rxjava.version>
         <rxkotlin.version>2.2.0</rxkotlin.version>
@@ -89,7 +89,7 @@
         <plugin.dokka.version>0.9.16</plugin.dokka.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
-        <plugin.jacoco.version>0.8.0</plugin.jacoco.version>
+        <plugin.jacoco.version>0.8.1</plugin.jacoco.version>
 
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>

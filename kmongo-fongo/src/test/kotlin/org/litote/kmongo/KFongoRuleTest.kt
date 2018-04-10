@@ -17,6 +17,7 @@
 package org.litote.kmongo
 
 import com.mongodb.client.model.Filters
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.litote.kmongo.KFongoRule.Companion.rule
@@ -32,6 +33,7 @@ class KFongoRuleTest : KMongoRootTest() {
     @JvmField
     val rule = rule<Friend>()
 
+    @Ignore
     @Test
     fun testSaveAndFind() {
         val friend = Friend("bob")
