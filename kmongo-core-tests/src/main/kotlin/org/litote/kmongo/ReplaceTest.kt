@@ -16,6 +16,7 @@
 
 package org.litote.kmongo
 
+import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
@@ -31,6 +32,16 @@ class ReplaceTest : AllCategoriesKMongoBaseTest<Friend>() {
         val friend = Friend("Peter", "31 rue des Lilas")
         col.insertOne(friend)
         col.replaceOneById(friend._id!!, Friend("John"))
+        val r = col.findOne("{name:'John'}}")
+        assertEquals("John", r!!.name)
+        assertNull(r.address)
+    }
+
+    @Test
+    fun canReplaceWithFilterQuery() {
+        val friend = Friend("Peter", "31 rue des Lilas")
+        col.insertOne(friend)
+        col.replaceOne("{name:'Peter'}}", Friend(ObjectId(), "John"))
         val r = col.findOne("{name:'John'}}")
         assertEquals("John", r!!.name)
         assertNull(r.address)

@@ -35,6 +35,7 @@ import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.InsertOneOptions
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import com.mongodb.client.result.DeleteResult
@@ -372,12 +373,11 @@ fun <T> MongoCollection<T>.deleteMany(vararg filters: Bson?, options: DeleteOpti
 fun <T : Any> MongoCollection<T>.save(document: T) {
     val id = KMongoUtil.getIdValue(document)
     if (id != null) {
-        replaceOneById(id, document, UpdateOptions().upsert(true))
+        replaceOneById(id, document, ReplaceOptions().upsert(true))
     } else {
         insertOne(document)
     }
 }
-
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -394,7 +394,7 @@ fun <T : Any> MongoCollection<T>.save(document: T) {
 fun <T : Any> MongoCollection<T>.replaceOneById(
     id: Any,
     replacement: T,
-    options: UpdateOptions = UpdateOptions()
+    options: ReplaceOptions = ReplaceOptions()
 ): UpdateResult = replaceOne(idFilterQuery(id), replacement, options)
 
 /**
@@ -410,7 +410,7 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
  */
 inline fun <reified T : Any> MongoCollection<T>.replaceOne(
     replacement: T,
-    options: UpdateOptions = UpdateOptions()
+    options: ReplaceOptions = ReplaceOptions()
 ): UpdateResult = replaceOneById(extractId(replacement, T::class), replacement, options)
 
 /**
@@ -428,8 +428,35 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(
 fun <T : Any> MongoCollection<T>.replaceOne(
     filter: String,
     replacement: T,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = withDocumentClass<BsonDocument>().replaceOne(toBson(filter), filterIdToBson(replacement), options)
+    options: ReplaceOptions = ReplaceOptions()
+): UpdateResult = withDocumentClass<BsonDocument>()
+    .replaceOne(
+        toBson(filter),
+        filterIdToBson(replacement),
+        options
+    )
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+ * Same than [MongoCollection.replaceOne] but ensure that any _id present
+ * in [replacement] is removed to avoid MongoWriteException such as:
+ * "After applying the update, the (immutable) field '_id' was found to have been altered to _id"
+ *
+ * Note: Supports retryable writes on MongoDB server versions 3.6 or higher when the retryWrites setting is enabled.
+ * @param filter        the query filter to apply the the replace operation
+ * @param replacement   the replacement document
+ * @param replaceOptions the options to apply to the replace operation
+ * @return the result of the replace one operation
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the replace command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ * @since 3.7
+ */
+fun <T : Any> MongoCollection<T>.replaceOneWithFilter(
+    filter: Bson,
+    replacement: T,
+    replaceOptions: ReplaceOptions = ReplaceOptions()
+): UpdateResult = withDocumentClass<BsonDocument>().replaceOne(filter, filterIdToBson(replacement), replaceOptions)
 
 /**
  * Update a single document in the collection according to the specified arguments.

@@ -34,6 +34,7 @@ import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.InsertOneOptions
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import com.mongodb.client.result.DeleteResult
@@ -425,7 +426,7 @@ fun <T> MongoCollection<T>.deleteMany(
 fun <T : Any> MongoCollection<T>.save(document: T, callback: (Void?, Throwable?) -> Unit) {
     val id = KMongoUtil.getIdValue(document)
     if (id != null) {
-        replaceOneById(id, document, UpdateOptions().upsert(true), { _, t -> callback.invoke(null, t) })
+        replaceOneById(id, document, ReplaceOptions().upsert(true), { _, t -> callback.invoke(null, t) })
     } else {
         insertOne(document, callback)
     }
@@ -446,7 +447,7 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
     id: Any,
     replacement: T,
     callback: (UpdateResult?, Throwable?) -> Unit
-) = replaceOneById(id, replacement, UpdateOptions(), callback)
+) = replaceOneById(id, replacement, ReplaceOptions(), callback)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -463,7 +464,7 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
 fun <T : Any> MongoCollection<T>.replaceOneById(
     id: Any,
     replacement: T,
-    options: UpdateOptions,
+    options: ReplaceOptions,
     callback: (UpdateResult?, Throwable?) -> Unit
 ) = replaceOne(idFilterQuery(id), replacement, options, callback)
 
@@ -486,6 +487,51 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(
  * Replace a document in the collection according to the specified arguments.
  *
  * @param filter      the query filter to apply to the replace operation
+ * @param replacement the document to replace - must have an non null id
+ * @param callback    the callback passed the result of the replace one operation
+ *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+inline fun <reified T : Any> MongoCollection<T>.replaceOne(
+    filter: Bson,
+    replacement: T,
+    noinline callback: (UpdateResult?, Throwable?) -> Unit
+) = withDocumentClass<BsonDocument>().replaceOne(
+    filter,
+    KMongoUtil.filterIdToBson(replacement),
+    callback
+)
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+ *
+ * @param filter      the query filter to apply to the replace operation
+ * @param replacement the document to replace - must have an non null id
+ * @param options     the options to apply to the replace operation
+ * @param callback    the callback passed the result of the replace one operation
+ *
+ * @throws com.mongodb.MongoWriteException        returned via the callback
+ * @throws com.mongodb.MongoWriteConcernException returned via the callback
+ * @throws com.mongodb.MongoException             returned via the callback
+ */
+inline fun <reified T : Any> MongoCollection<T>.replaceOne(
+    filter: Bson,
+    replacement: T,
+    options: ReplaceOptions,
+    noinline callback: (UpdateResult?, Throwable?) -> Unit
+) = withDocumentClass<BsonDocument>().replaceOne(
+    filter,
+    KMongoUtil.filterIdToBson(replacement),
+    options,
+    callback
+)
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+ *
+ * @param filter      the query filter to apply to the replace operation
  * @param replacement the replacement document
  * @param options     the options to apply to the replace operation
  * @param callback    the callback passed the result of the replace one operation
@@ -497,7 +543,7 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(
 fun <T : Any> MongoCollection<T>.replaceOne(
     filter: String,
     replacement: T,
-    options: UpdateOptions,
+    options: ReplaceOptions,
     callback: (UpdateResult?, Throwable?) -> Unit
 ) = withDocumentClass<BsonDocument>().replaceOne(
     toBson(filter),
@@ -521,7 +567,7 @@ fun <T : Any> MongoCollection<T>.replaceOne(
     filter: String,
     replacement: T,
     callback: (UpdateResult?, Throwable?) -> Unit
-) = replaceOne(filter, replacement, UpdateOptions(), callback)
+) = replaceOne(filter, replacement, ReplaceOptions(), callback)
 
 /**
  * Update a single document in the collection according to the specified arguments.

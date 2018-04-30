@@ -33,6 +33,7 @@ import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.InsertManyOptions
 import com.mongodb.client.model.InsertOneOptions
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import com.mongodb.client.result.DeleteResult
@@ -48,6 +49,7 @@ import org.litote.kmongo.set
 import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.idFilterQuery
 import org.litote.kmongo.util.KMongoUtil.setModifier
+import org.litote.kmongo.util.KMongoUtil.toBson
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -359,7 +361,7 @@ suspend fun <T> MongoCollection<T>.deleteMany(
 suspend fun <T : Any> MongoCollection<T>.save(document: T): Void? {
     val id = KMongoUtil.getIdValue(document)
     return if (id != null) {
-        replaceOneById(id, document, UpdateOptions().upsert(true))
+        replaceOneById(id, document, ReplaceOptions().upsert(true))
         null
     } else {
         singleResult<Void> { insertOne(document, it) }
@@ -382,7 +384,7 @@ suspend fun <T : Any> MongoCollection<T>.save(document: T): Void? {
 suspend fun <T : Any> MongoCollection<T>.replaceOneById(
     id: Any,
     replacement: T,
-    options: UpdateOptions = UpdateOptions()
+    options: ReplaceOptions = ReplaceOptions()
 ): UpdateResult? {
     return replaceOne(idFilterQuery(id), replacement, options)
 }
@@ -401,7 +403,7 @@ suspend fun <T : Any> MongoCollection<T>.replaceOneById(
  */
 suspend inline fun <reified T : Any> MongoCollection<T>.replaceOne(
     replacement: T,
-    options: UpdateOptions = UpdateOptions()
+    options: ReplaceOptions = ReplaceOptions()
 ): UpdateResult? {
     return replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement, options)
 }
@@ -422,11 +424,32 @@ suspend inline fun <reified T : Any> MongoCollection<T>.replaceOne(
 suspend fun <T : Any> MongoCollection<T>.replaceOne(
     filter: String,
     replacement: T,
-    options: UpdateOptions = UpdateOptions()
+    options: ReplaceOptions = ReplaceOptions()
+): UpdateResult? {
+    return replaceOne(toBson(filter), replacement, options)
+}
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+ *
+ * @param filter      the query filter to apply to the replace operation
+ * @param replacement the replacement document
+ * @param options     the options to apply to the replace operation
+ *
+ * @return the result of the replace one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T : Any> MongoCollection<T>.replaceOne(
+    filter: Bson,
+    replacement: T,
+    options: ReplaceOptions = ReplaceOptions()
 ): UpdateResult? {
     return singleResult {
         withDocumentClass<BsonDocument>().replaceOne(
-            KMongoUtil.toBson(filter),
+            filter,
             KMongoUtil.filterIdToBson(replacement),
             options,
             it

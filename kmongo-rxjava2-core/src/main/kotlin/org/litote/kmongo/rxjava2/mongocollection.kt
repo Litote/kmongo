@@ -32,6 +32,7 @@ import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.InsertManyOptions
 import com.mongodb.client.model.InsertOneOptions
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import com.mongodb.client.result.DeleteResult
@@ -50,6 +51,7 @@ import org.litote.kmongo.ascending
 import org.litote.kmongo.path
 import org.litote.kmongo.set
 import org.litote.kmongo.util.KMongoUtil
+import org.litote.kmongo.util.KMongoUtil.toBson
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -83,7 +85,7 @@ fun <T> MongoCollection<T>.count(): Single<Long> {
  */
 fun <T> MongoCollection<T>.count(filter: String, options: CountOptions = CountOptions()): Single<Long> {
     return maybeResult<Long> {
-        count(KMongoUtil.toBson(filter), options, it)
+        count(toBson(filter), options, it)
     }.switchIfEmpty(SingleSource { observer ->
         observer.onSuccess(0L)
     })
@@ -112,7 +114,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(
     fieldName: String,
     filter: String
 ): DistinctIterable<TResult> {
-    return distinct(fieldName, KMongoUtil.toBson(filter), TResult::class.java)
+    return distinct(fieldName, toBson(filter), TResult::class.java)
 }
 
 /**
@@ -136,7 +138,7 @@ inline fun <reified T : Any, reified TResult : Any> MongoCollection<*>.distinct(
  * @param  filter the query filter
  * @return the find iterable interface
  */
-fun <T : Any> MongoCollection<T>.find(filter: String): FindIterable<T> = find(KMongoUtil.toBson(filter))
+fun <T : Any> MongoCollection<T>.find(filter: String): FindIterable<T> = find(toBson(filter))
 
 /**
  * Finds all documents that match the filters in the collection.
@@ -274,7 +276,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
 ): Completable {
     return completableResult {
         withDocumentClass<BsonDocument>().insertOne(
-            KMongoUtil.toBson(document, T::class),
+            toBson(document, T::class),
             options,
             it
         )
@@ -295,7 +297,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
  * @throws com.mongodb.MongoException
  */
 fun <T> MongoCollection<T>.deleteOne(filter: String): Maybe<DeleteResult> {
-    return maybeResult { deleteOne(KMongoUtil.toBson(filter), it) }
+    return maybeResult { deleteOne(toBson(filter), it) }
 }
 
 /**
@@ -342,7 +344,7 @@ fun <T> MongoCollection<T>.deleteMany(
     filter: String,
     options: DeleteOptions = DeleteOptions()
 ): Maybe<DeleteResult> {
-    return maybeResult { deleteMany(KMongoUtil.toBson(filter), options, it) }
+    return maybeResult { deleteMany(toBson(filter), options, it) }
 }
 
 /**
@@ -379,7 +381,7 @@ fun <T : Any> MongoCollection<T>.save(document: T): Completable {
         replaceOneById(
             id,
             document,
-            UpdateOptions().upsert(true)
+            ReplaceOptions().upsert(true)
         ).flatMapCompletable { _ -> CompletableSource { cs -> cs.onComplete() } }
     } else {
         completableResult { insertOne(document, it) }
@@ -402,7 +404,7 @@ fun <T : Any> MongoCollection<T>.save(document: T): Completable {
 fun <T : Any> MongoCollection<T>.replaceOneById(
     id: Any,
     replacement: T,
-    options: UpdateOptions = UpdateOptions()
+    options: ReplaceOptions = ReplaceOptions()
 ): Maybe<UpdateResult> {
     return replaceOne(KMongoUtil.idFilterQuery(id), replacement, options)
 }
@@ -419,7 +421,7 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
  */
 inline fun <reified T : Any> MongoCollection<T>.replaceOne(
     replacement: T,
-    options: UpdateOptions = UpdateOptions()
+    options: ReplaceOptions = ReplaceOptions()
 ): Maybe<UpdateResult> {
     return replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement, options)
 }
@@ -440,11 +442,36 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(
 fun <T : Any> MongoCollection<T>.replaceOne(
     filter: String,
     replacement: T,
-    options: UpdateOptions = UpdateOptions()
+    options: ReplaceOptions = ReplaceOptions()
+): Maybe<UpdateResult> {
+    return replaceOne(
+        toBson(filter),
+        replacement,
+        options
+    )
+}
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+ *
+ * @param filter      the query filter to apply to the replace operation
+ * @param replacement the replacement document
+ * @param options     the options to apply to the replace operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+fun <T : Any> MongoCollection<T>.replaceOne(
+    filter: Bson,
+    replacement: T,
+    options: ReplaceOptions = ReplaceOptions()
 ): Maybe<UpdateResult> {
     return maybeResult {
         withDocumentClass<BsonDocument>().replaceOne(
-            KMongoUtil.toBson(filter),
+            filter,
             KMongoUtil.filterIdToBson(replacement),
             options,
             it
@@ -470,7 +497,7 @@ fun <T> MongoCollection<T>.updateOne(
     update: String,
     options: UpdateOptions = UpdateOptions()
 ): Maybe<UpdateResult> {
-    return maybeResult { updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options, it) }
+    return maybeResult { updateOne(toBson(filter), toBson(update), options, it) }
 }
 
 /**
@@ -491,7 +518,7 @@ fun <T : Any> MongoCollection<T>.updateOne(
     target: T,
     options: UpdateOptions = UpdateOptions()
 ): Maybe<UpdateResult> {
-    return maybeResult { updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBsonModifier(target), options, it) }
+    return maybeResult { updateOne(toBson(filter), KMongoUtil.toBsonModifier(target), options, it) }
 }
 
 /**
@@ -579,7 +606,7 @@ fun <T> MongoCollection<T>.updateMany(
     update: String,
     updateOptions: UpdateOptions = UpdateOptions()
 ): Maybe<UpdateResult> {
-    return maybeResult { updateMany(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), updateOptions, it) }
+    return maybeResult { updateMany(toBson(filter), toBson(update), updateOptions, it) }
 }
 
 /**
@@ -615,7 +642,7 @@ fun <T : Any> MongoCollection<T>.findOneAndDelete(
     filter: String,
     options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
 ): Maybe<T> {
-    return maybeResult { findOneAndDelete(KMongoUtil.toBson(filter), options, it) }
+    return maybeResult { findOneAndDelete(toBson(filter), options, it) }
 }
 
 /**
@@ -634,7 +661,7 @@ fun <T> MongoCollection<T>.findOneAndReplace(
     replacement: T,
     options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
 ): Maybe<T> {
-    return maybeResult { findOneAndReplace(KMongoUtil.toBson(filter), replacement, options, it) }
+    return maybeResult { findOneAndReplace(toBson(filter), replacement, options, it) }
 }
 
 /**
@@ -653,7 +680,7 @@ fun <T : Any> MongoCollection<T>.findOneAndUpdate(
     update: String,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
 ): Maybe<T> {
-    return maybeResult { findOneAndUpdate(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options, it) }
+    return maybeResult { findOneAndUpdate(toBson(filter), toBson(update), options, it) }
 }
 
 /**
@@ -665,7 +692,7 @@ fun <T : Any> MongoCollection<T>.findOneAndUpdate(
  * @return the index name
  */
 fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions = IndexOptions()): Maybe<String> {
-    return maybeResult { createIndex(KMongoUtil.toBson(key), options, it) }
+    return maybeResult { createIndex(toBson(key), options, it) }
 }
 
 /**
@@ -757,7 +784,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIn
  * @param keys the keys of the index to remove
  */
 fun <T> MongoCollection<T>.dropIndex(keys: String): Completable {
-    return completableResult { dropIndex(KMongoUtil.toBson(keys), it) }
+    return completableResult { dropIndex(toBson(keys), it) }
 }
 
 /**
