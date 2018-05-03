@@ -58,8 +58,6 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
         dropCollection<Friend>()
     }
 
-    override fun getDefaultCollectionClass(): KClass<Article> = Article::class
-
     @Test
     fun canAggregate() {
         val l = col.aggregate<Article>("{$match:{}}").toList()

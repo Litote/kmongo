@@ -23,7 +23,6 @@ import org.litote.kmongo.eq
 import org.litote.kmongo.findOne
 import org.litote.kmongo.issues.Issue12EqToLocaleQueryCrash.ClassWithLocalField
 import java.util.Locale
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -32,10 +31,6 @@ import kotlin.test.assertEquals
 class Issue12EqToLocaleQueryCrash : AllCategoriesKMongoBaseTest<ClassWithLocalField>() {
 
     data class ClassWithLocalField(val locale: Locale)
-
-    override fun getDefaultCollectionClass(): KClass<ClassWithLocalField> {
-        return ClassWithLocalField::class
-    }
 
     @Test
     fun testSerializeAndDeserializeLocale() {

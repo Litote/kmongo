@@ -23,7 +23,6 @@ import org.litote.kmongo.UsageTypedTest.Jedi
 import org.litote.kmongo.model.Friend
 import java.time.LocalDate
 import java.time.Month
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -43,10 +42,6 @@ class UsageTypedTest : KMongoBaseTest<Jedi>() {
 
     class TFighter(val version: String, val pilot: Pilot?)
     class Pilot()
-
-    override fun getDefaultCollectionClass(): KClass<Jedi> {
-        return Jedi::class
-    }
 
     @Before
     fun setup() {

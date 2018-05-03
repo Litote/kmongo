@@ -22,7 +22,6 @@ import org.junit.Test
 import org.litote.kmongo.BigDecimalTest.Article
 import org.litote.kmongo.MongoOperator.numberDecimal
 import java.math.BigDecimal
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -33,8 +32,6 @@ class BigDecimalTest : AllCategoriesKMongoBaseTest<Article>() {
 
     data class Article(val title: String, val big: BigDecimal) {
     }
-
-    override fun getDefaultCollectionClass(): KClass<Article> = Article::class
 
     @Test
     fun bigDecimalShouldBePersistedAsDecimal128() {
@@ -50,7 +47,8 @@ class BigDecimalTest : AllCategoriesKMongoBaseTest<Article>() {
         val a = Article("title", BigDecimal("1.0"))
         val json = a.json.replace(" ", "")
         assertTrue(
-                json == "{\"big\":{\"$numberDecimal\":\"1.0\"},\"title\":\"title\"}"
-                        || json == "{\"title\":\"title\",\"big\":{\"$numberDecimal\":\"1.0\"}}")
+            json == "{\"big\":{\"$numberDecimal\":\"1.0\"},\"title\":\"title\"}"
+                    || json == "{\"title\":\"title\",\"big\":{\"$numberDecimal\":\"1.0\"}}"
+        )
     }
 }

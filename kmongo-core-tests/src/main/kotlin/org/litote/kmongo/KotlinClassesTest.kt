@@ -19,7 +19,6 @@ package org.litote.kmongo
 import org.junit.Test
 import org.litote.kmongo.KotlinClassesTest.KotlinClasses
 import java.util.Locale
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -28,8 +27,6 @@ import kotlin.test.assertEquals
 class KotlinClassesTest : AllCategoriesKMongoBaseTest<KotlinClasses>() {
 
     data class KotlinClasses(var pair: Pair<String, Int>, var triple: Triple<String, Double, Locale>)
-
-    override fun getDefaultCollectionClass(): KClass<KotlinClasses> = KotlinClasses::class
 
     @Test
     fun savedAndLoad() {

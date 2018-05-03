@@ -22,21 +22,20 @@ import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
 import org.litote.kmongo.save
 import org.litote.kmongo.withDocumentClass
-import kotlin.reflect.KClass
 import kotlin.test.assertFalse
 
 /**
  *
  */
-class Issue21SupportTransientToNotBeSaved : AllCategoriesKMongoBaseTest<Issue21SupportTransientToNotBeSaved.Activity>() {
+class Issue21SupportTransientToNotBeSaved :
+    AllCategoriesKMongoBaseTest<Issue21SupportTransientToNotBeSaved.Activity>() {
 
-    data class Activity(var activity: String,
-                        var reference: Any? = null) {
-        @Transient var transactionId: Int = 0
-    }
-
-    override fun getDefaultCollectionClass(): KClass<Activity> {
-        return Activity::class
+    data class Activity(
+        var activity: String,
+        var reference: Any? = null
+    ) {
+        @Transient
+        var transactionId: Int = 0
     }
 
     @Test

@@ -19,7 +19,6 @@ package org.litote.kmongo
 import org.bson.BsonTimestamp
 import org.junit.Test
 import org.litote.kmongo.TimestampTest.TimestampValue
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -28,10 +27,6 @@ import kotlin.test.assertEquals
 class TimestampTest : AllCategoriesKMongoBaseTest<TimestampValue>() {
 
     data class TimestampValue(val date: BsonTimestamp?)
-
-    override fun getDefaultCollectionClass(): KClass<TimestampValue> {
-        return TimestampValue::class
-    }
 
     @Test
     fun testInsertAndLoad() {

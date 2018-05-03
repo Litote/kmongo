@@ -27,7 +27,6 @@ import org.litote.kmongo.findOne
 import org.litote.kmongo.getCollection
 import org.litote.kmongo.issues.Issue18SavingDBRefContainingAnObjectIdBreaks.TestData
 import org.litote.kmongo.save
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -36,10 +35,6 @@ import kotlin.test.assertEquals
 class Issue18SavingDBRefContainingAnObjectIdBreaks : KMongoBaseTest<TestData>() {
 
     data class TestData(val title: String, val ref: DBRef?)
-
-    override fun getDefaultCollectionClass(): KClass<TestData> {
-        return TestData::class
-    }
 
     @Category(JacksonMappingCategory::class)
     @Test

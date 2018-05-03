@@ -30,7 +30,6 @@ import org.litote.kmongo.findOne
 import org.litote.kmongo.issues.Issue35DateStoredAsTimestamp.TestWrapper
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -41,11 +40,12 @@ class Issue35DateStoredAsTimestamp : AllCategoriesKMongoBaseTest<TestWrapper>() 
     data class TestData(val l: Long = 0, @JsonProperty("r") val d: LocalDateTime)
 
     @JsonTypeInfo(
-            use = JsonTypeInfo.Id.NAME,
-            include = JsonTypeInfo.As.EXISTING_PROPERTY,
-            property = "type")
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "type"
+    )
     @JsonSubTypes(
-            JsonSubTypes.Type(value = Impl::class, name = "test")
+        JsonSubTypes.Type(value = Impl::class, name = "test")
     )
     abstract class Abstract(val type: String)
 
@@ -95,11 +95,6 @@ class Issue35DateStoredAsTimestamp : AllCategoriesKMongoBaseTest<TestWrapper>() 
             return null
         }
 
-    }
-
-
-    override fun getDefaultCollectionClass(): KClass<TestWrapper> {
-        return TestWrapper::class
     }
 
     @Test

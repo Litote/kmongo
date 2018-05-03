@@ -22,24 +22,21 @@ import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOneById
 import org.litote.kmongo.withDocumentClass
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 /**
  *
  */
-class Issue11BsonSerializerCanOnlyBeUsedWithBsonGenerator : AllCategoriesKMongoBaseTest<Issue11BsonSerializerCanOnlyBeUsedWithBsonGenerator.ClassWithIntId>() {
+class Issue11BsonSerializerCanOnlyBeUsedWithBsonGenerator :
+    AllCategoriesKMongoBaseTest<Issue11BsonSerializerCanOnlyBeUsedWithBsonGenerator.ClassWithIntId>() {
 
     data class ClassWithIntId(@BsonId val id: Int, val title: String?)
 
-    override fun getDefaultCollectionClass(): KClass<ClassWithIntId> {
-        return ClassWithIntId::class
-    }
-
     @Test
     fun testSerializeAndDeserialize() {
-        val document = Document.parse("""{ "_id" : 42, "url" : "somewhere.com", "updated" : ISODate("2016-07-29T14:32:55.123Z"), "title" : "United States Post Office" }""")
+        val document =
+            Document.parse("""{ "_id" : 42, "url" : "somewhere.com", "updated" : ISODate("2016-07-29T14:32:55.123Z"), "title" : "United States Post Office" }""")
         col.withDocumentClass<Document>().insertOne(document)
         val document2 = col.findOneById(42)
         assertNotNull(document2)

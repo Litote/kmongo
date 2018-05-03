@@ -31,7 +31,6 @@ import org.litote.kmongo.MongoOperator.sample
 import org.litote.kmongo.UsageTest.Jedi
 import java.time.LocalDate
 import java.time.Month.MAY
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -55,10 +54,6 @@ class UsageTest : KMongoBaseTest<Jedi>() {
     class TFighter(val version: String, val pilot: Pilot?)
     class Pilot()
 
-    override fun getDefaultCollectionClass(): KClass<Jedi> {
-        return Jedi::class
-    }
-
     @Before
     fun setup() {
         col.insertOne(Jedi("Luke Skywalker", 19, StarWarsFilm("A New Hope", LocalDate.of(1977, MAY, 25))))
@@ -70,14 +65,17 @@ class UsageTest : KMongoBaseTest<Jedi>() {
     fun firstSample() {
         val yoda = col.findOne("{name: {$regex: 'Yo.*'}}")!!
 
-        val luke = col.aggregate<Jedi>("""[ {$match:{age:{$lt : ${yoda.age}}}},
+        val luke = col.aggregate<Jedi>(
+            """[ {$match:{age:{$lt : ${yoda.age}}}},
                                             {$sample:{size:1}}
-                                          ]""").first()
+                                          ]"""
+        ).first()
 
         val luke2 = col.aggregate<Jedi>(
-                match(lt("age", yoda.age)),
-                sample(1))
-                .first()
+            match(lt("age", yoda.age)),
+            sample(1)
+        )
+            .first()
 
         assertEquals("Luke Skywalker", luke.name)
         assertEquals("Yoda", yoda.name)

@@ -25,7 +25,6 @@ import org.litote.kmongo.AggregateTypedTest.Article
 import org.litote.kmongo.model.Friend
 import java.time.Instant
 import java.time.LocalDate
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -66,8 +65,6 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
     fun tearDown() {
         dropCollection<Friend>()
     }
-
-    override fun getDefaultCollectionClass(): KClass<Article> = Article::class
 
     @Test
     fun canAggregate() {

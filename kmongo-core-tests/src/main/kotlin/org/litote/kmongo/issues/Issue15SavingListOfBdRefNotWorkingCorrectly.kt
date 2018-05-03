@@ -24,7 +24,6 @@ import org.litote.kmongo.findOne
 import org.litote.kmongo.getCollection
 import org.litote.kmongo.issues.Issue15SavingListOfBdRefNotWorkingCorrectly.MongoReportDefinition
 import org.litote.kmongo.save
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -34,19 +33,16 @@ class Issue15SavingListOfBdRefNotWorkingCorrectly : AllCategoriesKMongoBaseTest<
 
     data class MongoReportDefinition(val _id: ObjectId, val title: String, val columns: List<DBRef>)
 
-    override fun getDefaultCollectionClass(): KClass<MongoReportDefinition> {
-        return MongoReportDefinition::class
-    }
-
     @Test
     fun testSerializeAndDeserializeListOfDBRefs() {
         val dbRefs = listOf(DBRef("test", "id1"), DBRef("test2", "id2"))
         val saveCard = MongoReportDefinition(
-                _id = ObjectId(),
-                title = "title",
-                columns = dbRefs)
+            _id = ObjectId(),
+            title = "title",
+            columns = dbRefs
+        )
         database.getCollection<MongoReportDefinition>("col")
-                .save(saveCard)
+            .save(saveCard)
         assertEquals(dbRefs, database.getCollection("col").findOne()!!["columns"])
     }
 

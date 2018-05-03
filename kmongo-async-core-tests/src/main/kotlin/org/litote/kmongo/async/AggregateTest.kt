@@ -28,7 +28,6 @@ import org.litote.kmongo.async.AggregateTest.Article
 import org.litote.kmongo.model.Friend
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -47,7 +46,9 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
 
         col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"), { _, _ -> count.countDown() })
         col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"), { _, _ -> count.countDown() })
-        col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"), { _, _ -> count.countDown() })
+        col.insertOne(
+            Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"),
+            { _, _ -> count.countDown() })
 
         friendCol = getCollection<Friend>()
         friendCol.insertOne(Friend("William"), { _, _ -> count.countDown() })
@@ -62,85 +63,83 @@ class AggregateTest : KMongoAsyncBaseTest<Article>() {
         dropCollection<Friend>()
     }
 
-    override fun getDefaultCollectionClass(): KClass<Article> = Article::class
-
     @Test
     fun canAggregate() {
         col.aggregate<Article>("{$match:{}}")
-                .toList { l, t ->
-                    t?.printStackTrace()
-                    asyncTest { assertEquals(3, l!!.size) }
-                }
+            .toList { l, t ->
+                t?.printStackTrace()
+                asyncTest { assertEquals(3, l!!.size) }
+            }
     }
 
 
     @Test
     fun canAggregateWithMultipleDocuments() {
         col.aggregate<Article>("{$match:{tags:'virus'}}")
-                .toList { l, _ ->
-                    asyncTest {
-                        assertEquals(2, l!!.size)
-                        assertTrue(l.all { it.tags.contains("virus") })
-                    }
+            .toList { l, _ ->
+                asyncTest {
+                    assertEquals(2, l!!.size)
+                    assertTrue(l.all { it.tags.contains("virus") })
                 }
+            }
     }
 
     @Test
     fun canAggregateParameters() {
         val tag = "pandemic"
         col.aggregate<Article>("{$match:{tags:'$tag'}}")
-                .toList { l, _ ->
-                    asyncTest {
-                        assertEquals(1, l!!.size)
-                        assertEquals("World War Z", l.first().title)
-                    }
+            .toList { l, _ ->
+                asyncTest {
+                    assertEquals(1, l!!.size)
+                    assertEquals("World War Z", l.first().title)
                 }
+            }
     }
 
     @Test
     fun canAggregateWithManyMatch() {
         col.aggregate<Article>("{$match:{$and:[{tags:'virus'}, {tags:'pandemic'}]}}")
-                .toList { l, _ ->
-                    asyncTest {
-                        assertEquals(1, l!!.size)
-                        assertEquals("World War Z", l.first().title)
-                    }
+            .toList { l, _ ->
+                asyncTest {
+                    assertEquals(1, l!!.size)
+                    assertEquals("World War Z", l.first().title)
                 }
+            }
     }
 
     @Test
     fun canAggregateWithManyOperators() {
         col.aggregate<Article>("[{$match:{tags:'virus'}},{$limit:1}]")
-                .toList { l, _ ->
-                    asyncTest {
-                        assertEquals(1, l!!.size)
-                    }
+            .toList { l, _ ->
+                asyncTest {
+                    assertEquals(1, l!!.size)
                 }
+            }
     }
 
     @Test
     fun shouldCheckIfCommandHasErrors() {
         col.aggregate<Article>("{\$invalid:{}}")
-                .toList { _, t ->
-                    asyncTest {
-                        assertTrue(t is MongoCommandException)
-                    }
+            .toList { _, t ->
+                asyncTest {
+                    assertTrue(t is MongoCommandException)
                 }
+            }
     }
 
     @Test
     fun shouldPopulateIds() {
         friendCol.aggregate<Friend>("{$project: {_id: '\$_id', name: '\$name'}}")
-                .toList { l, t ->
-                    asyncTest {
-                        t?.printStackTrace()
-                        //TODO understand why this fails randomly
-                        if (l != null) {
-                            //assertEquals(3, l.size)
-                            assertTrue(l.all { it._id != null })
-                        }
+            .toList { l, t ->
+                asyncTest {
+                    t?.printStackTrace()
+                    //TODO understand why this fails randomly
+                    if (l != null) {
+                        //assertEquals(3, l.size)
+                        assertTrue(l.all { it._id != null })
                     }
                 }
+            }
     }
 
 

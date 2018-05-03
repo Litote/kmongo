@@ -26,7 +26,6 @@ import org.litote.kmongo.MongoOperator.oid
 import org.litote.kmongo.id.IdGenerator
 import org.litote.kmongo.id.ObjectIdGenerator
 import org.litote.kmongo.id.ObjectIdToStringGenerator
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -85,8 +84,6 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         dropCollection<Article2>()
         dropCollection<Article3>()
     }
-
-    override fun getDefaultCollectionClass(): KClass<Article> = Article::class
 
     private fun stringGenerator() {
         IdGenerator.defaultGenerator = ObjectIdToStringGenerator

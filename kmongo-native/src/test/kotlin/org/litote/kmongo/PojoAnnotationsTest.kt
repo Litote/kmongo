@@ -24,7 +24,6 @@ import org.bson.codecs.pojo.annotations.BsonIgnore
 import org.bson.codecs.pojo.annotations.BsonProperty
 import org.junit.Test
 import org.litote.kmongo.PojoAnnotationsTest.WithAnnotations
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -34,17 +33,18 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
 
     @BsonDiscriminator("an")
     data class WithAnnotations(
-            @BsonId val withAnnotationsId: String,
-            @BsonProperty("otherName") val prop: String,
-            @BsonProperty(useDiscriminator = true) val other: OtherClass,
-            @BsonIgnore val ignore: String?)
+        @BsonId val withAnnotationsId: String,
+        @BsonProperty("otherName") val prop: String,
+        @BsonProperty(useDiscriminator = true) val other: OtherClass,
+        @BsonIgnore val ignore: String?
+    )
 
     data class OtherClass(val ok: Boolean = true)
 
     data class WithBsonCreatorConstructor(
-            @BsonProperty("n") val name: String,
-            @BsonProperty("o") val optional: String? = null,
-            @BsonId val id: Id<WithBsonCreatorConstructor> = newId()
+        @BsonProperty("n") val name: String,
+        @BsonProperty("o") val optional: String? = null,
+        @BsonId val id: Id<WithBsonCreatorConstructor> = newId()
     ) {
 
         @BsonCreator
@@ -52,9 +52,9 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
     }
 
     data class WithBsonCreatorConstructorAndBsonProperty(
-            val name: String,
-            @BsonProperty("o") val optional: String? = null,
-            @BsonId val id: Id<WithBsonCreatorConstructorAndBsonProperty> = newId()
+        val name: String,
+        @BsonProperty("o") val optional: String? = null,
+        @BsonId val id: Id<WithBsonCreatorConstructorAndBsonProperty> = newId()
     ) {
 
         @BsonCreator
@@ -63,33 +63,29 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
     }
 
     data class WithBsonCompanionInstantiatorMethod(
-            @BsonProperty("n") val name: String,
-            @BsonProperty("o") val optional: String? = null,
-            @BsonId val id: Id<WithBsonCompanionInstantiatorMethod> = newId()
+        @BsonProperty("n") val name: String,
+        @BsonProperty("o") val optional: String? = null,
+        @BsonId val id: Id<WithBsonCompanionInstantiatorMethod> = newId()
     ) {
 
         companion object {
             @BsonCreator
-            fun create(name: String, id: Id<WithBsonCompanionInstantiatorMethod>)
-                    = WithBsonCompanionInstantiatorMethod(name, null, id)
+            fun create(name: String, id: Id<WithBsonCompanionInstantiatorMethod>) =
+                WithBsonCompanionInstantiatorMethod(name, null, id)
         }
     }
 
     data class WithBsonCompanionInstantiatorMethodWithBsonProperty(
-            val name: String,
-            @BsonProperty("o") val optional: String? = null,
-            @BsonId val id: Id<WithBsonCompanionInstantiatorMethodWithBsonProperty> = newId()
+        val name: String,
+        @BsonProperty("o") val optional: String? = null,
+        @BsonId val id: Id<WithBsonCompanionInstantiatorMethodWithBsonProperty> = newId()
     ) {
 
         companion object {
             @BsonCreator
-            fun create(@BsonProperty("n") name: String, id: Id<WithBsonCompanionInstantiatorMethodWithBsonProperty>)
-                    = WithBsonCompanionInstantiatorMethodWithBsonProperty(name, null, id)
+            fun create(@BsonProperty("n") name: String, id: Id<WithBsonCompanionInstantiatorMethodWithBsonProperty>) =
+                WithBsonCompanionInstantiatorMethodWithBsonProperty(name, null, id)
         }
-    }
-
-    override fun getDefaultCollectionClass(): KClass<WithAnnotations> {
-        return WithAnnotations::class
     }
 
     @Test
@@ -97,8 +93,9 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
         val a = WithAnnotations("abc", "oldName", OtherClass(), "toignore")
         col.insertOne(a)
         assertEquals(
-                Document.parse("{\"_id\":\"abc\", \"_t\":\"an\", \"other\":{\"_t\":\"org.litote.kmongo.PojoAnnotationsTest\$OtherClass\", \"ok\":true}, \"otherName\":\"oldName\"}"),
-                col.withDocumentClass<Document>().find().first())
+            Document.parse("{\"_id\":\"abc\", \"_t\":\"an\", \"other\":{\"_t\":\"org.litote.kmongo.PojoAnnotationsTest\$OtherClass\", \"ok\":true}, \"otherName\":\"oldName\"}"),
+            col.withDocumentClass<Document>().find().first()
+        )
         assertEquals(a.copy(ignore = null), col.find().first())
     }
 
@@ -109,8 +106,9 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
         c.insertOne(a)
         val r = c.withDocumentClass<Document>().find().first()
         assertEquals(
-                Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
-                r)
+            Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
+            r
+        )
         assertEquals(a.copy(optional = null), c.find().first())
     }
 
@@ -121,8 +119,9 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
         c.insertOne(a)
         val r = c.withDocumentClass<Document>().find().first()
         assertEquals(
-                Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
-                r)
+            Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
+            r
+        )
         assertEquals(a.copy(optional = null), c.find().first())
     }
 
@@ -133,8 +132,9 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
         c.insertOne(a)
         val r = c.withDocumentClass<Document>().find().first()
         assertEquals(
-                Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
-                r)
+            Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
+            r
+        )
         assertEquals(a.copy(optional = null), c.find().first())
     }
 
@@ -145,8 +145,9 @@ class PojoAnnotationsTest : AllCategoriesKMongoBaseTest<WithAnnotations>() {
         c.insertOne(a)
         val r = c.withDocumentClass<Document>().find().first()
         assertEquals(
-                Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
-                r)
+            Document.parse("{\"_id\":${a.id.json}, \"n\":\"Joe\", \"o\":\"op\"}"),
+            r
+        )
         assertEquals(a.copy(optional = null), c.find().first())
     }
 

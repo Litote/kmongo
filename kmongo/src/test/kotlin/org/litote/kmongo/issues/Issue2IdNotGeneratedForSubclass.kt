@@ -24,23 +24,26 @@ import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOneById
 import org.litote.kmongo.withDocumentClass
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
-        property = "type")
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    property = "type"
+)
 @JsonSubTypes(
-        Type(value = ImplementationClass::class, name = "impl")
+    Type(value = ImplementationClass::class, name = "impl")
 )
 interface CollectionInterface
 
 @JsonTypeName("impl")
 data class ImplementationClass(val _id: String? = null) : CollectionInterface
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
-        property = "type")
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    property = "type"
+)
 @JsonSubTypes(
-        Type(value = ExtendClass::class, name = "impl")
+    Type(value = ExtendClass::class, name = "impl")
 )
 abstract class AbstractClass
 
@@ -65,16 +68,20 @@ class ExtendClass(val _id: String? = null) : AbstractClass() {
 
 data class ClassWithAbstractMember(val _id: String? = null, val ext: AbstractClass = ExtendClass("c"))
 
-data class ClassWithAbstractMemberMap(val _id: String? = null, val ext: Map<String, List<AbstractClass>> = mapOf(Pair("c", listOf(ExtendClass("c")))))
+data class ClassWithAbstractMemberMap(
+    val _id: String? = null,
+    val ext: Map<String, List<AbstractClass>> = mapOf(
+        Pair(
+            "c",
+            listOf(ExtendClass("c"))
+        )
+    )
+)
 
 /**
  * [Id not generated for subclass](https://github.com/Litote/kmongo/issues/2)
  */
 class Issue2IdNotGeneratedForSubclass : AllCategoriesKMongoBaseTest<CollectionInterface>() {
-
-    override fun getDefaultCollectionClass(): KClass<CollectionInterface> {
-        return CollectionInterface::class
-    }
 
     @Test
     fun testSerializeAndDeserializeInterface() {

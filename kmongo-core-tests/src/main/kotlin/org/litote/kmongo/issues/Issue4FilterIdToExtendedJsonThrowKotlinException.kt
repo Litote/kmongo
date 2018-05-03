@@ -24,7 +24,6 @@ import org.litote.kmongo.issues.Issue4FilterIdToExtendedJsonThrowKotlinException
 import org.litote.kmongo.issues.Issue4FilterIdToExtendedJsonThrowKotlinException.EnumWithBooleanProperty.A
 import org.litote.kmongo.issues.Issue4FilterIdToExtendedJsonThrowKotlinException.EnumWithBooleanProperty.B
 import org.litote.kmongo.updateOneById
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 
@@ -37,10 +36,6 @@ class Issue4FilterIdToExtendedJsonThrowKotlinException : AllCategoriesKMongoBase
 
     enum class EnumWithBooleanProperty(val test: Boolean) {
         A(true), B(false)
-    }
-
-    override fun getDefaultCollectionClass(): KClass<ClassWithValue> {
-        return ClassWithValue::class
     }
 
     @Test

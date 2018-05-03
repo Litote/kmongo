@@ -25,7 +25,6 @@ import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOneById
 import org.litote.kmongo.json
 import org.litote.kmongo.withDocumentClass
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -33,19 +32,19 @@ import kotlin.test.assertEquals
  */
 class Issue30DBObjectInsertException : AllCategoriesKMongoBaseTest<Issue30DBObjectInsertException.User>() {
 
-    data class User(val _id: ObjectId,
-                    val userId: String,
-                    val account: DBObject)
+    data class User(
+        val _id: ObjectId,
+        val userId: String,
+        val account: DBObject
+    )
 
-    data class User2(val _id: ObjectId,
-                     val userId: String,
-                     val account: Document)
+    data class User2(
+        val _id: ObjectId,
+        val userId: String,
+        val account: Document
+    )
 
     data class Account(val test: String)
-
-    override fun getDefaultCollectionClass(): KClass<User> {
-        return User::class
-    }
 
     @Test
     fun testSave() {

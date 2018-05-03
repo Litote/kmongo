@@ -25,15 +25,12 @@ import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
  *
  */
 class Issue51ObjectNodeClassSerializedInArray : AllCategoriesKMongoBaseTest<Document>() {
-
-    override fun getDefaultCollectionClass(): KClass<Document> = Document::class
 
     @Test
     fun testFindAndUpdate() {
@@ -42,17 +39,18 @@ class Issue51ObjectNodeClassSerializedInArray : AllCategoriesKMongoBaseTest<Docu
         objectNode.put("test", 123)
 
         col.updateOne(
-                Filters.eq("_id", "test"),
-                Updates.set("objectField", mapper.convertValue(objectNode, Map::class.java)),
-                UpdateOptions().upsert(true)
+            Filters.eq("_id", "test"),
+            Updates.set("objectField", mapper.convertValue(objectNode, Map::class.java)),
+            UpdateOptions().upsert(true)
         )
         assertEquals(
-                Document(
-                        mapOf(
-                                "_id" to "test",
-                                "objectField" to Document(mapOf("test" to 123))
-                        )
-                ),
-                col.findOne())
+            Document(
+                mapOf(
+                    "_id" to "test",
+                    "objectField" to Document(mapOf("test" to 123))
+                )
+            ),
+            col.findOne()
+        )
     }
 }

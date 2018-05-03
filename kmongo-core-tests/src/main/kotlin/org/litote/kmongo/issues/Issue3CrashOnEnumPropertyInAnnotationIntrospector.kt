@@ -19,7 +19,6 @@ package org.litote.kmongo.issues
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOneById
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 enum class EnumWithBooleanProperty(val test: Boolean) {
@@ -33,10 +32,6 @@ data class ClassWithEnumProperty(val _id: String? = null, val v: EnumWithBoolean
  * [Crash on enum property in Annotation Introspector](https://github.com/Litote/kmongo/issues/3)
  */
 class Issue3CrashOnEnumPropertyInAnnotationIntrospector : AllCategoriesKMongoBaseTest<ClassWithEnumProperty>() {
-
-    override fun getDefaultCollectionClass(): KClass<ClassWithEnumProperty> {
-        return ClassWithEnumProperty::class
-    }
 
     @Test
     fun testSerializeAndDeserialize() {

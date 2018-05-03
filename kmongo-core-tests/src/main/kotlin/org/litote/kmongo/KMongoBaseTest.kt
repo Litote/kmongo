@@ -18,7 +18,7 @@ package org.litote.kmongo
 
 import com.mongodb.client.MongoCollection
 import org.junit.Rule
-import org.litote.kmongo.model.Friend
+import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
 /**
@@ -40,5 +40,6 @@ abstract class KMongoBaseTest<T : Any> : KMongoRootTest() {
     inline fun <reified T : Any> dropCollection() = rule.dropCollection<T>()
 
     @Suppress("UNCHECKED_CAST")
-    open fun getDefaultCollectionClass(): KClass<T> = Friend::class as KClass<T>
+    fun getDefaultCollectionClass(): KClass<T> =
+        ((this::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<T>).kotlin
 }

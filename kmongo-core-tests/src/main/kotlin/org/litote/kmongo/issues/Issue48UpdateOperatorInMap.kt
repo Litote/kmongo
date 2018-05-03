@@ -24,11 +24,9 @@ import org.litote.kmongo.MongoOperator.addToSet
 import org.litote.kmongo.MongoOperator.push
 import org.litote.kmongo.findOneById
 import org.litote.kmongo.issues.Issue48UpdateOperatorInMap.CollectionTest
-import org.litote.kmongo.model.Friend
 import org.litote.kmongo.newId
 import org.litote.kmongo.save
 import org.litote.kmongo.updateOneById
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -37,12 +35,10 @@ import kotlin.test.assertEquals
 class Issue48UpdateOperatorInMap : AllCategoriesKMongoBaseTest<CollectionTest>() {
 
     data class CollectionTest(
-            val set: Set<String> = emptySet(),
-            val list: List<String> = emptyList(),
-            val _id: Id<CollectionTest> = newId())
-
-    override fun getDefaultCollectionClass(): KClass<CollectionTest> = CollectionTest::class
-
+        val set: Set<String> = emptySet(),
+        val list: List<String> = emptyList(),
+        val _id: Id<CollectionTest> = newId()
+    )
 
     @Test
     fun testUpdateSet() {
@@ -57,9 +53,10 @@ class Issue48UpdateOperatorInMap : AllCategoriesKMongoBaseTest<CollectionTest>()
         val t = CollectionTest(setOf("a"))
         col.save(t)
         val doc = Document(
-                mapOf(
-                        "$addToSet" to Document(mapOf("set" to "b")),
-                        "$push" to Document(mapOf("list" to "a")))
+            mapOf(
+                "$addToSet" to Document(mapOf("set" to "b")),
+                "$push" to Document(mapOf("list" to "a"))
+            )
         )
         col.updateOneById(t._id, doc)
         assertEquals(t.copy(set = setOf("a", "b"), list = listOf("a")), col.findOneById(t._id))

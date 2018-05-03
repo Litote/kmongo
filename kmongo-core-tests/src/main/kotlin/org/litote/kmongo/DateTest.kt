@@ -33,7 +33,6 @@ import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -68,10 +67,6 @@ class DateTest : AllCategoriesKMongoBaseTest<DateValue>() {
             OffsetTime.ofInstant(instant, offset).truncatedTo(ChronoUnit.MILLIS),
             instant.truncatedTo(ChronoUnit.MILLIS)
         )
-    }
-
-    override fun getDefaultCollectionClass(): KClass<DateValue> {
-        return DateValue::class
     }
 
     @Test

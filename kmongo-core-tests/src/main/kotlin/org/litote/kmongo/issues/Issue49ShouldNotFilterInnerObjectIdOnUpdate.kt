@@ -23,7 +23,6 @@ import org.litote.kmongo.findOne
 import org.litote.kmongo.issues.Issue49ShouldNotFilterInnerObjectIdOnUpdate.User
 import org.litote.kmongo.save
 import org.litote.kmongo.updateOne
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 /**
@@ -34,8 +33,6 @@ class Issue49ShouldNotFilterInnerObjectIdOnUpdate : AllCategoriesKMongoBaseTest<
     data class Planet(val _id: ObjectId, val name: String)
 
     data class User(val _id: ObjectId, val name: String, val planets: List<Planet>)
-
-    override fun getDefaultCollectionClass(): KClass<User> = User::class
 
     @Test
     fun updateShouldNotRemoveInnerObjectId() {

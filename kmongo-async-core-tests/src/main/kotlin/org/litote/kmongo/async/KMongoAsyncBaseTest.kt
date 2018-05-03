@@ -21,7 +21,7 @@ import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.NativeMappingCategory
-import org.litote.kmongo.model.Friend
+import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
 /**
@@ -46,6 +46,7 @@ open class KMongoAsyncBaseTest<T : Any> : KMongoRootTest() {
     fun asyncTest(testToRun: () -> Unit) = rule.asyncTest(testToRun)
 
     @Suppress("UNCHECKED_CAST")
-    open fun getDefaultCollectionClass(): KClass<T>
-            = Friend::class as KClass<T>
+    fun getDefaultCollectionClass(): KClass<T> =
+        ((this::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<T>).kotlin
+
 }

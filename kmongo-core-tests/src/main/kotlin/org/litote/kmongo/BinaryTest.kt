@@ -23,7 +23,6 @@ import org.junit.Test
 import org.litote.kmongo.BinaryTest.BinaryFriend
 import org.litote.kmongo.MongoOperator.binary
 import org.litote.kmongo.MongoOperator.type
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -32,8 +31,6 @@ class BinaryTest : AllCategoriesKMongoBaseTest<BinaryFriend>() {
     data class BinaryFriend(val _id: Binary, var name: String = "none")
 
     lateinit var friendId: Binary
-
-    override fun getDefaultCollectionClass(): KClass<BinaryFriend> = BinaryFriend::class
 
     @Before
     fun setup() {
@@ -48,7 +45,7 @@ class BinaryTest : AllCategoriesKMongoBaseTest<BinaryFriend>() {
         col.insertOne(expected)
         expected.name = "new friend"
         col.updateOne("{_id:${expectedId.json}}", expected)
-        val r = col.findOne ("{_id:${expectedId.json}}")
+        val r = col.findOne("{_id:${expectedId.json}}")
         assertEquals(expected, r)
     }
 
@@ -58,7 +55,7 @@ class BinaryTest : AllCategoriesKMongoBaseTest<BinaryFriend>() {
         val expected = BinaryFriend(expectedId, "friend")
 
         col.insertOne(expected)
-        val r = col.findOne ("{_id:${expectedId.json}}")
+        val r = col.findOne("{_id:${expectedId.json}}")
         assertEquals(expected, r)
     }
 
@@ -66,7 +63,7 @@ class BinaryTest : AllCategoriesKMongoBaseTest<BinaryFriend>() {
     @Test
     fun testRemove() {
         col.deleteOne("{_id:${friendId.json}}")
-        val r = col.findOne ("{_id:${friendId.json}}")
+        val r = col.findOne("{_id:${friendId.json}}")
         assertNull(r)
     }
 
@@ -77,7 +74,7 @@ class BinaryTest : AllCategoriesKMongoBaseTest<BinaryFriend>() {
 
         col.insertOne(doc)
         val count = col.count("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}")
-        val r = col.findOne ("{_id:${doc._id.json}}")
+        val r = col.findOne("{_id:${doc._id.json}}")
         assertEquals(1, count)
         assertEquals(doc._id.type, r!!._id.type)
         assertArrayEquals(doc._id.data, r._id.data)
