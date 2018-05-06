@@ -62,14 +62,14 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.2.31</kotlin.version>
-        <mongo.version>3.7.0-rc0</mongo.version>
+        <kotlin.version>1.2.40</kotlin.version>
+        <mongo.version>3.7.0</mongo.version>
         <coroutine.version>0.22.5</coroutine.version>
-        <rxjava.version>2.1.12</rxjava.version>
+        <rxjava.version>2.1.13</rxjava.version>
         <rxkotlin.version>2.2.0</rxkotlin.version>
         <jackson.version>2.9.3</jackson.version>
         <jackson-module.version>2.9.3</jackson-module.version>
-        <bson4jackson.version>2.9.0</bson4jackson.version>
+        <bson4jackson.version>2.9.1</bson4jackson.version>
 
         <!-- annotations processor -->
         <kotlin-poet.version>0.7.0</kotlin-poet.version>
