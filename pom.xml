@@ -16,7 +16,8 @@
   ~  */
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.litote.kmongo</groupId>
@@ -31,6 +32,7 @@
         <module>kmongo-data</module>
         <module>kmongo-id</module>
         <module>kmongo-id-jackson</module>
+        <module>kmongo-shared-tests-java</module>
         <module>kmongo-shared-tests</module>
         <module>kmongo-shared</module>
         <module>kmongo-property</module>
@@ -62,7 +64,7 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.2.40</kotlin.version>
+        <kotlin.version>1.2.41</kotlin.version>
         <mongo.version>3.7.0</mongo.version>
         <coroutine.version>0.22.5</coroutine.version>
         <rxjava.version>2.1.13</rxjava.version>
@@ -81,6 +83,7 @@
         <junit.version>4.12</junit.version>
 
         <!-- plugins -->
+        <plugin.compiler.version>3.7.0</plugin.compiler.version>
         <plugin.surefire.version>2.21.0</plugin.surefire.version>
         <plugin.source.version>3.0.1</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
@@ -136,6 +139,11 @@
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-shared-tests</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-shared-tests-java</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -581,7 +589,7 @@
             <name>Apache License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
-            <comments />
+            <comments/>
         </license>
     </licenses>
 

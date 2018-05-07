@@ -22,6 +22,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.MongoId
+import org.litote.kmongo.issues.Foo
+import kotlin.reflect.full.memberProperties
 
 /**
 
@@ -65,5 +67,11 @@ class MongoIdUtilTest : KMongoRootTest() {
         val id = ObjectId()
         assertEquals(id, KMongoUtil.extractId(Obj(id), Obj::class))
     }
+
+    @Test
+    fun `id property is detected even for java classes`() {
+        assertEquals(Foo::class.memberProperties.first { it.name == "id" }, Foo::class.idProperty)
+    }
+
 
 }
