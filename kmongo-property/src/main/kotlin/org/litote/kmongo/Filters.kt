@@ -23,7 +23,6 @@ import com.mongodb.client.model.geojson.Point
 import org.bson.BsonType
 import org.bson.conversions.Bson
 import java.util.regex.Pattern
-import kotlin.internal.NoInfer
 import kotlin.reflect.KProperty
 
 /**
@@ -35,7 +34,7 @@ import kotlin.reflect.KProperty
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/eq $eq
  */
-infix fun <T> KProperty<T>.eq(value: @NoInfer T): Bson = Filters.eq<T>(path(), value)
+infix fun <T> KProperty<T>.eq(value: T): Bson = Filters.eq<T>(path(), value)
 
 /**
  * Creates a filter that matches all documents where the value of the property contains the specified value. Note that this doesn't
@@ -46,7 +45,7 @@ infix fun <T> KProperty<T>.eq(value: @NoInfer T): Bson = Filters.eq<T>(path(), v
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/eq/#op._S_eq
  */
-infix fun <T> KProperty<Collection<T>?>.contains(value: @NoInfer T): Bson = Filters.eq<T>(path(), value)
+infix fun <T> KProperty<Collection<T>?>.contains(value: T): Bson = Filters.eq<T>(path(), value)
 
 /**
  * Creates a filter that matches all documents where the value of the field name does not equal the specified value.
@@ -56,7 +55,7 @@ infix fun <T> KProperty<Collection<T>?>.contains(value: @NoInfer T): Bson = Filt
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/ne $ne
  */
-infix fun <T> KProperty<T>.ne(value: @NoInfer T): Bson = Filters.ne<T>(path(), value)
+infix fun <T> KProperty<T>.ne(value: T): Bson = Filters.ne<T>(path(), value)
 
 /**
  * Creates a filter that matches all documents where the value of the given property is less than the specified value.
