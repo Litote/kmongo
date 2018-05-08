@@ -480,7 +480,7 @@
                     </sourceLinks>
                     <externalDocumentationLinks>
                         <link>
-                            <url>http://mongodb.github.io/mongo-java-driver/3.6/javadoc/</url>
+                            <url>http://mongodb.github.io/mongo-java-driver/3.7/javadoc/</url>
                         </link>
                     </externalDocumentationLinks>
                 </configuration>
