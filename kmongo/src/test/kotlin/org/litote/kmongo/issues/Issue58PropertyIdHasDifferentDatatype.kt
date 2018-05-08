@@ -35,4 +35,12 @@ class Issue58PropertyIdHasDifferentDatatype : AllCategoriesKMongoBaseTest<Foo>()
 
         assertEquals(foo.id, col.findOneById(foo.id)?.id)
     }
+
+    @Test
+    fun testSaveObjectWithNullId() {
+        val foo = Foo()
+        col.save(foo)
+
+        assertEquals(foo.id, col.findOneById(foo.id)?.id)
+    }
 }
