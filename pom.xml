@@ -65,6 +65,7 @@
         <!-- dependencies -->
         <kotlin.version>1.2.41</kotlin.version>
         <mongo.version>3.7.0</mongo.version>
+        <mongo.base.version>3.7</mongo.base.version>
         <coroutine.version>0.22.5</coroutine.version>
         <rxjava.version>2.1.13</rxjava.version>
         <rxkotlin.version>2.2.0</rxkotlin.version>
@@ -479,7 +480,7 @@
                     </sourceLinks>
                     <externalDocumentationLinks>
                         <link>
-                            <url>http://mongodb.github.io/mongo-java-driver/3.7/javadoc/</url>
+                            <url>http://mongodb.github.io/mongo-java-driver/${mongo.base.version}/javadoc/</url>
                         </link>
                     </externalDocumentationLinks>
                 </configuration>
