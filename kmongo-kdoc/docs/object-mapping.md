@@ -1,0 +1,125 @@
+# Object Mapping
+
+Query results are automatically mapped to objects.
+
+## Set your _id
+
+To manage Mongo ```_id```, a class must have one ```_id``` property
+ or a property annotated with the ```@BsonId``` annotation.
+ 
+If there is no such field in your class, an ```ObjectId``` _id is generated on server side.
+
+### KMongo Id type
+
+KMongo provides a optional dedicated [Id](http://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/-id.html) type.
+With this Id class, the document identifier is typed. 
+
+So for example:  
+ 
+```kotlin
+class LightSaber(val _id: Id<LightSaber> = newId())
+class Jedi(
+    @BsonId val key: Id<Jedi> = newId(), 
+    //set of typed ids, now I see what it is!
+    val sabers:Set<Id<LightSaber>> = emptySet()
+)
+``` 
+
+#### KMongo Id does not depend of Mongo nor KMongo lib
+                     
+This is useful if you need to transfer your data object from a mongo backend 
+to a frontend that does not need to know your storage engine.
+
+You just have to add the ```kmongo-id``` dependency in the frontend to compile. 
+
+- with Maven
+
+```xml
+<dependency>
+  <groupId>org.litote.kmongo</groupId>
+  <artifactId>kmongo-id</artifactId>
+  <version>3.7.0</version>
+</dependency>
+```
+
+- or Gradle
+
+```
+compile 'org.litote.kmongo:kmongo-id:3.7.0'
+```
+
+#### Id <> Json Jackson serialization
+
+If you use Jackson to serialize your objects to json (in order to transfer your data between frontend and backend),
+add the ```kmongo-id-jackson``` dependency and register the ```IdJacksonModule``` module:
+
+```kotlin 
+mapper.registerModule(IdJacksonModule())
+```
+
+#### Id <> Json Gson serialization
+
+If you prefer to use Gson, you need to use this code:
+
+```kotlin 
+val gsonBuilder = GsonBuilder();
+gsonBuilder.registerTypeAdapter(Id::class.java,
+        JsonSerializer<Id<Any>> { id, _, _ -> JsonPrimitive(id?.toString()) })
+gsonBuilder.registerTypeAdapter(Id::class.java,
+        JsonDeserializer<Id<Any>> { id, _, _ -> id.asString.toId() })
+val gson = gsonBuilder.create()
+```
+
+### Other _id types
+
+The Id type is optional, 
+you can use ```String```, ```org.bson.types.ObjectId``` of whatever you need as _id type.
+
+## Date support
+
+KMongo provides built-in support for these "Date" classes:
+
+- java.util.Date
+- java.util.Calendar
+- java.time.LocalDateTime
+- java.time.LocalDate
+- java.time.LocalTime
+- java.time.ZonedDateTime
+- java.time.OffsetDateTime
+- java.time.OffsetTime
+- java.time.Instant
+
+Dates are always stored in Mongo in UTC. For ```Calendar```, ```ZonedDateTime```, ```OffsetDateTime``` and ```OffsetTime```,
+whatever is the timezone of the saved date, you will get an UTC date when loading the date from Mongo.
+
+So, in this case, the loaded date will not usually be equals to the saved date - the Instant part of the date of course is the same. If you need to check equality, use a method like ```OffsetDateTime#withOffsetSameInstant``` on the loaded date.
+
+## How to choose the mapping engine
+
+### The Jackson choice
+
+With the [Jackson library](https://github.com/FasterXML/jackson), you get full support of one of the most powerful data-binding java engine, in order to map your data objects.
+
+If you need custom serialization or deserialization, you will not be blocked, you can implement it.
+
+And you can use all [Jackson annotations](https://github.com/FasterXML/jackson-annotations/wiki/Jackson-Annotations).
+
+Also, if you already use Jackson for json serialization (for rest services for example), the library is already in your list of dependencies.
+
+However, if you don't use already Jackson, you add a new quite complex library to your dependencies.
+
+### The POJO Codec "native" choice
+
+Started in 2.5.0 (July 2017), the java driver introduces a new [POJO mapping framework](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/).
+
+KMongo uses it to provide object mapping for Kotlin. No other dependency than the core java mongo driver is required.
+
+All the common cases are covered. However, there are some limitations. For example, top level POJO cannot contain any type parameters. There are some others as well.
+
+In the end, as the framework is officially supported by the Mongo team, you can expect that it will improve over time. However, you will never get the full control that you can obtain with Jackson.
+
+### Conclusion
+
+We expect that, for most of the projects, the "native" bindings will be perfectly OK. For complex projects, or if you have already Jackson skills, the Jackson object mapping is a really nice choice.
+
+Choose your poison! :)

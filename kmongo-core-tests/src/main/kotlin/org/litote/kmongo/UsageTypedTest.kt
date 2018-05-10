@@ -52,15 +52,15 @@ class UsageTypedTest : KMongoBaseTest<Jedi>() {
     @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
     @Test
     fun firstSample() {
-        val yoda = col.findOne(Friend::name regex "Yo.*")!!
+        val yoda = col.findOne(Friend::name regex "Yo.*")
 
         val luke = col.aggregate<Jedi>(
-            match(Jedi::age lt yoda.age),
+            match(Jedi::age lt yoda?.age),
             sample(1)
         ).first()
 
         assertEquals("Luke Skywalker", luke.name)
-        assertEquals("Yoda", yoda.name)
+        assertEquals("Yoda", yoda?.name)
     }
 
     @Category(JacksonMappingCategory::class)

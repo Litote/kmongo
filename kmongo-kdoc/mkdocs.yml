@@ -1,0 +1,28 @@
+site_name: 'KMongo'
+site_description: 'KMongo: a Kotlin toolkit for Mongo'
+site_author: 'litote.org'
+site_url: 'https://litote.org/kmongo/'
+repo_name: 'kmongo'
+repo_url: 'https://github.com/Litote/kmongo'
+edit_uri: ''
+pages:
+    - Introduction: index.md
+    - Quick Start: quick-start.md
+    - Extensions Overview: extensions-overview.md
+    - Object Mapping: object-mapping.md
+    - Typed Queries: typed-queries.md
+    - Mongo shell support: mongo-shell-support.md
+    - About: about.md
+theme:
+  name: 'material'
+  logo: 'assets/images/favicon.png'
+  custom_dir: 'theme'
+markdown_extensions:
+  - admonition
+  - codehilite(guess_lang=false)
+  - toc(permalink=true)
+copyright: 'Copyright &copy; 2018 Litote'
+extra:
+  social:
+    - type: 'github'
+      link: 'https://github.com/Litote/kmongo'

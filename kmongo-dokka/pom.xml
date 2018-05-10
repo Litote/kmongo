@@ -47,6 +47,10 @@
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-rxjava2-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-flapdoodle</artifactId>
         </dependency>
         <dependency>
@@ -74,6 +78,8 @@
                         <sourceDirs>${project.basedir}/kmongo-async-shared/src/main/kotlin</sourceDirs>
                         <sourceDirs>${project.basedir}/kmongo-async-core/src/main/kotlin</sourceDirs>
                         <sourceDirs>${project.basedir}/kmongo-coroutine-core/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/kmongo-rxjava2-core/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/kmongo-property/src/main/kotlin</sourceDirs>
                     </sourceDirs>
                 </configuration>
 
@@ -152,6 +158,18 @@
                             </url>
                             <urlSuffix>#L</urlSuffix>
                         </link>
+                        <link>
+                            <dir>${project.basedir}/../kmongo-rxjava2-core/src/main/kotlin</dir>
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-rxjava2-core/src/main/kotlin
+                            </url>
+                            <urlSuffix>#L</urlSuffix>
+                        </link>
+                        <link>
+                            <dir>${project.basedir}/../kmongo-property/src/main/kotlin</dir>
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-property/src/main/kotlin
+                            </url>
+                            <urlSuffix>#L</urlSuffix>
+                        </link>
                     </sourceLinks>
                     <outputDir>target/dokka</outputDir>
                     <outputFormat>html</outputFormat>
@@ -163,10 +181,12 @@
                         <dir>${project.basedir}/../kmongo-async-shared/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-async-core/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-coroutine-core/src/main/kotlin</dir>
+                        <dir>${project.basedir}/../kmongo-rxjava2-core/src/main/kotlin</dir>
+                        <dir>${project.basedir}/../kmongo-property/src/main/kotlin</dir>
                     </sourceDirectories>
                     <externalDocumentationLinks>
                         <link>
-                            <url>http://mongodb.github.io/mongo-java-driver/3.5/javadoc/</url>
+                            <url>http://mongodb.github.io/mongo-java-driver/3.7/javadoc/</url>
                         </link>
                     </externalDocumentationLinks>
                     <perPackageOptions>
