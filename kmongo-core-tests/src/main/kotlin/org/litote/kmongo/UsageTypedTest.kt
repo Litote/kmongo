@@ -59,7 +59,7 @@ class UsageTypedTest : KMongoBaseTest<Jedi>() {
             sample(1)
         ).first()
 
-        assertEquals("Luke Skywalker", luke.name)
+        assertEquals("Luke Skywalker", luke?.name)
         assertEquals("Yoda", yoda?.name)
     }
 
@@ -72,7 +72,7 @@ class UsageTypedTest : KMongoBaseTest<Jedi>() {
                 Pair<Int, Int>::first avg Jedi::age.projection,
                 Pair<Int, Int>::second max Jedi::age.projection
             )
-        ).first()
+        ).first()!!
         assertEquals((896 + 19) / 2, averageAge)
         assertEquals(896, maxAge)
     }

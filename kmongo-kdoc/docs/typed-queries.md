@@ -7,7 +7,7 @@ KMongo provides a type-safe query framework.
 It has currently a **beta** flag. 
 We use it in production, but it is not yet complete.
 
-[Kotlin property reference](https://kotlinlang.org/docs/reference/reflection.html#property-references) is used
+[Kotlin property references](https://kotlinlang.org/docs/reference/reflection.html#property-references) are used
 to build mongo queries.
  
 For example, here ```eq``` and ```regexp``` are infix functions provided by KMongo:

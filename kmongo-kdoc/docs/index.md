@@ -37,8 +37,8 @@ Object oriented programming is usually better - use Objects, not Maps. Powered b
 
 ## Type-safe queries
 
-Have you already queried a ```Int``` field with a ```String``` value? 
-KMongo type-safe query system removes the query types errors.
+Have you already queried an ```Int``` field with a ```String``` value? 
+KMongo type-safe query system removes the query type errors.
 Provided with an optional annotation processor. 
 
 ## Mongo shell queries
