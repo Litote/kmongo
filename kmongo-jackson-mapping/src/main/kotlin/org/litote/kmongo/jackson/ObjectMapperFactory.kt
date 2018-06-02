@@ -19,24 +19,18 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import de.undercouch.bson4jackson.BsonGenerator
-import de.undercouch.bson4jackson.BsonParser
 
 internal object ObjectMapperFactory {
 
     fun createExtendedJsonObjectMapper(): ObjectMapper {
         return ObjectMapper()
-                .registerKotlinModule()
-                .registerModule(ExtendedJsonModule())
-                .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
+            .registerKotlinModule()
+            .registerModule(ExtendedJsonModule())
+            .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
     }
 
     fun createBsonObjectMapper(): ObjectMapper {
-        val bsonFactory = KMongoBsonFactory()
-        bsonFactory.enable(BsonParser.Feature.HONOR_DOCUMENT_LENGTH)
-        bsonFactory.enable(BsonGenerator.Feature.WRITE_BIGDECIMALS_AS_DECIMAL128)
-
-        return configureBson(ObjectMapper(bsonFactory))
+        return configureBson(ObjectMapper(KMongoBsonFactory()))
     }
 
     fun createBsonObjectMapperCopy(): ObjectMapper {
@@ -45,10 +39,10 @@ internal object ObjectMapperFactory {
 
     private fun configureBson(mapper: ObjectMapper): ObjectMapper {
         return mapper.registerModule(de.undercouch.bson4jackson.BsonModule())
-                .registerKotlinModule()
-                .registerModule(BsonModule())
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
+            .registerKotlinModule()
+            .registerModule(BsonModule())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
     }
 
     fun createFilterIdObjectMapper(objectMapper: ObjectMapper): ObjectMapper {

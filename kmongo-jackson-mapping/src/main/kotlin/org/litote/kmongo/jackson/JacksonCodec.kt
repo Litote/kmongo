@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNullFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor
+import org.bson.BsonBinaryWriter
 import org.bson.BsonReader
 import org.bson.BsonValue
 import org.bson.BsonWriter
@@ -36,6 +37,7 @@ import org.bson.codecs.CollectibleCodec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
+import org.bson.io.BasicOutputBuffer
 import org.bson.json.JsonReader
 import org.bson.types.ObjectId
 import org.litote.kmongo.Id
@@ -155,13 +157,15 @@ internal class JacksonCodec<T : Any>(
     }
 
     override fun decode(reader: BsonReader, decoderContext: DecoderContext): T? {
+        val buffer = BasicOutputBuffer()
+        val writer = BsonBinaryWriter(buffer)
         try {
-            val document = rawBsonDocumentCodec.decode(reader, decoderContext)
-            return bsonObjectMapper.readValue(document.byteBuffer.array(), type)
-        } catch (e: IOException) {
-            throw UncheckedIOException(e)
+            writer.pipe(reader)
+            return bsonObjectMapper.readValue(buffer.internalBuffer, type)
+        } finally {
+            writer.close()
+            buffer.close()
         }
-
     }
 
     override fun encode(writer: BsonWriter, value: T?, encoderContext: EncoderContext) {

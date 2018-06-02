@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.jackson
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.PropertyName
 import com.fasterxml.jackson.databind.introspect.Annotated
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector
@@ -30,6 +31,7 @@ internal class KMongoAnnotationIntrospector : NopAnnotationIntrospector() {
     companion object {
         val INTROSPECTOR = KMongoAnnotationIntrospector()
         val ID_PROPERTY_NAME: PropertyName = PropertyName.construct("_id")
+        val IGNORE_UNKNOWN = JsonIgnoreProperties.Value.empty().withIgnoreUnknown()
     }
 
     override fun findNameForDeserialization(a: Annotated): PropertyName? {
@@ -44,6 +46,10 @@ internal class KMongoAnnotationIntrospector : NopAnnotationIntrospector() {
             return ID_PROPERTY_NAME
         }
         return super.findNameForSerialization(a)
+    }
+
+    override fun findPropertyIgnorals(ac: Annotated): JsonIgnoreProperties.Value {
+        return IGNORE_UNKNOWN
     }
 
     private fun isAnnotatedWithMongoId(a: Annotated): Boolean {

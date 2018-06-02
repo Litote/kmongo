@@ -30,7 +30,13 @@ import java.io.OutputStream
 
 internal class KMongoBsonFactory : BsonFactory() {
 
-    internal class KMongoBsonGenerator(jsonFeatures: Int, bsonFeatures: Int, out: OutputStream) : BsonGenerator(jsonFeatures, bsonFeatures, out) {
+    init {
+        enable(BsonParser.Feature.HONOR_DOCUMENT_LENGTH)
+        enable(BsonGenerator.Feature.WRITE_BIGDECIMALS_AS_DECIMAL128)
+    }
+
+    internal class KMongoBsonGenerator(jsonFeatures: Int, bsonFeatures: Int, out: OutputStream) :
+        BsonGenerator(jsonFeatures, bsonFeatures, out) {
 
         override fun canWriteObjectId(): Boolean {
             return true;
@@ -82,7 +88,8 @@ internal class KMongoBsonFactory : BsonFactory() {
         }
     }
 
-    private class KMongoBsonParser(ctxt: IOContext, jsonFeatures: Int, bsonFeatures: Int, inputStream: InputStream) : BsonParser(ctxt, jsonFeatures, bsonFeatures, inputStream) {
+    private class KMongoBsonParser(ctxt: IOContext, jsonFeatures: Int, bsonFeatures: Int, inputStream: InputStream) :
+        BsonParser(ctxt, jsonFeatures, bsonFeatures, inputStream) {
 
         override fun getEmbeddedObject(): Any {
             val embedded = super.getEmbeddedObject()
