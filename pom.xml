@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ /*
   ~  * Copyright (C) 2016 Litote
@@ -15,8 +16,8 @@
   ~  * limitations under the License.
   ~  */
   -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.litote.kmongo</groupId>
@@ -59,6 +60,7 @@
         <module>kmongo-rxjava2-native</module>
         <module>kmongo-coverage</module>
         <module>kmongo-dokka</module>
+        <module>kmongo-benchmark</module>
     </modules>
 
     <properties>
@@ -71,16 +73,17 @@
         <rxkotlin.version>2.2.0</rxkotlin.version>
         <jackson.version>2.9.3</jackson.version>
         <jackson-module.version>2.9.3</jackson-module.version>
-        <bson4jackson.version>2.9.1</bson4jackson.version>
+        <bson4jackson.version>2.9.2</bson4jackson.version>
 
         <!-- annotations processor -->
         <kotlin-poet.version>0.7.0</kotlin-poet.version>
 
         <!-- test dependencies -->
         <flapdoodle.version>2.0.3</flapdoodle.version>
-        <fongo.version>2.2.0-RC1</fongo.version>
+        <fongo.version>2.2.0-RC2</fongo.version>
         <sl4j.version>1.7.25</sl4j.version>
         <junit.version>4.12</junit.version>
+        <jmh.version>1.21</jmh.version>
 
         <!-- plugins -->
         <plugin.compiler.version>3.7.0</plugin.compiler.version>
@@ -88,7 +91,7 @@
         <plugin.source.version>3.0.1</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
         <plugin.jar.version>3.0.2</plugin.jar.version>
-        <plugin.dokka.version>0.9.16</plugin.dokka.version>
+        <plugin.dokka.version>0.9.17</plugin.dokka.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
         <plugin.jacoco.version>0.8.1</plugin.jacoco.version>
@@ -97,6 +100,7 @@
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
     </properties>
 
     <dependencies>
@@ -208,11 +212,6 @@
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-rxjava2</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-rxjava2-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -224,31 +223,11 @@
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-rxjava2</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-rxjava2-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-rxjava2-core-tests</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-async-shared</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-native</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-async-native</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -347,7 +326,7 @@
             <dependency>
                 <groupId>io.reactivex.rxjava2</groupId>
                 <artifactId>rxkotlin</artifactId>
-                <version>2.2.0</version>
+                <version>${rxkotlin.version}</version>
             </dependency>
 
             <dependency>
@@ -377,6 +356,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
                 <version>${sl4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-core</artifactId>
+                <version>${jmh.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -588,7 +572,7 @@
             <name>Apache License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
-            <comments />
+            <comments/>
         </license>
     </licenses>
 
