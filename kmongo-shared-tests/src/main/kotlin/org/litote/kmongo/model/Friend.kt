@@ -20,7 +20,12 @@ import org.bson.types.ObjectId
 /**
  *
  */
-data class Friend(var name: String?, val address: String?, val _id: ObjectId? = null, val coordinate: Coordinate? = null) {
+data class Friend(
+    var name: String?,
+    val address: String?,
+    val _id: ObjectId? = null,
+    val coordinate: Coordinate? = null,
+    val tags:List<String> = emptyList()) {
 
     constructor(name: String) : this(name, null, null)
 

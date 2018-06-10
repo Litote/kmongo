@@ -94,4 +94,11 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
         assertEquals("Johnny", r!!.name)
         assertNull(r.address)
     }
+
+    @Test
+    fun `pull works as expected`() {
+        col.insertOne(Friend("John", "123 Wall Street", tags = listOf("t1", "t2")))
+        col.updateOne(Friend::name eq "John", pull(Friend::tags, "t2"))
+        assertEquals(listOf("t1"), col.findOne(Friend::name eq "John")?.tags)
+    }
 }

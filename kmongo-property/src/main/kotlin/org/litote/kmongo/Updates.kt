@@ -230,7 +230,7 @@ fun <T> pushEach(property: KProperty<T>, values: List<T>, options: PushOptions =
  * @return the update
  * @mongodb.driver.manual reference/operator/update/pull/ $pull
  */
-fun <T> pull(property: KProperty<T>, value: T): Bson = Updates.pull(property.path(), value)
+fun <T> pull(property: KProperty<Iterable<T>>, value: T): Bson = Updates.pull(property.path(), value)
 
 /**
  * Creates an update that removes all instances of the given value from the array value of the property.
