@@ -65,11 +65,11 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.2.41</kotlin.version>
-        <mongo.version>3.7.0</mongo.version>
+        <kotlin.version>1.2.50</kotlin.version>
+        <mongo.version>3.7.1</mongo.version>
         <mongo.base.version>3.7</mongo.base.version>
         <coroutine.version>0.22.5</coroutine.version>
-        <rxjava.version>2.1.13</rxjava.version>
+        <rxjava.version>2.1.14</rxjava.version>
         <rxkotlin.version>2.2.0</rxkotlin.version>
         <jackson.version>2.9.3</jackson.version>
         <jackson-module.version>2.9.3</jackson-module.version>
@@ -87,7 +87,7 @@
 
         <!-- plugins -->
         <plugin.compiler.version>3.7.0</plugin.compiler.version>
-        <plugin.surefire.version>2.21.0</plugin.surefire.version>
+        <plugin.surefire.version>2.22.0</plugin.surefire.version>
         <plugin.source.version>3.0.1</plugin.source.version>
         <plugin.release.version>2.5.3</plugin.release.version>
         <plugin.jar.version>3.0.2</plugin.jar.version>
