@@ -48,14 +48,27 @@ open class CodecRegistryBenchmark {
         return decode(kmongoCodecRegistry)
     }
 
+    @Benchmark
+    fun jacksonFriendWithCustomDeserializer(): FriendWithCustomDeserializer {
+        return decode(kmongoCodecRegistry)
+    }
+
+    @Benchmark
+    fun jacksonFriendWithBuddiesWithCustomDeserializer(): FriendWithBuddiesWithCustomDeserializer {
+        return decode(kmongoCodecRegistry)
+    }
+
     companion object {
+
         @JvmStatic
         fun main(args: Array<String>) {
             val b = CodecRegistryBenchmark()
             println(b.driverFriendWithBuddies())
             println(b.jacksonFriendWithBuddies())
+            println(b.jacksonFriendWithBuddiesWithCustomDeserializer())
             println(b.driverFriend())
             println(b.jacksonFriend())
+            println(b.jacksonFriendWithCustomDeserializer())
 
             while (true) {
                 decode<FriendWithBuddies>(kmongoCodecRegistry)

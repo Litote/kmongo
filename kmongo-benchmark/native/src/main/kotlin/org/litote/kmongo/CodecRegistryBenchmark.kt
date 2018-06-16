@@ -17,6 +17,7 @@
 package org.litote.kmongo
 
 import org.bson.Document
+import org.bson.codecs.configuration.CodecRegistries
 import org.litote.kmongo.KMongoBenchmark.decode
 import org.litote.kmongo.KMongoBenchmark.defaultCodecRegistry
 import org.litote.kmongo.KMongoBenchmark.kmongoCodecRegistry
@@ -48,14 +49,32 @@ open class CodecRegistryBenchmark {
         return decode(kmongoCodecRegistry)
     }
 
+    @Benchmark
+    fun nativeFriendWithCodecWithBuddies(): FriendWithCustomCodecWithBuddies {
+        return decode(customCodecRegistry)
+    }
+
+    @Benchmark
+    fun nativeFriendWithCodec(): FriendWithCustomCodec {
+        return decode(customCodecRegistry)
+    }
+
     companion object {
+
+        val customCodecRegistry = CodecRegistries.fromRegistries(
+            CodecRegistries.fromCodecs(FriendCodec, FriendWithBuddiesCodec, CoordinateCodec),
+            kmongoCodecRegistry
+        )
+
         @JvmStatic
         fun main(args: Array<String>) {
             val b = CodecRegistryBenchmark()
             println(b.driverFriendWithBuddies())
             println(b.nativeFriendWithBuddies())
+            println(b.nativeFriendWithCodecWithBuddies())
             println(b.driverFriend())
             println(b.nativeFriend())
+            println(b.nativeFriendWithCodec())
 
             while (true) {
                 decode<FriendWithBuddies>(kmongoCodecRegistry)
