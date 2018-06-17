@@ -16,7 +16,6 @@
 
 package org.litote.kmongo.model
 
-import org.litote.kmongo.Data
 import org.litote.kmongo.Id
 import org.litote.kmongo.model.other.SimpleReferencedData
 import java.util.Date
@@ -25,7 +24,6 @@ import java.util.Locale
 /**
  *
  */
-@Data
 open class TestData(
     val set: Set<SimpleReferencedData> = emptySet(),
     //TODO support nullable generic

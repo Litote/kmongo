@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+//annotation not detected by processor
+@file:DataRegistry([SubData2::class, TestData::class])
 
-/**
- * Annotated classes will generate typed query helpers at compile time.
- * See [documentation](http://litote.org/kmongo/typed-queries/#kmongo-annotation-processor).
- */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.SOURCE)
-@MustBeDocumented
-annotation class Data
+package org.litote.kmongo.model
+
+import org.litote.kmongo.DataRegistry
+
+@DataRegistry([SubData2::class, TestData::class])
+object Registry
+

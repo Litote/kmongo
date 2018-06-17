@@ -16,11 +16,18 @@
 
 package org.litote.kmongo
 
+import kotlin.reflect.KClass
+
 /**
- * Annotated classes will generate typed query helpers at compile time.
- * See [documentation](http://litote.org/kmongo/typed-queries/#kmongo-annotation-processor).
+ * Give the same behaviour than @[Data] to the specified KClass list.
+ * Useful if you can't annotate directly the target classes.
  */
-@Target(AnnotationTarget.CLASS)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
-annotation class Data
+annotation class DataRegistry(
+    /**
+     * List of data classes.
+     */
+    val value: Array<KClass<*>>
+)
