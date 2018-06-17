@@ -20,7 +20,6 @@ import com.github.fakemongo.Fongo
 import com.github.fakemongo.junit.FongoRule
 import com.mongodb.MongoClient.getDefaultCodecRegistry
 import com.mongodb.client.MongoDatabase
-import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.litote.kmongo.service.ClassMappingType
 
 
@@ -30,11 +29,11 @@ import org.litote.kmongo.service.ClassMappingType
 object KFongo {
 
     internal val fongo = Fongo(
-            "test",
-            Fongo.DEFAULT_SERVER_VERSION,
-            fromRegistries(getDefaultCodecRegistry(), ClassMappingType.codecRegistry())
+        "test",
+        Fongo.DEFAULT_SERVER_VERSION,
+        ClassMappingType.codecRegistry(getDefaultCodecRegistry())
     )
 
-    fun getDatabase(dbName: String = FongoRule.randomName()): MongoDatabase
-            = KFongoMongoDatabase(fongo.getDatabase(dbName))
+    fun getDatabase(dbName: String = FongoRule.randomName()): MongoDatabase =
+        KFongoMongoDatabase(fongo.getDatabase(dbName))
 }

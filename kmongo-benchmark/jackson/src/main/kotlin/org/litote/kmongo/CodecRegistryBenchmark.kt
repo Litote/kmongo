@@ -22,6 +22,7 @@ import org.litote.kmongo.KMongoBenchmark.defaultCodecRegistry
 import org.litote.kmongo.KMongoBenchmark.kmongoCodecRegistry
 import org.litote.kmongo.KMongoBenchmark.parseFriendWithBuddies
 import org.litote.kmongo.KMongoBenchmark.parseFriends
+import org.litote.kmongo.util.ObjectMappingConfiguration
 import org.openjdk.jmh.annotations.Benchmark
 
 open class CodecRegistryBenchmark {
@@ -58,7 +59,18 @@ open class CodecRegistryBenchmark {
         return decode(kmongoCodecRegistry)
     }
 
+    @Benchmark
+    fun jacksonFriendWithBuddiesCodec(): FriendWithCustomCodecWithBuddies {
+        return decode(kmongoCodecRegistry)
+    }
+
+
     companion object {
+
+        init {
+            ObjectMappingConfiguration.customCodecProviders.add(FriendWithBuddiesCodec)
+            ObjectMappingConfiguration.customCodecProviders.add(CoordinateCodec)
+        }
 
         @JvmStatic
         fun main(args: Array<String>) {
@@ -66,6 +78,7 @@ open class CodecRegistryBenchmark {
             println(b.driverFriendWithBuddies())
             println(b.jacksonFriendWithBuddies())
             println(b.jacksonFriendWithBuddiesWithCustomDeserializer())
+            println(b.jacksonFriendWithBuddiesCodec())
             println(b.driverFriend())
             println(b.jacksonFriend())
             println(b.jacksonFriendWithCustomDeserializer())

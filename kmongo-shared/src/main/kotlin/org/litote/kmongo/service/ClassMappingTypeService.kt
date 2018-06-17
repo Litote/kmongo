@@ -17,7 +17,9 @@
 package org.litote.kmongo.service
 
 import org.bson.BsonDocument
+import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
+import org.litote.kmongo.util.ObjectMappingConfiguration
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -42,7 +44,21 @@ interface ClassMappingTypeService {
 
     fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R?
 
-    fun codecRegistry(): CodecRegistry
+    fun codecRegistry(codecRegistry: CodecRegistry): CodecRegistry {
+        lateinit var codec: CodecRegistry
+        codec = CodecRegistries.fromRegistries(
+            codecRegistry,
+            CodecRegistries.fromCodecs(
+                ObjectMappingConfiguration.customCodecProviders.map { it.codec { codec } }
+            ),
+            coreCodecRegistry()
+        )
+
+        return codec
+    }
+
+
+    fun coreCodecRegistry(): CodecRegistry
 
     fun <T> getPath(property: KProperty<T>): String
 }

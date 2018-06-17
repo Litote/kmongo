@@ -111,7 +111,7 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
         return MongoIdUtil.getIdValue(idProperty, instance as Any) as R?
     }
 
-    override fun codecRegistry(): CodecRegistry {
+    override fun coreCodecRegistry(): CodecRegistry {
 
         registerBsonModule(
             SimpleModule()

@@ -28,7 +28,9 @@ import org.bson.codecs.pojo.annotations.BsonProperty
 import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
+import org.litote.kmongo.service.ClassMappingType
 import org.litote.kmongo.service.ClassMappingTypeService
+import org.litote.kmongo.service.MongoClientProvider
 import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.io.StringWriter
 import kotlin.reflect.KClass
@@ -84,7 +86,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
                 //create a fake document to bypass bson writer built-in checks
                 jsonWriter.writeStartDocument()
                 jsonWriter.writeName("tmp")
-                codecRegistry()
+                ClassMappingType.codecRegistry(MongoClientProvider.defaultCodecRegistry())
                     .get(obj.javaClass)
                     ?.encode(
                         jsonWriter,
@@ -113,7 +115,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         return idProperty.get(instance)
     }
 
-    override fun codecRegistry(): CodecRegistry {
+    override fun coreCodecRegistry(): CodecRegistry {
         return if (ObjectMappingConfiguration.serializeNull) {
             codecRegistryWithNullSerialization
         } else {

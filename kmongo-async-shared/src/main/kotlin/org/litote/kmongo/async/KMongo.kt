@@ -24,7 +24,6 @@ import com.mongodb.connection.ConnectionPoolSettings
 import com.mongodb.connection.ServerSettings
 import com.mongodb.connection.SocketSettings
 import com.mongodb.connection.SslSettings
-import org.bson.codecs.configuration.CodecRegistries
 import org.litote.kmongo.service.ClassMappingType
 
 /**
@@ -37,8 +36,7 @@ object KMongo {
      *
      * @return the client
      */
-    fun createClient(): MongoClient
-            = createClient(ConnectionString("mongodb://localhost"))
+    fun createClient(): MongoClient = createClient(ConnectionString("mongodb://localhost"))
 
     /**
      * Create a new client with the given client settings.
@@ -47,12 +45,11 @@ object KMongo {
      * @return the client
      */
     fun createClient(settings: MongoClientSettings): MongoClient {
-        val codecRegistry = CodecRegistries.fromRegistries(
-                settings.codecRegistry,
-                ClassMappingType.codecRegistry())
+        val codecRegistry = ClassMappingType.codecRegistry(settings.codecRegistry)
         return MongoClients.create(
-                MongoClientSettings.builder(settings)
-                        .codecRegistry(codecRegistry).build())
+            MongoClientSettings.builder(settings)
+                .codecRegistry(codecRegistry).build()
+        )
     }
 
     /**
@@ -61,8 +58,7 @@ object KMongo {
      * @param connectionString the connection
      * @return the client
      */
-    fun createClient(connectionString: String): MongoClient
-            = createClient(ConnectionString(connectionString))
+    fun createClient(connectionString: String): MongoClient = createClient(ConnectionString(connectionString))
 
     /**
      * Create a new client with the given connection string.
@@ -71,12 +67,14 @@ object KMongo {
      * @return the client
      */
     fun createClient(connectionString: ConnectionString): MongoClient {
-        return createClient(MongoClientSettings.builder()
+        return createClient(
+            MongoClientSettings.builder()
                 .clusterSettings(ClusterSettings.builder().applyConnectionString(connectionString).build())
                 .connectionPoolSettings(ConnectionPoolSettings.builder().applyConnectionString(connectionString).build())
                 .serverSettings(ServerSettings.builder().build())
                 .credentialList(connectionString.credentialList)
                 .sslSettings(SslSettings.builder().applyConnectionString(connectionString).build())
-                .socketSettings(SocketSettings.builder().applyConnectionString(connectionString).build()).build())
+                .socketSettings(SocketSettings.builder().applyConnectionString(connectionString).build()).build()
+        )
     }
 }

@@ -22,8 +22,17 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import org.bson.BsonReader
+import org.bson.BsonType
+import org.bson.BsonWriter
+import org.bson.codecs.Codec
+import org.bson.codecs.DecoderContext
+import org.bson.codecs.EncoderContext
+import org.bson.codecs.configuration.CodecRegistry
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
+import org.litote.kmongo.util.KMongoCodecBase
+import org.litote.kmongo.util.KMongoCodecProvider
 
 class FriendDeserializer : JsonDeserializer<FriendWithCustomDeserializer>() {
 
@@ -173,3 +182,97 @@ class CoordinateDeserializer : JsonDeserializer<CoordinateWithCustomDeserializer
 
 @JsonDeserialize(using = CoordinateDeserializer::class)
 data class CoordinateWithCustomDeserializer(val lat: Int, val lng: Int)
+
+class FriendWithBuddiesCodec(codecRegistryProvider: () -> (CodecRegistry)) :
+    KMongoCodecBase<FriendWithCustomCodecWithBuddies>(codecRegistryProvider) {
+
+    private val coordinateCodec: Codec<CoordinateWithCustomDeserializer>
+            by lazy(LazyThreadSafetyMode.NONE) { codecRegistry.get(CoordinateWithCustomDeserializer::class.java) }
+
+    override fun getEncoderClass(): Class<FriendWithCustomCodecWithBuddies> =
+        FriendWithCustomCodecWithBuddies::class.java
+
+    override fun encode(writer: BsonWriter, value: FriendWithCustomCodecWithBuddies, encoderContext: EncoderContext) {
+        TODO("not implemented")
+    }
+
+    override fun decode(reader: BsonReader, decoderContext: DecoderContext): FriendWithCustomCodecWithBuddies {
+        reader.readStartDocument()
+
+        var id: ObjectId? = null
+        var name: String? = null
+        var address: String? = null
+        var coordinate: CoordinateWithCustomDeserializer? = null
+        var gender: Gender? = null
+        var buddies: List<FriendWithCustomCodecWithBuddies>? = null
+
+        while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
+            val field = reader.readName()
+            when (field) {
+                "_id" -> id = reader.readObjectId()
+                "name" -> name = reader.readString()
+                "address" -> address = reader.readString()
+                "coordinate" -> coordinate = decodeClass(coordinateCodec, reader, decoderContext)
+                "gender" -> gender = reader.readString()?.let { Gender.valueOf(it) }
+                "buddies" -> buddies = decodeList(this, reader, decoderContext)
+                else -> reader.skipValue()
+            }
+        }
+
+        reader.readEndDocument()
+        return FriendWithCustomCodecWithBuddies(id, name, address, coordinate, gender, buddies ?: emptyList())
+    }
+
+    companion object : KMongoCodecProvider<FriendWithCustomCodecWithBuddies> {
+        override fun codec(codecRegistryProvider: () -> (CodecRegistry)): Codec<FriendWithCustomCodecWithBuddies> {
+            return FriendWithBuddiesCodec(codecRegistryProvider)
+        }
+    }
+}
+
+data class FriendWithCustomCodecWithBuddies(
+    @BsonId
+    val id: ObjectId? = null,
+    val name: String? = null,
+    val address: String? = null,
+    val coordinate: CoordinateWithCustomDeserializer? = null,
+    val gender: Gender? = null,
+    val buddies: List<FriendWithCustomCodecWithBuddies> = emptyList()
+)
+
+class CoordinateCodec(codecRegistryProvider: () -> (CodecRegistry)) :
+    KMongoCodecBase<CoordinateWithCustomCodec>(codecRegistryProvider) {
+
+    override fun getEncoderClass(): Class<CoordinateWithCustomCodec> = CoordinateWithCustomCodec::class.java
+
+    override fun encode(writer: BsonWriter, value: CoordinateWithCustomCodec, encoderContext: EncoderContext) {
+        TODO("not implemented")
+    }
+
+    override fun decode(reader: BsonReader, decoderContext: DecoderContext): CoordinateWithCustomCodec {
+        reader.readStartDocument()
+
+        var lat: Int? = null
+        var lng: Int? = null
+
+        while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
+            val field = reader.readName()
+            when (field) {
+                "lat" -> lat = reader.readInt32()
+                "lng" -> lng = reader.readInt32()
+                else -> reader.skipValue()
+            }
+        }
+
+        reader.readEndDocument()
+        return CoordinateWithCustomCodec(lat!!, lng!!)
+    }
+
+    companion object : KMongoCodecProvider<CoordinateWithCustomCodec> {
+        override fun codec(codecRegistryProvider: () -> (CodecRegistry)): Codec<CoordinateWithCustomCodec> {
+            return CoordinateCodec(codecRegistryProvider)
+        }
+    }
+}
+
+data class CoordinateWithCustomCodec(val lat: Int, val lng: Int)

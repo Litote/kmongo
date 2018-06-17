@@ -157,7 +157,7 @@ internal class JacksonCodec<T : Any>(
     }
 
     override fun decode(reader: BsonReader, decoderContext: DecoderContext): T? {
-        val buffer = BasicOutputBuffer()
+        val buffer = BasicOutputBuffer(128)
         val writer = BsonBinaryWriter(buffer)
         try {
             writer.pipe(reader)

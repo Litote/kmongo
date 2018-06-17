@@ -16,21 +16,13 @@
 
 package org.litote.kmongo.util
 
+import org.bson.codecs.Codec
+import org.bson.codecs.configuration.CodecRegistry
+
 /**
- * Object mapping configuration options.
- * Set values before KMongo initialization.
+ * Used by [KMongoCodecBase].
  */
-object ObjectMappingConfiguration {
+interface KMongoCodecProvider<T> {
 
-    /**
-     * Are null value serialized? Default to false.
-     * Does not work for now for Jackson mapping (null are always serialized)
-     */
-    @Volatile
-    var serializeNull: Boolean = false
-
-    /**
-     * Additional generated codecs registered before KMongo main codec.
-     */
-    val customCodecProviders: MutableList<KMongoCodecProvider<*>> = mutableListOf()
+    fun codec(codecRegistryProvider: () -> (CodecRegistry)): Codec<T>
 }

@@ -20,6 +20,7 @@ import kotlin.reflect.KClass
 
 /**
  * To configure the default collection name strategy - default is camel case.
+ * To be used before KMongo initialization.
  */
 object CollectionNameFormatter {
 

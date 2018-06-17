@@ -20,7 +20,6 @@ import com.mongodb.MongoClientSettings
 import org.bson.BsonBinaryReader
 import org.bson.Document
 import org.bson.codecs.DecoderContext
-import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.types.ObjectId
 import org.litote.kmongo.service.ClassMappingType
@@ -42,7 +41,7 @@ object KMongoBenchmark {
         )
     }
 
-    fun parseFriendWithBuddies(dbo:Document): FriendWithBuddies {
+    fun parseFriendWithBuddies(dbo: Document): FriendWithBuddies {
         val coord = dbo["coordinate"] as Document
         val coordinate = Coordinate(coord["lat"] as Int, coord["lng"] as Int)
         return FriendWithBuddies(
@@ -56,10 +55,7 @@ object KMongoBenchmark {
     }
 
     val defaultCodecRegistry = MongoClientSettings.getDefaultCodecRegistry()
-    val kmongoCodecRegistry =  CodecRegistries.fromRegistries(
-        MongoClientSettings.getDefaultCodecRegistry(),
-        ClassMappingType.codecRegistry()
-    )
+    val kmongoCodecRegistry = ClassMappingType.codecRegistry(MongoClientSettings.getDefaultCodecRegistry())
 
     inline fun <reified T : Any> decode(registry: CodecRegistry): T =
         registry

@@ -21,7 +21,6 @@ import com.mongodb.MongoClient
 import com.mongodb.MongoClient.getDefaultCodecRegistry
 import com.mongodb.MongoClientOptions
 import com.mongodb.ServerAddress
-import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.bson.codecs.configuration.CodecRegistry
 
 /**
@@ -44,7 +43,6 @@ internal class SyncMongoClientProviderService : MongoClientProviderService<Mongo
         error("unsupported")
     }
 
-    override fun defaultCodecRegistry(): CodecRegistry =
-        fromRegistries(getDefaultCodecRegistry(), ClassMappingType.codecRegistry())
+    override fun defaultCodecRegistry(): CodecRegistry = ClassMappingType.codecRegistry(getDefaultCodecRegistry())
 
 }

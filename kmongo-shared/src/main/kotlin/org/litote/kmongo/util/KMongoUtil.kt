@@ -31,7 +31,6 @@ import org.bson.BsonString
 import org.bson.Document
 import org.bson.codecs.BsonArrayCodec
 import org.bson.codecs.DecoderContext
-import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
@@ -124,10 +123,7 @@ object KMongoUtil {
             obj
                 .toBsonDocument(
                     Document::class.java,
-                    CodecRegistries.fromRegistries(
-                        MongoClientProvider.defaultCodecRegistry(),
-                        ClassMappingType.codecRegistry()
-                    )
+                    ClassMappingType.codecRegistry(MongoClientProvider.defaultCodecRegistry())
                 )
                 .toJson()
         } else {
