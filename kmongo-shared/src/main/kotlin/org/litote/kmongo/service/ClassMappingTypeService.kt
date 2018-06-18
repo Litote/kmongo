@@ -37,9 +37,7 @@ interface ClassMappingTypeService {
     fun filterIdToBson(obj: Any): BsonDocument
 
     fun toExtendedJson(obj: Any?): String
-
-    fun filterIdToExtendedJson(obj: Any): String
-
+    
     fun findIdProperty(type: KClass<*>): KProperty1<*, *>?
 
     fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R?

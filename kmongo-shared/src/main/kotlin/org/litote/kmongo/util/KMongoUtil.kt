@@ -18,6 +18,7 @@ package org.litote.kmongo.util
 
 import com.mongodb.client.model.DeleteManyModel
 import com.mongodb.client.model.DeleteOneModel
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.InsertOneModel
 import com.mongodb.client.model.ReplaceOneModel
 import com.mongodb.client.model.UpdateManyModel
@@ -26,11 +27,14 @@ import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import org.bson.BsonBoolean
 import org.bson.BsonDocument
+import org.bson.BsonDocumentWriter
 import org.bson.BsonObjectId
 import org.bson.BsonString
 import org.bson.Document
 import org.bson.codecs.BsonArrayCodec
 import org.bson.codecs.DecoderContext
+import org.bson.codecs.Encoder
+import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
@@ -130,12 +134,9 @@ object KMongoUtil {
             ClassMappingType.toExtendedJson(obj)
         }
 
-    private fun filterIdToExtendedJson(obj: Any): String = ClassMappingType.filterIdToExtendedJson(obj)
-
     private fun isJsonArray(json: String) = json.trim().startsWith('[')
 
-    //TODO use bson
-    fun idFilterQuery(id: Any): String = "{_id:${toExtendedJson(id)}}"
+    fun idFilterQuery(id: Any): Bson = Filters.eq("_id", id)
 
     private fun containsUpdateOperator(map: Map<*, *>): Boolean = UPDATE_OPERATORS.any { map.contains(it) }
 
@@ -143,14 +144,14 @@ object KMongoUtil {
         when (obj) {
             is Bson -> obj
             is String -> toBson(obj)
-            else -> toBson(setModifier(obj))
+            else -> setModifier(obj)
         }
 
-    fun setModifier(obj: Any): String {
+    fun setModifier(obj: Any): Bson {
         return if (obj is Map<*, *> && containsUpdateOperator(obj)) {
-            toExtendedJson(obj)
+            toBson(toExtendedJson(obj))
         } else {
-            "{\$set:${filterIdToExtendedJson(obj)}}"
+            SimpleExpression("$set", filterIdToBson(obj))
         }
     }
 
@@ -233,6 +234,24 @@ object KMongoUtil {
             idProperty as KProperty1<Any, Any>,
             value
         )
+    }
+
+    fun <TItem : Any> encodeValue(writer: BsonDocumentWriter, value: TItem?, codecRegistry: CodecRegistry) {
+        when (value) {
+            null -> writer.writeNull()
+            is Bson -> @Suppress("UNCHECKED_CAST")
+            (codecRegistry.get(BsonDocument::class.java) as Encoder<Any>).encode(
+                writer,
+                (value as Bson).toBsonDocument(BsonDocument::class.java, codecRegistry),
+                EncoderContext.builder().build()
+            )
+            else -> @Suppress("UNCHECKED_CAST")
+            (codecRegistry.get<TItem>(value::class.java as Class<TItem>) as Encoder<TItem>).encode(
+                writer,
+                value,
+                EncoderContext.builder().build()
+            )
+        }
     }
 
 }

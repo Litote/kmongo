@@ -31,6 +31,7 @@ import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
+import org.litote.kmongo.util.KMongoUtil.encodeValue
 import java.time.temporal.TemporalAccessor
 import kotlin.reflect.KProperty
 

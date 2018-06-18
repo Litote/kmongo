@@ -76,16 +76,6 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
         return KMongoConfiguration.extendedJsonMapper.writeValueAsString(obj)
     }
 
-    override fun filterIdToExtendedJson(obj: Any): String {
-        val idProperty = MongoIdUtil.findIdProperty(obj.javaClass.kotlin)
-        return if (idProperty == null) {
-            toExtendedJson(obj)
-        } else {
-            filterIdWriter(obj, idProperty, KMongoConfiguration.filterIdExtendedJsonMapper)
-                .writeValueAsString(obj)
-        }
-    }
-
     private fun filterIdWriter(obj: Any, idProperty: KProperty1<*, *>, mapper: ObjectMapper): ObjectWriter {
         return mapper.writer(
             object : FilterProvider() {
@@ -223,7 +213,8 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
                         .findProperties()
                         .firstOrNull {
                             it.accessor.member.name == property.javaGetter?.name
-                                    || it.accessor.member.name == property.javaField?.name }
+                                    || it.accessor.member.name == property.javaField?.name
+                        }
                 }
             }
             ?.name

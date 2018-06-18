@@ -53,6 +53,7 @@ import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
 import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
 import org.litote.kmongo.util.KMongoUtil.extractId
+import org.litote.kmongo.util.KMongoUtil.filterIdToBson
 import org.litote.kmongo.util.KMongoUtil.idFilterQuery
 import org.litote.kmongo.util.KMongoUtil.setModifier
 import org.litote.kmongo.util.KMongoUtil.toBson
@@ -466,7 +467,7 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
     replacement: T,
     options: ReplaceOptions,
     callback: (UpdateResult?, Throwable?) -> Unit
-) = replaceOne(idFilterQuery(id), replacement, options, callback)
+) = withDocumentClass<BsonDocument>().replaceOne(idFilterQuery(id), filterIdToBson(replacement), options, callback)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -605,7 +606,7 @@ fun <T> MongoCollection<T>.updateOne(
     update: Any,
     options: UpdateOptions = UpdateOptions(),
     callback: (UpdateResult?, Throwable?) -> Unit
-) = updateOne(filter, setModifier(update), options, callback)
+) = updateOne(toBson(filter), setModifier(update), options, callback)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -662,7 +663,7 @@ fun <T> MongoCollection<T>.updateOneById(
     update: Any,
     options: UpdateOptions = UpdateOptions(),
     callback: (UpdateResult?, Throwable?) -> Unit
-) = updateOne(idFilterQuery(id).bson, toBsonModifier(update), options, callback)
+) = updateOne(idFilterQuery(id), toBsonModifier(update), options, callback)
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -786,19 +787,19 @@ fun <T> MongoCollection<T>.ensureIndex(
     indexOptions: IndexOptions = IndexOptions(),
     callback: (String?, Throwable?) -> Unit = { _, _ -> }
 ) {
-    createIndex(keys, indexOptions, { s, t ->
+    createIndex(keys, indexOptions) { s, t ->
         if (t != null) {
-            dropIndexOfKeys(keys, { _, t2 ->
+            dropIndexOfKeys(keys) { _, t2 ->
                 if (t2 != null) {
                     callback.invoke(null, t)
                 } else {
                     createIndex(keys, indexOptions, callback)
                 }
-            })
+            }
         } else {
             callback.invoke(s, null)
         }
-    })
+    }
 }
 
 /**

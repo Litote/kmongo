@@ -78,7 +78,7 @@ suspend fun <T> MongoCollection<T>.count(): Long {
  * @return count of filtered collection
  */
 suspend fun <T> MongoCollection<T>.count(filter: String, options: CountOptions = CountOptions()): Long {
-    return singleResult { count(KMongoUtil.toBson(filter), options, it) } ?: 0L
+    return singleResult { count(toBson(filter), options, it) } ?: 0L
 }
 
 /**
@@ -102,7 +102,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
 inline fun <reified TResult : Any> MongoCollection<*>.distinct(
     fieldName: String,
     filter: String
-): DistinctIterable<TResult> = distinct(fieldName, KMongoUtil.toBson(filter), TResult::class.java)
+): DistinctIterable<TResult> = distinct(fieldName, toBson(filter), TResult::class.java)
 
 /**
  * Gets the distinct values of the specified field.
@@ -124,7 +124,7 @@ inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
  * @param  filter the query filter
  * @return the find iterable interface
  */
-fun <T : Any> MongoCollection<T>.find(filter: String): FindIterable<T> = find(KMongoUtil.toBson(filter))
+fun <T : Any> MongoCollection<T>.find(filter: String): FindIterable<T> = find(toBson(filter))
 
 /**
  * Finds all documents in the collection.
@@ -259,7 +259,7 @@ suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(
 ): Void? {
     return singleResult {
         withDocumentClass<BsonDocument>().insertOne(
-            KMongoUtil.toBson(document, T::class),
+            toBson(document, T::class),
             options,
             it
         )
@@ -278,9 +278,10 @@ suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(
  * @throws com.mongodb.MongoWriteConcernException
  * @throws com.mongodb.MongoException
  */
-suspend fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult? {
-    return singleResult { deleteOne(KMongoUtil.toBson(filter), it) }
-}
+suspend fun <T> MongoCollection<T>.deleteOne(
+    filter: String,
+    deleteOptions: DeleteOptions = DeleteOptions()
+): DeleteResult? = singleResult { deleteOne(toBson(filter), deleteOptions, it) }
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -294,8 +295,10 @@ suspend fun <T> MongoCollection<T>.deleteOne(filter: String): DeleteResult? {
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-suspend fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?): DeleteResult =
-    deleteOne(and(*filters))
+suspend fun <T> MongoCollection<T>.deleteOne(
+    vararg filters: Bson?,
+    deleteOptions: DeleteOptions = DeleteOptions()
+): DeleteResult? = singleResult { deleteOne(and(*filters), deleteOptions, it) }
 
 /**
  * Removes at most one document from the id parameter.  If no documents match, the collection is not
@@ -327,7 +330,7 @@ suspend fun <T> MongoCollection<T>.deleteMany(
     filter: String,
     options: DeleteOptions = DeleteOptions()
 ): DeleteResult? {
-    return singleResult { deleteMany(KMongoUtil.toBson(filter), options, it) }
+    return singleResult { deleteMany(toBson(filter), options, it) }
 }
 
 /**
@@ -475,7 +478,7 @@ suspend fun <T> MongoCollection<T>.updateOne(
     update: String,
     options: UpdateOptions = UpdateOptions()
 ): UpdateResult? {
-    return singleResult { updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options, it) }
+    return singleResult { updateOne(toBson(filter), toBson(update), options, it) }
 }
 
 /**
@@ -495,7 +498,7 @@ suspend fun <T> MongoCollection<T>.updateOne(
     filter: String,
     update: Any,
     options: UpdateOptions = UpdateOptions()
-): UpdateResult? = updateOne(filter, setModifier(update), options)
+): UpdateResult? = singleResult { updateOne(toBson(filter), setModifier(update), options, it) }
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -557,7 +560,7 @@ suspend fun <T> MongoCollection<T>.updateOneById(
 ): UpdateResult? =
     singleResult {
         updateOne(
-            idFilterQuery(id).bson,
+            idFilterQuery(id),
             KMongoUtil.toBsonModifier(update),
             options,
             it
@@ -582,7 +585,7 @@ suspend fun <T> MongoCollection<T>.updateMany(
     update: String,
     updateOptions: UpdateOptions = UpdateOptions()
 ): UpdateResult? {
-    return singleResult { updateMany(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), updateOptions, it) }
+    return singleResult { updateMany(toBson(filter), toBson(update), updateOptions, it) }
 }
 
 /**
@@ -616,7 +619,7 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(
     filter: String,
     options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
 ): T? {
-    return singleResult { findOneAndDelete(KMongoUtil.toBson(filter), options, it) }
+    return singleResult { findOneAndDelete(toBson(filter), options, it) }
 }
 
 /**
@@ -635,7 +638,7 @@ suspend fun <T> MongoCollection<T>.findOneAndReplace(
     replacement: T,
     options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
 ): T? {
-    return singleResult { findOneAndReplace(KMongoUtil.toBson(filter), replacement, options, it) }
+    return singleResult { findOneAndReplace(toBson(filter), replacement, options, it) }
 }
 
 /**
@@ -654,7 +657,7 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(
     update: String,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
 ): T? {
-    return singleResult { findOneAndUpdate(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options, it) }
+    return singleResult { findOneAndUpdate(toBson(filter), toBson(update), options, it) }
 }
 
 /**
@@ -668,7 +671,7 @@ suspend fun <T> MongoCollection<T>.createIndex(
     key: String,
     options: IndexOptions = IndexOptions()
 ): String? {
-    return singleResult { createIndex(KMongoUtil.toBson(key), options, it) }
+    return singleResult { createIndex(toBson(key), options, it) }
 }
 
 /**
@@ -758,7 +761,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIn
  * @param keys the keys of the index to remove
  */
 suspend fun <T> MongoCollection<T>.dropIndex(keys: String): Void? {
-    return singleResult { dropIndex(KMongoUtil.toBson(keys), it) }
+    return singleResult { dropIndex(toBson(keys), it) }
 }
 
 /**

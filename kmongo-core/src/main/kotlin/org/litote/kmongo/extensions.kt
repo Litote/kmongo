@@ -395,7 +395,7 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
     id: Any,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): UpdateResult = replaceOne(idFilterQuery(id), replacement, options)
+): UpdateResult = withDocumentClass<BsonDocument>().replaceOne(idFilterQuery(id), filterIdToBson(replacement), options)
 
 /**
  * Replace a document in the collection according to the specified arguments.

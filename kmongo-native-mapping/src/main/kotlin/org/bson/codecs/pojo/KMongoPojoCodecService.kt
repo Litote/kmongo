@@ -27,10 +27,7 @@ internal object KMongoPojoCodecService {
     val codecRegistry: CodecRegistry by lazy { codecProvider.codecRegistry }
 
     val codecProviderWithNullSerialization: KMongoPojoCodecProvider  by lazy {
-        KMongoPojoCodecProvider(
-                object : PropertySerialization<Any> {
-                    override fun shouldSerialize(value: Any?): Boolean = true
-                })
+        KMongoPojoCodecProvider(PropertySerialization { true })
     }
     val codecRegistryWithNullSerialization: CodecRegistry by lazy { codecProviderWithNullSerialization.codecRegistry }
 }

@@ -51,6 +51,7 @@ import org.litote.kmongo.ascending
 import org.litote.kmongo.path
 import org.litote.kmongo.set
 import org.litote.kmongo.util.KMongoUtil
+import org.litote.kmongo.util.KMongoUtil.idFilterQuery
 import org.litote.kmongo.util.KMongoUtil.toBson
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -181,7 +182,7 @@ fun <T : Any> MongoCollection<T>.findOne(vararg filters: Bson?): Maybe<T> {
  * @param id       the object id
  */
 fun <T : Any> MongoCollection<T>.findOneById(id: Any): Maybe<T> {
-    return findOne(KMongoUtil.idFilterQuery(id))
+    return findOne(idFilterQuery(id))
 }
 
 /**
@@ -327,7 +328,7 @@ fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?): Maybe<DeleteResult>
  * @throws com.mongodb.MongoException
  */
 fun <T> MongoCollection<T>.deleteOneById(id: Any): Maybe<DeleteResult> {
-    return deleteOne(KMongoUtil.idFilterQuery(id))
+    return deleteOne(idFilterQuery(id))
 }
 
 /**
@@ -406,7 +407,7 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
 ): Maybe<UpdateResult> {
-    return replaceOne(KMongoUtil.idFilterQuery(id), replacement, options)
+    return replaceOne(idFilterQuery(id), replacement, options)
 }
 
 /**
@@ -581,7 +582,7 @@ fun <T> MongoCollection<T>.updateOneById(
 ): Maybe<UpdateResult> =
     maybeResult {
         updateOne(
-            KMongoUtil.idFilterQuery(id).bson,
+            idFilterQuery(id),
             KMongoUtil.toBsonModifier(update),
             options,
             it

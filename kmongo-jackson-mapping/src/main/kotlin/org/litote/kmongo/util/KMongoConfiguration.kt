@@ -59,12 +59,8 @@ object KMongoConfiguration {
         JacksonCodecProvider(bsonMapper, bsonMapperCopy)
     }
 
-    val filterIdBsonMapper: ObjectMapper by lazy(PUBLICATION) {
+    internal val filterIdBsonMapper: ObjectMapper by lazy(PUBLICATION) {
         ObjectMapperFactory.createFilterIdObjectMapper(bsonMapper)
-    }
-
-    val filterIdExtendedJsonMapper: ObjectMapper by lazy(PUBLICATION) {
-        ObjectMapperFactory.createFilterIdObjectMapper(extendedJsonMapper)
     }
 
     /**

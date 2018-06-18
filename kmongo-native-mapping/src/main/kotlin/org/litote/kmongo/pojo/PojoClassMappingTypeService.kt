@@ -63,10 +63,6 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         return bsonDocument
     }
 
-    override fun filterIdToExtendedJson(obj: Any): String {
-        return filterIdToBson(obj).toJson()
-    }
-
     override fun toExtendedJson(obj: Any?): String {
         return when (obj) {
             null -> "null"
