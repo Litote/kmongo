@@ -19,13 +19,13 @@ package org.litote.kmongo
 import kotlin.reflect.KClass
 
 /**
- * Give the same behaviour than @[Data] to the specified KClass array.
+ * Give the same behaviour than @[NativeData] to the specified KClass array.
  * Useful if you can't annotate directly the target classes.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
-annotation class DataRegistry(
+annotation class NativeDataRegistry(
     /**
      * List of data classes.
      */

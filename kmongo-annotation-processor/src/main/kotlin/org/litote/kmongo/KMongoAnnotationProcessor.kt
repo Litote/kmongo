@@ -59,16 +59,22 @@ import kotlin.reflect.jvm.internal.impl.platform.JavaToKotlinClassMap
  * TODO java9 support
  * TODO map support
  */
-@SupportedAnnotationTypes("org.litote.kmongo.Data", "org.litote.kmongo.DataRegistry")
+@SupportedAnnotationTypes(
+    "org.litote.kmongo.Data",
+    "org.litote.kmongo.DataRegistry",
+    "org.litote.kmongo.JacksonData",
+    "org.litote.kmongo.JacksonDataRegistry",
+    "org.litote.kmongo.NativeData",
+    "org.litote.kmongo.NativeDataRegistry"
+)
 class KMongoAnnotationProcessor : AbstractProcessor() {
 
-    private val notSupportedModifiers =
-        setOf(Modifier.STATIC, Modifier.TRANSIENT)
+    private val notSupportedModifiers = setOf(Modifier.STATIC, Modifier.TRANSIENT)
+
+    private val debug: Boolean = "true" == System.getProperty("org.litote.kmongo.processor.debug")
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        return try {
-
-            /*
+        if (debug) {
             processingEnv.messager.printMessage(
                 Diagnostic.Kind.NOTE,
                 annotations.toString()
@@ -77,71 +83,105 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
                 Diagnostic.Kind.NOTE,
                 processingEnv.options.toString()
             )
-            */
+        }
 
-            val dataElements = roundEnv.getElementsAnnotatedWith(Data::class.java)
-
-            val registryElements = roundEnv
-                .getElementsAnnotatedWith(DataRegistry::class.java)
-                .map {
-                    it.annotationMirrors.filter { it.annotationType.toString() == DataRegistry::class.qualifiedName }
-                        .first()
-                }
-                .flatMap {
-                    it.elementValues.values.flatMap {
-                        (it.value as Iterable<AnnotationValue>).map {
-                            processingEnv.typeUtils.asElement(it.value as TypeMirror)
-                        }
-                    }
-                }
-                .toSet()
-            /*
-            processingEnv.messager.printMessage(
-                Diagnostic.Kind.NOTE,
-                registryElements.toString() )
-
-            processingEnv.messager.printMessage(
-                Diagnostic.Kind.NOTE,
-                dataElements.toString()  
-            ) */
-            val dataClasses = (dataElements + registryElements).toMutableSet()
-
-            processingEnv.messager.printMessage(
-                Diagnostic.Kind.NOTE,
-                "Found @Data classes: ${dataClasses}"
-            )
-
-            for (element in dataClasses.toList()) {
-                if (element.kind != ElementKind.CLASS) {
-                    error("$element is annotated with @Data but is not a class")
-                }
-                registerSuperclasses(element as TypeElement, dataClasses)
-            }
-            for (element in dataClasses) {
-                process(element as TypeElement, dataClasses)
-            }
-            dataClasses.isNotEmpty()
+        return try {
+            processDataClasses(roundEnv) && processJacksonDataClasses(roundEnv) && processNativeDataClasses(roundEnv)
         } catch (e: Throwable) {
             processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, e.stackTrace())
             false
         }
     }
 
+    private fun processJacksonDataClasses(roundEnv: RoundEnvironment): Boolean {
+        val classes = getAnnotatedClasses<JacksonData, JacksonDataRegistry>(roundEnv)
+
+        return classes.isNotEmpty()
+    }
+
+    private fun processNativeDataClasses(roundEnv: RoundEnvironment): Boolean {
+        val classes = getAnnotatedClasses<NativeData, NativeDataRegistry>(roundEnv)
+
+        return classes.isNotEmpty()
+    }
+
+    private fun processDataClasses(roundEnv: RoundEnvironment): Boolean {
+        val dataClasses = getAnnotatedClasses<Data, DataRegistry>(roundEnv)
+
+        for (element in dataClasses.toList()) {
+            if (element.kind != ElementKind.CLASS) {
+                error("$element is annotated with @Data but is not a class")
+            }
+            registerSuperclasses(element as TypeElement, dataClasses)
+        }
+        for (element in dataClasses) {
+            process(element as TypeElement, dataClasses)
+        }
+        return dataClasses.isNotEmpty()
+    }
+
+    private inline fun <reified T : Annotation, reified R : Annotation> getAnnotatedClasses(roundEnv: RoundEnvironment): MutableSet<Element> {
+        val dataElements = roundEnv.getElementsAnnotatedWith(T::class.java)
+        val registryElements = getRegistryClasses<R>(roundEnv)
+
+        if (debug) {
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.NOTE,
+                registryElements.toString()
+            )
+
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.NOTE,
+                dataElements.toString()
+            )
+        }
+
+        return (dataElements + registryElements).toMutableSet().apply {
+            if (isNotEmpty()) {
+                processingEnv.messager.printMessage(
+                    Diagnostic.Kind.NOTE,
+                    "Found ${T::class.simpleName} classes: $this"
+                )
+            }
+        }
+    }
+
+    private inline fun <reified T : Annotation> getRegistryClasses(roundEnv: RoundEnvironment) =
+        roundEnv
+            .getElementsAnnotatedWith(T::class.java)
+            .map {
+                it.annotationMirrors.filter { it.annotationType.toString() == DataRegistry::class.qualifiedName }
+                    .first()
+            }
+            .flatMap {
+                it.elementValues.values.flatMap {
+                    @Suppress("UNCHECKED_CAST")
+                    (it.value as Iterable<AnnotationValue>).map {
+                        processingEnv.typeUtils.asElement(it.value as TypeMirror)
+                    }
+                }
+            }
+            .toSet()
+
     override fun getSupportedSourceVersion(): SourceVersion {
-        /*processingEnv.messager.printMessage(
-            Diagnostic.Kind.NOTE,
-            SourceVersion.latest().toString()
-        )*/
+        if (debug) {
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.NOTE,
+                SourceVersion.latest().toString()
+            )
+        }
         return SourceVersion.latest()
     }
 
     private fun registerSuperclasses(element: TypeElement, dataClasses: MutableSet<Element>) {
         val superclass = element.superclass
         if (superclass is DeclaredType && superclass.toString() != "java.lang.Object") {
-            /* processingEnv.messager.printMessage(
-                 Diagnostic.Kind.NOTE,
-                 "$element : $superclass - ${superclass.getAnnotation(Data::class.java)}"
-             )*/
+            if (debug) {
+                processingEnv.messager.printMessage(
+                    Diagnostic.Kind.NOTE,
+                    "$element : $superclass - ${superclass.getAnnotation(Data::class.java)}"
+                )
+            }
             val superElement = superclass.asElement() as TypeElement
             if (!dataClasses.contains(superElement)) {
                 dataClasses.add(superElement)
@@ -262,18 +302,21 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
 
         for (e in element.enclosedElements) {
             if (e is VariableElement && e.modifiers.none { notSupportedModifiers.contains(it) }) {
-                /*processingEnv.messager.printMessage(
-                    Diagnostic.Kind.NOTE,
-                    "${e.simpleName}-${e.asType()}"
-                )*/
+                if (debug) {
+                    processingEnv.messager.printMessage(
+                        Diagnostic.Kind.NOTE,
+                        "${e.simpleName}-${e.asType()}"
+                    )
+                }
                 val type = e.asType()
                 val returnType = processingEnv.typeUtils.asElement(type) as? TypeElement
-                //processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, type.toString())
                 if (type != null) {
-                    /* processingEnv.messager.printMessage(
-                         Diagnostic.Kind.NOTE,
-                         "$type-annot: ${type.getAnnotation(Data::class.java)}"
-                     )*/
+                    if (debug) {
+                        processingEnv.messager.printMessage(
+                            Diagnostic.Kind.NOTE,
+                            "$type-annot: ${type.getAnnotation(Data::class.java)}"
+                        )
+                    }
                 }
                 val annotatedCollection = type.run {
                     if (this is ArrayType) {
@@ -425,14 +468,16 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
         fileBuilder.addType(collectionClassBuilder.build())
 
         val kotlinFile = fileBuilder.build()
-        /*processingEnv.messager.printMessage(
-            Diagnostic.Kind.NOTE,
-            processingEnv.filer.getResource(
-                StandardLocation.SOURCE_OUTPUT,
-                kotlinFile.packageName,
-                kotlinFile.name
-            ).name
-        ) */
+        if (debug) {
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.NOTE,
+                processingEnv.filer.getResource(
+                    StandardLocation.SOURCE_OUTPUT,
+                    kotlinFile.packageName,
+                    kotlinFile.name
+                ).name
+            )
+        }
 
         kotlinFile.writeTo(
             Paths.get(
@@ -459,11 +504,6 @@ class KMongoAnnotationProcessor : AbstractProcessor() {
             val className =
                 JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(toString()))
                     ?.asSingleFqName()?.asString()
-
-            /*processingEnv.messager.printMessage(
-                Diagnostic.Kind.NOTE,
-                "$this == $className"
-            )*/
 
             return if (className == null) {
                 this

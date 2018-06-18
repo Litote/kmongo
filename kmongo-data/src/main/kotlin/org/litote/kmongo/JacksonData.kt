@@ -16,18 +16,11 @@
 
 package org.litote.kmongo
 
-import kotlin.reflect.KClass
-
 /**
- * Give the same behaviour than @[Data] to the specified KClass array.
- * Useful if you can't annotate directly the target classes.
+ * Annotated classes will generate jackson serializer & deserializer for this class at compile time.
+ * See [documentation](http://litote.org/kmongo/typed-queries/#kmongo-annotation-processor).
  */
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
-annotation class DataRegistry(
-    /**
-     * List of data classes.
-     */
-    val value: Array<KClass<*>>
-)
+annotation class JacksonData
