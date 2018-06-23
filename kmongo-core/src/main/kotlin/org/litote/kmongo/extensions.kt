@@ -40,9 +40,9 @@ import com.mongodb.client.model.InsertOneOptions
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
+import com.mongodb.client.model.changestream.ChangeStreamDocument
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
-import kotlin.internal.HidesMembers
 import org.bson.BsonDocument
 import org.bson.conversions.Bson
 import org.litote.kmongo.util.KMongoUtil
@@ -58,6 +58,7 @@ import org.litote.kmongo.util.KMongoUtil.toExtendedJson
 import org.litote.kmongo.util.KMongoUtil.toWriteModel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.internal.HidesMembers
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -932,6 +933,31 @@ fun <T> MongoIterable<T>.toList(): List<T> = into(mutableListOf<T>())
 @HidesMembers
 inline fun <T> MongoIterable<T>.forEach(crossinline action: (T) -> Unit): Unit =
     forEach(Block<T> { action.invoke(it) })
+
+//*******
+//ChangeStreamIterable extension methods
+//*******
+
+/**
+ * Listens change stream in an other thread.
+ *
+ * @param executor the executor service for the thread instantiation - default is [Executors.newSingleThreadExecutor]
+ * @param listener to listen changes
+ */
+fun <T> ChangeStreamIterable<T>.listen(
+    executor: ExecutorService = Executors.newSingleThreadExecutor(),
+    listener: (ChangeStreamDocument<T>) -> Unit
+) {
+    //need to listen the iterator from the original thread
+    val cursor = iterator()
+    executor.execute {
+        cursor.use { cursor ->
+            while (cursor.hasNext()) {
+                listener.invoke(cursor.next())
+            }
+        }
+    }
+}
 
 
 //*******
