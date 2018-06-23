@@ -16,8 +16,9 @@
 
 package org.litote.kmongo.async
 
+import com.mongodb.ConnectionString
 import com.mongodb.async.client.MongoClient
-import org.litote.kmongo.EmbeddedMongo.mongodProcess
+import org.litote.kmongo.EmbeddedMongo
 import org.litote.kmongo.service.MongoClientProvider
 
 /**
@@ -26,10 +27,14 @@ import org.litote.kmongo.service.MongoClientProvider
 internal object AsyncTestClient {
 
     val instance: MongoClient by lazy {
-        createClient(mongodProcess.config.net().port)
+        MongoClientProvider.createMongoClient<MongoClient>(
+            EmbeddedMongo.connectionString { host, command, callback ->
+                MongoClientProvider
+                    .createMongoClient<MongoClient>(ConnectionString("mongodb://$host"))
+                    .getDatabase("admin")
+                    .runCommand(command, callback)
+            }
+        )
     }
 
-    private fun createClient(port: Int): MongoClient {
-        return MongoClientProvider.createMongoClient<MongoClient>("mongodb://127.0.0.1:$port")
-    }
 }

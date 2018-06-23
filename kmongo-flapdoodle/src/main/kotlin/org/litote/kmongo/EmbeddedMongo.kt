@@ -16,30 +16,27 @@
 
 package org.litote.kmongo
 
+import com.mongodb.ConnectionString
+import com.mongodb.async.SingleResultCallback
 import de.flapdoodle.embed.mongo.MongodProcess
-import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.IMongodConfig
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
-import de.flapdoodle.embed.mongo.config.Net
-import de.flapdoodle.embed.mongo.distribution.Version.Main.PRODUCTION
-import de.flapdoodle.embed.process.runtime.Network
+import org.bson.BsonDocument
+import org.bson.Document
+
+internal val MongodProcess.host get() = "127.0.0.1:${config.net().port}"
 
 /**
  * Flapdoodle wrapper.
  */
-object EmbeddedMongo {
+internal object EmbeddedMongo {
 
-    var port = Network.getFreeServerPort()
-    var config: IMongodConfig = MongodConfigBuilder()
-            .version(PRODUCTION)
-            .net(Net(port, Network.localhostIsIPv6()))
-            .build()
+    private val standalone = System.getProperty("kmongo.flapdoodle.replicaset") != "true"
 
-    val mongodProcess: MongodProcess by lazy {
-        createInstance()
-    }
+    fun connectionString(commandExecutor: (String, BsonDocument, SingleResultCallback<Document>) -> Unit): ConnectionString =
+        if (standalone) {
+            StandaloneEmbeddedMongo.connectionString(commandExecutor)
+        } else {
+            ReplicaSetEmbeddedMongo.connectionString(commandExecutor)
+        }
 
-    private fun createInstance(): MongodProcess {
-        return MongodStarter.getDefaultInstance().prepare(config).start()
-    }
+
 }

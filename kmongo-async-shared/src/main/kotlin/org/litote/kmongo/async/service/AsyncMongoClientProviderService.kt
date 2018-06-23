@@ -32,10 +32,6 @@ internal class AsyncMongoClientProviderService : MongoClientProviderService<Mong
         return KMongo.createClient()
     }
 
-    override fun createMongoClient(connectionString: String): MongoClient {
-        return KMongo.createClient(connectionString)
-    }
-
     override fun createMongoClient(connectionString: ConnectionString): MongoClient {
         return KMongo.createClient(connectionString)
     }

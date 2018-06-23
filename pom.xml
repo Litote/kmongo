@@ -378,6 +378,9 @@
                         <useSystemClassLoader>false</useSystemClassLoader>
                         <useManifestOnlyJar>false</useManifestOnlyJar>
                         <failIfNoTests>false</failIfNoTests>
+                        <systemPropertyVariables>
+                            <kmongo.flapdoodle.replicaset>true</kmongo.flapdoodle.replicaset>
+                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
             </plugins>

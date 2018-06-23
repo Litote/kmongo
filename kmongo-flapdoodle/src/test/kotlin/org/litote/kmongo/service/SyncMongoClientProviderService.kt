@@ -20,7 +20,7 @@ import com.mongodb.ConnectionString
 import com.mongodb.MongoClient
 import com.mongodb.MongoClient.getDefaultCodecRegistry
 import com.mongodb.MongoClientOptions
-import com.mongodb.ServerAddress
+import com.mongodb.MongoClientURI
 import org.bson.codecs.configuration.CodecRegistry
 
 /**
@@ -29,18 +29,16 @@ import org.bson.codecs.configuration.CodecRegistry
 internal class SyncMongoClientProviderService : MongoClientProviderService<MongoClient> {
 
     override fun createMongoClient(): MongoClient {
-        error("unsupported")
-    }
-
-    override fun createMongoClient(connectionString: String): MongoClient {
-        return MongoClient(
-            ServerAddress(connectionString),
-            MongoClientOptions.builder().codecRegistry(defaultCodecRegistry()).build()
-        )
+        return MongoClient()
     }
 
     override fun createMongoClient(connectionString: ConnectionString): MongoClient {
-        error("unsupported")
+        return MongoClient(
+            MongoClientURI(
+                connectionString.connectionString,
+                MongoClientOptions.builder().codecRegistry(defaultCodecRegistry())
+            )
+        )
     }
 
     override fun defaultCodecRegistry(): CodecRegistry = ClassMappingType.codecRegistry(getDefaultCodecRegistry())

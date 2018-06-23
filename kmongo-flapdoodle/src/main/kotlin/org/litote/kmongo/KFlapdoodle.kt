@@ -16,6 +16,7 @@
 
 package org.litote.kmongo
 
+import com.mongodb.ConnectionString
 import com.mongodb.MongoClient
 import org.litote.kmongo.service.MongoClientProvider
 
@@ -25,12 +26,23 @@ import org.litote.kmongo.service.MongoClientProvider
 object KFlapdoodle {
 
     val mongoClient: MongoClient by lazy {
-        createClient(EmbeddedMongo.mongodProcess.config.net().port)
+        MongoClientProvider.createMongoClient<MongoClient>(
+            EmbeddedMongo.connectionString { host, command, callback ->
+                try {
+                    callback.onResult(
+                        MongoClientProvider
+                            .createMongoClient<MongoClient>(ConnectionString("mongodb://$host"))
+                            .getDatabase("admin")
+                            .runCommand(command),
+                        null
+                    )
+                } catch (e: Exception) {
+                    callback.onResult(null, e)
+                }
+            }
+        )
     }
 
     fun getDatabase(dbName: String = "test") = mongoClient.getDatabase(dbName)
 
-    private fun createClient(port: Int): MongoClient {
-        return MongoClientProvider.createMongoClient<MongoClient>("127.0.0.1:$port")
-    }
 }

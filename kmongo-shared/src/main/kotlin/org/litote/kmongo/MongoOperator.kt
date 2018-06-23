@@ -231,7 +231,10 @@ enum class MongoOperator {
     id,
     undefined,
     minKey,
-    maxKey;
+    maxKey,
+
+    changeStream,
+    replaceRoot;
 
     override fun toString(): String{
         return "\$$name"

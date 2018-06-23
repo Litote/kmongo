@@ -40,7 +40,6 @@ class KFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
 
     }
 
-    val mongoClient: MongoClient = KFlapdoodle.mongoClient
     val database: MongoDatabase by lazy {
         KFlapdoodle.getDatabase(dbName)
     }

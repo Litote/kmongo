@@ -35,14 +35,6 @@ interface MongoClientProviderService<T : Closeable> {
     /**
      * Create a new client with the given connection string.
      *
-     * @param connectionString the connection
-     * @return the client
-     */
-    fun createMongoClient(connectionString: String): T
-
-    /**
-     * Create a new client with the given connection string.
-     *
      * @param connectionString the settings
      * @return the client
      */

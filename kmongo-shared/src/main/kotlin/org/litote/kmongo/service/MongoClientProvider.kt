@@ -44,17 +44,6 @@ object MongoClientProvider {
     /**
      * Create a new client with the given connection string.
      *
-     * @param connectionString the connection
-     * @return the client
-     */
-    fun <T> createMongoClient(connectionString: String): T {
-        @Suppress("UNCHECKED_CAST")
-        return mongoClientProvider.createMongoClient(connectionString) as T
-    }
-
-    /**
-     * Create a new client with the given connection string.
-     *
      * @param connectionString the settings
      * @return the client
      */

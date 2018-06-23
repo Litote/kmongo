@@ -30,10 +30,6 @@ internal class SyncMongoClientProviderService : MongoClientProviderService<Mongo
         return KMongo.createClient()
     }
 
-    override fun createMongoClient(connectionString: String): MongoClient {
-        return KMongo.createClient(connectionString)
-    }
-
     override fun createMongoClient(connectionString: ConnectionString): MongoClient {
         return KMongo.createClient(connectionString)
     }
