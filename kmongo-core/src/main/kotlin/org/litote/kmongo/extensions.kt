@@ -15,10 +15,12 @@
  */
 package org.litote.kmongo
 
+import com.mongodb.Block
 import com.mongodb.MongoCommandException
 import com.mongodb.ReadPreference
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.AggregateIterable
+import com.mongodb.client.ChangeStreamIterable
 import com.mongodb.client.DistinctIterable
 import com.mongodb.client.FindIterable
 import com.mongodb.client.ListIndexesIterable
@@ -40,6 +42,7 @@ import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
+import kotlin.internal.HidesMembers
 import org.bson.BsonDocument
 import org.bson.conversions.Bson
 import org.litote.kmongo.util.KMongoUtil
@@ -53,6 +56,8 @@ import org.litote.kmongo.util.KMongoUtil.toBsonList
 import org.litote.kmongo.util.KMongoUtil.toBsonModifier
 import org.litote.kmongo.util.KMongoUtil.toExtendedJson
 import org.litote.kmongo.util.KMongoUtil.toWriteModel
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -917,7 +922,17 @@ fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T> = filt
  * @param target   the collection to insert into
  * @param callback a callback that will be passed the target containing all documents
  */
-fun <TResult> MongoIterable<TResult>.toList(): List<TResult> = into(mutableListOf<TResult>())
+fun <T> MongoIterable<T>.toList(): List<T> = into(mutableListOf<T>())
+
+/**
+ * Overrides [Iterable.forEach] to ensure [MongoIterable.forEach] is called.
+ *
+ * @param
+ */
+@HidesMembers
+inline fun <T> MongoIterable<T>.forEach(crossinline action: (T) -> Unit): Unit =
+    forEach(Block<T> { action.invoke(it) })
+
 
 //*******
 //json extension property

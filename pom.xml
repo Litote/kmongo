@@ -393,6 +393,7 @@
                 <configuration>
                     <args>
                         <arg>-Xcoroutines=enable</arg>
+                        <arg>-Xallow-kotlin-package</arg>
                     </args>
                 </configuration>
 
