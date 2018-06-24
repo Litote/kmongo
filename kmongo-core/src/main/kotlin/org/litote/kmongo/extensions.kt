@@ -15,7 +15,6 @@
  */
 package org.litote.kmongo
 
-import com.mongodb.Block
 import com.mongodb.MongoCommandException
 import com.mongodb.ReadPreference
 import com.mongodb.bulk.BulkWriteResult
@@ -58,7 +57,6 @@ import org.litote.kmongo.util.KMongoUtil.toExtendedJson
 import org.litote.kmongo.util.KMongoUtil.toWriteModel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.internal.HidesMembers
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -218,7 +216,7 @@ fun <T> MongoCollection<T>.findOne(vararg filters: Bson?): T? =
  * @param filters the query filters
  * @return the first item returned or null
  */
-inline fun <reified T : Any> MongoCollection<T>.findOne(filters: () -> Bson): T? = findOne(filters.invoke())
+inline fun <reified T : Any> MongoCollection<T>.findOne(filters: () -> Bson): T? = findOne(filters())
 
 /**
  * Finds the document that match the id parameter.
@@ -914,27 +912,6 @@ fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T> = sort(toB
 fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T> = filter(toBson(filter))
 
 //*******
-//MongoIterable extension methods
-//*******
-
-/**
- * Iterates over all the documents, adding each to the given target.
- *
- * @param target   the collection to insert into
- * @param callback a callback that will be passed the target containing all documents
- */
-fun <T> MongoIterable<T>.toList(): List<T> = into(mutableListOf<T>())
-
-/**
- * Overrides [Iterable.forEach] to ensure [MongoIterable.forEach] is called.
- *
- * @param
- */
-@HidesMembers
-inline fun <T> MongoIterable<T>.forEach(crossinline action: (T) -> Unit): Unit =
-    forEach(Block<T> { action.invoke(it) })
-
-//*******
 //ChangeStreamIterable extension methods
 //*******
 
@@ -953,7 +930,7 @@ fun <T> ChangeStreamIterable<T>.listen(
     executor.execute {
         cursor.use { cursor ->
             while (cursor.hasNext()) {
-                listener.invoke(cursor.next())
+                listener(cursor.next())
             }
         }
     }

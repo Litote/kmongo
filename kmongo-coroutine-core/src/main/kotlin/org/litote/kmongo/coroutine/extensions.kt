@@ -184,8 +184,8 @@ fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T> = filt
  * @param target   the collection to insert into
  * @param callback a callback that will be passed the target containing all documents
  */
-suspend fun <TResult> MongoIterable<TResult>.toList(): MutableList<TResult> {
-    return singleResult { into(mutableListOf<TResult>(), it) } ?: arrayListOf()
+suspend fun <T> MongoIterable<T>.toList(): MutableList<T> {
+    return singleResult { into(mutableListOf(), it) } ?: arrayListOf()
 }
 
 //*******

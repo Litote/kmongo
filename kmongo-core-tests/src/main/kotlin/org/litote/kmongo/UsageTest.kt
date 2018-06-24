@@ -77,7 +77,7 @@ class UsageTest : KMongoBaseTest<Jedi>() {
         )
             .first()
 
-        assertEquals("Luke Skywalker", luke.name)
+        assertEquals("Luke Skywalker", luke?.name)
         assertEquals("Yoda", yoda.name)
         assertEquals(luke, luke2)
     }

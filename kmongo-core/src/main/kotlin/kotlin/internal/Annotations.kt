@@ -16,9 +16,18 @@
 
 package kotlin.internal
 
-/**
- *
- */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.BINARY)
 internal annotation class HidesMembers
+
+@Target(AnnotationTarget.TYPE)
+@Retention(AnnotationRetention.BINARY)
+internal annotation class NoInfer
+
+@Target(AnnotationTarget.TYPE_PARAMETER)
+@Retention(AnnotationRetention.BINARY)
+internal annotation class OnlyInputTypes
+
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
+@Retention(AnnotationRetention.BINARY)
+internal annotation class InlineOnly
