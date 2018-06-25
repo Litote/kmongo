@@ -55,6 +55,10 @@
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-rxjava2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-native</artifactId>
         </dependency>
         <dependency>
@@ -64,6 +68,10 @@
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-coroutine-native</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-rxjava2-native</artifactId>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
