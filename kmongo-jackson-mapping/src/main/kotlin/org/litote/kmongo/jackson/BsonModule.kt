@@ -363,6 +363,20 @@ internal class BsonModule : SimpleModule() {
         }
     }
 
+    private object Decimal128BsonSerializer : JsonSerializer<Decimal128>() {
+
+        override fun serialize(decimal: Decimal128, generator: JsonGenerator, provider: SerializerProvider) {
+            BigDecimalBsonSerializer.serialize(decimal.bigDecimalValue(), generator, provider)
+        }
+    }
+
+    private object Decimal128BsonDeserializer : JsonDeserializer<Decimal128>() {
+
+        override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Decimal128 {
+            return Decimal128(BigDecimalBsonDeserializer.deserialize(jp, ctxt))
+        }
+    }
+
     private object KPropertySerializer : JsonSerializer<KProperty<*>>() {
 
         override fun serialize(property: KProperty<*>, generator: JsonGenerator, provider: SerializerProvider) {
@@ -392,6 +406,8 @@ internal class BsonModule : SimpleModule() {
         addDeserializer(MinKey::class.java, MinKeyBsonDeserializer)
         addSerializer(BigDecimal::class.java, BigDecimalBsonSerializer)
         addDeserializer(BigDecimal::class.java, BigDecimalBsonDeserializer)
+        addSerializer(Decimal128::class.java, Decimal128BsonSerializer)
+        addDeserializer(Decimal128::class.java, Decimal128BsonDeserializer)
 
         addSerializer(Id::class.java, IdBsonSerializer)
         addDeserializer(Id::class.java, IdBsonDeserializer)
