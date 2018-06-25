@@ -912,6 +912,19 @@ fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T> = sort(toB
 fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T> = filter(toBson(filter))
 
 //*******
+//MongoIterable extension methods
+//*******
+
+/**
+ * Iterates over all the documents, adding each to the given target.
+ *
+ * @param target   the collection to insert into
+ * @param callback a callback that will be passed the target containing all documents
+ */
+@Deprecated("use classic toList extension")
+fun <T> MongoIterable<T>.toList(): List<T> = into(mutableListOf<T>())
+
+//*******
 //ChangeStreamIterable extension methods
 //*******
 
