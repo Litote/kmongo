@@ -18,10 +18,12 @@ package org.litote.kmongo
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClient
+import com.mongodb.client.MongoDatabase
+import org.litote.kmongo.KFlapdoodle.mongoClient
 import org.litote.kmongo.service.MongoClientProvider
 
 /**
- *
+ * Main KFlapoodle object - to access to provided [mongoClient].
  */
 object KFlapdoodle {
 
@@ -43,6 +45,6 @@ object KFlapdoodle {
         )
     }
 
-    fun getDatabase(dbName: String = "test") = mongoClient.getDatabase(dbName)
+    fun getDatabase(dbName: String = "test"): MongoDatabase = mongoClient.getDatabase(dbName)
 
 }
