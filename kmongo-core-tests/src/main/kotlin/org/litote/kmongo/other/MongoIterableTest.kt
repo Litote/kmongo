@@ -210,4 +210,39 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
         assertEquals(john, mapIt.find { true })
         assertTrue(iterable.cursor?.closed ?: false)
     }
+
+
+    @Test
+    fun `asSequence closes the mongo cursor`() {
+        val john = Friend("John", "22 Wall Street Avenue")
+        col.insertOne(john)
+        val iterable = MongoIterableWrapper(col.find())
+        val sequence = iterable.asSequence()
+        assertTrue(iterable.cursor?.closed ?: false)
+
+        assertEquals(john, sequence.filter { it.name != "Joe" }.last())
+    }
+
+    @Test
+    fun `toMap closes the mongo cursor`() {
+        val john = Friend("John", "22 Wall Street Avenue")
+        col.insertOne(john)
+        val iterable = MongoIterableWrapper(col.find())
+        val map = iterable.map { it._id to it }.toMap()
+        assertTrue(iterable.cursor?.closed ?: false)
+
+        assertEquals(john, map.values.first())
+        assertEquals(john._id, map.keys.first())
+    }
+
+    @Test
+    fun `toHashSet closes the mongo cursor`() {
+        val john = Friend("John", "22 Wall Street Avenue")
+        col.insertOne(john)
+        val iterable = MongoIterableWrapper(col.find())
+        val hashSet = iterable.toHashSet()
+        assertTrue(iterable.cursor?.closed ?: false)
+
+        assertEquals(john, hashSet.first())
+    }
 }

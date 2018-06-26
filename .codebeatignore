@@ -1,6 +1,7 @@
 kmongo-core-tests/**
 kmongo-async-core-tests/**
 kmongo-coroutine-core-tests/**
+kmongo-rxjava2-core-tests/**
 kmongo-shared-tests/**
 kmongo-benchmark/**
 kmongo-coverage/**

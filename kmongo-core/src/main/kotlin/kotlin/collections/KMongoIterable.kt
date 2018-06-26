@@ -146,8 +146,7 @@ fun <T : Any> MongoIterable<T?>.requireNoNulls(): MongoIterable<T> {
  * @sample samples.collections.Sequences.Building.sequenceFromCollection
  */
 fun <T> MongoIterable<T>.asSequence(): Sequence<T> {
-    //TODO
-    return Sequence { this.iterator() }
+    return toList().asSequence()
 }
 
 //common overrides ->
