@@ -95,7 +95,11 @@
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
         <plugin.jacoco.version>0.8.1</plugin.jacoco.version>
+        <plugin.exec.version>1.2.1</plugin.exec.version>
+        <plugin.build-helper.version>1.8</plugin.build-helper.version>
+        <plugin.shade.version>2.2</plugin.shade.version>
 
+        
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
 
@@ -610,7 +614,7 @@
             <activation>
                 <property>
                     <name>release</name>
-                    <value>!false</value>
+                    <value>false</value>
                 </property>
             </activation>
             <properties>
