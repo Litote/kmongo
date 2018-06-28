@@ -591,13 +591,26 @@
 
     <profiles>
         <profile>
-            <id>build</id>
+            <id>dev</id>
             <modules>
                 <module>kmongo-benchmark</module>
             </modules>
             <activation>
                 <property>
                     <name>!release</name>
+                </property>
+            </activation>
+            <properties>
+                <gpg.skip>true</gpg.skip>
+                <jacoco.skip>true</jacoco.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>build</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                    <value>!false</value>
                 </property>
             </activation>
             <properties>
