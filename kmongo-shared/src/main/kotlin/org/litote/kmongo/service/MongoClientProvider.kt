@@ -17,6 +17,7 @@
 package org.litote.kmongo.service
 
 import com.mongodb.ConnectionString
+import java.io.Closeable
 import java.util.ServiceLoader
 
 /**
@@ -25,20 +26,18 @@ import java.util.ServiceLoader
  */
 object MongoClientProvider {
 
-    private val mongoClientProvider
-            by lazy {
-                ServiceLoader.load(MongoClientProviderService::class.java).iterator().next()
-            }
-
     /**
      * Create a new client with the given connection string.
      *
      * @param connectionString the settings
      * @return the client
      */
-    fun <T> createMongoClient(connectionString: ConnectionString): T {
-        @Suppress("UNCHECKED_CAST")
-        return mongoClientProvider.createMongoClient(connectionString) as T
+    inline fun <reified T : Closeable> createMongoClient(connectionString: ConnectionString): T {
+        return ServiceLoader
+            .load(MongoClientProviderService::class.java)
+            .map { it.createMongoClient(connectionString) }
+            .filterIsInstance<T>()
+            .first()
     }
 
 }
