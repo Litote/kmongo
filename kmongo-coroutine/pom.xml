@@ -69,7 +69,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>empty-javadoc-jar</id>
+                        <id>default-jar</id>
                         <phase>package</phase>
                         <goals>
                             <goal>jar</goal>

@@ -22,11 +22,11 @@ import org.litote.kmongo.EmbeddedMongo
 import org.litote.kmongo.service.MongoClientProvider
 
 /**
- *
+ * Async main KFlapoodle object - to access async [mongoClient].
  */
-internal object AsyncTestClient {
+object KFlapdoodleAsync {
 
-    val instance: MongoClient by lazy {
+    val mongoClient: MongoClient by lazy {
         MongoClientProvider.createMongoClient<MongoClient>(
             EmbeddedMongo.connectionString { host, command, callback ->
                 MongoClientProvider

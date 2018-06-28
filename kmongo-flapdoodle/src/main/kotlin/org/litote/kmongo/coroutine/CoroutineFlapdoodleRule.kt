@@ -25,7 +25,7 @@ import org.bson.types.ObjectId
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import org.litote.kmongo.async.AsyncTestClient
+import org.litote.kmongo.async.KFlapdoodleAsync
 import org.litote.kmongo.util.KMongoUtil
 import kotlin.coroutines.experimental.suspendCoroutine
 import kotlin.reflect.KClass
@@ -44,7 +44,7 @@ class CoroutineFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
 
     }
 
-    val mongoClient: MongoClient = AsyncTestClient.instance
+    val mongoClient: MongoClient = KFlapdoodleAsync.mongoClient
     val database: MongoDatabase by lazy {
         mongoClient.getDatabase(dbName)
     }

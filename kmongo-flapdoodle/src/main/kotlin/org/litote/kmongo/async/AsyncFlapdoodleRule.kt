@@ -42,7 +42,7 @@ class AsyncFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
 
     }
 
-    val mongoClient: MongoClient = AsyncTestClient.instance
+    val mongoClient: MongoClient = KFlapdoodleAsync.mongoClient
     val database: MongoDatabase by lazy {
         mongoClient.getDatabase(dbName)
     }

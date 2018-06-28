@@ -164,9 +164,10 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
         val friends = mutableListOf<Friend>()
         iterable.forEach { friends.add(it) }
 
+        assertTrue(iterable.cursor?.closed ?: false)
+
         assertEquals(john, friends.first())
         assertEquals(1, friends.size)
-        assertTrue(iterable.cursor?.closed ?: false)
     }
 
     @Test
@@ -194,8 +195,9 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
         val john = Friend("John", "22 Wall Street Avenue")
         col.insertOne(john)
         val iterable = MongoIterableWrapper(col.find())
+        val indexed = iterable.mapIndexed { i, v -> v }
 
-        assertEquals(john, iterable.mapIndexed { i, v -> v }.first())
+        assertEquals(john, indexed.first())
         assertTrue(iterable.cursor?.closed ?: false)
     }
 

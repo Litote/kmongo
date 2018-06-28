@@ -23,7 +23,7 @@ import org.litote.kmongo.KFlapdoodle.mongoClient
 import org.litote.kmongo.service.MongoClientProvider
 
 /**
- * Main KFlapoodle object - to access to provided [mongoClient].
+ * Main KFlapoodle object - to access sync [mongoClient].
  */
 object KFlapdoodle {
 
