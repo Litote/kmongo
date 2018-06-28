@@ -32,6 +32,7 @@ class ChangeStreamTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun `ChangeStreamIterable#listen listens all changes`() {
         col.insertOne(Friend("Joe"))
         val friends = ArrayBlockingQueue<Friend>(3)
+        Thread.sleep(100)
         col.watch().fullDocument(FullDocument.UPDATE_LOOKUP).listen {
             friends.add(it.fullDocument)
         }
