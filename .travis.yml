@@ -12,3 +12,4 @@ cache:
     - $HOME/.m2/repository
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+install: true
