@@ -197,6 +197,7 @@ suspend fun <T> MongoIterable<T>.toList(): MutableList<T> {
  *
  * See [Mongo extended json format](https://docs.mongodb.com/manual/reference/mongodb-extended-json) for details
  */
+@Deprecated("use same function with org.litote.kmongo package - this version will be removed in 3.9")
 val Any.json: String
     get() = KMongoUtil.toExtendedJson(this)
 
@@ -205,11 +206,13 @@ val Any.json: String
  *
  * @throws Exception if the string content is not a valid json document format
  */
+@Deprecated("use same function with org.litote.kmongo package - this version will be removed in 3.9")
 val String.bson: BsonDocument
     get() = toBson(this)
 
 /**
  * Format this string to remove space(s) between $ and next char
  */
+@Deprecated("use same function with org.litote.kmongo package - this version will be removed in 3.9")
 fun String.formatJson(): String = KMongoUtil.formatJson(this)
 

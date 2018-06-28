@@ -948,30 +948,3 @@ fun <T> ChangeStreamIterable<T>.listen(
         }
     }
 }
-
-
-//*******
-//json extension property
-//*******
-
-/**
- * Get the extended json representation of this object
- *
- * See [Mongo extended json format](https://docs.mongodb.com/manual/reference/mongodb-extended-json) for details
- */
-val Any.json: String
-    get() = toExtendedJson(this)
-
-/**
- * Get the [org.bson.BsonValue] of this string.
- *
- * @throws Exception if the string content is not a valid json document format
- */
-val String.bson: BsonDocument
-    get() = toBson(this)
-
-/**
- * Format this string to remove space(s) between $ and next char
- */
-fun String.formatJson(): String = KMongoUtil.formatJson(this)
-
