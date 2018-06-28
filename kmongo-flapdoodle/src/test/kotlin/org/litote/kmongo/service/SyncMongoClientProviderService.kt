@@ -18,29 +18,25 @@ package org.litote.kmongo.service
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClient
-import com.mongodb.MongoClient.getDefaultCodecRegistry
 import com.mongodb.MongoClientOptions
+import com.mongodb.MongoClientSettings
 import com.mongodb.MongoClientURI
-import org.bson.codecs.configuration.CodecRegistry
 
 /**
  * only used for test
  */
 internal class SyncMongoClientProviderService : MongoClientProviderService<MongoClient> {
 
-    override fun createMongoClient(): MongoClient {
-        return MongoClient()
-    }
-
     override fun createMongoClient(connectionString: ConnectionString): MongoClient {
         return MongoClient(
             MongoClientURI(
                 connectionString.connectionString,
-                MongoClientOptions.builder().codecRegistry(defaultCodecRegistry())
+                MongoClientOptions.builder().codecRegistry(
+                    ClassMappingType.codecRegistry(
+                        MongoClientSettings.getDefaultCodecRegistry()
+                    )
+                )
             )
         )
     }
-
-    override fun defaultCodecRegistry(): CodecRegistry = ClassMappingType.codecRegistry(getDefaultCodecRegistry())
-
 }

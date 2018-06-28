@@ -18,7 +18,6 @@ package org.litote.kmongo.service
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClient
-import org.bson.codecs.configuration.CodecRegistry
 import org.litote.kmongo.KMongo
 
 /**
@@ -26,15 +25,8 @@ import org.litote.kmongo.KMongo
  */
 internal class SyncMongoClientProviderService : MongoClientProviderService<MongoClient> {
 
-    override fun createMongoClient(): MongoClient {
-        return KMongo.createClient()
-    }
-
     override fun createMongoClient(connectionString: ConnectionString): MongoClient {
         return KMongo.createClient(connectionString)
     }
 
-    override fun defaultCodecRegistry(): CodecRegistry {
-        return MongoClient.getDefaultCodecRegistry()
-    }
 }

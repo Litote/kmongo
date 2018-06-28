@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.pojo
 
+import com.mongodb.MongoClientSettings
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.EncoderContext
@@ -30,7 +31,6 @@ import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
 import org.litote.kmongo.service.ClassMappingType
 import org.litote.kmongo.service.ClassMappingTypeService
-import org.litote.kmongo.service.MongoClientProvider
 import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.io.StringWriter
 import kotlin.reflect.KClass
@@ -82,7 +82,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
                 //create a fake document to bypass bson writer built-in checks
                 jsonWriter.writeStartDocument()
                 jsonWriter.writeName("tmp")
-                ClassMappingType.codecRegistry(MongoClientProvider.defaultCodecRegistry())
+                ClassMappingType.codecRegistry(MongoClientSettings.getDefaultCodecRegistry())
                     .get(obj.javaClass)
                     ?.encode(
                         jsonWriter,

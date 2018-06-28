@@ -36,6 +36,6 @@ class StandaloneEmbeddedMongoTest {
         )
         val col = mongoClient.getDatabase("test").getCollection("friend", Friend::class.java)
         col.insertOne(friend)
-        assertEquals(friend, col.findOneAndDelete(Filters.eq("_id", friend._id)))
+        assertEquals(friend, col.findOneAndDelete(Filters.eq("_id", friend._id!!)))
     }
 }

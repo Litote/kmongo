@@ -17,12 +17,11 @@
 package org.litote.kmongo.service
 
 import com.mongodb.ConnectionString
-import org.bson.codecs.configuration.CodecRegistry
 import java.util.ServiceLoader
 
 /**
  * Provides a MongoClient class. Common interface for sync and async driver.
- * This object is mainly used in tests, bus also to get the default [CodecRegistry].
+ * This object is mainly used for tests.
  */
 object MongoClientProvider {
 
@@ -30,16 +29,6 @@ object MongoClientProvider {
             by lazy {
                 ServiceLoader.load(MongoClientProviderService::class.java).iterator().next()
             }
-
-    /**
-     * Creates a new client with the default connection string "mongodb://localhost".
-     *
-     * @return the client
-     */
-    fun <T> createMongoClient(): T {
-        @Suppress("UNCHECKED_CAST")
-        return mongoClientProvider.createMongoClient() as T
-    }
 
     /**
      * Create a new client with the given connection string.
@@ -52,10 +41,4 @@ object MongoClientProvider {
         return mongoClientProvider.createMongoClient(connectionString) as T
     }
 
-    /**
-     * Returns the default codec registry.
-     *
-     * @return the default codec registry.
-     */
-    fun defaultCodecRegistry(): CodecRegistry = mongoClientProvider.defaultCodecRegistry()
 }

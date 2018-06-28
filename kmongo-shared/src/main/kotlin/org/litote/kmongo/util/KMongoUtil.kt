@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.util
 
+import com.mongodb.MongoClientSettings
 import com.mongodb.client.model.DeleteManyModel
 import com.mongodb.client.model.DeleteOneModel
 import com.mongodb.client.model.Filters
@@ -55,7 +56,6 @@ import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
 import org.litote.kmongo.MongoOperator.unset
 import org.litote.kmongo.service.ClassMappingType
-import org.litote.kmongo.service.MongoClientProvider
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
@@ -127,7 +127,9 @@ object KMongoUtil {
             obj
                 .toBsonDocument(
                     Document::class.java,
-                    ClassMappingType.codecRegistry(MongoClientProvider.defaultCodecRegistry())
+                    ClassMappingType.codecRegistry(
+                        MongoClientSettings.getDefaultCodecRegistry()
+                    )
                 )
                 .toJson()
         } else {

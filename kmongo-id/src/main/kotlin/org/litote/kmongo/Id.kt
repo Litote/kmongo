@@ -20,7 +20,8 @@ package org.litote.kmongo
  * A unique document identifier.
  *
  * If the id type need to support json serialization and deserialization,
- * it must provide a toString() method and a constructor with a one String arg.
+ * it must provide a toString() method and a constructor with a one String arg,
+ * and consistent equals & hashCode methods.
  *
  * @param T the owner of the id
  */

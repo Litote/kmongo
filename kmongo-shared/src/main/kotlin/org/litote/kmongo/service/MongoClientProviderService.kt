@@ -17,20 +17,12 @@
 package org.litote.kmongo.service
 
 import com.mongodb.ConnectionString
-import org.bson.codecs.configuration.CodecRegistry
 import java.io.Closeable
 
 /**
  * Provides a MongoClient class using [java.util.ServiceLoader].
  */
 interface MongoClientProviderService<T : Closeable> {
-
-    /**
-     * Creates a new client with the default connection string "mongodb://localhost".
-     *
-     * @return the client
-     */
-    fun createMongoClient(): T
 
     /**
      * Create a new client with the given connection string.
@@ -40,10 +32,4 @@ interface MongoClientProviderService<T : Closeable> {
      */
     fun createMongoClient(connectionString: ConnectionString): T
 
-    /**
-     * Returns the default codec registry.
-     *
-     * @return the default codec registry.
-     */
-    fun defaultCodecRegistry(): CodecRegistry
 }
