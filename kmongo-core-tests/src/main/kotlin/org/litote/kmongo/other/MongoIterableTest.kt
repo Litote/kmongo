@@ -110,7 +110,7 @@ class MappingIterable<U, V>(val mapped: MongoIterable<U>, private val mapper: Fu
  */
 class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
 
-    class MongoCursorWrapper<T>(val mongoCursor: MongoCursor<T>) : MongoCursor<T> by mongoCursor {
+    class MongoCursorWrapper<T>(private val mongoCursor: MongoCursor<T>) : MongoCursor<T> by mongoCursor {
 
         var closed = false
 
@@ -120,7 +120,7 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
         }
     }
 
-    class MongoIterableWrapper<T>(val mongoIterable: MongoIterable<T>) : MongoIterable<T> by mongoIterable {
+    class MongoIterableWrapper<T>(private val mongoIterable: MongoIterable<T>) : MongoIterable<T> by mongoIterable {
 
         var cursor: MongoCursorWrapper<T>? = null
 
@@ -211,6 +211,37 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
 
         assertEquals(john, mapIt.find { true })
         assertTrue(iterable.cursor?.closed ?: false)
+    }
+
+    @Test
+    fun `MongoIterable#withIndex does not close the mongo cursor but then sortedBy close the cursor`() {
+        val john = Friend("John", "22 Wall Street Avenue")
+        col.insertOne(john)
+        val iterable = MongoIterableWrapper(col.find())
+        val mapIt = iterable.withIndex()
+        assertFalse(iterable.cursor?.closed ?: false)
+        val sorted = mapIt.sortedBy { it.index }
+        assertTrue(iterable.cursor?.closed ?: false)
+        assertEquals(listOf(john), sorted.map { it.value })
+        assertEquals(0, sorted.map { it.index }.first())
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `MongoCursor#withIndex does not close the mongo cursor but explicitely closing the cursor works`() {
+        val john = Friend("John", "22 Wall Street Avenue")
+        col.insertOne(john)
+        col.insertOne(john.copy(_id = null))
+        val iterable = col.find()
+        val cursor = iterable.iterator()
+        val indexedCursor = cursor.withIndex()
+        assertTrue(indexedCursor.hasNext())
+        assertEquals(john.name, indexedCursor.next().value.name)
+        indexedCursor.close()
+        //cursor is closed but we can still iterate ->
+        assertTrue(indexedCursor.hasNext())
+        assertEquals(1, indexedCursor.next().index)
+        //as the cursor is closed, this throws an exception ->
+        indexedCursor.serverCursor
     }
 
 

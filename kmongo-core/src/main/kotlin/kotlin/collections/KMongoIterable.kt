@@ -32,7 +32,7 @@ import kotlin.internal.OnlyInputTypes
 /**
  * Utility class - this is not part of the KMongo public API.
  */
-class MongoCursorIterable<T>(val cursor: MongoCursor<T>) : MongoCursor<T> by cursor, Iterable<T> {
+private class MongoCursorIterable<T>(private val cursor: MongoCursor<T>) : MongoCursor<T> by cursor, Iterable<T> {
 
     override fun iterator(): Iterator<T> = cursor
 }
@@ -40,7 +40,7 @@ class MongoCursorIterable<T>(val cursor: MongoCursor<T>) : MongoCursor<T> by cur
 /**
  * Utility method - this is not part of the KMongo public API.
  */
-fun <T> MongoIterable<T>.kCursor(): MongoCursorIterable<T> = MongoCursorIterable(iterator())
+private fun <T> MongoIterable<T>.kCursor(): MongoCursorIterable<T> = MongoCursorIterable(iterator())
 
 /**
  * Utility method - this is not part of the KMongo public API.
@@ -70,7 +70,7 @@ fun <T> MongoIterable<T>.firstOrNull(): T? {
 /**
  * Iterator transforming original `iterator` into iterator of [IndexedValue], counting index from zero.
  */
-internal class MongoIndexingIterator<T>(private val iterator: MongoCursor<T>) : MongoCursor<IndexedValue<T>> {
+private class MongoIndexingIterator<T>(val iterator: MongoCursor<T>) : MongoCursor<IndexedValue<T>> {
     private var index = 0
     override fun hasNext(): Boolean = iterator.hasNext()
     override fun next(): IndexedValue<T> = IndexedValue(index++, iterator.next())
@@ -85,10 +85,9 @@ internal class MongoIndexingIterator<T>(private val iterator: MongoCursor<T>) : 
  * A wrapper over another [Iterable] (or any other object that can produce an [Iterator]) that returns
  * an indexing iterator.
  */
-internal class MongoIndexingIterable<T>(
+private class MongoIndexingIterable<T>(
     private val iterable: MongoIterable<T>
-) :
-    MongoIterable<IndexedValue<T>> {
+) : MongoIterable<IndexedValue<T>> {
 
     override fun batchSize(batchSize: Int): MongoIterable<IndexedValue<T>> =
         MongoIndexingIterable(iterable.batchSize(batchSize))
@@ -127,18 +126,14 @@ fun <T> MongoIterable<T>.withIndex(): MongoIterable<IndexedValue<T>> {
  * containing value and it's index.
  * @sample samples.collections.Iterators.withIndexIterator
  */
-fun <T> MongoCursor<T>.withIndex(): Iterator<IndexedValue<T>> =
+fun <T> MongoCursor<T>.withIndex(): MongoCursor<IndexedValue<T>> =
     MongoIndexingIterator(this)
-
 
 /**
  * Returns an original collection containing all the non-`null` elements, throwing an [IllegalArgumentException] if there are any `null` elements.
  */
-fun <T : Any> MongoIterable<T?>.requireNoNulls(): MongoIterable<T> {
-    useCursor { it.requireNoNulls() }
-    @Suppress("UNCHECKED_CAST")
-    return this as MongoIterable<T>
-}
+fun <T : Any> MongoIterable<T?>.requireNoNulls(): Iterable<T> =
+    toList().requireNoNulls()
 
 /**
  * Creates a [Sequence] instance that wraps the original collection returning its elements when being iterated.
