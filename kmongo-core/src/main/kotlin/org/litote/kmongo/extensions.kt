@@ -53,10 +53,10 @@ import org.litote.kmongo.util.KMongoUtil.idFilterQuery
 import org.litote.kmongo.util.KMongoUtil.toBson
 import org.litote.kmongo.util.KMongoUtil.toBsonList
 import org.litote.kmongo.util.KMongoUtil.toBsonModifier
-import org.litote.kmongo.util.KMongoUtil.toExtendedJson
 import org.litote.kmongo.util.KMongoUtil.toWriteModel
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -932,19 +932,28 @@ fun <T> MongoIterable<T>.toList(): List<T> = into(mutableListOf<T>())
  * Listens change stream in an other thread.
  *
  * @param executor the executor service for the thread instantiation - default is [Executors.newSingleThreadExecutor]
+ * @param delay the delay the executor is waiting before submitting the task
+ * @param unit the unit of the [delay]
  * @param listener to listen changes
  */
 fun <T> ChangeStreamIterable<T>.listen(
-    executor: ExecutorService = Executors.newSingleThreadExecutor(),
+    executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    delay: Long = 500,
+    unit: TimeUnit = TimeUnit.MILLISECONDS,
     listener: (ChangeStreamDocument<T>) -> Unit
 ) {
     //need to listen the iterator from the original thread
     val cursor = iterator()
-    executor.execute {
-        cursor.use { cursor ->
-            while (cursor.hasNext()) {
-                listener(cursor.next())
+    executor.schedule(
+        {
+            cursor.use { cursor ->
+                while (cursor.hasNext()) {
+                    listener(cursor.next())
+                }
             }
-        }
-    }
+        },
+        delay,
+        unit
+    )
 }
+
