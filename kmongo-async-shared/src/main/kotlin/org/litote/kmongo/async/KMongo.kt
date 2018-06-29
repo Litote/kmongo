@@ -16,14 +16,9 @@
 package org.litote.kmongo.async
 
 import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
 import com.mongodb.async.client.MongoClient
-import com.mongodb.async.client.MongoClientSettings
 import com.mongodb.async.client.MongoClients
-import com.mongodb.connection.ClusterSettings
-import com.mongodb.connection.ConnectionPoolSettings
-import com.mongodb.connection.ServerSettings
-import com.mongodb.connection.SocketSettings
-import com.mongodb.connection.SslSettings
 import org.litote.kmongo.service.ClassMappingType
 
 /**
@@ -68,13 +63,10 @@ object KMongo {
      */
     fun createClient(connectionString: ConnectionString): MongoClient {
         return createClient(
-            MongoClientSettings.builder()
-                .clusterSettings(ClusterSettings.builder().applyConnectionString(connectionString).build())
-                .connectionPoolSettings(ConnectionPoolSettings.builder().applyConnectionString(connectionString).build())
-                .serverSettings(ServerSettings.builder().build())
-                .credentialList(connectionString.credentialList)
-                .sslSettings(SslSettings.builder().applyConnectionString(connectionString).build())
-                .socketSettings(SocketSettings.builder().applyConnectionString(connectionString).build()).build()
+            MongoClientSettings
+                .builder()
+                .applyConnectionString(connectionString)
+                .build()
         )
     }
 }
