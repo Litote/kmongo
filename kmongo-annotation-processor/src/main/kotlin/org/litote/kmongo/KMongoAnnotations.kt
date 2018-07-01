@@ -17,26 +17,38 @@
 package org.litote.kmongo
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
+import org.jetbrains.annotations.Nullable
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.nio.file.Paths
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
+import javax.tools.StandardLocation
 import kotlin.reflect.jvm.internal.impl.name.FqName
 import kotlin.reflect.jvm.internal.impl.platform.JavaToKotlinClassMap
 
 //see https://github.com/square/kotlinpoet/issues/236
 internal fun Element.javaToKotlinType(): TypeName =
     asType().asTypeName().javaToKotlinType()
+
+fun Element.asTypeName(): TypeName {
+    val annotation = this.getAnnotation(Nullable::class.java)
+    val typeName = this.asType().asTypeName()
+    return if (annotation != null) typeName.asNullable() else typeName
+}
 
 internal fun TypeName.javaToKotlinType(): TypeName {
     return if (this is ParameterizedTypeName) {
@@ -57,6 +69,7 @@ internal fun TypeName.javaToKotlinType(): TypeName {
     }
 }
 
+internal val notSupportedModifiers = setOf(Modifier.STATIC, Modifier.TRANSIENT)
 
 /**
  *
@@ -111,8 +124,6 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
             .toSet()
 
 
-    fun generatedClassName(element: Element): String = "${element.simpleName}_"
-
     fun enclosedCollectionPackage(type: TypeMirror): String =
         processingEnv.elementUtils.getPackageOf(
             if (type is ArrayType) {
@@ -139,4 +150,84 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
         printStackTrace(pw)
         return sw.toString()
     }
+
+    fun writeFile(fileBuilder: FileSpec.Builder) {
+        val kotlinFile = fileBuilder.build()
+        debug {
+            processingEnv.filer.getResource(
+                StandardLocation.SOURCE_OUTPUT,
+                kotlinFile.packageName,
+                kotlinFile.name
+            ).name
+        }
+
+        kotlinFile.writeTo(
+            Paths.get(
+                processingEnv.filer.getResource(
+                    StandardLocation.SOURCE_OUTPUT,
+                    "",
+                    kotlinFile.name
+                ).toUri()
+            ).parent
+        )
+    }
+
+    fun findByProperty(sourceClassName: TypeName, targetElement: TypeName, propertyName: String): CodeBlock =
+        CodeBlock.builder().add(
+            "org.litote.kmongo.property.findProperty<%1T,%2T>(%3S)",
+            sourceClassName,
+            targetElement,
+            propertyName
+        ).build()
+
+    fun findPropertyValue(
+        sourceClassName: TypeName,
+        targetElement: TypeName,
+        owner: String,
+        propertyName: String
+    ): CodeBlock =
+        CodeBlock.builder().add(
+            "org.litote.kmongo.property.findPropertyValue<%1T,%2T>(%3L, %4S)",
+            sourceClassName,
+            targetElement,
+            owner,
+            propertyName
+        ).build()
+
+    fun setPropertyValue(
+        sourceClassName: TypeName,
+        targetElement: TypeName,
+        owner: String,
+        propertyName: String,
+        newValue: String
+    ): CodeBlock =
+        CodeBlock.builder().add(
+            "org.litote.kmongo.property.setPropertyValue<%1T,%2T>(%3L, %4S, %5L)",
+            sourceClassName,
+            targetElement,
+            owner,
+            propertyName,
+            newValue
+        ).build()
+
+    fun propertyReference(
+        classElement: TypeElement,
+        property: Element,
+        privateHandler: () -> CodeBlock,
+        nonPrivateHandler: () -> CodeBlock
+    ): CodeBlock {
+        return if (classElement
+                .enclosedElements
+                .firstOrNull { it.simpleName.toString() == "get${property.simpleName.toString().capitalize()}" }
+                ?.modifiers
+                ?.contains(Modifier.PRIVATE) != false
+        ) {
+            privateHandler()
+        } else {
+            nonPrivateHandler()
+        }
+    }
+
+    fun getPackage(element: TypeElement): String =
+        processingEnv.elementUtils.getPackageOf(element).qualifiedName.toString()
 }

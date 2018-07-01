@@ -28,11 +28,13 @@ import org.litote.kmongo.service.ClassMappingType
  */
 object KFongo {
 
-    internal val fongo = Fongo(
-        "test",
-        Fongo.DEFAULT_SERVER_VERSION,
-        ClassMappingType.codecRegistry(getDefaultCodecRegistry())
-    )
+    internal val fongo by lazy {
+        Fongo(
+            "test",
+            Fongo.DEFAULT_SERVER_VERSION,
+            ClassMappingType.codecRegistry(getDefaultCodecRegistry())
+        )
+    }
 
     fun getDatabase(dbName: String = FongoRule.randomName()): MongoDatabase =
         KFongoMongoDatabase(fongo.getDatabase(dbName))

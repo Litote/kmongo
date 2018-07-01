@@ -17,6 +17,7 @@
 package org.litote.kmongo.model
 
 import org.litote.kmongo.Id
+import org.litote.kmongo.JacksonData
 import org.litote.kmongo.model.other.SimpleReferencedData
 import java.util.Date
 import java.util.Locale
@@ -24,16 +25,22 @@ import java.util.Locale
 /**
  *
  */
+@JacksonData
 open class TestData(
     val set: Set<SimpleReferencedData> = emptySet(),
+    val list: List<List<Boolean>> = emptyList(),
     //TODO support nullable generic
-    //val list: List<List<Boolean?>> = emptyList(),
+    //val nullableList: List<List<Boolean?>> = emptyList(),
     val name: String? = null,
     val date: Date? = null,
     val referenced: SimpleReferencedData? = null,
-    val map: Map<Id<Locale>, Set<String>> = emptyMap()
+    val map: Map<Id<Locale>, Set<String>> = emptyMap(),
+    val nullableFloat: Float? = null,
+    val nullableBoolean: Boolean? = null,
+    private val privateData: String = ""
 ) {
     companion object {
         val test: String = "should not be serialized"
     }
+
 }

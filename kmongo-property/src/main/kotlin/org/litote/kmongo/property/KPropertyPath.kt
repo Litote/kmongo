@@ -17,20 +17,39 @@
 package org.litote.kmongo.property
 
 import org.litote.kmongo.path
+import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeParameter
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMembers
+import kotlin.reflect.jvm.isAccessible
+
+/**
+ * Set a property value for class [R] of name [name].
+ * Useful for private properties.
+ */
+@Suppress("UNCHECKED_CAST")
+inline fun <reified R : Any, T> setPropertyValue(owner: R, name: String, value: T?) =
+    (findProperty<R, T>(name) as KMutableProperty1<R, T?>).apply { isAccessible = true }.set(owner, value)
+
+
+/**
+ * Find a property value for class [R] of name [name].
+ * Useful for private properties.
+ */
+@Suppress("UNCHECKED_CAST")
+inline fun <reified R : Any, T> findPropertyValue(owner: R, name: String): T? =
+    findProperty<R, T>(name).apply { isAccessible = true }.get(owner)
 
 /**
  * Find a property for class [R] of name [name].
  * Useful for private properties.
  */
 @Suppress("UNCHECKED_CAST")
-inline fun <reified R, T> findProperty(name: String): KProperty1<R, T?> =
-    R::class.declaredMembers.first { it.name == name } as KProperty1<R, T?>
+inline fun <reified R : Any, T> findProperty(name: String): KProperty1<R, T?> =
+    (R::class.declaredMembers.first { it.name == name } as KProperty1<R, T?>)
 
 
 /**
@@ -57,8 +76,9 @@ open class KPropertyPath<T, R>(
                 property
             )
 
-    internal val path: String get() =
-        "${previous?.path ?: ""}${if (previous == null) "" else "."}${property.path()}"
+    internal val path: String
+        get() =
+            "${previous?.path ?: ""}${if (previous == null) "" else "."}${property.path()}"
 
     override val annotations: List<Annotation> get() = property.annotations
     override val getter: KProperty1.Getter<T, R> get() = error("getter on KPropertyPath is not implemented")

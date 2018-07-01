@@ -12,7 +12,7 @@ import org.litote.kmongo.property.KPropertyPath
 
 class SimpleReferencedData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, SimpleReferencedData?>) : KPropertyPath<T, SimpleReferencedData?>(previous,property) {
     val version: KProperty1<T, Int?>
-        get() = org.litote.kmongo.property.KPropertyPath(this,org.litote.kmongo.property.findProperty<SimpleReferencedData,Int?>("version"))
+        get() = org.litote.kmongo.property.KPropertyPath(this,SimpleReferencedData::version)
 
     val pojo2: SimpleReferenced2Data_<T>
         get() = SimpleReferenced2Data_(this,org.litote.kmongo.property.findProperty<SimpleReferencedData,SimpleReferenced2Data>("pojo2"))
@@ -24,7 +24,7 @@ class SimpleReferencedData_<T>(previous: KPropertyPath<T, *>?, property: KProper
         get() = SubData_(this,org.litote.kmongo.property.findProperty<SimpleReferencedData,SubData>("subPojo"))
     companion object {
         val Version: KProperty1<SimpleReferencedData, Int?>
-            get() = org.litote.kmongo.property.findProperty<SimpleReferencedData,Int?>("version")
+            get() = SimpleReferencedData::version
         val Pojo2: SimpleReferenced2Data_<SimpleReferencedData>
             get() = SimpleReferenced2Data_<SimpleReferencedData>(null,org.litote.kmongo.property.findProperty<SimpleReferencedData,SimpleReferenced2Data>("pojo2"))
         val Pojo: TestData_<SimpleReferencedData>
@@ -35,7 +35,7 @@ class SimpleReferencedData_<T>(previous: KPropertyPath<T, *>?, property: KProper
 
 class SimpleReferencedData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<SimpleReferencedData>?>) : KPropertyPath<T, Collection<SimpleReferencedData>?>(previous,property) {
     val version: KProperty1<T, Int?>
-        get() = org.litote.kmongo.property.KPropertyPath(this,org.litote.kmongo.property.findProperty<SimpleReferencedData,Int?>("version"))
+        get() = org.litote.kmongo.property.KPropertyPath(this,SimpleReferencedData::version)
 
     val pojo2: SimpleReferenced2Data_<T>
         get() = SimpleReferenced2Data_(this,org.litote.kmongo.property.findProperty<SimpleReferencedData,SimpleReferenced2Data>("pojo2"))

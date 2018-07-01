@@ -27,8 +27,8 @@ import org.litote.kmongo.model.TestData
 @Data
 class SimpleReferencedData {
 
-    private val version: Int = 0
+    var version: Int = 0
     private val pojo2: SimpleReferenced2Data? = null
-    val pojo: TestData? = null
+    var pojo: TestData? = null
     private val subPojo: SubData? = null
 }

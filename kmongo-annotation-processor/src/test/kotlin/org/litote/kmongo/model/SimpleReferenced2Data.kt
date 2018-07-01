@@ -17,10 +17,12 @@
 package org.litote.kmongo.model
 
 import org.litote.kmongo.Data
+import org.litote.kmongo.JacksonData
 
 /**
  *
  */
 @Data
+@JacksonData
 data class SimpleReferenced2Data(val price: Double = 0.0) {
 }

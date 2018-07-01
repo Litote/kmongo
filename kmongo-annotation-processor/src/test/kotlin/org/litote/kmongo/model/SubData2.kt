@@ -16,7 +16,10 @@
 
 package org.litote.kmongo.model
 
+import org.litote.kmongo.JacksonData
+
 /**
  *
  */
+@JacksonData
 data class SubData2(val a1: Int = 0) : NotAnnotatedData()

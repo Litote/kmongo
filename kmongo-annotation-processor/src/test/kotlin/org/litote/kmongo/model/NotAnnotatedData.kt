@@ -21,5 +21,5 @@ package org.litote.kmongo.model
  */
 open class NotAnnotatedData {
 
-    var test:String? = null
+    var test: String? = null
 }

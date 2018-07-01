@@ -28,7 +28,6 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
 import org.litote.kmongo.property.KPropertyPath
-import java.nio.file.Paths
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
@@ -37,15 +36,12 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
-import javax.tools.StandardLocation
 import kotlin.reflect.KProperty1
 
 /**
  *
  */
 internal class KMongoDataProcessor(val a: KMongoAnnotations) {
-
-    private val notSupportedModifiers = setOf(Modifier.STATIC, Modifier.TRANSIENT)
 
     fun processDataClasses(roundEnv: RoundEnvironment): Boolean {
         val dataClasses = a.getAnnotatedClasses<Data, DataRegistry>(roundEnv)
@@ -76,9 +72,9 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
     }
 
     private fun process(element: TypeElement, dataClasses: MutableSet<Element>) {
-        val pack = a.processingEnv.elementUtils.getPackageOf(element).qualifiedName.toString()
+        val pack = a.getPackage(element)
         val sourceClassName = element.asClassName()
-        val className = a.generatedClassName(element)
+        val className = generatedClassName(element)
         val fileBuilder = FileSpec.builder(pack, className)
 
         val superMirrorClass = element.superclass
@@ -88,7 +84,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 ParameterizedTypeName.get(
                     ClassName(
                         a.processingEnv.elementUtils.getPackageOf(superElement).qualifiedName.toString(),
-                        a.generatedClassName(superElement)
+                        generatedClassName(superElement)
                     ),
                     TypeVariableName("T")
                 )
@@ -132,7 +128,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 ParameterizedTypeName.get(
                     ClassName(
                         a.processingEnv.elementUtils.getPackageOf(superElement).qualifiedName.toString(),
-                        "${a.generatedClassName(superElement)}Col"
+                        "${generatedClassName(superElement)}Col"
                     ),
                     TypeVariableName("T")
                 )
@@ -233,28 +229,25 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                     }
 
                 val propertyReference =
-                    if (element
-                            .enclosedElements
-                            .firstOrNull { it.simpleName.toString() == "get${e.simpleName.toString().capitalize()}" }
-                            ?.modifiers
-                            ?.contains(Modifier.PRIVATE) != false
-                    ) {
-                        CodeBlock.builder().add(
-                            "org.litote.kmongo.property.findProperty<%1T,%2T>(%3S)",
-                            sourceClassName,
-                            if (annotated) {
-                                ClassName(
-                                    packageOfReturnType,
-                                    returnType!!.simpleName.toString()
-                                )
-                            } else {
-                                propertyType.asNullable()
-                            },
-                            e.simpleName
-                        ).build()
-                    } else {
-                        CodeBlock.builder().add("%1T::%2L", sourceClassName, e.simpleName).build()
-                    }
+                    a.propertyReference(
+                        element,
+                        e,
+                        {
+                            a.findByProperty(
+                                sourceClassName,
+                                if (annotated) {
+                                    ClassName(
+                                        packageOfReturnType,
+                                        returnType!!.simpleName.toString()
+                                    )
+                                } else {
+                                    propertyType.asNullable()
+                                },
+                                e.simpleName.toString()
+                            )
+                        }
+                    ) { CodeBlock.builder().add("%1T::%2L", sourceClassName, e.simpleName).build() }
+
 
                 //add companion property
                 companionObject.addProperty(
@@ -341,26 +334,10 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
         )
         fileBuilder.addType(collectionClassBuilder.build())
 
-        val kotlinFile = fileBuilder.build()
-        a.debug {
-            a.processingEnv.filer.getResource(
-                StandardLocation.SOURCE_OUTPUT,
-                kotlinFile.packageName,
-                kotlinFile.name
-            ).name
-        }
-
-        kotlinFile.writeTo(
-            Paths.get(
-                a.processingEnv.filer.getResource(
-                    StandardLocation.SOURCE_OUTPUT,
-                    "",
-                    kotlinFile.name
-                ).toUri()
-            ).parent
-        )
+        a.writeFile(fileBuilder)
     }
 
+    private fun generatedClassName(element: Element): String = "${element.simpleName}_"
 
     companion object {
         val KPROPERTY_PATH_FIELDS = setOf(

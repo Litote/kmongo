@@ -195,7 +195,7 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
         val john = Friend("John", "22 Wall Street Avenue")
         col.insertOne(john)
         val iterable = MongoIterableWrapper(col.find())
-        val indexed = iterable.mapIndexed { i, v -> v }
+        val indexed = iterable.mapIndexed { _, v -> v }
 
         assertEquals(john, indexed.first())
         assertTrue(iterable.cursor?.closed ?: false)
