@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -47,23 +48,39 @@
                     </includes>
                 </configuration>
             </plugin>
-            <!-- We must generate a -javadoc JAR file to publish on Maven Central -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>dokka-maven-plugin</artifactId>
+                <version>${plugin.dokka.version}</version>
                 <executions>
                     <execution>
-                        <id>default-jar</id>
-                        <phase>package</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>dokka</goal>
+                            <goal>javadoc</goal>
+                            <goal>javadocJar</goal>
                         </goals>
-                        <configuration>
-                            <classifier>javadoc</classifier>
-                            <classesDirectory>${basedir}/../empty</classesDirectory>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <jdkVersion>8</jdkVersion>
+                    <reportNotDocumented>false</reportNotDocumented>
+                    <sourceLinks>
+                        <link>
+                            <dir>${project.basedir}/../kmongo-rxjava2-core/src/main/kotlin</dir>
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-rxjava2-core/src/main/kotlin
+                            </url>
+                            <urlSuffix>#L</urlSuffix>
+                        </link>
+                    </sourceLinks>
+                    <sourceDirectories>
+                        <dir>${project.basedir}/../kmongo-rxjava2-core/src/main/kotlin</dir>
+                    </sourceDirectories>
+                    <externalDocumentationLinks>
+                        <link>
+                            <url>http://mongodb.github.io/mongo-java-driver/${mongo.base.version}/javadoc/</url>
+                        </link>
+                    </externalDocumentationLinks>
+                </configuration>
             </plugin>
         </plugins>
     </build>
