@@ -59,7 +59,6 @@
         <module>kmongo-rxjava2-core-tests</module>
         <module>kmongo-rxjava2</module>
         <module>kmongo-rxjava2-native</module>
-        <module>kmongo-coverage</module>
         <module>kmongo-dokka</module>
     </modules>
 
@@ -611,6 +610,9 @@
         </profile>
         <profile>
             <id>build</id>
+            <modules>
+                <module>kmongo-coverage</module>
+            </modules>
             <activation>
                 <property>
                     <name>release</name>
