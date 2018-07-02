@@ -20,7 +20,9 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.TextSearchOptions
 import com.mongodb.client.model.geojson.Geometry
 import com.mongodb.client.model.geojson.Point
+import org.bson.BsonDocument
 import org.bson.BsonType
+import org.bson.Document
 import org.bson.conversions.Bson
 import java.util.regex.Pattern
 import kotlin.reflect.KProperty
@@ -166,7 +168,7 @@ fun and(filters: Iterable<Bson>): Bson = Filters.and(filters)
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/and $and
  */
-fun and(vararg filters: Bson?): Bson = Filters.and(*filters.filterNotNull().toTypedArray())
+fun and(vararg filters: Bson?): Bson = combineFilters(Filters::and, *filters)
 
 /**
  * Creates a filter that preforms a logical OR of the provided list of filters.
@@ -184,7 +186,18 @@ fun or(filters: Iterable<Bson>): Bson = Filters.or(filters)
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/or $or
  */
-fun or(vararg filters: Bson?): Bson = Filters.or(*filters.filterNotNull().toTypedArray())
+fun or(vararg filters: Bson?): Bson = combineFilters(Filters::or, *filters)
+
+private fun combineFilters(combiner: (List<Bson>) -> Bson, vararg filters: Bson?): Bson =
+    filters
+        .filterNotNull()
+        .filterNot { it is Document && it.isEmpty() }
+        .filterNot { it is BsonDocument && it.isEmpty() }
+        .run {
+            if (isEmpty()) EMPTY_BSON
+            else if (size == 1) first()
+            else combiner(this)
+        }
 
 /**
  * Creates a filter that matches all documents that do not match the passed in filter.
