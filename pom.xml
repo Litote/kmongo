@@ -521,6 +521,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>kotlin/internal/*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
