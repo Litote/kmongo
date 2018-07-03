@@ -326,6 +326,42 @@ With [```dropIndexOfKeys```](https://litote.org/kmongo/dokka/kmongo/org.litote.k
 col.dropIndexOfKeys("{'id':1,'type':1}")
 ```  
 
+## MongoIterable
+
+The [MongoIterable](http://mongodb.github.io/mongo-java-driver/3.8/javadoc/com/mongodb/client/MongoIterable.html) interface 
+ of the java synchronous driver has a major flaw: it extends [Iterable](https://docs.oracle.com/javase/10/docs/api/java/lang/Iterable.html?is-external=true)
+ with this declaration:
+ 
+```java
+MongoCursor<TResult> iterator();
+``` 
+ 
+The problem is that you need to close each [MongoCursor](http://mongodb.github.io/mongo-java-driver/3.8/javadoc/com/mongodb/client/MongoCursor.html)
+you create from a [MongoIterable](http://mongodb.github.io/mongo-java-driver/3.8/javadoc/com/mongodb/client/MongoIterable.html), or you get a potential memory leak.
+This is really error prone. 
+ 
+```kotlin
+for(r in col.find()) println(r)
+//you have a memory leak - with java or kotlin!
+``` 
+ 
+This is especially problematic for Kotlin, as it is a common practise to use the Kotlin Iterable extensions:
+
+```kotlin
+// without KMongo, a memory leak at each line!
+col.find().firstOrNull()
+col.find().mapIndexed{ ... }
+col.find().toList()
+col.find().map {it.a to it.b}.toMap()
+col.find().forEach{println(it)}
+```  
+
+KMongo does not fix the "for" issue, but **does solve automatically memory leaks for all other patterns** by providing
+[MongoIterable extensions](https://litote.org/kmongo/dokka/kmongo/kotlin.collections/com.mongodb.client.-mongo-iterable/index.html).
+
+You have nothing to change in your code - just compile it with the KMongo dependency in the classpath! 
+
+   
 
 ## KDoc
 

@@ -18,7 +18,7 @@
  - [Kotlin stdlib](https://kotlinlang.org/api/latest/jvm/stdlib/)
  - [Kotlin reflect lib](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/)
  
- And for the versions using the Jackson mapping engines:
+ And for the KMongo versions using the Jackson mapping engine:
  
  - [Jackson](https://github.com/FasterXML/jackson-databind)
  - [Jackson for Kotlin](https://github.com/FasterXML/jackson-module-kotlin)
