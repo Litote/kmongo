@@ -32,6 +32,7 @@ import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
@@ -230,4 +231,9 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
 
     fun getPackage(element: TypeElement): String =
         processingEnv.elementUtils.getPackageOf(element).qualifiedName.toString()
+
+    fun properties(element: TypeElement): List<VariableElement> =
+        element.enclosedElements
+            .filterIsInstance<VariableElement>()
+            .filter { e -> e.modifiers.none { notSupportedModifiers.contains(it) } }
 }

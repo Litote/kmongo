@@ -33,7 +33,6 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import kotlin.reflect.KProperty1
@@ -180,150 +179,148 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
 
         val companionObject = TypeSpec.companionObjectBuilder()
 
-        for (e in element.enclosedElements) {
-            if (e is VariableElement && e.modifiers.none { notSupportedModifiers.contains(it) }) {
-                a.debug { "${e.simpleName}-${e.asType()}" }
-                val type = e.asType()
-                val returnType = a.processingEnv.typeUtils.asElement(type) as? TypeElement
-                if (type != null) {
-                    a.debug { "$type-annot: ${type.getAnnotation(Data::class.java)}" }
-                }
-                val annotatedCollection = type.run {
-                    if (this is ArrayType) {
-                        dataClasses.contains(a.processingEnv.typeUtils.asElement(componentType))
-                    } else if (this is DeclaredType
-                        && a.processingEnv.typeUtils.isAssignable(
-                            a.processingEnv.typeUtils.erasure(this),
-                            a.processingEnv.elementUtils.getTypeElement("java.util.Collection").asType()
-                        )
-                    ) {
-                        typeArguments.firstOrNull()?.run {
-                            dataClasses.contains(a.processingEnv.typeUtils.asElement(this))
-                        } == true
-                    } else {
-                        false
-                    }
-                }
-                val annotated = returnType?.let { dataClasses.contains(it) } ?: false || annotatedCollection
-                val propertyType = e.javaToKotlinType()
-                val packageOfReturnType =
-                    if (returnType == null) ""
-                    else if (annotatedCollection) a.enclosedCollectionPackage(type)
-                    else a.processingEnv.elementUtils.getPackageOf(returnType).qualifiedName.toString()
-
-                val companionPropertyClass: TypeName =
-                    if (annotated) {
-                        ParameterizedTypeName.get(
-                            ClassName(
-                                packageOfReturnType,
-                                a.generatedClassProperty(type, annotatedCollection)
-                            ),
-                            sourceClassName
-                        )
-                    } else {
-                        ParameterizedTypeName.get(
-                            KProperty1::class.asClassName(),
-                            sourceClassName,
-                            propertyType.asNullable()
-                        )
-                    }
-
-                val propertyReference =
-                    a.propertyReference(
-                        element,
-                        e,
-                        {
-                            a.findByProperty(
-                                sourceClassName,
-                                if (annotated) {
-                                    ClassName(
-                                        packageOfReturnType,
-                                        returnType!!.simpleName.toString()
-                                    )
-                                } else {
-                                    propertyType.asNullable()
-                                },
-                                e.simpleName.toString()
-                            )
-                        }
-                    ) { CodeBlock.builder().add("%1T::%2L", sourceClassName, e.simpleName).build() }
-
-
-                //add companion property
-                companionObject.addProperty(
-                    PropertySpec
-                        .varBuilder(generatedCompanionFieldName(e), companionPropertyClass)
-                        .mutable(false)
-                        .getter(
-                            FunSpec.getterBuilder().apply {
-                                if (annotated) {
-                                    addCode("return %1T(null,%2L)", companionPropertyClass, propertyReference)
-                                } else {
-                                    addCode("return %1L", propertyReference)
-                                }
-                            }.build()
-                        )
-                        .build()
-                )
-
-                val classPropertyClass: TypeName =
-                    if (annotated) {
-                        ParameterizedTypeName.get(
-                            ClassName(
-                                packageOfReturnType,
-                                a.generatedClassProperty(type, annotatedCollection)
-                            ),
-                            TypeVariableName("T")
-                        )
-                    } else {
-                        ParameterizedTypeName.get(
-                            KProperty1::class.asClassName(),
-                            TypeVariableName("T"),
-                            propertyType.asNullable()
-                        )
-                    }
-
-                //add class property
-                classBuilder.addProperty(
-                    PropertySpec
-                        .varBuilder(generatedFieldName(e), classPropertyClass)
-                        .mutable(false)
-                        .getter(
-                            FunSpec.getterBuilder().apply {
-                                addCode(
-                                    "return %1L(this,%2L)\n",
-                                    if (annotated) {
-                                        a.generatedClassProperty(type, annotatedCollection)
-                                    } else {
-                                        KPropertyPath::class.asClassName()
-                                    },
-                                    propertyReference
-                                )
-                            }.build()
-                        )
-                        .build()
-                )
-
-                collectionClassBuilder.addProperty(
-                    PropertySpec
-                        .varBuilder(generatedFieldName(e), classPropertyClass)
-                        .mutable(false)
-                        .getter(
-                            FunSpec.getterBuilder().apply {
-                                addCode(
-                                    "return %1L(this,%2L)\n",
-                                    if (annotated) {
-                                        a.generatedClassProperty(type, annotatedCollection)
-                                    } else {
-                                        KPropertyPath::class.asClassName()
-                                    },
-                                    propertyReference
-                                )
-                            }.build()
-                        )
-                        .build()
-                )
+        a.properties(element).forEach { e ->
+            a.debug { "${e.simpleName}-${e.asType()}" }
+            val type = e.asType()
+            val returnType = a.processingEnv.typeUtils.asElement(type) as? TypeElement
+            if (type != null) {
+                a.debug { "$type-annot: ${type.getAnnotation(Data::class.java)}" }
             }
+            val annotatedCollection = type.run {
+                if (this is ArrayType) {
+                    dataClasses.contains(a.processingEnv.typeUtils.asElement(componentType))
+                } else if (this is DeclaredType
+                    && a.processingEnv.typeUtils.isAssignable(
+                        a.processingEnv.typeUtils.erasure(this),
+                        a.processingEnv.elementUtils.getTypeElement("java.util.Collection").asType()
+                    )
+                ) {
+                    typeArguments.firstOrNull()?.run {
+                        dataClasses.contains(a.processingEnv.typeUtils.asElement(this))
+                    } == true
+                } else {
+                    false
+                }
+            }
+            val annotated = returnType?.let { dataClasses.contains(it) } ?: false || annotatedCollection
+            val propertyType = e.javaToKotlinType()
+            val packageOfReturnType =
+                if (returnType == null) ""
+                else if (annotatedCollection) a.enclosedCollectionPackage(type)
+                else a.processingEnv.elementUtils.getPackageOf(returnType).qualifiedName.toString()
+
+            val companionPropertyClass: TypeName =
+                if (annotated) {
+                    ParameterizedTypeName.get(
+                        ClassName(
+                            packageOfReturnType,
+                            a.generatedClassProperty(type, annotatedCollection)
+                        ),
+                        sourceClassName
+                    )
+                } else {
+                    ParameterizedTypeName.get(
+                        KProperty1::class.asClassName(),
+                        sourceClassName,
+                        propertyType.asNullable()
+                    )
+                }
+
+            val propertyReference =
+                a.propertyReference(
+                    element,
+                    e,
+                    {
+                        a.findByProperty(
+                            sourceClassName,
+                            if (annotated) {
+                                ClassName(
+                                    packageOfReturnType,
+                                    returnType!!.simpleName.toString()
+                                )
+                            } else {
+                                propertyType.asNullable()
+                            },
+                            e.simpleName.toString()
+                        )
+                    }
+                ) { CodeBlock.builder().add("%1T::%2L", sourceClassName, e.simpleName).build() }
+
+
+            //add companion property
+            companionObject.addProperty(
+                PropertySpec
+                    .varBuilder(generatedCompanionFieldName(e), companionPropertyClass)
+                    .mutable(false)
+                    .getter(
+                        FunSpec.getterBuilder().apply {
+                            if (annotated) {
+                                addCode("return %1T(null,%2L)", companionPropertyClass, propertyReference)
+                            } else {
+                                addCode("return %1L", propertyReference)
+                            }
+                        }.build()
+                    )
+                    .build()
+            )
+
+            val classPropertyClass: TypeName =
+                if (annotated) {
+                    ParameterizedTypeName.get(
+                        ClassName(
+                            packageOfReturnType,
+                            a.generatedClassProperty(type, annotatedCollection)
+                        ),
+                        TypeVariableName("T")
+                    )
+                } else {
+                    ParameterizedTypeName.get(
+                        KProperty1::class.asClassName(),
+                        TypeVariableName("T"),
+                        propertyType.asNullable()
+                    )
+                }
+
+            //add class property
+            classBuilder.addProperty(
+                PropertySpec
+                    .varBuilder(generatedFieldName(e), classPropertyClass)
+                    .mutable(false)
+                    .getter(
+                        FunSpec.getterBuilder().apply {
+                            addCode(
+                                "return %1L(this,%2L)\n",
+                                if (annotated) {
+                                    a.generatedClassProperty(type, annotatedCollection)
+                                } else {
+                                    KPropertyPath::class.asClassName()
+                                },
+                                propertyReference
+                            )
+                        }.build()
+                    )
+                    .build()
+            )
+
+            collectionClassBuilder.addProperty(
+                PropertySpec
+                    .varBuilder(generatedFieldName(e), classPropertyClass)
+                    .mutable(false)
+                    .getter(
+                        FunSpec.getterBuilder().apply {
+                            addCode(
+                                "return %1L(this,%2L)\n",
+                                if (annotated) {
+                                    a.generatedClassProperty(type, annotatedCollection)
+                                } else {
+                                    KPropertyPath::class.asClassName()
+                                },
+                                propertyReference
+                            )
+                        }.build()
+                    )
+                    .build()
+            )
         }
 
         //add classes

@@ -23,12 +23,12 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 
 /**
@@ -57,10 +57,10 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
 
     private fun process(element: TypeElement) {
         writeSerializer(element)
+        writeDeserializer(element)
     }
 
     private fun writeSerializer(element: TypeElement) {
-        val pack = a.getPackage(element)
         val sourceClassName = element.asClassName()
         val className = generatedSerializer(element)
         val fileBuilder = FileSpec.builder(a.getPackage(element), className)
@@ -93,68 +93,187 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
                         "gen.writeStartObject()"
                     )
                     .apply {
-                        for (e in element.enclosedElements) {
-                            if (e is VariableElement && e.modifiers.none { notSupportedModifiers.contains(it) }) {
-                                a.debug { "${e.simpleName}-${e.asType()}" }
-                                val propertyName = e.simpleName
-                                val jsonField = e.simpleName
-                                val type = e.asType()
-                                val nullable = e.asTypeName().nullable
-                                val fieldAccessor =
-                                    a.propertyReference(
-                                        element,
-                                        e,
-                                        {
-                                            a.findPropertyValue(
-                                                sourceClassName,
-                                                e.javaToKotlinType(),
-                                                "value",
-                                                "$propertyName"
-                                            )
-                                        }) {
-                                        CodeBlock.of("value.$propertyName")
-                                    }
+                        a.properties(element).forEach { e ->
+                            a.debug { "${e.simpleName}-${e.asType()}" }
+                            val propertyName = e.simpleName
+                            val jsonField = e.simpleName
+                            val type = e.asType()
+                            val nullable = e.asTypeName().nullable
+                            val fieldAccessor =
+                                a.propertyReference(
+                                    element,
+                                    e,
+                                    {
+                                        a.findPropertyValue(
+                                            sourceClassName,
+                                            e.javaToKotlinType(),
+                                            "value",
+                                            "$propertyName"
+                                        )
+                                    }) {
+                                    CodeBlock.of("value.$propertyName")
+                                }
 
-                                val fieldName = "_${propertyName}_"
+                            val fieldName = "_${propertyName}_"
 
-                                addStatement("gen.writeFieldName(\"$jsonField\")")
-                                addStatement("val $fieldName = $fieldAccessor")
-                                addStatement(
-                                    if (nullable) {
-                                        "if($fieldName == null) { gen.writeNull() } else {"
-                                    } else {
-                                        ""
-                                    } +
-                                            when (type.toString()) {
-                                                "java.lang.String" -> "gen.writeString($fieldName)"
-                                                "java.lang.Boolean", "boolean" -> "gen.writeBoolean($fieldName)"
-                                                "java.lang.Integer",
-                                                "java.lang.Long",
-                                                "java.lang.Short",
-                                                "java.lang.Float",
-                                                "java.lang.Double",
-                                                "java.math.BigInteger",
-                                                "java.math.BigDecimal",
-                                                "short",
-                                                "int",
-                                                "long",
-                                                "float",
-                                                "double" -> "gen.writeNumber($fieldName)"
-                                                else -> "serializers.defaultSerializeValue($fieldName, gen)"
-                                            } +
-                                            if (nullable) {
-                                                "}"
-                                            } else {
-                                                ""
-                                            }
-                                )
-                            }
+                            addStatement("gen.writeFieldName(\"$jsonField\")")
+                            addStatement("val $fieldName = $fieldAccessor")
+                            addStatement(
+                                if (nullable) {
+                                    "if($fieldName == null) { gen.writeNull() } else {"
+                                } else {
+                                    ""
+                                } +
+                                        when (type.toString()) {
+                                            "java.lang.String" -> "gen.writeString($fieldName)"
+                                            "java.lang.Boolean", "boolean" -> "gen.writeBoolean($fieldName)"
+                                            "java.lang.Integer",
+                                            "java.lang.Long",
+                                            "java.lang.Short",
+                                            "java.lang.Float",
+                                            "java.lang.Double",
+                                            "java.math.BigInteger",
+                                            "java.math.BigDecimal",
+                                            "short",
+                                            "int",
+                                            "long",
+                                            "float",
+                                            "double" -> "gen.writeNumber($fieldName)"
+                                            else -> "serializers.defaultSerializeValue($fieldName, gen)"
+                                        } +
+                                        if (nullable) {
+                                            "}"
+                                        } else {
+                                            ""
+                                        }
+                            )
                         }
                     }
                     .addStatement(
                         "gen.writeEndObject()"
                     )
 
+                    .build()
+            )
+
+
+        //add classes
+        fileBuilder.addType(
+            classBuilder
+                .build()
+        )
+
+        a.writeFile(fileBuilder)
+    }
+
+    private fun writeDeserializer(element: TypeElement) {
+        val sourceClassName = element.asClassName()
+        val className = generatedDeserializer(element)
+        val fileBuilder = FileSpec.builder(a.getPackage(element), className)
+
+        val superclass = ParameterizedTypeName.get(
+            ClassName.bestGuess("com.fasterxml.jackson.databind.deser.std.StdDeserializer"), sourceClassName
+        )
+        val classBuilder = TypeSpec.classBuilder(className)
+            .superclass(superclass)
+            .addSuperclassConstructorParameter(CodeBlock.of("%T::class.java", sourceClassName))
+            .companionObject(
+                TypeSpec.companionObjectBuilder()
+                    .apply {
+                        a.properties(element).forEach { e ->
+                            if (e.asTypeName() is ParameterizedTypeName) {
+                                val propertyName = e.simpleName
+                                val typeReference = ParameterizedTypeName.get(
+                                    ClassName.bestGuess("com.fasterxml.jackson.core.type.TypeReference"),
+                                    e.asTypeName().javaToKotlinType()
+                                )
+
+                                addProperty(
+                                    PropertySpec.builder("${propertyName}_reference", typeReference)
+                                        .initializer(
+                                            CodeBlock.of(
+                                                "object : %T() {}",
+                                                typeReference
+                                            )
+                                        )
+                                        .build()
+                                )
+                            }
+                        }
+                    }
+                    .build()
+            )
+            .addFunction(
+                FunSpec.builder("deserialize")
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addParameter(
+                        ParameterSpec.builder(
+                            "p",
+                            ClassName.bestGuess("com.fasterxml.jackson.core.JsonParser")
+                        ).build()
+                    )
+                    .addParameter(
+                        ParameterSpec.builder(
+                            "ctxt",
+                            ClassName.bestGuess("com.fasterxml.jackson.databind.DeserializationContext")
+                        ).build()
+                    )
+                    .returns(sourceClassName)
+                    .addStatement("with(p) {")
+                    .apply {
+                        //generate fields
+                        a.properties(element).forEach { e ->
+                            addStatement("var %N: %T = null", e.simpleName, e.javaToKotlinType().asNullable())
+                        }
+                    }
+                    //generate while
+                    .addStatement(
+                        "while (currentToken != %T && currentToken != %T) {%W",
+                        ClassName.bestGuess("com.fasterxml.jackson.core.JsonToken.END_OBJECT"),
+                        ClassName.bestGuess("com.fasterxml.jackson.core.JsonToken.END_ARRAY")
+                    )
+                    .addStatement("nextToken()%W")
+                    .addStatement(
+                        "if (currentToken == %T || currentToken == %T) { break }%W",
+                        ClassName.bestGuess("com.fasterxml.jackson.core.JsonToken.END_OBJECT"),
+                        ClassName.bestGuess("com.fasterxml.jackson.core.JsonToken.END_ARRAY")
+                    )
+                    .addStatement("val fieldName = currentName")
+                    .addStatement("nextToken()")
+                    .addStatement("when (fieldName) {")
+                    //generate set
+                    .apply {
+                        a.properties(element).forEach { e ->
+                            val propertyName = e.simpleName
+                            val jsonField = e.simpleName
+                            val type = e.asTypeName()
+                            val writeMethod = when (type.toString()) {
+                                "java.lang.String" -> "text"
+                                "java.lang.Boolean", "boolean" -> "booleanValue"
+                                "java.lang.Integer", "int" -> "intValue"
+                                "java.lang.Long", "long" -> "longValue"
+                                "java.lang.Short", "short" -> "shortValue"
+                                "java.lang.Float", "float" -> "floatValue"
+                                "java.lang.Double", "double" -> "doubleValue"
+                                "java.math.BigInteger" -> "bigIntegerValue"
+                                "java.math.BigDecimal" -> "decimalValue"
+                                else -> if (e.asTypeName() is ParameterizedTypeName) {
+                                    "readValueAs(${propertyName}_reference)"
+                                } else {
+                                    CodeBlock.of("readValueAs(%T::class.java)", e.javaToKotlinType())
+                                }
+                            }
+                            addStatement("%S -> %N = p.%L", jsonField, propertyName, writeMethod)
+                        }
+                        addStatement(
+                            "else -> if (currentToken == %T || currentToken == %T) { p.skipChildren() } else { nextToken() }",
+                            ClassName.bestGuess("com.fasterxml.jackson.core.JsonToken.END_OBJECT"),
+                            ClassName.bestGuess("com.fasterxml.jackson.core.JsonToken.END_ARRAY")
+                        )
+                    }
+                    //generate end while
+                    .addStatement(" }%W }")
+                    .addStatement("return %T()%W}", sourceClassName)
                     .build()
             )
 

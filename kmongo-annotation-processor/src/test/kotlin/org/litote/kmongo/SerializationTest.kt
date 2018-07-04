@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import org.junit.Test
 import org.litote.kmongo.model.TestData
+import org.litote.kmongo.model.TestData_Deserializer
 import org.litote.kmongo.model.TestData_Serializer
 import org.litote.kmongo.model.other.SimpleReferencedData
 import java.util.Date
@@ -35,7 +36,8 @@ class SerializationTest {
         val mapper = ObjectMapper()
         mapper.registerModule(
             SimpleModule().apply {
-                addSerializer(TestData_Serializer())
+                addSerializer(TestData::class.java, TestData_Serializer())
+                addDeserializer(TestData::class.java, TestData_Deserializer())
             }
         )
         val data = TestData(
@@ -49,8 +51,9 @@ class SerializationTest {
         data.set.first().apply {
             version = 2
         }
-        println(mapper.writeValueAsString(data))
-
-
+        val json = mapper.writeValueAsString(data)
+        println(json)
+        //val r: TestData = mapper.readValue(json, TestData::class.java)
+        //println(r)
     }
 }
