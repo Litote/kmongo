@@ -147,7 +147,7 @@ infix fun <T> KProperty<T>.nin(values: Iterable<T>): Bson = Filters.nin(path(), 
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/and $and
  */
-fun and(filters: Iterable<Bson>): Bson = Filters.and(filters)
+fun and(filters: Iterable<Bson?>): Bson = combineFilters(Filters::and, filters)
 
 /**
  * Creates a filter that performs a logical AND of the provided list of filters.  Note that this will only generate a "$and"
@@ -168,7 +168,7 @@ fun and(filters: Iterable<Bson>): Bson = Filters.and(filters)
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/and $and
  */
-fun and(vararg filters: Bson?): Bson = combineFilters(Filters::and, *filters)
+fun and(vararg filters: Bson?): Bson = and(filters.toList())
 
 /**
  * Creates a filter that preforms a logical OR of the provided list of filters.
@@ -177,7 +177,7 @@ fun and(vararg filters: Bson?): Bson = combineFilters(Filters::and, *filters)
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/or $or
  */
-fun or(filters: Iterable<Bson>): Bson = Filters.or(filters)
+fun or(filters: Iterable<Bson?>): Bson = combineFilters(Filters::or, filters)
 
 /**
  * Creates a filter that preforms a logical OR of the provided list of filters.
@@ -186,9 +186,9 @@ fun or(filters: Iterable<Bson>): Bson = Filters.or(filters)
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/or $or
  */
-fun or(vararg filters: Bson?): Bson = combineFilters(Filters::or, *filters)
+fun or(vararg filters: Bson?): Bson = or(filters.toList())
 
-private fun combineFilters(combiner: (List<Bson>) -> Bson, vararg filters: Bson?): Bson =
+private fun combineFilters(combiner: (List<Bson>) -> Bson, filters: Iterable<Bson?>): Bson =
     filters
         .filterNotNull()
         .filterNot { it is Document && it.isEmpty() }
