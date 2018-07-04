@@ -212,8 +212,9 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
                         )
                         .findProperties()
                         .firstOrNull {
-                            it.accessor.member.name == property.javaGetter?.name
-                                    || it.accessor.member.name == property.javaField?.name
+                            it.accessor?.member?.let {
+                                it.name == property.javaGetter?.name || it.name == property.javaField?.name
+                            } ?: false
                         }
                 }
             }
