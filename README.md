@@ -16,29 +16,29 @@ Documentation: [https://litote.org/kmongo](https://litote.org/kmongo)
 
 Forum: [https://groups.google.com/forum/#!forum/kmongo](https://groups.google.com/forum/#!forum/kmongo)
 
-## Native and Lightweight
+### Native and Lightweight
 
 KMongo features are available via [Kotlin extensions](https://kotlinlang.org/docs/reference/extensions.html) -
 you use transparently [the core MongoDB java driver API](https://docs.mongodb.com/ecosystem/drivers/java/)
 (both sync and async drivers are supported)
 
-### With complete async support
+#### With complete async support
 
 You can use extensions for classic callbacks style, [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html) or [RxJava2](http://reactivex.io/).
 
-## Built-in Object Mapping
+### Built-in Object Mapping
 
 Object oriented programming is usually better - use Objects, not Maps. Powered by the native
 [POJO Codec](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/) or by the
 [Jackson library](https://github.com/FasterXML/jackson).
 
-## Type-safe queries
+### Type-safe queries
 
 Have you already queried an ```Int``` field with a ```String``` value? 
 KMongo type-safe query system removes the type errors.
 Provided with an optional annotation processor. 
 
-## Mongo shell queries
+### Mongo shell queries
 
 You can copy/paste your queries from the Mongo shell in your IDE. Write readable source code!
 
