@@ -99,7 +99,7 @@
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-fongo</artifactId>
+            <artifactId>kmongo-property</artifactId>
         </dependency>
     </dependencies>
 
