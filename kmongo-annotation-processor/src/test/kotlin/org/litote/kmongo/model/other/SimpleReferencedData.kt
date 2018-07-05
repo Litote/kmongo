@@ -31,4 +31,30 @@ class SimpleReferencedData {
     private val pojo2: SimpleReferenced2Data? = null
     var pojo: TestData? = null
     private val subPojo: SubData? = null
+
+    override fun toString(): String {
+        return "SimpleReferencedData(version=$version, pojo2=$pojo2, pojo=$pojo, subPojo=$subPojo)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SimpleReferencedData) return false
+
+        if (version != other.version) return false
+        if (pojo2 != other.pojo2) return false
+        if (pojo != other.pojo) return false
+        if (subPojo != other.subPojo) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = version
+        result = 31 * result + (pojo2?.hashCode() ?: 0)
+        result = 31 * result + (pojo?.hashCode() ?: 0)
+        result = 31 * result + (subPojo?.hashCode() ?: 0)
+        return result
+    }
+
+
 }

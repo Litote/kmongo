@@ -43,4 +43,39 @@ open class TestData(
         val test: String = "should not be serialized"
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TestData) return false
+
+        if (set != other.set) return false
+        if (list != other.list) return false
+        if (name != other.name) return false
+        if (date != other.date) return false
+        if (referenced != other.referenced) return false
+        if (map != other.map) return false
+        if (nullableFloat != other.nullableFloat) return false
+        if (nullableBoolean != other.nullableBoolean) return false
+        if (privateData != other.privateData) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = set.hashCode()
+        result = 31 * result + list.hashCode()
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (date?.hashCode() ?: 0)
+        result = 31 * result + (referenced?.hashCode() ?: 0)
+        result = 31 * result + map.hashCode()
+        result = 31 * result + (nullableFloat?.hashCode() ?: 0)
+        result = 31 * result + (nullableBoolean?.hashCode() ?: 0)
+        result = 31 * result + privateData.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "TestData(set=$set, list=$list, name=$name, date=$date, referenced=$referenced, map=$map, nullableFloat=$nullableFloat, nullableBoolean=$nullableBoolean, privateData='$privateData')"
+    }
+
+
 }

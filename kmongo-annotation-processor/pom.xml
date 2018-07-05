@@ -56,6 +56,11 @@
             <artifactId>kmongo-jackson-mapping</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-id-jackson</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

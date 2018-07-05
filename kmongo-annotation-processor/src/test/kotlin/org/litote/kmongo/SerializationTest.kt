@@ -16,15 +16,20 @@
 
 package org.litote.kmongo
 
+import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.Test
+import org.litote.kmongo.id.ObjectIdToStringGenerator
+import org.litote.kmongo.id.jackson.IdJacksonModule
 import org.litote.kmongo.model.TestData
 import org.litote.kmongo.model.TestData_Deserializer
 import org.litote.kmongo.model.TestData_Serializer
 import org.litote.kmongo.model.other.SimpleReferencedData
 import java.util.Date
 import java.util.Locale
+import kotlin.test.assertEquals
 
 /**
  *
@@ -34,12 +39,15 @@ class SerializationTest {
     @Test
     fun `serialize and deserialize is ok`() {
         val mapper = ObjectMapper()
-        mapper.registerModule(
-            SimpleModule().apply {
-                addSerializer(TestData::class.java, TestData_Serializer())
-                addDeserializer(TestData::class.java, TestData_Deserializer())
-            }
-        )
+            .registerKotlinModule()
+            .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
+            .registerModule(IdJacksonModule(ObjectIdToStringGenerator))
+            .registerModule(
+                SimpleModule().apply {
+                    addSerializer(TestData::class.java, TestData_Serializer())
+                    addDeserializer(TestData::class.java, TestData_Deserializer())
+                }
+            )
         val data = TestData(
             setOf(SimpleReferencedData()),
             listOf(listOf(true)),
@@ -52,8 +60,7 @@ class SerializationTest {
             version = 2
         }
         val json = mapper.writeValueAsString(data)
-        println(json)
-        //val r: TestData = mapper.readValue(json, TestData::class.java)
-        //println(r)
+        val r: TestData = mapper.readValue(json, TestData::class.java)
+        assertEquals(data, r)
     }
 }

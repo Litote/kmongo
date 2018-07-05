@@ -28,6 +28,8 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
@@ -240,25 +242,25 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
                     )
                     .addStatement("val fieldName = currentName")
                     .addStatement("nextToken()")
-                    .addStatement("when (fieldName) {")
+                    .addStatement("if(currentToken != JsonToken.VALUE_NULL) when (fieldName) {")
                     //generate set
                     .apply {
                         a.properties(element).forEach { e ->
                             val propertyName = e.simpleName
                             val jsonField = e.simpleName
                             val type = e.asTypeName()
-                            val writeMethod = when (type.toString()) {
-                                "java.lang.String" -> "text"
-                                "java.lang.Boolean", "boolean" -> "booleanValue"
-                                "java.lang.Integer", "int" -> "intValue"
-                                "java.lang.Long", "long" -> "longValue"
-                                "java.lang.Short", "short" -> "shortValue"
-                                "java.lang.Float", "float" -> "floatValue"
-                                "java.lang.Double", "double" -> "doubleValue"
-                                "java.math.BigInteger" -> "bigIntegerValue"
-                                "java.math.BigDecimal" -> "decimalValue"
+                            val writeMethod = when (type.asNonNullable().toString()) {
+                                "java.lang.String" -> CodeBlock.of("text")
+                                "java.lang.Boolean", "boolean" -> CodeBlock.of("booleanValue")
+                                "java.lang.Integer", "int" -> CodeBlock.of("intValue")
+                                "java.lang.Long", "long" -> CodeBlock.of("longValue")
+                                "java.lang.Short", "short" -> CodeBlock.of("shortValue")
+                                "java.lang.Float", "float" -> CodeBlock.of("floatValue")
+                                "java.lang.Double", "double" -> CodeBlock.of("doubleValue")
+                                "java.math.BigInteger" -> CodeBlock.of("bigIntegerValue")
+                                "java.math.BigDecimal" -> CodeBlock.of("decimalValue")
                                 else -> if (e.asTypeName() is ParameterizedTypeName) {
-                                    "readValueAs(${propertyName}_reference)"
+                                    CodeBlock.of("readValueAs(${propertyName}_reference)")
                                 } else {
                                     CodeBlock.of("readValueAs(%T::class.java)", e.javaToKotlinType())
                                 }
@@ -273,7 +275,14 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
                     }
                     //generate end while
                     .addStatement(" }%W }")
-                    .addStatement("return %T()%W}", sourceClassName)
+                    .apply {
+                        val parameters =
+                            (element.enclosedElements.first { it.kind == ElementKind.CONSTRUCTOR } as ExecutableElement)
+                                .parameters.map {
+                                "${it.simpleName}${if (it.asTypeName().nullable) "" else "!!"}"
+                            }
+                        addStatement("return %T(%L)%W}", sourceClassName, parameters.joinToString())
+                    }
                     .build()
             )
 
