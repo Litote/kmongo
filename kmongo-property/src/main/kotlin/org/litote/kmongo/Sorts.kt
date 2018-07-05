@@ -92,7 +92,7 @@ fun orderBy(sorts: List<KProperty<*>>, ascending: Boolean = true): Bson =
  * @param sorts the sort specifications
  * @return the combined sort specification
  */
-fun orderBy(sorts: Map<KProperty<*>, Boolean>): Bson {
+fun orderBy(sorts: Map<out KProperty<Any?>, Boolean>): Bson {
     val document = BsonDocument()
     sorts.entries.forEach {
         document.append(it.key.path(), BsonInt32(if (it.value) 1 else -1))

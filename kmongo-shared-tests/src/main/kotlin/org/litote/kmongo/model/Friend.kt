@@ -16,6 +16,7 @@
 package org.litote.kmongo.model
 
 import org.bson.types.ObjectId
+import java.time.Instant
 
 /**
  *
@@ -25,7 +26,9 @@ data class Friend(
     val address: String?,
     val _id: ObjectId? = null,
     val coordinate: Coordinate? = null,
-    val tags:List<String> = emptyList()) {
+    val tags: List<String> = emptyList(),
+    val creationDate: Instant? = null
+) {
 
     constructor(name: String) : this(name, null, null)
 
