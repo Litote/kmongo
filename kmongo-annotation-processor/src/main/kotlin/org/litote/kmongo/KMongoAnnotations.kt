@@ -23,8 +23,11 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import org.jetbrains.annotations.Nullable
+import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import java.nio.file.Paths
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
@@ -173,6 +176,19 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
         )
     }
 
+    fun writeFile(outputDirectory:String, file : String, content:String) {
+        val directory = Paths.get(
+            processingEnv.filer.getResource(
+                StandardLocation.SOURCE_OUTPUT,
+                "",
+                outputDirectory
+            ).toUri()
+        )
+        Files.createDirectories(             directory               )
+        val outputPath = directory.resolve(file)
+        OutputStreamWriter(Files.newOutputStream(outputPath), StandardCharsets.UTF_8).use { writer -> writer.append(content) }
+    }
+
     fun findByProperty(sourceClassName: TypeName, targetElement: TypeName, propertyName: String): CodeBlock =
         CodeBlock.builder().add(
             "org.litote.kmongo.property.findProperty<%1T,%2T>(%3S)",
@@ -229,7 +245,7 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
         }
     }
 
-    fun getPackage(element: TypeElement): String =
+    fun getPackage(element: Element): String =
         processingEnv.elementUtils.getPackageOf(element).qualifiedName.toString()
 
     fun properties(element: TypeElement): List<VariableElement> =

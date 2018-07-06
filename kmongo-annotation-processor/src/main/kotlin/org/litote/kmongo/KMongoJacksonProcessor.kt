@@ -54,12 +54,30 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
             process(it as TypeElement)
         }
 
+        if (classes.isNotEmpty()) {
+            writeModuleLoader(classes)
+        }
+
         return classes.isNotEmpty()
     }
 
     private fun process(element: TypeElement) {
         writeSerializer(element)
         writeDeserializer(element)
+
+    }
+
+    private fun writeModuleLoader(elements: List<Element>) {
+        a.writeFile(
+            "META-INF/services",
+            "org.litote.jackson.JacksonModuleServiceLoader",
+            elements
+                .flatMap { e ->
+                    listOf(generatedSerializer(e), generatedDeserializer(e))
+                        .map { a.getPackage(e) + "." + it }
+                }
+                .joinToString("\r\n")
+        )
     }
 
     private fun writeSerializer(element: TypeElement) {
@@ -70,9 +88,20 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
         val superclass = ParameterizedTypeName.get(
             ClassName.bestGuess("com.fasterxml.jackson.databind.ser.std.StdSerializer"), sourceClassName
         )
+        val moduleLoader = ClassName.bestGuess("org.litote.jackson.JacksonModuleServiceLoader")
         val classBuilder = TypeSpec.classBuilder(className)
             .superclass(superclass)
+            .addSuperinterface(moduleLoader)
             .addSuperclassConstructorParameter(CodeBlock.of("%T::class.java", sourceClassName))
+            .addFunction(
+                FunSpec.builder("module")
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addStatement(
+                        "return %T().addSerializer(this)",
+                        ClassName.bestGuess("com.fasterxml.jackson.databind.module.SimpleModule")
+                    )
+                    .build()
+            )
             .addFunction(
                 FunSpec.builder("serialize")
                     .addModifiers(KModifier.OVERRIDE)
@@ -176,8 +205,11 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
         val superclass = ParameterizedTypeName.get(
             ClassName.bestGuess("com.fasterxml.jackson.databind.deser.std.StdDeserializer"), sourceClassName
         )
+        val moduleLoader = ClassName.bestGuess("org.litote.jackson.JacksonModuleServiceLoader")
+
         val classBuilder = TypeSpec.classBuilder(className)
             .superclass(superclass)
+            .addSuperinterface(moduleLoader)
             .addSuperclassConstructorParameter(CodeBlock.of("%T::class.java", sourceClassName))
             .companionObject(
                 TypeSpec.companionObjectBuilder()
@@ -203,6 +235,16 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
                             }
                         }
                     }
+                    .build()
+            )
+            .addFunction(
+                FunSpec.builder("module")
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addStatement(
+                        "return %T().addDeserializer(%T::class.java, this)",
+                        ClassName.bestGuess("com.fasterxml.jackson.databind.module.SimpleModule"),
+                        sourceClassName
+                    )
                     .build()
             )
             .addFunction(

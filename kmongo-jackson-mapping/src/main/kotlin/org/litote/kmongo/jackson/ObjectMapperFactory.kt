@@ -30,9 +30,7 @@ internal object ObjectMapperFactory {
             .registerKotlinModule()
             .registerModule(ExtendedJsonModule())
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
-            .apply {
-                loadedModules.forEach { registerModule(it) }
-            }
+            .registerModules(loadedModules)
     }
 
     fun createBsonObjectMapper(): ObjectMapper {
@@ -49,9 +47,7 @@ internal object ObjectMapperFactory {
             .registerModule(BsonModule())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
-            .apply {
-                loadedModules.forEach { registerModule(it) }
-            }
+            .registerModules(loadedModules)
     }
 
     fun createFilterIdObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
