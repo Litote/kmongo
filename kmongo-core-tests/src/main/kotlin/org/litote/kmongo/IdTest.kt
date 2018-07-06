@@ -27,6 +27,7 @@ import org.litote.kmongo.id.IdGenerator
 import org.litote.kmongo.id.ObjectIdGenerator
 import org.litote.kmongo.id.ObjectIdToStringGenerator
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -67,15 +68,22 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         val title: String
     )
 
+    data class ArticleWithNullId(
+        val _id: String?,
+        val title: String = "test"
+    )
+
     lateinit var shopCol: MongoCollection<Shop>
     lateinit var article2Col: MongoCollection<Article2>
     lateinit var article3Col: MongoCollection<Article3>
+    lateinit var articleNullCol: MongoCollection<ArticleWithNullId>
 
     @Before
     fun setup() {
         shopCol = getCollection()
         article2Col = getCollection()
         article3Col = getCollection()
+        articleNullCol = getCollection()
     }
 
     @After
@@ -83,6 +91,7 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         dropCollection<Shop>()
         dropCollection<Article2>()
         dropCollection<Article3>()
+        dropCollection<ArticleWithNullId>()
     }
 
     private fun stringGenerator() {
@@ -213,5 +222,13 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         article2Col.save(objectIdArticle)
         assertEquals(objectIdArticle, article2Col.findOne(objectIdArticle::_id eq objectIdArticle._id))
         assertEquals(shop, shopCol.findOne(shop::id eq shop.id))
+    }
+
+    @Test
+    fun `class with null id is generated on client side`() {
+        val a = ArticleWithNullId(null)
+        articleNullCol.insertOne(a)
+        assertNotNull(a._id)
+        assertEquals(a, articleNullCol.findOne())
     }
 }

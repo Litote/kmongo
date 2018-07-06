@@ -42,8 +42,6 @@ Provided with an optional annotation processor.
 
 You can copy/paste your queries from the Mongo shell in your IDE. Write readable source code!
 
-See [https://litote.org/kmongo](https://litote.org/kmongo) for complete documentation.
-
 ## Contributors
 
 * [Deny Prasetyo](https://github.com/jasoet)  (kmongo-coroutine)
