@@ -156,37 +156,49 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
     }
 
     fun writeFile(fileBuilder: FileSpec.Builder) {
-        val kotlinFile = fileBuilder.build()
-        debug {
-            processingEnv.filer.getResource(
-                StandardLocation.SOURCE_OUTPUT,
-                kotlinFile.packageName,
-                kotlinFile.name
-            ).name
-        }
+        try {
+            val kotlinFile = fileBuilder.build()
+            debug {
+                processingEnv.filer.getResource(
+                    StandardLocation.SOURCE_OUTPUT,
+                    kotlinFile.packageName,
+                    kotlinFile.name
+                ).name
+            }
 
-        kotlinFile.writeTo(
-            Paths.get(
+            kotlinFile.writeTo(
+                Paths.get(
+                    processingEnv.filer.getResource(
+                        StandardLocation.SOURCE_OUTPUT,
+                        "",
+                        kotlinFile.name
+                    ).toUri()
+                ).parent
+            )
+        } catch (e: Exception) {
+            logError(e)
+        }
+    }
+
+    fun writeFile(outputDirectory: String, file: String, content: String) {
+        try {
+            val directory = Paths.get(
                 processingEnv.filer.getResource(
                     StandardLocation.SOURCE_OUTPUT,
                     "",
-                    kotlinFile.name
+                    outputDirectory
                 ).toUri()
-            ).parent
-        )
-    }
-
-    fun writeFile(outputDirectory:String, file : String, content:String) {
-        val directory = Paths.get(
-            processingEnv.filer.getResource(
-                StandardLocation.SOURCE_OUTPUT,
-                "",
-                outputDirectory
-            ).toUri()
-        )
-        Files.createDirectories(             directory               )
-        val outputPath = directory.resolve(file)
-        OutputStreamWriter(Files.newOutputStream(outputPath), StandardCharsets.UTF_8).use { writer -> writer.append(content) }
+            )
+            Files.createDirectories(directory)
+            val outputPath = directory.resolve(file)
+            OutputStreamWriter(Files.newOutputStream(outputPath), StandardCharsets.UTF_8).use { writer ->
+                writer.append(
+                    content
+                )
+            }
+        } catch (e: Exception) {
+            logError(e)
+        }
     }
 
     fun findByProperty(sourceClassName: TypeName, targetElement: TypeName, propertyName: String): CodeBlock =

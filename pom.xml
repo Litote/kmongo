@@ -82,6 +82,7 @@
         <sl4j.version>1.7.25</sl4j.version>
         <junit.version>4.12</junit.version>
         <jmh.version>1.21</jmh.version>
+        <compiler-testing.version>0.15</compiler-testing.version>
 
         <!-- plugins -->
         <plugin.compiler.version>3.7.0</plugin.compiler.version>
@@ -155,6 +156,11 @@
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-property</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-annotation-processor</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -357,6 +363,12 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-test-junit</artifactId>
                 <version>${kotlin.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.testing.compile</groupId>
+                <artifactId>compile-testing</artifactId>
+                <version>${compiler-testing.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

@@ -101,6 +101,10 @@
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-property</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-annotation-processor</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
