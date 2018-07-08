@@ -23,4 +23,9 @@ package org.litote.kmongo
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
-annotation class NativeData
+annotation class NativeData(
+    /**
+     * Set to internal visibility the generated classes.
+     */
+    val internal: Boolean = false
+)

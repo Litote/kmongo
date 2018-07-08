@@ -35,7 +35,6 @@ import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
@@ -96,34 +95,60 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, t.stackTrace())
     }
 
-    inline fun <reified T : Annotation, reified R : Annotation> getAnnotatedClasses(roundEnv: RoundEnvironment): MutableSet<Element> {
+    inline fun <reified T : Annotation, reified R : Annotation> getAnnotatedClasses(roundEnv: RoundEnvironment): AnnotatedClassSet {
         val dataElements = roundEnv.getElementsAnnotatedWith(T::class.java)
+            .map { AnnotatedClass(it as TypeElement, hasInternalModifier<T>(it), this) }
         val registryElements = getRegistryClasses<R>(roundEnv)
 
         debug { registryElements }
         debug { dataElements }
 
-        return (dataElements + registryElements).toMutableSet().apply {
+        return AnnotatedClassSet(
+            (dataElements + registryElements)
+                .toMutableSet()
+        ).apply {
             if (isNotEmpty()) {
                 log("Found ${T::class.simpleName} classes: $this")
             }
         }
     }
 
-    inline fun <reified T : Annotation> getRegistryClasses(roundEnv: RoundEnvironment) =
+    private inline fun <reified T : Annotation> hasInternalModifier(element: Element): Boolean {
+        return element
+            .annotationMirrors
+            .first { it.annotationType.toString() == T::class.qualifiedName }
+            .elementValues
+            .run {
+                keys.find { it.simpleName.toString() == "internal" }
+                    ?.let { get(it)?.value as? Boolean }
+            } ?: false
+    }
+
+    private inline fun <reified T : Annotation> getRegistryClasses(roundEnv: RoundEnvironment): Set<AnnotatedClass> =
         roundEnv
             .getElementsAnnotatedWith(T::class.java)
             .map {
                 it.annotationMirrors
                     .first { it.annotationType.toString() == T::class.qualifiedName }
             }
-            .flatMap {
-                it.elementValues.values.flatMap {
-                    @Suppress("UNCHECKED_CAST")
-                    (it.value as Iterable<AnnotationValue>).map {
-                        processingEnv.typeUtils.asElement(it.value as TypeMirror)
+            .flatMap { a ->
+                val internal = a.elementValues[a.elementValues.keys.find {
+                    it.simpleName.toString() == "internal"
+                }]?.value as? Boolean ?: false
+
+                a.elementValues[a.elementValues.keys.first {
+                    it.simpleName.toString() == "value"
+                }]
+                    .let { v ->
+                        @Suppress("UNCHECKED_CAST")
+                        (v!!.value as Iterable<AnnotationValue>).map {
+                            AnnotatedClass(
+                                processingEnv.typeUtils.asElement(it.value as TypeMirror) as TypeElement,
+                                internal,
+                                this
+                            )
+                        }
                     }
-                }
             }
             .toSet()
 
@@ -239,29 +264,4 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
             newValue
         ).build()
 
-    fun propertyReference(
-        classElement: TypeElement,
-        property: Element,
-        privateHandler: () -> CodeBlock,
-        nonPrivateHandler: () -> CodeBlock
-    ): CodeBlock {
-        return if (classElement
-                .enclosedElements
-                .firstOrNull { it.simpleName.toString() == "get${property.simpleName.toString().capitalize()}" }
-                ?.modifiers
-                ?.contains(Modifier.PRIVATE) != false
-        ) {
-            privateHandler()
-        } else {
-            nonPrivateHandler()
-        }
-    }
-
-    fun getPackage(element: Element): String =
-        processingEnv.elementUtils.getPackageOf(element).qualifiedName.toString()
-
-    fun properties(element: TypeElement): List<VariableElement> =
-        element.enclosedElements
-            .filterIsInstance<VariableElement>()
-            .filter { e -> e.modifiers.none { notSupportedModifiers.contains(it) } }
 }

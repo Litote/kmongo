@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.model
+
+import org.litote.kmongo.Data
+import org.litote.kmongo.JacksonData
 
 /**
- * Annotated classes will generate jackson serializer & deserializer for this class at compile time.
- * See [documentation](http://litote.org/kmongo/typed-queries/#kmongo-annotation-processor).
+ *
  */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.SOURCE)
-@MustBeDocumented
-annotation class JacksonData(
-    /**
-     * Set to internal visibility the generated classes.
-     */
-    val internal: Boolean = false
-)
+@Data(internal = true)
+@JacksonData(internal = true)
+class InternalDataClass(val l:Long) {
+}

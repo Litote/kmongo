@@ -29,5 +29,9 @@ annotation class DataRegistry(
     /**
      * List of data classes.
      */
-    val value: Array<KClass<*>>
+    val value: Array<KClass<*>>,
+    /**
+     * Set to internal visibility the generated classes.
+     */
+    val internal: Boolean = false
 )

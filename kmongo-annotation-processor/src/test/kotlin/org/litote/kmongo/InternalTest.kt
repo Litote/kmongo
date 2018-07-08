@@ -16,16 +16,18 @@
 
 package org.litote.kmongo
 
+import org.junit.Test
+import org.litote.kmongo.model.InternalDataClass_
+import kotlin.reflect.KVisibility
+import kotlin.test.assertEquals
+
 /**
- * Annotated classes will generate jackson serializer & deserializer for this class at compile time.
- * See [documentation](http://litote.org/kmongo/typed-queries/#kmongo-annotation-processor).
+ *
  */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.SOURCE)
-@MustBeDocumented
-annotation class JacksonData(
-    /**
-     * Set to internal visibility the generated classes.
-     */
-    val internal: Boolean = false
-)
+class InternalTest {
+
+    @Test
+    fun checkInternal() {
+        assertEquals(KVisibility.INTERNAL, InternalDataClass_::class.visibility)
+    }
+}

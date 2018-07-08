@@ -51,7 +51,7 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
             }
 
         classes.forEach {
-            process(it as TypeElement)
+            process(it)
         }
 
         if (classes.isNotEmpty()) {
@@ -61,35 +61,40 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
         return classes.isNotEmpty()
     }
 
-    private fun process(element: TypeElement) {
+    private fun process(element: AnnotatedClass) {
         writeSerializer(element)
         writeDeserializer(element)
-
     }
 
-    private fun writeModuleLoader(elements: List<Element>) {
+    private fun writeModuleLoader(elements: AnnotatedClassSet) {
         a.writeFile(
             "META-INF/services",
             "org.litote.jackson.JacksonModuleServiceLoader",
             elements
+                .toList()
                 .flatMap { e ->
                     listOf(generatedSerializer(e), generatedDeserializer(e))
-                        .map { a.getPackage(e) + "." + it }
+                        .map { e.getPackage() + "." + it }
                 }
                 .joinToString("\r\n")
         )
     }
 
-    private fun writeSerializer(element: TypeElement) {
+    private fun writeSerializer(element: AnnotatedClass) {
         val sourceClassName = element.asClassName()
         val className = generatedSerializer(element)
-        val fileBuilder = FileSpec.builder(a.getPackage(element), className)
+        val fileBuilder = FileSpec.builder(element.getPackage(), className)
 
         val superclass = ParameterizedTypeName.get(
             ClassName.bestGuess("com.fasterxml.jackson.databind.ser.std.StdSerializer"), sourceClassName
         )
         val moduleLoader = ClassName.bestGuess("org.litote.jackson.JacksonModuleServiceLoader")
         val classBuilder = TypeSpec.classBuilder(className)
+            .apply {
+                if (element.internal) {
+                    addModifiers(KModifier.INTERNAL)
+                }
+            }
             .superclass(superclass)
             .addSuperinterface(moduleLoader)
             .addSuperclassConstructorParameter(CodeBlock.of("%T::class.java", sourceClassName))
@@ -124,15 +129,14 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
                         "gen.writeStartObject()"
                     )
                     .apply {
-                        a.properties(element).forEach { e ->
+                        element.properties().forEach { e ->
                             a.debug { "${e.simpleName}-${e.asType()}" }
                             val propertyName = e.simpleName
                             val jsonField = e.simpleName
                             val type = e.asType()
                             val nullable = e.asTypeName().nullable
                             val fieldAccessor =
-                                a.propertyReference(
-                                    element,
+                                element.propertyReference(
                                     e,
                                     {
                                         a.findPropertyValue(
@@ -197,10 +201,10 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
         a.writeFile(fileBuilder)
     }
 
-    private fun writeDeserializer(element: TypeElement) {
+    private fun writeDeserializer(element: AnnotatedClass) {
         val sourceClassName = element.asClassName()
         val className = generatedDeserializer(element)
-        val fileBuilder = FileSpec.builder(a.getPackage(element), className)
+        val fileBuilder = FileSpec.builder(element.getPackage(), className)
 
         val superclass = ParameterizedTypeName.get(
             ClassName.bestGuess("com.fasterxml.jackson.databind.deser.std.StdDeserializer"), sourceClassName
@@ -209,12 +213,17 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
 
         val classBuilder = TypeSpec.classBuilder(className)
             .superclass(superclass)
+            .apply {
+                if (element.internal) {
+                    addModifiers(KModifier.INTERNAL)
+                }
+            }
             .addSuperinterface(moduleLoader)
             .addSuperclassConstructorParameter(CodeBlock.of("%T::class.java", sourceClassName))
             .companionObject(
                 TypeSpec.companionObjectBuilder()
                     .apply {
-                        a.properties(element).forEach { e ->
+                        element.properties().forEach { e ->
                             if (e.asTypeName() is ParameterizedTypeName) {
                                 val propertyName = e.simpleName
                                 val typeReference = ParameterizedTypeName.get(
@@ -266,7 +275,7 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
                     .addStatement("with(p) {")
                     .apply {
                         //generate fields
-                        a.properties(element).forEach { e ->
+                        element.properties().forEach { e ->
                             addStatement("var %N: %T = null", e.simpleName, e.javaToKotlinType().asNullable())
                         }
                     }
@@ -287,7 +296,7 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
                     .addStatement("if(currentToken != JsonToken.VALUE_NULL) when (fieldName) {")
                     //generate set
                     .apply {
-                        a.properties(element).forEach { e ->
+                        element.properties().forEach { e ->
                             val propertyName = e.simpleName
                             val jsonField = e.simpleName
                             val type = e.asTypeName()

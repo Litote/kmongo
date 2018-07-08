@@ -30,7 +30,6 @@ import com.squareup.kotlinpoet.asClassName
 import org.litote.kmongo.property.KPropertyPath
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.ArrayType
@@ -45,36 +44,33 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
     fun processDataClasses(roundEnv: RoundEnvironment): Boolean {
         val dataClasses = a.getAnnotatedClasses<Data, DataRegistry>(roundEnv)
 
-        for (element in dataClasses.toList()) {
-            if (element.kind != ElementKind.CLASS) {
-                error("$element is annotated with @Data but is not a class")
-            }
-            registerSuperclasses(element as TypeElement, dataClasses)
+        dataClasses.forEach {
+            registerSuperclasses(it, dataClasses)
         }
-        for (element in dataClasses) {
-            process(element as TypeElement, dataClasses)
+        dataClasses.forEach {
+            process(it, dataClasses)
         }
         return dataClasses.isNotEmpty()
     }
 
-    private fun registerSuperclasses(element: TypeElement, dataClasses: MutableSet<Element>) {
+    private fun registerSuperclasses(element: AnnotatedClass, dataClasses: AnnotatedClassSet) {
         val superclass = element.superclass
         if (superclass is DeclaredType && superclass.toString() != "java.lang.Object") {
             a.debug { "$element : $superclass - ${superclass.getAnnotation(Data::class.java)}" }
             val superElement = superclass.asElement() as TypeElement
             if (!dataClasses.contains(superElement)) {
-                dataClasses.add(superElement)
-                registerSuperclasses(superElement, dataClasses)
-                process(superElement, dataClasses)
+                val sE = AnnotatedClass(superElement, element.internal, a)
+                dataClasses.add(sE)
+                registerSuperclasses(sE, dataClasses)
+                process(sE, dataClasses)
             }
         }
     }
 
-    private fun process(element: TypeElement, dataClasses: MutableSet<Element>) {
-        val pack = a.getPackage(element)
+    private fun process(element: AnnotatedClass, dataClasses: AnnotatedClassSet) {
         val sourceClassName = element.asClassName()
         val className = generatedClassName(element)
-        val fileBuilder = FileSpec.builder(pack, className)
+        val fileBuilder = FileSpec.builder(element.getPackage(), className)
 
         val superMirrorClass = element.superclass
         val superclass: TypeName =
@@ -97,6 +93,11 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
 
         val classBuilder = TypeSpec.classBuilder(className)
             .addTypeVariable(TypeVariableName("T"))
+            .apply {
+                if (element.internal) {
+                    addModifiers(KModifier.INTERNAL)
+                }
+            }
             .primaryConstructor(
                 FunSpec
                     .constructorBuilder()
@@ -144,6 +145,11 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
 
         val collectionClassBuilder = TypeSpec.classBuilder("${className}Col")
             .addTypeVariable(TypeVariableName("T"))
+            .apply {
+                if (element.internal) {
+                    addModifiers(KModifier.INTERNAL)
+                }
+            }
             .primaryConstructor(
                 FunSpec
                     .constructorBuilder()
@@ -179,7 +185,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
 
         val companionObject = TypeSpec.companionObjectBuilder()
 
-        a.properties(element).forEach { e ->
+        element.properties().forEach { e ->
             a.debug { "${e.simpleName}-${e.asType()}" }
             val type = e.asType()
             val returnType = a.processingEnv.typeUtils.asElement(type) as? TypeElement
@@ -187,6 +193,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 a.debug { "$type-annot: ${type.getAnnotation(Data::class.java)}" }
             }
             val annotatedCollection = type.run {
+                a.debug { this is DeclaredType }
                 if (this is ArrayType) {
                     dataClasses.contains(a.processingEnv.typeUtils.asElement(componentType))
                 } else if (this is DeclaredType
@@ -196,7 +203,11 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                     )
                 ) {
                     typeArguments.firstOrNull()?.run {
-                        dataClasses.contains(a.processingEnv.typeUtils.asElement(this))
+                        val asElement = a.processingEnv.typeUtils.asElement(this)
+                        a.debug { asElement.javaClass }
+                        dataClasses.contains(asElement).also {
+                            a.debug { it }
+                        }
                     } == true
                 } else {
                     false
@@ -227,8 +238,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 }
 
             val propertyReference =
-                a.propertyReference(
-                    element,
+                element.propertyReference(
                     e,
                     {
                         a.findByProperty(
