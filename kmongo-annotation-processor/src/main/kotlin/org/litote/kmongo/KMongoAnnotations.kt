@@ -21,6 +21,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asTypeName
 import org.jetbrains.annotations.Nullable
 import java.io.OutputStreamWriter
@@ -54,20 +55,36 @@ fun Element.asTypeName(): TypeName {
 }
 
 internal fun TypeName.javaToKotlinType(): TypeName {
-    return if (this is ParameterizedTypeName) {
-        ParameterizedTypeName.get(
-            rawType.javaToKotlinType() as ClassName,
-            *typeArguments.map { it.javaToKotlinType() }.toTypedArray()
-        )
-    } else {
-        val className =
-            JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(toString()))
+    return when (this) {
+        is ParameterizedTypeName -> {
+            val raw = rawType.javaToKotlinType() as ClassName
+            if (raw.toString() == "kotlin.Array" && typeArguments.firstOrNull()?.javaToKotlinType().toString() == "kotlin.Byte") {
+                ClassName.bestGuess("kotlin.ByteArray")
+            } else {
+                ParameterizedTypeName.get(
+                    raw,
+                    *typeArguments.map { it.javaToKotlinType() }.toTypedArray()
+                )
+            }
+        }
+        is WildcardTypeName -> {
+            if (upperBounds.isNotEmpty()) {
+                WildcardTypeName.subtypeOf(upperBounds.first().javaToKotlinType())
+            } else {
+                WildcardTypeName.supertypeOf(lowerBounds.first().javaToKotlinType())
+            }
+        }
+        else -> {
+            //System.err.println(toString())
+            //System.err.println(javaClass)
+            val className = JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(toString()))
                 ?.asSingleFqName()?.asString()
-
-        return if (className == null) {
-            this
-        } else {
-            ClassName.bestGuess(className)
+            //System.err.println(className.toString())
+            if (className == null) {
+                this
+            } else {
+                ClassName.bestGuess(className)
+            }
         }
     }
 }

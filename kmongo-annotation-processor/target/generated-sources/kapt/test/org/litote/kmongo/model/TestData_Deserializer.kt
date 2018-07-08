@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import java.util.Date
 import java.util.Locale
 import kotlin.Boolean
+import kotlin.ByteArray
 import kotlin.Float
 import kotlin.String
 import kotlin.collections.List
@@ -33,6 +34,8 @@ class TestData_Deserializer : StdDeserializer<TestData>(TestData::class.java),
         var nullableFloat: Float? = null
         var nullableBoolean: Boolean? = null
         var privateData: String? = null
+        var id: Id<*>? = null
+        var byteArray: ByteArray? = null
         while (currentToken != JsonToken.END_OBJECT && currentToken != JsonToken.END_ARRAY) { 
         nextToken() 
         if (currentToken == JsonToken.END_OBJECT || currentToken == JsonToken.END_ARRAY) { break } 
@@ -48,9 +51,11 @@ class TestData_Deserializer : StdDeserializer<TestData>(TestData::class.java),
         "nullableFloat" -> nullableFloat = p.floatValue
         "nullableBoolean" -> nullableBoolean = p.booleanValue
         "privateData" -> privateData = p.text
+        "id" -> id = p.readValueAs(id_reference)
+        "byteArray" -> byteArray = p.readValueAs(byteArray_reference)
         else -> if (currentToken == JsonToken.END_OBJECT || currentToken == JsonToken.END_ARRAY) { p.skipChildren() } else { nextToken() }
          }  }
-        return TestData(set!!, list!!, name, date, referenced, map!!, nullableFloat, nullableBoolean, privateData!!)
+        return TestData(set!!, list!!, name, date, referenced, map!!, nullableFloat, nullableBoolean, privateData!!, id!!, byteArray)
                 }
     }
     companion object {
@@ -62,5 +67,9 @@ class TestData_Deserializer : StdDeserializer<TestData>(TestData::class.java),
 
         val map_reference: TypeReference<Map<Id<Locale>, Set<String>>> =
                 object : TypeReference<Map<Id<Locale>, Set<String>>>() {}
+
+        val id_reference: TypeReference<Id<*>> = object : TypeReference<Id<*>>() {}
+
+        val byteArray_reference: TypeReference<ByteArray> = object : TypeReference<ByteArray>() {}
     }
 }

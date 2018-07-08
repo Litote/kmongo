@@ -43,6 +43,12 @@ class TestData_Serializer : StdSerializer<TestData>(TestData::class.java),
         gen.writeFieldName("privateData")
         val _privateData_ = org.litote.kmongo.property.findPropertyValue<org.litote.kmongo.model.TestData,kotlin.String>(value, "privateData")
         gen.writeString(_privateData_)
+        gen.writeFieldName("id")
+        val _id_ = value.id
+        serializers.defaultSerializeValue(_id_, gen)
+        gen.writeFieldName("byteArray")
+        val _byteArray_ = value.byteArray
+        if(_byteArray_ == null) { gen.writeNull() } else {serializers.defaultSerializeValue(_byteArray_, gen)}
         gen.writeEndObject()
     }
 }

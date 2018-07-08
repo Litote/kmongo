@@ -19,6 +19,7 @@ package org.litote.kmongo.model
 import org.litote.kmongo.Id
 import org.litote.kmongo.JacksonData
 import org.litote.kmongo.model.other.SimpleReferencedData
+import org.litote.kmongo.newId
 import java.util.Date
 import java.util.Locale
 
@@ -37,7 +38,9 @@ open class TestData(
     val map: Map<Id<Locale>, Set<String>> = emptyMap(),
     val nullableFloat: Float? = null,
     val nullableBoolean: Boolean? = null,
-    private val privateData: String = ""
+    private val privateData: String = "",
+    val id: Id<out Any?> = newId(),
+    val byteArray: ByteArray? = null
 ) {
     companion object {
         val test: String = "should not be serialized"

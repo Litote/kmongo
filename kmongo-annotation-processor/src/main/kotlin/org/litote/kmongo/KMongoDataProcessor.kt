@@ -168,7 +168,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                             TypeVariableName("*"),
                             ParameterizedTypeName.get(
                                 ClassName("kotlin.collections", "Collection"),
-                                sourceClassName
+                                sourceClassName.javaToKotlinType()
                             ).asNullable()
                         )
                     )
@@ -195,6 +195,8 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
             val annotatedCollection = type.run {
                 a.debug { this is DeclaredType }
                 if (this is ArrayType) {
+                    a.debug { componentType }
+                    a.debug { a.processingEnv.typeUtils.asElement(componentType) }
                     dataClasses.contains(a.processingEnv.typeUtils.asElement(componentType))
                 } else if (this is DeclaredType
                     && a.processingEnv.typeUtils.isAssignable(

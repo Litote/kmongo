@@ -3,6 +3,7 @@ package org.litote.kmongo.model
 import java.util.Date
 import java.util.Locale
 import kotlin.Boolean
+import kotlin.ByteArray
 import kotlin.Float
 import kotlin.String
 import kotlin.collections.Collection
@@ -42,6 +43,12 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
 
     val privateData: KProperty1<T, String?>
         get() = org.litote.kmongo.property.KPropertyPath(this,org.litote.kmongo.property.findProperty<TestData,String?>("privateData"))
+
+    val id: KProperty1<T, Id<*>?>
+        get() = org.litote.kmongo.property.KPropertyPath(this,TestData::id)
+
+    val byteArray: KProperty1<T, ByteArray?>
+        get() = org.litote.kmongo.property.KPropertyPath(this,TestData::byteArray)
     companion object {
         val Set: SimpleReferencedData_Col<TestData>
             get() = SimpleReferencedData_Col<TestData>(null,TestData::set)
@@ -60,7 +67,11 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
         val NullableBoolean: KProperty1<TestData, Boolean?>
             get() = TestData::nullableBoolean
         val PrivateData: KProperty1<TestData, String?>
-            get() = org.litote.kmongo.property.findProperty<TestData,String?>("privateData")}
+            get() = org.litote.kmongo.property.findProperty<TestData,String?>("privateData")
+        val Id: KProperty1<TestData, Id<*>?>
+            get() = TestData::id
+        val ByteArray: KProperty1<TestData, ByteArray?>
+            get() = TestData::byteArray}
 }
 
 open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<TestData>?>) : KPropertyPath<T, Collection<TestData>?>(previous,property) {
@@ -90,4 +101,10 @@ open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<
 
     val privateData: KProperty1<T, String?>
         get() = org.litote.kmongo.property.KPropertyPath(this,org.litote.kmongo.property.findProperty<TestData,String?>("privateData"))
+
+    val id: KProperty1<T, Id<*>?>
+        get() = org.litote.kmongo.property.KPropertyPath(this,TestData::id)
+
+    val byteArray: KProperty1<T, ByteArray?>
+        get() = org.litote.kmongo.property.KPropertyPath(this,TestData::byteArray)
 }
