@@ -42,4 +42,6 @@ internal class AnnotatedClassSet(
     }
 
     fun toList(): List<AnnotatedClass> = elements.toList()
+
+    override fun toString() : String = elements.toString()
 }

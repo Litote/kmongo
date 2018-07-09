@@ -76,7 +76,7 @@ internal class KMongoJacksonProcessor(val a: KMongoAnnotations) {
                     listOf(generatedSerializer(e), generatedDeserializer(e))
                         .map { e.getPackage() + "." + it }
                 }
-                .joinToString("\r\n")
+                .joinToString("\n")
         )
     }
 

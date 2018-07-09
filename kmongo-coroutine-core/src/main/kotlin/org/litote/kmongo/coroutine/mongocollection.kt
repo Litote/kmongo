@@ -67,6 +67,7 @@ inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): 
  *
  * @return count of all collection
  */
+@Deprecated("use countDocuments instead")
 suspend fun <T> MongoCollection<T>.count(): Long {
     return singleResult { count(it) } ?: 0L
 }
@@ -77,8 +78,28 @@ suspend fun <T> MongoCollection<T>.count(): Long {
  * @param filter   the query filter
  * @return count of filtered collection
  */
+@Deprecated("use countDocuments instead")
 suspend fun <T> MongoCollection<T>.count(filter: String, options: CountOptions = CountOptions()): Long {
     return singleResult { count(toBson(filter), options, it) } ?: 0L
+}
+
+/**
+ * Counts the number of documents
+ *
+ * @return count of all collection
+ */
+suspend fun <T> MongoCollection<T>.countDocuments(): Long {
+    return singleResult { countDocuments(it) } ?: 0L
+}
+
+/**
+ * Counts the number of documents in the collection according to the given options.
+ *
+ * @param filter   the query filter
+ * @return count of filtered collection
+ */
+suspend fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions = CountOptions()): Long {
+    return singleResult { countDocuments(toBson(filter), options, it) } ?: 0L
 }
 
 /**

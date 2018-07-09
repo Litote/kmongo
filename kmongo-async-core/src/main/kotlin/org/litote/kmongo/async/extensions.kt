@@ -145,6 +145,7 @@ inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): 
  * @param filter   the query filter
  * @param callback the callback passed the number of documents in the collection
  */
+@Deprecated("use countDocuments instead")
 fun <T> MongoCollection<T>.count(filter: String, callback: (Long?, Throwable?) -> Unit) =
     count(filter, CountOptions(), callback)
 
@@ -154,8 +155,27 @@ fun <T> MongoCollection<T>.count(filter: String, callback: (Long?, Throwable?) -
  * @param filter   the query filter
  * @param callback the callback passed the number of documents in the collection
  */
+@Deprecated("use countDocuments instead")
 fun <T> MongoCollection<T>.count(filter: String, options: CountOptions, callback: (Long?, Throwable?) -> Unit) =
     count(toBson(filter), options, callback)
+
+/**
+ * Counts the number of documents in the collection according to the given options.
+ *
+ * @param filter   the query filter
+ * @param callback the callback passed the number of documents in the collection
+ */
+fun <T> MongoCollection<T>.countDocuments(filter: String, callback: (Long?, Throwable?) -> Unit) =
+    countDocuments(filter, CountOptions(), callback)
+
+/**
+ * Counts the number of documents in the collection according to the given options.
+ *
+ * @param filter   the query filter
+ * @param callback the callback passed the number of documents in the collection
+ */
+fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions, callback: (Long?, Throwable?) -> Unit) =
+    countDocuments(toBson(filter), options, callback)
 
 
 /**

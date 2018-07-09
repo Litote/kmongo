@@ -31,38 +31,74 @@ class CountTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canCount() {
-        col.insertMany(listOf(newFriend(), newFriend()), {
-            _, _ ->
+        col.insertMany(listOf(newFriend(), newFriend())) {
+                _, _ ->
             col.count { r, _ ->
                 asyncTest {
                     assertEquals(2, r)
                 }
             }
-        })
+        }
     }
 
     @Test
     fun canCountWithQuery() {
-        col.insertMany(listOf(newFriend(), newFriend()), {
-            _, _ ->
-            col.count("{name:{$exists:true}}", { r, _ ->
+        col.insertMany(listOf(newFriend(), newFriend())) {
+                _, _ ->
+            col.count("{name:{$exists:true}}") { r, _ ->
                 asyncTest {
                     assertEquals(2, r)
                 }
-            })
-        })
+            }
+        }
     }
 
     @Test
     fun canCountWithParameters() {
-        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")), {
-            _, _ ->
-            col.count("{name:'Peter'}}", { r, _ ->
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue"))) {
+                _, _ ->
+            col.count("{name:'Peter'}}") { r, _ ->
                 asyncTest {
                     assertEquals(1, r)
                 }
-            })
-        })
+            }
+        }
+    }
+
+    @Test
+    fun canCountDocuments() {
+        col.insertMany(listOf(newFriend(), newFriend())) {
+                _, _ ->
+            col.countDocuments { r, _ ->
+                asyncTest {
+                    assertEquals(2, r)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun canCountDocumentsWithQuery() {
+        col.insertMany(listOf(newFriend(), newFriend())) {
+                _, _ ->
+            col.countDocuments("{name:{$exists:true}}") { r, _ ->
+                asyncTest {
+                    assertEquals(2, r)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun canCountDocumentsWithParameters() {
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue"))) {
+                _, _ ->
+            col.countDocuments("{name:'Peter'}}") { r, _ ->
+                asyncTest {
+                    assertEquals(1, r)
+                }
+            }
+        }
     }
 
 }

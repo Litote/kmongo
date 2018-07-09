@@ -51,4 +51,26 @@ class CountTest : KMongoCoroutineBaseTest<Friend>() {
         assertEquals(1, count)
     }
 
+    @Test
+    fun canCountDocuments() = runBlocking {
+        col.insertMany(listOf(newFriend(), newFriend()))
+        val count = col.countDocuments()
+        assertEquals(2, count)
+    }
+
+    @Test
+    fun canCountDocumentsWithQuery() = runBlocking {
+        col.insertMany(listOf(newFriend(), newFriend()))
+        val count = col.countDocuments("{name:{$exists:true}}")
+        assertEquals(2, count)
+    }
+
+    @Test
+    fun canCountDocumentsWithParameters() = runBlocking {
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
+        val count = col.countDocuments("{name:'Peter'}}")
+        assertEquals(1, count)
+    }
+
+
 }
