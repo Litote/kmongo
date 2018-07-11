@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.node.BinaryNode
 import com.fasterxml.jackson.databind.node.POJONode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.databind.node.ValueNode
+import de.undercouch.bson4jackson.BsonParser
 import de.undercouch.bson4jackson.types.Decimal128
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
@@ -82,6 +84,19 @@ internal class BsonModule : SimpleModule() {
                 gen.writeObjectId(objectId)
             } else {
                 ObjectIdExtendedJsonSerializer.serialize(objectId, gen, serializerProvider)
+            }
+        }
+    }
+
+    private object ObjectIdBsonDeserializer : JsonDeserializer<ObjectId>() {
+
+        override fun deserialize(p: JsonParser, ctxt: DeserializationContext): ObjectId {
+            return if (p is BsonParser) {
+                p.embeddedObject as ObjectId
+            } else {
+                val tree: TreeNode = p.getCodec().readTree(p)
+                val oid = (tree.get("\$oid") as JsonNode).textValue()
+                ObjectId(oid)
             }
         }
     }
@@ -396,6 +411,7 @@ internal class BsonModule : SimpleModule() {
 
     init {
         addSerializer(ObjectId::class.java, ObjectIdBsonSerializer)
+        addDeserializer(ObjectId::class.java, ObjectIdBsonDeserializer)
         addSerializer(Binary::class.java, BinaryBsonSerializer)
         addDeserializer(Binary::class.java, BinaryBsonDeserializer)
         addSerializer(BsonTimestamp::class.java, BsonTimestampBsonSerializer)
