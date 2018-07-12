@@ -95,7 +95,7 @@ internal class BsonModule : SimpleModule() {
                 p.embeddedObject as ObjectId
             } else {
                 val tree: TreeNode = p.codec.readTree(p)
-                return if (tree is POJONode) {
+                if (tree is POJONode) {
                     tree.pojo as ObjectId
                 } else {
                     ObjectId((tree.get("\$oid") as JsonNode).textValue())

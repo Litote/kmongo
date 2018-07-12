@@ -44,7 +44,7 @@ class Issue73IdNotDeserializedWhenUsingInterfaceAsCollectionClass : AllCategorie
     ) : Intermediate
 
     @Test
-    fun `GIVEN interface that defines _id is populated with the database _id`() {
+    fun `GIVEN interface that defines _id THEN it is populated with the database _id`() {
         val obj = Implementation(field = "value")
         col.insertOne(obj)
 
