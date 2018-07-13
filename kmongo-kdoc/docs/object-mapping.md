@@ -25,6 +25,12 @@ class Jedi(
 )
 ``` 
 
+It is easy to transform a String or an ObjectId in an Id<> with the *toId()* extension:
+
+```kotlin
+LightSaber("myId".toId())
+``` 
+
 #### KMongo Id does not depend of Mongo nor KMongo lib
                      
 This is useful if you need to transfer your data object from a mongo backend 

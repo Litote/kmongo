@@ -58,7 +58,57 @@ KMongo provides an annotation processor to generate these property references.
 
 You just have to annotate the data class with the ```@Data``` annotation.
 
-Then you can write:
+Then declare the annotation processor
+
+- for Maven:
+
+```xml   
+<plugin>
+    <executions>
+        <execution>
+            <id>kapt</id>
+            <goals>
+                <goal>kapt</goal>
+            </goals>
+            <configuration>
+                <annotationProcessorPaths>
+                    <annotationProcessorPath>
+                        <groupId>org.litote.kmongo</groupId>
+                        <artifactId>kmongo-annotation-processor</artifactId>
+                        <version>${kmongo.version}</version>
+                    </annotationProcessorPath>
+                </annotationProcessorPaths>
+            </configuration>
+        </execution>
+
+        <execution>
+            <id>compile</id>
+            <phase>compile</phase>
+            <goals>
+                <goal>compile</goal>
+            </goals>
+        </execution>
+
+    </executions>
+</plugin>
+```
+
+- or for Gradle
+
+```gradle
+plugins {
+    id "org.jetbrains.kotlin.kapt" version "${kotlin.version}"
+}
+
+dependencies {
+    kapt 'org.litote.kmongo:kmongo-annotation-processor:${kmongo.version}'
+}
+```
+
+(See the dedicated [Kotlin page](http://kotlinlang.org/docs/reference/kapt.html) for more information about annotation processing.)
+
+
+Now you can write:
 
 ```kotlin
 import Friend_.Coor
@@ -66,15 +116,21 @@ import Friend_.Coor
 class Friend(val coor: Coordinate?)
 class Coordinate(val lat: Int, val lng : Int)
 
-col.findOne(Coor.lat lt 0)
+val col : Collection<Friend>
+col.findOne(Coor.lat lt 0, Coor.lng gt 0)
 ```  
+
+### @DataRegistry
+
+You can use this annotation (that annotates a dedicated *object* for example) 
+if you can't or don't want to annotate directly with @Data the target classes.
 
 ### Limitations
 
 For now, the annotation processor has the following known limitations:
 
 - works only with jdk8 at build time (but generates java9/10 compliant code). See [KT-24311](https://youtrack.jetbrains.com/issue/KT-24311)
-- all ```@Data``` annotated classes must have public visibility and public properties
-- Collections of Nullable types (ie Collection<Any?\>) are not yet well supported
-- Map fields are not yet supported
+- all ```@Data``` annotated classes must have public visibility and public properties. If your classes are internal, you can use @Data(internal = true)
+- Collections of Nullable types (ie Collection<Any?\>) are not yet supported
+- Map properties are not yet supported
 

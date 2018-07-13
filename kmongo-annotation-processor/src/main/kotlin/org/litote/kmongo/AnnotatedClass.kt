@@ -25,7 +25,7 @@ import javax.lang.model.element.VariableElement
 /**
  *
  */
-internal data class AnnotatedClass(
+internal class AnnotatedClass(
     val element: TypeElement,
     val internal: Boolean,
     private val a: KMongoAnnotations
@@ -67,4 +67,9 @@ internal data class AnnotatedClass(
     override fun hashCode(): Int {
         return element.hashCode()
     }
+
+    override fun toString(): String {
+        return "Annotated(element=$element, internal=$internal)"
+    }
+
 }
