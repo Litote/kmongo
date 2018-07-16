@@ -1,0 +1,6 @@
+org.litote.kmongo.model.InternalDataClass_Serializer
+org.litote.kmongo.model.InternalDataClass_Deserializer
+org.litote.kmongo.model.TestData_Serializer
+org.litote.kmongo.model.TestData_Deserializer
+org.litote.kmongo.model.SimpleReferenced2Data_Serializer
+org.litote.kmongo.model.SimpleReferenced2Data_Deserializer

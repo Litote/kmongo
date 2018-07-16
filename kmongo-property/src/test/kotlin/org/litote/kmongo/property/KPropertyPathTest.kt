@@ -17,10 +17,11 @@
 package org.litote.kmongo.property
 
 import com.mongodb.client.model.Filters
-import org.litote.kmongo.div
-import org.litote.kmongo.eq
 import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.Test
+import org.litote.kmongo.div
+import org.litote.kmongo.eq
+import org.litote.kmongo.path
 import java.math.BigDecimal
 import kotlin.test.assertEquals
 
@@ -29,9 +30,9 @@ import kotlin.test.assertEquals
  */
 class KPropertyPathTest {
 
-    data class Friend(val name: String, val i: Int, @BsonId val id: String, val gift: Gift)
+    data class Friend(val name: String, val i: Int, @BsonId val id: String, val gift: Gift, val allGifts: List<Gift>)
 
-    data class Gift(val amount:BigDecimal)
+    data class Gift(val amount: BigDecimal)
 
     @Test
     fun `simple equals test`() {
@@ -43,5 +44,13 @@ class KPropertyPathTest {
             Filters.eq("gift.amount", BigDecimal.ZERO).toString(),
             ((Friend::gift / Gift::amount) eq BigDecimal.ZERO).toString()
         )
+    }
+
+    @Test
+    fun `test array projection`() {
+        val p = KCollectionPropertyPath<Any?, Gift>(null, Friend::allGifts)
+        assertEquals("allGifts.\$", p.arrayProjection.path)
+        assertEquals("allGifts.amount", (p / Gift::amount).path())
+        assertEquals("allGifts.\$.amount", (p.arrayProjection / Gift::amount).path())
     }
 }

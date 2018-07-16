@@ -60,7 +60,8 @@ inline fun <reified R : Any, T> findProperty(name: String): KProperty1<R, T?> =
  */
 open class KPropertyPath<T, R>(
     private val previous: KPropertyPath<T, *>?,
-    private val property: KProperty1<*, R?>
+    private val property: KProperty1<*, R?>,
+    private val additionalPath: String? = null
 ) : KProperty1<T, R> {
 
     @Suppress("UNCHECKED_CAST")
@@ -77,8 +78,7 @@ open class KPropertyPath<T, R>(
             )
 
     internal val path: String
-        get() =
-            "${previous?.path ?: ""}${if (previous == null) "" else "."}${property.path()}"
+        get() = "${previous?.path?.let { "$it." } ?: ""}${property.path()}${additionalPath?.let { ".$it" } ?: ""}"
 
     override val annotations: List<Annotation> get() = property.annotations
     override val getter: KProperty1.Getter<T, R> get() = error("getter on KPropertyPath is not implemented")
@@ -103,4 +103,15 @@ open class KPropertyPath<T, R>(
 
     override fun getDelegate(receiver: T): Any? = error("getDelegate on KPropertyPath is not implemented")
 
+}
+
+/**
+ * A property path for a collection property.
+ */
+open class KCollectionPropertyPath<T, R>(
+    previous: KPropertyPath<T, *>?,
+    property: KProperty1<*, Collection<R>?>
+) : KPropertyPath<T, Collection<R>?>(previous, property) {
+
+    val arrayProjection: KPropertyPath<T, Collection<R>?> = KPropertyPath(previous, property, "\$")
 }

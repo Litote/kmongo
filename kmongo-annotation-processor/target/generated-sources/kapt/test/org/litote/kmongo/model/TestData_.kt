@@ -14,6 +14,7 @@ import kotlin.reflect.KProperty1
 import org.litote.kmongo.Id
 import org.litote.kmongo.model.other.SimpleReferencedData_
 import org.litote.kmongo.model.other.SimpleReferencedData_Col
+import org.litote.kmongo.property.KCollectionPropertyPath
 import org.litote.kmongo.property.KPropertyPath
 
 open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, TestData?>) : KPropertyPath<T, TestData?>(previous,property) {
@@ -74,7 +75,7 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
             get() = TestData::byteArray}
 }
 
-open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<TestData>?>) : KPropertyPath<T, Collection<TestData>?>(previous,property) {
+open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<TestData>?>) : KCollectionPropertyPath<T, TestData?>(previous,property) {
     val set: SimpleReferencedData_Col<T>
         get() = SimpleReferencedData_Col(this,TestData::set)
 

@@ -8,6 +8,7 @@ import org.litote.kmongo.model.SimpleReferenced2Data_
 import org.litote.kmongo.model.SubData
 import org.litote.kmongo.model.SubData_
 import org.litote.kmongo.model.TestData_
+import org.litote.kmongo.property.KCollectionPropertyPath
 import org.litote.kmongo.property.KPropertyPath
 
 class SimpleReferencedData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, SimpleReferencedData?>) : KPropertyPath<T, SimpleReferencedData?>(previous,property) {
@@ -33,7 +34,7 @@ class SimpleReferencedData_<T>(previous: KPropertyPath<T, *>?, property: KProper
             get() = SubData_<SimpleReferencedData>(null,org.litote.kmongo.property.findProperty<SimpleReferencedData,SubData>("subPojo"))}
 }
 
-class SimpleReferencedData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<SimpleReferencedData>?>) : KPropertyPath<T, Collection<SimpleReferencedData>?>(previous,property) {
+class SimpleReferencedData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<SimpleReferencedData>?>) : KCollectionPropertyPath<T, SimpleReferencedData?>(previous,property) {
     val version: KProperty1<T, Int?>
         get() = org.litote.kmongo.property.KPropertyPath(this,SimpleReferencedData::version)
 

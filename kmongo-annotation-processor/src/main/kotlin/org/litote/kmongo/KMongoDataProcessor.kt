@@ -27,6 +27,7 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
+import org.litote.kmongo.property.KCollectionPropertyPath
 import org.litote.kmongo.property.KPropertyPath
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
@@ -134,12 +135,9 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 )
             } else {
                 ParameterizedTypeName.get(
-                    KPropertyPath::class.asClassName(),
+                    KCollectionPropertyPath::class.asClassName(),
                     TypeVariableName("T"),
-                    ParameterizedTypeName.get(
-                        ClassName("kotlin.collections", "Collection"),
-                        sourceClassName
-                    ).asNullable()
+                    sourceClassName.asNullable()
                 )
             }
 

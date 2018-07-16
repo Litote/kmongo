@@ -28,6 +28,13 @@ operator fun <T0, T1, T2> KProperty1<T0, T1?>.div(p2: KProperty1<T1, T2?>): KPro
     KPropertyPath(this, p2)
 
 /**
+ * Returns a collection composed property. For example Friend.addresses / Address.postalCode = "friend.addresses.postalCode".
+ */
+@JvmName("divCol")
+operator fun <T0, T1, T2> KProperty1<T0, Collection<T1>?>.div(p2: KProperty1<T1, T2?>): KProperty1<T0, T2?> =
+    KPropertyPath(this, p2)
+
+/**
  * Returns a mongo path of a property.
  */
 fun <T> KProperty<T>.path(): String {
