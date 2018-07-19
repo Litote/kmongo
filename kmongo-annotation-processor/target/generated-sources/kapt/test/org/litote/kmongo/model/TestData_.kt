@@ -6,6 +6,7 @@ import kotlin.Boolean
 import kotlin.ByteArray
 import kotlin.Float
 import kotlin.String
+import kotlin.Suppress
 import kotlin.collections.Collection
 import kotlin.collections.List
 import kotlin.collections.Map
@@ -36,6 +37,9 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
     val map: KProperty1<T, Map<Id<Locale>, Set<String>>?>
         get() = org.litote.kmongo.property.KPropertyPath(this,TestData::map)
 
+    val map2: KProperty1<T, Map<Locale, SimpleReferenced2Data>?>
+        get() = org.litote.kmongo.property.KPropertyPath(this,TestData::map2)
+
     val nullableFloat: KProperty1<T, Float?>
         get() = org.litote.kmongo.property.KPropertyPath(this,TestData::nullableFloat)
 
@@ -63,6 +67,8 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
             get() = SimpleReferencedData_<TestData>(null,TestData::referenced)
         val Map: KProperty1<TestData, Map<Id<Locale>, Set<String>>?>
             get() = TestData::map
+        val Map2: KProperty1<TestData, Map<Locale, SimpleReferenced2Data>?>
+            get() = TestData::map2
         val NullableFloat: KProperty1<TestData, Float?>
             get() = TestData::nullableFloat
         val NullableBoolean: KProperty1<TestData, Boolean?>
@@ -75,7 +81,7 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
             get() = TestData::byteArray}
 }
 
-open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<TestData>?>) : KCollectionPropertyPath<T, TestData?>(previous,property) {
+open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<TestData>?>) : KCollectionPropertyPath<T, TestData?, TestData_<T>>(previous,property) {
     val set: SimpleReferencedData_Col<T>
         get() = SimpleReferencedData_Col(this,TestData::set)
 
@@ -94,6 +100,9 @@ open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<
     val map: KProperty1<T, Map<Id<Locale>, Set<String>>?>
         get() = org.litote.kmongo.property.KPropertyPath(this,TestData::map)
 
+    val map2: KProperty1<T, Map<Locale, SimpleReferenced2Data>?>
+        get() = org.litote.kmongo.property.KPropertyPath(this,TestData::map2)
+
     val nullableFloat: KProperty1<T, Float?>
         get() = org.litote.kmongo.property.KPropertyPath(this,TestData::nullableFloat)
 
@@ -108,4 +117,6 @@ open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<
 
     val byteArray: KProperty1<T, ByteArray?>
         get() = org.litote.kmongo.property.KPropertyPath(this,TestData::byteArray)
-}
+
+    @Suppress("UNCHECKED_CAST")
+    override fun memberWithAdditionalPath(additionalPath: String): TestData_<T> = TestData_(this, customProperty(this, additionalPath))}

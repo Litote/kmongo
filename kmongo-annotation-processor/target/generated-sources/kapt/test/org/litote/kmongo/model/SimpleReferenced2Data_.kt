@@ -1,6 +1,8 @@
 package org.litote.kmongo.model
 
 import kotlin.Double
+import kotlin.String
+import kotlin.Suppress
 import kotlin.collections.Collection
 import kotlin.reflect.KProperty1
 import org.litote.kmongo.property.KCollectionPropertyPath
@@ -14,7 +16,9 @@ class SimpleReferenced2Data_<T>(previous: KPropertyPath<T, *>?, property: KPrope
             get() = SimpleReferenced2Data::price}
 }
 
-class SimpleReferenced2Data_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<SimpleReferenced2Data>?>) : KCollectionPropertyPath<T, SimpleReferenced2Data?>(previous,property) {
+class SimpleReferenced2Data_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<SimpleReferenced2Data>?>) : KCollectionPropertyPath<T, SimpleReferenced2Data?, SimpleReferenced2Data_<T>>(previous,property) {
     val price: KProperty1<T, Double?>
         get() = org.litote.kmongo.property.KPropertyPath(this,SimpleReferenced2Data::price)
-}
+
+    @Suppress("UNCHECKED_CAST")
+    override fun memberWithAdditionalPath(additionalPath: String): SimpleReferenced2Data_<T> = SimpleReferenced2Data_(this, customProperty(this, additionalPath))}

@@ -129,8 +129,7 @@ if you can't or don't want to annotate directly with @Data the target classes.
 
 For now, the annotation processor has the following known limitations:
 
-- works only with jdk8 at build time (but generates java9/10 compliant code). See [KT-24311](https://youtrack.jetbrains.com/issue/KT-24311)
-- all ```@Data``` annotated classes must have public visibility and public properties. If your classes are internal, you can use @Data(internal = true)
+- all ```@Data``` annotated classes must have public visibility and public properties. 
+If your classes are internal, you can use @Data(internal = true) but then classes that reference the target class must be internal also.
 - Collections of Nullable types (ie Collection<Any?\>) are not yet supported
-- Map properties are not yet supported
 

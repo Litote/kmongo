@@ -36,6 +36,7 @@ open class TestData(
     val date: Date? = null,
     val referenced: SimpleReferencedData? = null,
     val map: Map<Id<Locale>, Set<String>> = emptyMap(),
+    val map2: Map<Locale, SimpleReferenced2Data> = emptyMap(),
     val nullableFloat: Float? = null,
     val nullableBoolean: Boolean? = null,
     private val privateData: String = "",

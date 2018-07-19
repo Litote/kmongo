@@ -16,6 +16,7 @@
 
 package org.litote.kmongo
 
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -68,6 +69,181 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
         }
     }
 
+    private fun collectionSuperclass(element: AnnotatedClass): TypeName {
+        val className = generatedClassName(element)
+        val sourceClassName = element.asClassName()
+        val typeName = ClassName.bestGuess(className)
+        val superMirrorClass = element.superclass
+        return if (superMirrorClass is DeclaredType && superMirrorClass.toString() != "java.lang.Object") {
+            val superElement = superMirrorClass.asElement() as TypeElement
+            ParameterizedTypeName.get(
+                ClassName(
+                    a.processingEnv.elementUtils.getPackageOf(superElement).qualifiedName.toString(),
+                    "${generatedClassName(superElement)}Col"
+                ),
+                TypeVariableName("T")
+            )
+        } else {
+            ParameterizedTypeName.get(
+                KCollectionPropertyPath::class.asClassName(),
+                TypeVariableName("T"),
+                sourceClassName.asNullable(),
+                ParameterizedTypeName.get(
+                    typeName,
+                    TypeVariableName("T")
+                )
+            )
+        }
+    }
+
+    private fun collectionClassBuilder(element: AnnotatedClass): TypeSpec.Builder {
+        val collectionSuperclass = collectionSuperclass(element)
+        val className = generatedClassName(element)
+        val sourceClassName = element.asClassName()
+        val typeName = ClassName.bestGuess(className)
+        val colClass = ClassName.bestGuess("${className}Col")
+        return TypeSpec.classBuilder(colClass)
+            .addTypeVariable(TypeVariableName("T"))
+            .apply {
+                if (element.internal) {
+                    addModifiers(KModifier.INTERNAL)
+                }
+            }
+            .primaryConstructor(
+                FunSpec
+                    .constructorBuilder()
+                    .addParameter(
+                        "previous",
+                        ParameterizedTypeName.get(
+                            KPropertyPath::class.asClassName(),
+                            TypeVariableName("T"),
+                            TypeVariableName("*")
+                        ).asNullable()
+                    )
+                    .addParameter(
+                        "property",
+                        ParameterizedTypeName.get(
+                            KProperty1::class.asClassName(),
+                            TypeVariableName("*"),
+                            ParameterizedTypeName.get(
+                                ClassName("kotlin.collections", "Collection"),
+                                sourceClassName.javaToKotlinType()
+                            ).asNullable()
+                        )
+                    )
+                    .build()
+            )
+            .superclass(collectionSuperclass)
+            .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
+            .addFunction(
+                FunSpec.builder("memberWithAdditionalPath")
+                    .addParameter("additionalPath", String::class.asClassName())
+                    .returns(
+                        ParameterizedTypeName.get(
+                            typeName,
+                            TypeVariableName("T")
+                        )
+                    )
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addAnnotation(
+                        AnnotationSpec.builder(Suppress::class).addMember("\"UNCHECKED_CAST\"").build()
+                    )
+                    .addCode(
+                        "return %1T(this, customProperty(this, additionalPath))",
+                        typeName
+                    )
+                    .build()
+            )
+    }
+
+    /*
+    private fun mapSuperclass(element: AnnotatedClass): TypeName {
+        val sourceClassName = element.asClassName()
+        val superMirrorClass = element.superclass
+        return if (superMirrorClass is DeclaredType && superMirrorClass.toString() != "java.lang.Object") {
+            val superElement = superMirrorClass.asElement() as TypeElement
+            ParameterizedTypeName.get(
+                ClassName(
+                    a.processingEnv.elementUtils.getPackageOf(superElement).qualifiedName.toString(),
+                    "${generatedClassName(superElement)}Map"
+                ),
+                TypeVariableName("T"),
+                TypeVariableName("K")
+            )
+        } else {
+            ParameterizedTypeName.get(
+                KMapPropertyPath::class.asClassName(),
+                TypeVariableName("T"),
+                TypeVariableName("K"),
+                sourceClassName.asNullable()
+            )
+        }
+    }
+
+    private fun mapClassBuilder(element: AnnotatedClass): TypeSpec.Builder {
+        val mapSuperclass = mapSuperclass(element)
+        val className = generatedClassName(element)
+        val sourceClassName = element.asClassName()
+        val mapClass = ClassName.bestGuess("${className}Map")
+        return TypeSpec.classBuilder(mapClass)
+            .addTypeVariable(TypeVariableName("T"))
+            .addTypeVariable(TypeVariableName("K"))
+            .apply {
+                if (element.internal) {
+                    addModifiers(KModifier.INTERNAL)
+                }
+            }
+            .primaryConstructor(
+                FunSpec
+                    .constructorBuilder()
+                    .addParameter(
+                        "previous",
+                        ParameterizedTypeName.get(
+                            KPropertyPath::class.asClassName(),
+                            TypeVariableName("T"),
+                            TypeVariableName("*")
+                        ).asNullable()
+                    )
+                    .addParameter(
+                        "property",
+                        ParameterizedTypeName.get(
+                            KProperty1::class.asClassName(),
+                            TypeVariableName("*"),
+                            ParameterizedTypeName.get(
+                                ClassName("kotlin.collections", "Map"),
+                                TypeVariableName("K"),
+                                sourceClassName.javaToKotlinType()
+                            ).asNullable()
+                        )
+                    )
+                    .addParameter(
+                        ParameterSpec.builder("additionalPath", String::class.asTypeName().asNullable())
+                            .defaultValue("null")
+                            .build()
+                    )
+                    .build()
+            )
+            .superclass(mapSuperclass)
+            .addSuperclassConstructorParameter("%1L,%2L,%3L", "previous", "property", "additionalPath")
+            .addFunction(
+                FunSpec.builder("keyProjection")
+                    .addParameter("key", TypeVariableName("K"))
+                    .returns(
+                        ParameterizedTypeName.get(mapClass, TypeVariableName("T"), TypeVariableName("K"))
+                    )
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addAnnotation(
+                        AnnotationSpec.builder(Suppress::class).addMember("\"UNCHECKED_CAST\"").build()
+                    )
+                    .addCode(
+                        "return %1T(null, this as KProperty1<*, Map<K, %2T>?>, key.toString())",
+                        mapClass,
+                        sourceClassName
+                    )
+                    .build()
+            )
+    }
+      */
     private fun process(element: AnnotatedClass, dataClasses: AnnotatedClassSet) {
         val sourceClassName = element.asClassName()
         val className = generatedClassName(element)
@@ -123,62 +299,13 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
             .superclass(superclass)
             .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
 
-        val collectionSuperclass: TypeName =
-            if (superMirrorClass is DeclaredType && superMirrorClass.toString() != "java.lang.Object") {
-                val superElement = superMirrorClass.asElement() as TypeElement
-                ParameterizedTypeName.get(
-                    ClassName(
-                        a.processingEnv.elementUtils.getPackageOf(superElement).qualifiedName.toString(),
-                        "${generatedClassName(superElement)}Col"
-                    ),
-                    TypeVariableName("T")
-                )
-            } else {
-                ParameterizedTypeName.get(
-                    KCollectionPropertyPath::class.asClassName(),
-                    TypeVariableName("T"),
-                    sourceClassName.asNullable()
-                )
-            }
-
-        val collectionClassBuilder = TypeSpec.classBuilder("${className}Col")
-            .addTypeVariable(TypeVariableName("T"))
-            .apply {
-                if (element.internal) {
-                    addModifiers(KModifier.INTERNAL)
-                }
-            }
-            .primaryConstructor(
-                FunSpec
-                    .constructorBuilder()
-                    .addParameter(
-                        "previous",
-                        ParameterizedTypeName.get(
-                            KPropertyPath::class.asClassName(),
-                            TypeVariableName("T"),
-                            TypeVariableName("*")
-                        ).asNullable()
-                    )
-                    .addParameter(
-                        "property",
-                        ParameterizedTypeName.get(
-                            KProperty1::class.asClassName(),
-                            TypeVariableName("*"),
-                            ParameterizedTypeName.get(
-                                ClassName("kotlin.collections", "Collection"),
-                                sourceClassName.javaToKotlinType()
-                            ).asNullable()
-                        )
-                    )
-                    .build()
-            )
-            .superclass(collectionSuperclass)
-            .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
-
+        val collectionClassBuilder = collectionClassBuilder(element)
+        //val mapClassBuilder = mapClassBuilder(element)
 
         if (!element.modifiers.contains(Modifier.FINAL)) {
             classBuilder.addModifiers(KModifier.OPEN)
             collectionClassBuilder.addModifiers(KModifier.OPEN)
+            //mapClassBuilder.addModifiers(KModifier.OPEN)
         }
 
         val companionObject = TypeSpec.companionObjectBuilder()
@@ -190,34 +317,57 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
             if (type != null) {
                 a.debug { "$type-annot: ${type.getAnnotation(Data::class.java)}" }
             }
-            val annotatedCollection = type.run {
+            val (collection, annotatedCollection) = type.run {
                 a.debug { this is DeclaredType }
                 if (this is ArrayType) {
                     a.debug { componentType }
                     a.debug { a.processingEnv.typeUtils.asElement(componentType) }
-                    dataClasses.contains(a.processingEnv.typeUtils.asElement(componentType))
+                    false to dataClasses.contains(a.processingEnv.typeUtils.asElement(componentType))
                 } else if (this is DeclaredType
                     && a.processingEnv.typeUtils.isAssignable(
                         a.processingEnv.typeUtils.erasure(this),
                         a.processingEnv.elementUtils.getTypeElement("java.util.Collection").asType()
                     )
                 ) {
-                    typeArguments.firstOrNull()?.run {
-                        val asElement = a.processingEnv.typeUtils.asElement(this)
-                        a.debug { asElement.javaClass }
-                        dataClasses.contains(asElement).also {
-                            a.debug { it }
-                        }
-                    } == true
+                    true to
+                            (typeArguments.firstOrNull()?.run {
+                                val asElement = a.processingEnv.typeUtils.asElement(this)
+                                a.debug { asElement.javaClass }
+                                dataClasses.contains(asElement).also {
+                                    a.debug { it }
+                                }
+                            } == true)
                 } else {
-                    false
+                    false to false
                 }
             }
-            val annotated = returnType?.let { dataClasses.contains(it) } ?: false || annotatedCollection
+            val (map, annotatedMap) = false to false
+            /*type.run {
+                a.debug { this is DeclaredType }
+                if (this is DeclaredType
+                    && a.processingEnv.typeUtils.isAssignable(
+                        a.processingEnv.typeUtils.erasure(this),
+                        a.processingEnv.elementUtils.getTypeElement("java.util.Map").asType()
+                    )
+                ) {
+                    true to
+                            (typeArguments.getOrNull(1)?.run {
+                                val asElement = a.processingEnv.typeUtils.asElement(this)
+                                a.debug { asElement.javaClass }
+                                dataClasses.contains(asElement).also {
+                                    a.debug { it }
+                                }
+                            } == true)
+                } else {
+                    false to false
+                }
+            } */
+            val annotated = returnType?.let { dataClasses.contains(it) } ?: false || annotatedCollection || annotatedMap
             val propertyType = e.javaToKotlinType()
             val packageOfReturnType =
                 if (returnType == null) ""
                 else if (annotatedCollection) a.enclosedCollectionPackage(type)
+                else if (annotatedMap) a.enclosedValueMapPackage(type)
                 else a.processingEnv.elementUtils.getPackageOf(returnType).qualifiedName.toString()
 
             val companionPropertyClass: TypeName =
@@ -225,16 +375,33 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                     ParameterizedTypeName.get(
                         ClassName(
                             packageOfReturnType,
-                            a.generatedClassProperty(type, annotatedCollection)
+                            a.generatedClassProperty(type, annotatedCollection, annotatedMap)
                         ),
-                        sourceClassName
+                        *listOfNotNull(sourceClassName, a.mapKeyClass(type, annotatedMap)).toTypedArray()
                     )
                 } else {
+                    /*
+                    if (collection) {
+                        ParameterizedTypeName.get(
+                            KCollectionSimplePropertyPath::class.asClassName(),
+                            sourceClassName,
+                            a.firstTypeArgument(type).asNullable()
+                        )
+                    } else if (map) {
+                        ParameterizedTypeName.get(
+                            KMapSimplePropertyPath::class.asClassName(),
+                            sourceClassName,
+                            a.firstTypeArgument(type).asNullable(),
+                            a.secondTypeArgument(type).asNullable()
+                        )
+                    } else {
+                    */
                     ParameterizedTypeName.get(
                         KProperty1::class.asClassName(),
                         sourceClassName,
                         propertyType.asNullable()
                     )
+                    //}
                 }
 
             val propertyReference =
@@ -279,9 +446,9 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                     ParameterizedTypeName.get(
                         ClassName(
                             packageOfReturnType,
-                            a.generatedClassProperty(type, annotatedCollection)
+                            a.generatedClassProperty(type, annotatedCollection, annotatedMap)
                         ),
-                        TypeVariableName("T")
+                        *listOfNotNull(TypeVariableName("T"), a.mapKeyClass(type, annotatedMap)).toTypedArray()
                     )
                 } else {
                     ParameterizedTypeName.get(
@@ -301,7 +468,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                             addCode(
                                 "return %1L(this,%2L)\n",
                                 if (annotated) {
-                                    a.generatedClassProperty(type, annotatedCollection)
+                                    a.generatedClassProperty(type, annotatedCollection, annotatedMap)
                                 } else {
                                     KPropertyPath::class.asClassName()
                                 },
@@ -321,7 +488,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                             addCode(
                                 "return %1L(this,%2L)\n",
                                 if (annotated) {
-                                    a.generatedClassProperty(type, annotatedCollection)
+                                    a.generatedClassProperty(type, annotatedCollection, annotatedMap)
                                 } else {
                                     KPropertyPath::class.asClassName()
                                 },
@@ -331,6 +498,26 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                     )
                     .build()
             )
+
+            /*mapClassBuilder.addProperty(
+                PropertySpec
+                    .varBuilder(generatedFieldName(e), classPropertyClass)
+                    .mutable(false)
+                    .getter(
+                        FunSpec.getterBuilder().apply {
+                            addCode(
+                                "return %1L(this,%2L)\n",
+                                if (annotated) {
+                                    a.generatedClassProperty(type, annotatedCollection, annotatedMap)
+                                } else {
+                                    KPropertyPath::class.asClassName()
+                                },
+                                propertyReference
+                            )
+                        }.build()
+                    )
+                    .build()
+            ) */
         }
 
         //add classes
@@ -340,6 +527,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 .build()
         )
         fileBuilder.addType(collectionClassBuilder.build())
+        //fileBuilder.addType(mapClassBuilder.build())
 
         a.writeFile(fileBuilder)
     }

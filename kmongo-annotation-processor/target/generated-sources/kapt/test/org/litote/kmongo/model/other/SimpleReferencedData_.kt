@@ -1,6 +1,8 @@
 package org.litote.kmongo.model.other
 
 import kotlin.Int
+import kotlin.String
+import kotlin.Suppress
 import kotlin.collections.Collection
 import kotlin.reflect.KProperty1
 import org.litote.kmongo.model.SimpleReferenced2Data
@@ -34,7 +36,7 @@ class SimpleReferencedData_<T>(previous: KPropertyPath<T, *>?, property: KProper
             get() = SubData_<SimpleReferencedData>(null,org.litote.kmongo.property.findProperty<SimpleReferencedData,SubData>("subPojo"))}
 }
 
-class SimpleReferencedData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<SimpleReferencedData>?>) : KCollectionPropertyPath<T, SimpleReferencedData?>(previous,property) {
+class SimpleReferencedData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<SimpleReferencedData>?>) : KCollectionPropertyPath<T, SimpleReferencedData?, SimpleReferencedData_<T>>(previous,property) {
     val version: KProperty1<T, Int?>
         get() = org.litote.kmongo.property.KPropertyPath(this,SimpleReferencedData::version)
 
@@ -46,4 +48,6 @@ class SimpleReferencedData_Col<T>(previous: KPropertyPath<T, *>?, property: KPro
 
     val subPojo: SubData_<T>
         get() = SubData_(this,org.litote.kmongo.property.findProperty<SimpleReferencedData,SubData>("subPojo"))
-}
+
+    @Suppress("UNCHECKED_CAST")
+    override fun memberWithAdditionalPath(additionalPath: String): SimpleReferencedData_<T> = SimpleReferencedData_(this, customProperty(this, additionalPath))}

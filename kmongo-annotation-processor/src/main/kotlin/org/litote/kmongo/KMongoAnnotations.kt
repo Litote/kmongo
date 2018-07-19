@@ -179,16 +179,34 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
             }
         ).qualifiedName.toString()
 
-    fun generatedClassProperty(type: TypeMirror, annotatedCollection: Boolean): String =
+    fun enclosedValueMapPackage(type: TypeMirror): String =
+        processingEnv.elementUtils.getPackageOf(
+            processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments[1])
+        ).qualifiedName.toString()
+
+    fun firstTypeArgument(type: TypeMirror): TypeName =
+        (processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments.first()) as TypeElement).javaToKotlinType()
+
+    fun secondTypeArgument(type: TypeMirror): TypeName =
+        (processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments[1]) as TypeElement).javaToKotlinType()
+
+    fun generatedClassProperty(type: TypeMirror, annotatedCollection: Boolean, annotatedMap: Boolean = false): String =
         if (annotatedCollection) {
             (if (type is ArrayType) {
                 (processingEnv.typeUtils.asElement(type.componentType) as TypeElement).simpleName
             } else {
                 (processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments.first()) as TypeElement).simpleName
             }).let { "${it}_Col" }
+        } else if (annotatedMap) {
+            (processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments[1]) as TypeElement).simpleName
+                .let { "${it}_Map" }
         } else {
             "${processingEnv.typeUtils.asElement(type).simpleName}_"
         }
+
+    fun mapKeyClass(type: TypeMirror, annotatedMap: Boolean): TypeName? =
+        if (annotatedMap) (processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments[0]) as TypeElement).asTypeName()
+        else null
 
     fun Throwable.stackTrace(): String {
         val sw = StringWriter()

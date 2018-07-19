@@ -60,8 +60,7 @@ inline fun <reified R : Any, T> findProperty(name: String): KProperty1<R, T?> =
  */
 open class KPropertyPath<T, R>(
     private val previous: KPropertyPath<T, *>?,
-    private val property: KProperty1<*, R?>,
-    private val additionalPath: String? = null
+    private val property: KProperty1<*, R?>
 ) : KProperty1<T, R> {
 
     @Suppress("UNCHECKED_CAST")
@@ -78,10 +77,10 @@ open class KPropertyPath<T, R>(
             )
 
     internal val path: String
-        get() = "${previous?.path?.let { "$it." } ?: ""}${property.path()}${additionalPath?.let { ".$it" } ?: ""}"
+        get() = "${previous?.path?.let { "$it." } ?: ""}${property.path()}"
 
     override val annotations: List<Annotation> get() = property.annotations
-    override val getter: KProperty1.Getter<T, R> get() = error("getter on KPropertyPath is not implemented")
+    override val getter: KProperty1.Getter<T, R> get() = notImplemented()
     override val isAbstract: Boolean get() = previous?.isAbstract ?: false || property.isAbstract
     override val isConst: Boolean get() = previous?.isConst ?: false && property.isConst
     override val isFinal: Boolean get() = previous?.isFinal ?: false && property.isFinal
@@ -92,26 +91,86 @@ open class KPropertyPath<T, R>(
     override val returnType: KType get() = property.returnType
     override val typeParameters: List<KTypeParameter> get() = property.typeParameters
     override val visibility: KVisibility? get() = property.visibility
+    override fun invoke(p1: T): R = notImplemented()
+    override fun call(vararg args: Any?): R = notImplemented()
+    override fun callBy(args: Map<KParameter, Any?>): R = notImplemented()
+    override fun get(receiver: T): R = notImplemented()
+    override fun getDelegate(receiver: T): Any? = notImplemented()
 
-    override fun invoke(p1: T): R = error("invoke on KPropertyPath is not implemented")
+    companion object {
 
-    override fun call(vararg args: Any?): R = error("call on KPropertyPath is not implemented")
+        private fun notImplemented(): Nothing = error("not implemented")
 
-    override fun callBy(args: Map<KParameter, Any?>): R = error("callBy on KPropertyPath is not implemented")
+        /**
+         * Provides "fake" property with custom name.
+         */
+        fun <T, R> customProperty(previous: KPropertyPath<*, T>, path: String): KProperty1<T, R?> =
+            object : KProperty1<T, R> {
+                override val annotations: List<Annotation> get() = previous.annotations
 
-    override fun get(receiver: T): R = error("get on KPropertyPath is not implemented")
+                override val getter: KProperty1.Getter<T, R> get() = notImplemented()
+                override val isAbstract: Boolean get() = previous.isAbstract
+                override val isConst: Boolean get() = previous.isConst
+                override val isFinal: Boolean get() = previous.isFinal
+                override val isLateinit: Boolean get() = previous.isLateinit
+                override val isOpen: Boolean get() = previous.isOpen
+                override val name: String = path
+                override val parameters: List<KParameter> get() = previous.parameters
+                override val returnType: KType get() = notImplemented()
+                override val typeParameters: List<KTypeParameter> get() = previous.typeParameters
+                override val visibility: KVisibility? get() = previous.visibility
+                override fun call(vararg args: Any?): R = notImplemented()
+                override fun callBy(args: Map<KParameter, Any?>): R = notImplemented()
+                override fun get(receiver: T): R = notImplemented()
+                override fun getDelegate(receiver: T): Any? = notImplemented()
+                override fun invoke(p1: T): R = notImplemented()
+            }
 
-    override fun getDelegate(receiver: T): Any? = error("getDelegate on KPropertyPath is not implemented")
+    }
+}
 
+/**
+ * Base class for collection property path.
+ */
+open class KCollectionPropertyPath<T, R, MEMBER : KPropertyPath<T, R?>>(
+    previous: KPropertyPath<T, *>?,
+    property: KProperty1<*, Collection<R>?>
+) : KPropertyPath<T, Collection<R>?>(previous, property) {
+
+    /**
+     * To be overriden to returns the right type.
+     */
+    @Suppress("UNCHECKED_CAST")
+    open fun memberWithAdditionalPath(additionalPath: String): MEMBER =
+        KPropertyPath<T, R>(
+            this as KProperty1<T, Collection<R>?>,
+            customProperty(this as KPropertyPath<*, T>, additionalPath)
+        ) as MEMBER
+
+    /**
+     * The positional array operator (projection or update).
+     * @see https://docs.mongodb.com/manual/reference/operator/projection/positional/
+     * @see https://docs.mongodb.com/manual/reference/operator/update/positional/
+     */
+    val posOp: MEMBER get() = memberWithAdditionalPath("\$")
+
+    /**
+     * The all positional operator.
+     * @see https://docs.mongodb.com/manual/reference/operator/update/positional-all/
+     */
+    val allPosOp: MEMBER get() = memberWithAdditionalPath("\$[]")
+
+    /**
+     * The filtered positional operator
+     * @see https://docs.mongodb.com/manual/reference/operator/update/positional-filtered/
+     */
+    fun filteredPosOp(identifier: String): MEMBER = memberWithAdditionalPath("\$[$identifier]")
 }
 
 /**
  * A property path for a collection property.
  */
-open class KCollectionPropertyPath<T, R>(
+class KCollectionSimplePropertyPath<T, R>(
     previous: KPropertyPath<T, *>?,
     property: KProperty1<*, Collection<R>?>
-) : KPropertyPath<T, Collection<R>?>(previous, property) {
-
-    val arrayProjection: KPropertyPath<T, Collection<R>?> = KPropertyPath(previous, property, "\$")
-}
+) : KCollectionPropertyPath<T, R, KPropertyPath<T, R?>>(previous, property)

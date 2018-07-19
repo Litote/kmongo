@@ -34,6 +34,9 @@ class TestData_Serializer : StdSerializer<TestData>(TestData::class.java),
         gen.writeFieldName("map")
         val _map_ = value.map
         serializers.defaultSerializeValue(_map_, gen)
+        gen.writeFieldName("map2")
+        val _map2_ = value.map2
+        serializers.defaultSerializeValue(_map2_, gen)
         gen.writeFieldName("nullableFloat")
         val _nullableFloat_ = value.nullableFloat
         if(_nullableFloat_ == null) { gen.writeNull() } else {gen.writeNumber(_nullableFloat_)}

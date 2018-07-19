@@ -1,6 +1,7 @@
 package org.litote.kmongo.model
 
 import kotlin.String
+import kotlin.Suppress
 import kotlin.collections.Collection
 import kotlin.reflect.KProperty1
 import org.litote.kmongo.property.KCollectionPropertyPath
@@ -14,7 +15,9 @@ open class NotAnnotatedData_<T>(previous: KPropertyPath<T, *>?, property: KPrope
             get() = NotAnnotatedData::test}
 }
 
-open class NotAnnotatedData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<NotAnnotatedData>?>) : KCollectionPropertyPath<T, NotAnnotatedData?>(previous,property) {
+open class NotAnnotatedData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<NotAnnotatedData>?>) : KCollectionPropertyPath<T, NotAnnotatedData?, NotAnnotatedData_<T>>(previous,property) {
     val test: KProperty1<T, String?>
         get() = org.litote.kmongo.property.KPropertyPath(this,NotAnnotatedData::test)
-}
+
+    @Suppress("UNCHECKED_CAST")
+    override fun memberWithAdditionalPath(additionalPath: String): NotAnnotatedData_<T> = NotAnnotatedData_(this, customProperty(this, additionalPath))}

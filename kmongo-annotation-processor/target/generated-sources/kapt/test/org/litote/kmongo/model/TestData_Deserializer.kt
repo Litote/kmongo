@@ -31,6 +31,7 @@ class TestData_Deserializer : StdDeserializer<TestData>(TestData::class.java),
         var date: Date? = null
         var referenced: SimpleReferencedData? = null
         var map: Map<Id<Locale>, Set<String>>? = null
+        var map2: Map<Locale, SimpleReferenced2Data>? = null
         var nullableFloat: Float? = null
         var nullableBoolean: Boolean? = null
         var privateData: String? = null
@@ -48,6 +49,7 @@ class TestData_Deserializer : StdDeserializer<TestData>(TestData::class.java),
         "date" -> date = p.readValueAs(Date::class.java)
         "referenced" -> referenced = p.readValueAs(SimpleReferencedData::class.java)
         "map" -> map = p.readValueAs(map_reference)
+        "map2" -> map2 = p.readValueAs(map2_reference)
         "nullableFloat" -> nullableFloat = p.floatValue
         "nullableBoolean" -> nullableBoolean = p.booleanValue
         "privateData" -> privateData = p.text
@@ -55,7 +57,7 @@ class TestData_Deserializer : StdDeserializer<TestData>(TestData::class.java),
         "byteArray" -> byteArray = p.readValueAs(byteArray_reference)
         else -> if (currentToken == JsonToken.END_OBJECT || currentToken == JsonToken.END_ARRAY) { p.skipChildren() } else { nextToken() }
          }  }
-        return TestData(set!!, list!!, name, date, referenced, map!!, nullableFloat, nullableBoolean, privateData!!, id!!, byteArray)
+        return TestData(set!!, list!!, name, date, referenced, map!!, map2!!, nullableFloat, nullableBoolean, privateData!!, id!!, byteArray)
                 }
     }
     companion object {
@@ -67,6 +69,9 @@ class TestData_Deserializer : StdDeserializer<TestData>(TestData::class.java),
 
         val map_reference: TypeReference<Map<Id<Locale>, Set<String>>> =
                 object : TypeReference<Map<Id<Locale>, Set<String>>>() {}
+
+        val map2_reference: TypeReference<Map<Locale, SimpleReferenced2Data>> =
+                object : TypeReference<Map<Locale, SimpleReferenced2Data>>() {}
 
         val id_reference: TypeReference<Id<*>> = object : TypeReference<Id<*>>() {}
 

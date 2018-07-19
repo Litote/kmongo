@@ -63,10 +63,10 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.2.50</kotlin.version>
+        <kotlin.version>1.2.51</kotlin.version>
         <mongo.version>3.8.0</mongo.version>
         <mongo.base.version>3.8</mongo.base.version>
-        <coroutine.version>0.23.4</coroutine.version>
+        <coroutine.version>0.23.4-native-1</coroutine.version>
         <rxjava.version>2.1.16</rxjava.version>
         <rxkotlin.version>2.2.0</rxkotlin.version>
         <jackson.version>2.9.3</jackson.version>

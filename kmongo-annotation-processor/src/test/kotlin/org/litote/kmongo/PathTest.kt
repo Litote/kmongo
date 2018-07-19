@@ -19,6 +19,7 @@ package org.litote.kmongo
 import org.junit.Test
 import org.litote.kmongo.model.SubData2_
 import org.litote.kmongo.model.TestData_
+import org.litote.kmongo.model.other.SimpleReferencedData
 import kotlin.test.assertEquals
 
 /**
@@ -55,6 +56,14 @@ class PathTest {
             "a1",
             SubData2_.A1.name
         )
+
+        assertEquals(
+            "set.\$.version",
+            TestData_.Set.posOp.version.name
+        )
+        //check compilation
+        if (false)
+            (TestData_.Set.posOp eq SimpleReferencedData()).json
 
         /*
           //TODO
