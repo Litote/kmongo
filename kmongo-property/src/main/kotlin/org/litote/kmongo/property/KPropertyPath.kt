@@ -161,7 +161,7 @@ open class KCollectionPropertyPath<T, R, MEMBER : KPropertyPath<T, R?>>(
     val allPosOp: MEMBER get() = memberWithAdditionalPath("\$[]")
 
     /**
-     * The filtered positional operator
+     * The filtered positional operator.
      * @see https://docs.mongodb.com/manual/reference/operator/update/positional-filtered/
      */
     fun filteredPosOp(identifier: String): MEMBER = memberWithAdditionalPath("\$[$identifier]")
