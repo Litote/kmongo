@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.bson.codecs.configuration.CodecProvider
 import org.litote.kmongo.jackson.JacksonCodecProvider
 import org.litote.kmongo.jackson.ObjectMapperFactory
-import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 
 /**
@@ -43,7 +42,7 @@ object KMongoConfiguration {
      * Basically a copy of [bsonMapper] without [org.litote.bson4jackson.BsonFactory].
      * Used by [org.litote.kmongo.jackson.JacksonCodec] to resolves specific serialization issues.
      */
-    var bsonMapperCopy = ObjectMapperFactory.createBsonObjectMapperCopy()
+    var bsonMapperCopy: ObjectMapper = ObjectMapperFactory.createBsonObjectMapperCopy()
 
     /**
      * To change the default collection name strategy - default is camel case.
@@ -55,19 +54,33 @@ object KMongoConfiguration {
             CollectionNameFormatter.defaultCollectionNameBuilder = value
         }
 
-    val jacksonCodecProvider: CodecProvider by lazy(PUBLICATION) {
-        JacksonCodecProvider(bsonMapper, bsonMapperCopy)
-    }
+    @Volatile
+    private var currentJacksonCodecProvider: CodecProvider? = null
 
-    internal val filterIdBsonMapper: ObjectMapper by lazy(PUBLICATION) {
-        ObjectMapperFactory.createFilterIdObjectMapper(bsonMapper)
-    }
+    internal val jacksonCodecProvider: CodecProvider
+        get() {
+            if (currentJacksonCodecProvider == null) {
+                currentJacksonCodecProvider = JacksonCodecProvider(bsonMapper, bsonMapperCopy)
+            }
+            return currentJacksonCodecProvider!!
+        }
+
+    @Volatile
+    private var currentFilterIdBsonMapper: ObjectMapper? = null
+
+    internal val filterIdBsonMapper: ObjectMapper
+        get() {
+            if (currentFilterIdBsonMapper == null) {
+                currentFilterIdBsonMapper = ObjectMapperFactory.createFilterIdObjectMapper(bsonMapper)
+            }
+            return currentFilterIdBsonMapper!!
+        }
 
     /**
      * Register a jackson [Module] for the two bson mappers, [bsonMapper] and [bsonMapperCopy].
      *
      * For example, if you need to manage [DBRefs](https://docs.mongodb.com/manual/reference/database-references/) autoloading,
-     * you can write this kind of module :
+     * you can write this kind of module:
      *
      *      class KMongoBeanDeserializer(deserializer:BeanDeserializer) : ThrowableDeserializer(deserializer) {
      *
@@ -100,6 +113,29 @@ object KMongoConfiguration {
     fun registerBsonModule(module: Module) {
         bsonMapper.registerModule(module)
         bsonMapperCopy.registerModule(module)
+    }
+
+    /**
+     * Reset the jackson configuration.
+     * 
+     * Useful if you need to manage hot class reloading (see https://github.com/Litote/kmongo/issues/75 )
+     *
+     * Usage:
+     *
+     *  KMongoConfiguration.registerBsonModule(MyModule())
+     *  client = KMongo.createClient(..)
+     *
+     *  // then reloading
+     *  KMongoConfiguration.resetConfiguration()
+     *  KMongoConfiguration.registerBsonModule(MyModule())
+     *  client = KMongo.createClient(..)
+     */
+    fun resetConfiguration() {
+        extendedJsonMapper= ObjectMapperFactory.createExtendedJsonObjectMapper()
+        bsonMapper = ObjectMapperFactory.createBsonObjectMapper()
+        bsonMapperCopy = ObjectMapperFactory.createBsonObjectMapperCopy()
+        currentJacksonCodecProvider = null
+        currentFilterIdBsonMapper = null
     }
 
     /**

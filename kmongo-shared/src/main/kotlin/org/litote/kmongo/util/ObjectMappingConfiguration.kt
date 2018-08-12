@@ -17,7 +17,7 @@
 package org.litote.kmongo.util
 
 /**
- * Object mapping configuration options.
+ * Default object mapping configuration options.
  * Set values before KMongo initialization.
  */
 object ObjectMappingConfiguration {

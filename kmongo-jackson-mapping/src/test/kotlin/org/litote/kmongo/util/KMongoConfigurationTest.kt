@@ -17,25 +17,61 @@
 package org.litote.kmongo.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
 import org.junit.Test
+import org.litote.kmongo.jackson.JacksonCodecProvider
+import kotlin.reflect.KClass
+import kotlin.test.assertFalse
+
+class Module1 : SimpleModule()
+
+class Module2 : SimpleModule()
 
 /**
  *
  */
 class KMongoConfigurationTest {
 
+    private fun getRegisteredModuleTypes(mapper: ObjectMapper): Set<String> =
+        ObjectMapper::class.java.getDeclaredField("_registeredModuleTypes")
+            .run {
+                isAccessible = true
+                @Suppress("UNCHECKED_CAST")
+                get(mapper) as Set<String>
+            }
+
+    private fun containsModule(mapper: ObjectMapper, moduleClass: KClass<out SimpleModule>) =
+        getRegisteredModuleTypes(mapper).contains(moduleClass.qualifiedName)
+
     @Test
     fun `all object mappers have loaded modules`() {
-        fun getRegisteredModuleTypes(mapper: ObjectMapper): Set<String> =
-            ObjectMapper::class.java.getDeclaredField("_registeredModuleTypes")
-                .run {
-                    isAccessible = true
-                    @Suppress("UNCHECKED_CAST")
-                    get(mapper) as Set<String>
-                }
+        assert(containsModule(KMongoConfiguration.bsonMapper, TestModule::class))
+        assert(containsModule(KMongoConfiguration.bsonMapperCopy, TestModule::class))
+        assert(containsModule(KMongoConfiguration.extendedJsonMapper, TestModule::class))
+    }
 
-        assert(getRegisteredModuleTypes(KMongoConfiguration.bsonMapper).contains(TestModule::class.qualifiedName))
-        assert(getRegisteredModuleTypes(KMongoConfiguration.bsonMapperCopy).contains(TestModule::class.qualifiedName))
-        assert(getRegisteredModuleTypes(KMongoConfiguration.extendedJsonMapper).contains(TestModule::class.qualifiedName))
+    @Test
+    fun `resetConfiguration does not keep old jackson modules`() {
+        KMongoConfiguration.resetConfiguration()
+
+        KMongoConfiguration.registerBsonModule(Module1())
+        var codecProvider = KMongoConfiguration.jacksonCodecProvider as JacksonCodecProvider
+        assert(containsModule(codecProvider.bsonObjectMapper, Module1::class))
+        assert(containsModule(codecProvider.notBsonObjectMapper, Module1::class))
+
+        KMongoConfiguration.resetConfiguration()
+
+        codecProvider = KMongoConfiguration.jacksonCodecProvider as JacksonCodecProvider
+        assertFalse(containsModule(codecProvider.bsonObjectMapper, Module1::class))
+        assertFalse(containsModule(codecProvider.notBsonObjectMapper, Module1::class))
+
+        KMongoConfiguration.resetConfiguration()
+
+        KMongoConfiguration.registerBsonModule(Module2())
+        codecProvider = KMongoConfiguration.jacksonCodecProvider as JacksonCodecProvider
+        assertFalse(containsModule(codecProvider.bsonObjectMapper, Module1::class))
+        assertFalse(containsModule(codecProvider.notBsonObjectMapper, Module1::class))
+        assert(containsModule(codecProvider.bsonObjectMapper, Module2::class))
+        assert(containsModule(codecProvider.notBsonObjectMapper, Module2::class))
     }
 }
