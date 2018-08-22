@@ -68,6 +68,7 @@ import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.OffsetTime
 import java.time.ZoneOffset.UTC
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
@@ -406,6 +407,18 @@ internal class BsonModule : SimpleModule() {
         }
     }
 
+    private object ZoneIdBsonSerializer : JsonSerializer<ZoneId>() {
+        override fun serialize(obj: ZoneId, gen: JsonGenerator, serializerProvider: SerializerProvider) {
+            gen.writeString(obj.toString())
+        }
+    }
+
+    private object ZoneIdBsonDeserializer : JsonDeserializer<ZoneId>() {
+        override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): ZoneId {
+            return ZoneId.of(jp.valueAsString)
+        }
+    }
+
     override fun setupModule(context: SetupContext) {
         super.setupModule(context)
 
@@ -449,6 +462,8 @@ internal class BsonModule : SimpleModule() {
         addDeserializer(LocalTime::class.java, LocalTimeBsonDeserializer)
         addDeserializer(OffsetTime::class.java, OffsetTimeBsonDeserializer)
         addDeserializer(Calendar::class.java, CalendarBsonDeserializer)
+        addSerializer(ZoneId::class.java, ZoneIdBsonSerializer)
+        addDeserializer(ZoneId::class.java, ZoneIdBsonDeserializer)
 
         addSerializer(KProperty::class.java, KPropertySerializer)
     }
