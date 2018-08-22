@@ -17,6 +17,7 @@
 package org.litote.kmongo
 
 import org.litote.kmongo.property.KCollectionSimplePropertyPath
+import org.litote.kmongo.property.KMapSimplePropertyPath
 import org.litote.kmongo.property.KPropertyPath
 import org.litote.kmongo.service.ClassMappingType
 import kotlin.reflect.KProperty
@@ -36,6 +37,13 @@ operator fun <T0, T1, T2> KProperty1<T0, Collection<T1>?>.div(p2: KProperty1<T1,
     KPropertyPath(this, p2)
 
 /**
+ * Returns a map composed property. For example Friend.addresses / Address.postalCode = "addresses.postalCode".
+ */
+@JvmName("divMap")
+operator fun <T0, K, T1, T2> KProperty1<T0, Map<out K, T1>?>.div(p2: KProperty1<T1, T2?>): KProperty1<T0, T2?> =
+    KPropertyPath(this, p2)
+
+/**
  * Returns a mongo path of a property.
  */
 fun <T> KProperty<T>.path(): String =
@@ -46,3 +54,10 @@ fun <T> KProperty<T>.path(): String =
  */
 val <T> KProperty1<out Any?, Collection<T>>.colProperty: KCollectionSimplePropertyPath<out Any?, T>
     get() = KCollectionSimplePropertyPath(null, this)
+
+
+/**
+ * Returns a map property.
+ */
+val <K, T> KProperty1<out Any?, Map<out K, T>?>.mapProperty: KMapSimplePropertyPath<out Any?, K, T>
+    get() = KMapSimplePropertyPath(null, this)

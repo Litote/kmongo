@@ -29,6 +29,9 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
 import org.litote.kmongo.property.KCollectionPropertyPath
+import org.litote.kmongo.property.KCollectionSimplePropertyPath
+import org.litote.kmongo.property.KMapPropertyPath
+import org.litote.kmongo.property.KMapSimplePropertyPath
 import org.litote.kmongo.property.KPropertyPath
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
@@ -156,9 +159,10 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
             )
     }
 
-    /*
     private fun mapSuperclass(element: AnnotatedClass): TypeName {
+        val className = generatedClassName(element)
         val sourceClassName = element.asClassName()
+        val typeName = ClassName.bestGuess(className)
         val superMirrorClass = element.superclass
         return if (superMirrorClass is DeclaredType && superMirrorClass.toString() != "java.lang.Object") {
             val superElement = superMirrorClass.asElement() as TypeElement
@@ -175,7 +179,11 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 KMapPropertyPath::class.asClassName(),
                 TypeVariableName("T"),
                 TypeVariableName("K"),
-                sourceClassName.asNullable()
+                sourceClassName.asNullable(),
+                ParameterizedTypeName.get(
+                    typeName,
+                    TypeVariableName("T")
+                )
             )
         }
     }
@@ -184,6 +192,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
         val mapSuperclass = mapSuperclass(element)
         val className = generatedClassName(element)
         val sourceClassName = element.asClassName()
+        val typeName = ClassName.bestGuess(className)
         val mapClass = ClassName.bestGuess("${className}Map")
         return TypeSpec.classBuilder(mapClass)
             .addTypeVariable(TypeVariableName("T"))
@@ -216,34 +225,31 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                             ).asNullable()
                         )
                     )
-                    .addParameter(
-                        ParameterSpec.builder("additionalPath", String::class.asTypeName().asNullable())
-                            .defaultValue("null")
-                            .build()
-                    )
                     .build()
             )
             .superclass(mapSuperclass)
-            .addSuperclassConstructorParameter("%1L,%2L,%3L", "previous", "property", "additionalPath")
+            .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
             .addFunction(
-                FunSpec.builder("keyProjection")
-                    .addParameter("key", TypeVariableName("K"))
+                FunSpec.builder("memberWithAdditionalPath")
+                    .addParameter("additionalPath", String::class.asClassName())
                     .returns(
-                        ParameterizedTypeName.get(mapClass, TypeVariableName("T"), TypeVariableName("K"))
+                        ParameterizedTypeName.get(
+                            typeName,
+                            TypeVariableName("T")
+                        )
                     )
                     .addModifiers(KModifier.OVERRIDE)
                     .addAnnotation(
                         AnnotationSpec.builder(Suppress::class).addMember("\"UNCHECKED_CAST\"").build()
                     )
                     .addCode(
-                        "return %1T(null, this as KProperty1<*, Map<K, %2T>?>, key.toString())",
-                        mapClass,
-                        sourceClassName
+                        "return %1T(this, customProperty(this, additionalPath))",
+                        typeName
                     )
                     .build()
             )
     }
-      */
+
     private fun process(element: AnnotatedClass, dataClasses: AnnotatedClassSet) {
         val sourceClassName = element.asClassName()
         val className = generatedClassName(element)
@@ -300,12 +306,12 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
             .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
 
         val collectionClassBuilder = collectionClassBuilder(element)
-        //val mapClassBuilder = mapClassBuilder(element)
+        val mapClassBuilder = mapClassBuilder(element)
 
         if (!element.modifiers.contains(Modifier.FINAL)) {
             classBuilder.addModifiers(KModifier.OPEN)
             collectionClassBuilder.addModifiers(KModifier.OPEN)
-            //mapClassBuilder.addModifiers(KModifier.OPEN)
+            mapClassBuilder.addModifiers(KModifier.OPEN)
         }
 
         val companionObject = TypeSpec.companionObjectBuilder()
@@ -341,8 +347,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                     false to false
                 }
             }
-            val (map, annotatedMap) = false to false
-            /*type.run {
+            val (map, annotatedMap) = type.run {
                 a.debug { this is DeclaredType }
                 if (this is DeclaredType
                     && a.processingEnv.typeUtils.isAssignable(
@@ -361,7 +366,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 } else {
                     false to false
                 }
-            } */
+            }
             val annotated = returnType?.let { dataClasses.contains(it) } ?: false || annotatedCollection || annotatedMap
             val propertyType = e.javaToKotlinType()
             val packageOfReturnType =
@@ -370,41 +375,41 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 else if (annotatedMap) a.enclosedValueMapPackage(type)
                 else a.processingEnv.elementUtils.getPackageOf(returnType).qualifiedName.toString()
 
-            val companionPropertyClass: TypeName =
-                if (annotated) {
+            fun propertyClass(start:Boolean): TypeName {
+                val sourceClass = if(start) sourceClassName else  TypeVariableName("T")
+                return if (annotated) {
                     ParameterizedTypeName.get(
                         ClassName(
                             packageOfReturnType,
                             a.generatedClassProperty(type, annotatedCollection, annotatedMap)
                         ),
-                        *listOfNotNull(sourceClassName, a.mapKeyClass(type, annotatedMap)).toTypedArray()
+                        *listOfNotNull(sourceClass, a.mapKeyClass(type, annotatedMap)).toTypedArray()
                     )
                 } else {
-                    /*
                     if (collection) {
                         ParameterizedTypeName.get(
                             KCollectionSimplePropertyPath::class.asClassName(),
-                            sourceClassName,
-                            a.firstTypeArgument(type).asNullable()
+                            sourceClass,
+                            a.firstTypeArgument(e).asNullable()
                         )
                     } else if (map) {
                         ParameterizedTypeName.get(
                             KMapSimplePropertyPath::class.asClassName(),
-                            sourceClassName,
-                            a.firstTypeArgument(type).asNullable(),
-                            a.secondTypeArgument(type).asNullable()
+                            sourceClass,
+                            a.firstTypeArgument(e).asNullable(),
+                            a.secondTypeArgument(e).asNullable()
                         )
                     } else {
-                    */
-                    ParameterizedTypeName.get(
-                        KProperty1::class.asClassName(),
-                        sourceClassName,
-                        propertyType.asNullable()
-                    )
-                    //}
+                        ParameterizedTypeName.get(
+                            if(start) KProperty1::class.asClassName() else KPropertyPath::class.asClassName(),
+                            sourceClass,
+                            propertyType.asNullable()
+                        )
+                    }
                 }
+            }
 
-            val propertyReference =
+            fun propertyReference(start: Boolean) =
                 element.propertyReference(
                     e,
                     {
@@ -421,103 +426,69 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                             e.simpleName.toString()
                         )
                     }
-                ) { CodeBlock.builder().add("%1T::%2L", sourceClassName, e.simpleName).build() }
+                ) {
+                    val pRef = CodeBlock.builder().add("%1T::%2L", sourceClassName, e.simpleName).build()
+                    if (start && !annotated && collection) {
+                        CodeBlock.builder()
+                            .add(
+                                "%1T(%2L, %3L)",
+                                KCollectionSimplePropertyPath::class.asClassName(),
+                                if(start) "null" else "this",
+                                pRef
+                            ).build()
+                    } else if (start && !annotated && map) {
+                        CodeBlock.builder().add(
+                            "%1T(%2L, %3L)",
+                            KMapSimplePropertyPath::class.asClassName(),
+                            if(start) "null" else "this",
+                            pRef)
+                            .build()
+                    } else {
+                        pRef
+                    }
+                }
 
 
             //add companion property
             companionObject.addProperty(
                 PropertySpec
-                    .varBuilder(generatedCompanionFieldName(e), companionPropertyClass)
+                    .varBuilder(generatedCompanionFieldName(e), propertyClass(true))
                     .mutable(false)
                     .getter(
                         FunSpec.getterBuilder().apply {
                             if (annotated) {
-                                addCode("return %1T(null,%2L)", companionPropertyClass, propertyReference)
+                                addCode("return %1T(null,%2L)", propertyClass(true), propertyReference(true))
                             } else {
-                                addCode("return %1L", propertyReference)
+                                addCode("return %1L", propertyReference(true))
                             }
                         }.build()
                     )
                     .build()
             )
 
-            val classPropertyClass: TypeName =
-                if (annotated) {
-                    ParameterizedTypeName.get(
-                        ClassName(
-                            packageOfReturnType,
-                            a.generatedClassProperty(type, annotatedCollection, annotatedMap)
-                        ),
-                        *listOfNotNull(TypeVariableName("T"), a.mapKeyClass(type, annotatedMap)).toTypedArray()
-                    )
-                } else {
-                    ParameterizedTypeName.get(
-                        KProperty1::class.asClassName(),
-                        TypeVariableName("T"),
-                        propertyType.asNullable()
-                    )
-                }
+            val classPropertyClass: TypeName =  propertyClass(false)
+            val property =  PropertySpec
+                .varBuilder(generatedFieldName(e), classPropertyClass)
+                .mutable(false)
+                .getter(
+                    FunSpec.getterBuilder().apply {
+                        addCode(
+                            "return %1L(this,%2L)\n",
+                            if (annotated) {
+                                a.generatedClassProperty(type, annotatedCollection, annotatedMap)
+                            } else {
+                                classPropertyClass
+                            },
+                            propertyReference(false)
+                        )
+                    }.build()
+                )
+                .build()
 
             //add class property
-            classBuilder.addProperty(
-                PropertySpec
-                    .varBuilder(generatedFieldName(e), classPropertyClass)
-                    .mutable(false)
-                    .getter(
-                        FunSpec.getterBuilder().apply {
-                            addCode(
-                                "return %1L(this,%2L)\n",
-                                if (annotated) {
-                                    a.generatedClassProperty(type, annotatedCollection, annotatedMap)
-                                } else {
-                                    KPropertyPath::class.asClassName()
-                                },
-                                propertyReference
-                            )
-                        }.build()
-                    )
-                    .build()
-            )
-
-            collectionClassBuilder.addProperty(
-                PropertySpec
-                    .varBuilder(generatedFieldName(e), classPropertyClass)
-                    .mutable(false)
-                    .getter(
-                        FunSpec.getterBuilder().apply {
-                            addCode(
-                                "return %1L(this,%2L)\n",
-                                if (annotated) {
-                                    a.generatedClassProperty(type, annotatedCollection, annotatedMap)
-                                } else {
-                                    KPropertyPath::class.asClassName()
-                                },
-                                propertyReference
-                            )
-                        }.build()
-                    )
-                    .build()
-            )
-
-            /*mapClassBuilder.addProperty(
-                PropertySpec
-                    .varBuilder(generatedFieldName(e), classPropertyClass)
-                    .mutable(false)
-                    .getter(
-                        FunSpec.getterBuilder().apply {
-                            addCode(
-                                "return %1L(this,%2L)\n",
-                                if (annotated) {
-                                    a.generatedClassProperty(type, annotatedCollection, annotatedMap)
-                                } else {
-                                    KPropertyPath::class.asClassName()
-                                },
-                                propertyReference
-                            )
-                        }.build()
-                    )
-                    .build()
-            ) */
+            classBuilder.addProperty(property)
+            collectionClassBuilder.addProperty(property)
+            mapClassBuilder.addProperty(property)
         }
 
         //add classes
@@ -527,7 +498,7 @@ internal class KMongoDataProcessor(val a: KMongoAnnotations) {
                 .build()
         )
         fileBuilder.addType(collectionClassBuilder.build())
-        //fileBuilder.addType(mapClassBuilder.build())
+        fileBuilder.addType(mapClassBuilder.build())
 
         a.writeFile(fileBuilder)
     }

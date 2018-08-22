@@ -20,6 +20,7 @@ import org.litote.kmongo.Data
 import org.litote.kmongo.model.SimpleReferenced2Data
 import org.litote.kmongo.model.SubData
 import org.litote.kmongo.model.TestData
+import java.util.Locale
 
 /**
  *
@@ -31,6 +32,7 @@ class SimpleReferencedData {
     private val pojo2: SimpleReferenced2Data? = null
     var pojo: TestData? = null
     private val subPojo: SubData? = null
+    val labels: Map<Locale, List<String>> = emptyMap()
 
     override fun toString(): String {
         return "SimpleReferencedData(version=$version, pojo2=$pojo2, pojo=$pojo, subPojo=$subPojo)"

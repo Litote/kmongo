@@ -22,6 +22,7 @@ import org.junit.Test
 import org.litote.kmongo.colProperty
 import org.litote.kmongo.div
 import org.litote.kmongo.eq
+import org.litote.kmongo.mapProperty
 import org.litote.kmongo.path
 import java.math.BigDecimal
 import java.util.Locale
@@ -77,6 +78,14 @@ class KPropertyPathTest {
         assertEquals("allGifts.\$[a]", p.filteredPosOp("a").path)
         assertEquals("allGifts.amount", (p / Gift::amount).path())
         assertEquals("allGifts.\$[a].amount", (p.filteredPosOp("a") / Gift::amount).path())
+    }
+
+    @Test
+    fun `test map projection`() {
+        val p = Friend::localeMap.mapProperty
+        assertEquals("localeMap", p.path)
+        assertEquals("localeMap.en", p.keyProjection(Locale.ENGLISH).path())
+        assertEquals("localeMap.en.amount", (p.keyProjection(Locale.ENGLISH) / Gift::amount).path())
     }
 
 }

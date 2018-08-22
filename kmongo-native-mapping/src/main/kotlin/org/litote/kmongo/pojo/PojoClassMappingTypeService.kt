@@ -121,7 +121,11 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
 
     override fun <T> getPath(property: KProperty<T>): String {
         val owner = property.javaField?.declaringClass
-                ?: property.javaGetter?.declaringClass
+                ?: try {
+                    property.javaGetter?.declaringClass
+                } catch (e: Exception) {
+                    null
+                }
 
         return if (owner?.kotlin?.let { findIdProperty(it) }?.name == property.name)
             "_id"

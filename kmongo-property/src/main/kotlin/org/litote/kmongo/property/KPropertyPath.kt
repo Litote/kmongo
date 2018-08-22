@@ -138,7 +138,7 @@ open class KCollectionPropertyPath<T, R, MEMBER : KPropertyPath<T, R?>>(
 ) : KPropertyPath<T, Collection<R>?>(previous, property) {
 
     /**
-     * To be overriden to returns the right type.
+     * To be overridden to returns the right type.
      */
     @Suppress("UNCHECKED_CAST")
     open fun memberWithAdditionalPath(additionalPath: String): MEMBER =
@@ -174,3 +174,32 @@ class KCollectionSimplePropertyPath<T, R>(
     previous: KPropertyPath<T, *>?,
     property: KProperty1<*, Collection<R>?>
 ) : KCollectionPropertyPath<T, R, KPropertyPath<T, R?>>(previous, property)
+
+/**
+ * Base class for map property path.
+ */
+open class KMapPropertyPath<T, K, R, MEMBER : KPropertyPath<T, R?>>(
+    previous: KPropertyPath<T, *>?,
+    property: KProperty1<*, Map<out K, R>?>
+) : KPropertyPath<T, Map<out K, R>?>(previous, property) {
+
+    /**
+     * To be overridden to returns the right type.
+     */
+    @Suppress("UNCHECKED_CAST")
+    open fun memberWithAdditionalPath(additionalPath: String): MEMBER =
+        KPropertyPath<T, R>(
+            this as KProperty1<T, Collection<R>?>,
+            customProperty(this as KPropertyPath<*, T>, additionalPath)
+        ) as MEMBER
+
+    fun keyProjection(key: K): MEMBER = memberWithAdditionalPath(key.toString())
+}
+
+/**
+ * A property path for a map property.
+ */
+class KMapSimplePropertyPath<T, K, R>(
+    previous: KPropertyPath<T, *>?,
+    property: KProperty1<*, Map<out K, R>?>
+) : KMapPropertyPath<T, K, R, KPropertyPath<T, R?>>(previous, property)

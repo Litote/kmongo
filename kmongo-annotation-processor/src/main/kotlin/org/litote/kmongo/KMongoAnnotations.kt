@@ -144,8 +144,8 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
     private inline fun <reified T : Annotation> getRegistryClasses(roundEnv: RoundEnvironment): Set<AnnotatedClass> =
         roundEnv
             .getElementsAnnotatedWith(T::class.java)
-            .map {
-                it.annotationMirrors
+            .map { element ->
+                element.annotationMirrors
                     .first { it.annotationType.toString() == T::class.qualifiedName }
             }
             .flatMap { a ->
@@ -184,11 +184,11 @@ internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
             processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments[1])
         ).qualifiedName.toString()
 
-    fun firstTypeArgument(type: TypeMirror): TypeName =
-        (processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments.first()) as TypeElement).javaToKotlinType()
+    fun firstTypeArgument(element: Element): TypeName =
+        (element.javaToKotlinType() as ParameterizedTypeName).typeArguments.first()
 
-    fun secondTypeArgument(type: TypeMirror): TypeName =
-        (processingEnv.typeUtils.asElement((type as DeclaredType).typeArguments[1]) as TypeElement).javaToKotlinType()
+    fun secondTypeArgument(element: Element): TypeName =
+        (element.javaToKotlinType() as ParameterizedTypeName).typeArguments[1]
 
     fun generatedClassProperty(type: TypeMirror, annotatedCollection: Boolean, annotatedMap: Boolean = false): String =
         if (annotatedCollection) {

@@ -218,7 +218,7 @@ fun <T> push(property: KProperty<T>, value: T): Bson = Updates.push(property.pat
  * @return the update
  * @mongodb.driver.manual reference/operator/update/push/ $push
  */
-fun <T> pushEach(property: KProperty<T>, values: List<T>, options: PushOptions = PushOptions()): Bson =
+fun <T> pushEach(property: KProperty<T?>, values: List<T?>, options: PushOptions = PushOptions()): Bson =
     Updates.pushEach(property.path(), values, options)
 
 /**
@@ -230,7 +230,7 @@ fun <T> pushEach(property: KProperty<T>, values: List<T>, options: PushOptions =
  * @return the update
  * @mongodb.driver.manual reference/operator/update/pull/ $pull
  */
-fun <T> pull(property: KProperty<Iterable<T>>, value: T): Bson = Updates.pull(property.path(), value)
+fun <T> pull(property: KProperty<Iterable<T?>?>, value: T?): Bson = Updates.pull(property.path(), value)
 
 /**
  * Creates an update that removes all instances of the given value from the array value of the property.
@@ -260,7 +260,8 @@ fun pullByFilter(filter: Bson): Bson = Updates.pullByFilter(filter)
  * @return the update
  * @mongodb.driver.manual reference/operator/update/pull/ $pull
  */
-fun <T> pullAll(property: KProperty<T>, values: List<T>): Bson = Updates.pullAll(property.path(), values)
+fun <T> pullAll(property: KProperty<T?>, values: List<T?>?): Bson =
+    Updates.pullAll(property.path(), values ?: emptyList())
 
 /**
  * Creates an update that pops the first element of an array that is the value of the property.
