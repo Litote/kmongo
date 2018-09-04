@@ -25,8 +25,6 @@ import javax.lang.model.element.TypeElement
 /**
  * TODO check internal private protected on class -> kotlin metadata
  * TODO support nullable generic -> kotlin metadata
- * TODO java9 support
- * TODO map support
  */
 @SupportedAnnotationTypes(
     "org.litote.kmongo.Data",

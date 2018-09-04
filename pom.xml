@@ -63,11 +63,11 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.2.60</kotlin.version>
-        <mongo.version>3.8.0</mongo.version>
+        <kotlin.version>1.2.61</kotlin.version>
+        <mongo.version>3.8.1</mongo.version>
         <mongo.base.version>3.8</mongo.base.version>
-        <coroutine.version>0.23.4-native-1</coroutine.version>
-        <rxjava.version>2.2.0</rxjava.version>
+        <coroutine.version>0.25.3</coroutine.version>
+        <rxjava.version>2.2.1</rxjava.version>
         <rxkotlin.version>2.3.0</rxkotlin.version>
         <jackson.version>2.9.3</jackson.version>
         <jackson-module.version>2.9.3</jackson-module.version>
@@ -75,6 +75,7 @@
 
         <!-- annotations processor -->
         <kotlin-poet.version>0.7.0</kotlin-poet.version>
+        <kotlinx.metadata>0.0.4</kotlinx.metadata>
 
         <!-- test dependencies -->
         <flapdoodle.version>2.1.1</flapdoodle.version>
@@ -93,7 +94,7 @@
         <plugin.dokka.version>0.9.17</plugin.dokka.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
-        <plugin.jacoco.version>0.8.1</plugin.jacoco.version>
+        <plugin.jacoco.version>0.8.2</plugin.jacoco.version>
         <plugin.exec.version>1.2.1</plugin.exec.version>
         <plugin.build-helper.version>1.8</plugin.build-helper.version>
         <plugin.shade.version>2.2</plugin.shade.version>
@@ -126,6 +127,12 @@
                 <groupId>com.squareup</groupId>
                 <artifactId>kotlinpoet</artifactId>
                 <version>${kotlin-poet.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-metadata-jvm</artifactId>
+                <version>${kotlinx.metadata}</version>
             </dependency>
 
             <dependency>
@@ -565,6 +572,11 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>kotlinx</id>
+            <name>KotlinX</name>
+            <url>https://dl.bintray.com/kotlin/kotlinx/</url>
         </repository>
     </repositories>
 

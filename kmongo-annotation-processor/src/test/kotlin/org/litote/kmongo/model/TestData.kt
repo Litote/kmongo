@@ -42,6 +42,9 @@ open class TestData(
     private val privateData: String = "",
     val id: Id<out Any?> = newId(),
     val byteArray: ByteArray? = null
+    //TODO support mutable collections
+    /*,
+    val mutableSet:MutableSet<String> = mutableSetOf()*/
 ) {
     companion object {
         val test: String = "should not be serialized"

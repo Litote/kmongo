@@ -96,7 +96,7 @@ internal val notSupportedModifiers = setOf(Modifier.STATIC, Modifier.TRANSIENT)
  */
 internal class KMongoAnnotations(val processingEnv: ProcessingEnvironment) {
 
-    val debug: Boolean = "true" == System.getProperty("org.litote.kmongo.processor.debug")
+    private val debug: Boolean = "true" == System.getProperty("org.litote.kmongo.processor.debug")
 
     fun log(value: Any?) {
         processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, value.toString())
