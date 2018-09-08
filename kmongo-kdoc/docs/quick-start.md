@@ -12,14 +12,14 @@ I you don't know, start with the sync driver and add this dependency to your pro
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo</artifactId>
-  <version>3.8.1</version>
+  <version>3.8.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo:3.8.1'
+compile 'org.litote.kmongo:kmongo:3.8.2'
 ```
 
 And [start coding](#lets-start-coding)
@@ -37,14 +37,14 @@ For the asynchronous driver, classic callback style, [Kotlin Coroutines](https:/
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-async</artifactId>
-  <version>3.8.1</version>
+  <version>3.8.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-async:3.8.1'
+compile 'org.litote.kmongo:kmongo-async:3.8.2'
 ```
 
 #### Kotlin Coroutines
@@ -55,14 +55,14 @@ compile 'org.litote.kmongo:kmongo-async:3.8.1'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-coroutine</artifactId>
-  <version>3.8.1</version>
+  <version>3.8.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-coroutine:3.8.1'
+compile 'org.litote.kmongo:kmongo-coroutine:3.8.2'
 ```
 
 #### RxJava2
@@ -73,14 +73,14 @@ compile 'org.litote.kmongo:kmongo-coroutine:3.8.1'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-rxjava2</artifactId>
-  <version>3.8.1</version>
+  <version>3.8.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-rxjava2:3.8.1'
+compile 'org.litote.kmongo:kmongo-rxjava2:3.8.2'
 ```
 
 ## Object Mapping Engine
