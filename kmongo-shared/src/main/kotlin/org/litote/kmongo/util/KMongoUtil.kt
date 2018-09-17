@@ -77,6 +77,12 @@ object KMongoUtil {
             bit
         ).map { it.toString() }
 
+    private val internalDefaultRegistry: CodecRegistry by lazy {
+        ClassMappingType.codecRegistry(
+            MongoClientSettings.getDefaultCodecRegistry()
+        )
+    }
+
     fun toBson(json: String): BsonDocument = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
 
     fun <T : Any> toBson(json: String, type: KClass<T>): BsonDocument =
@@ -124,14 +130,10 @@ object KMongoUtil {
 
     fun toExtendedJson(obj: Any): String =
         if (obj is Bson) {
-            obj
-                .toBsonDocument(
-                    Document::class.java,
-                    ClassMappingType.codecRegistry(
-                        MongoClientSettings.getDefaultCodecRegistry()
-                    )
-                )
-                .toJson()
+            obj.toBsonDocument(
+                Document::class.java,
+                internalDefaultRegistry
+            ).toJson()
         } else {
             ClassMappingType.toExtendedJson(obj)
         }
