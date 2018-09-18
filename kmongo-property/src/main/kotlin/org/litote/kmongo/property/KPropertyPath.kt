@@ -101,31 +101,32 @@ open class KPropertyPath<T, R>(
 
         private fun notImplemented(): Nothing = error("not implemented")
 
+        private class CustomProperty<T, R>(val previous: KPropertyPath<*, T>, path: String) : KProperty1<T, R> {
+            override val annotations: List<Annotation> get() = previous.annotations
+
+            override val getter: KProperty1.Getter<T, R> get() = notImplemented()
+            override val isAbstract: Boolean get() = previous.isAbstract
+            override val isConst: Boolean get() = previous.isConst
+            override val isFinal: Boolean get() = previous.isFinal
+            override val isLateinit: Boolean get() = previous.isLateinit
+            override val isOpen: Boolean get() = previous.isOpen
+            override val name: String = path
+            override val parameters: List<KParameter> get() = previous.parameters
+            override val returnType: KType get() = notImplemented()
+            override val typeParameters: List<KTypeParameter> get() = previous.typeParameters
+            override val visibility: KVisibility? get() = previous.visibility
+            override fun call(vararg args: Any?): R = notImplemented()
+            override fun callBy(args: Map<KParameter, Any?>): R = notImplemented()
+            override fun get(receiver: T): R = notImplemented()
+            override fun getDelegate(receiver: T): Any? = notImplemented()
+            override fun invoke(p1: T): R = notImplemented()
+        }
+
         /**
          * Provides "fake" property with custom name.
          */
         fun <T, R> customProperty(previous: KPropertyPath<*, T>, path: String): KProperty1<T, R?> =
-            object : KProperty1<T, R> {
-                override val annotations: List<Annotation> get() = previous.annotations
-
-                override val getter: KProperty1.Getter<T, R> get() = notImplemented()
-                override val isAbstract: Boolean get() = previous.isAbstract
-                override val isConst: Boolean get() = previous.isConst
-                override val isFinal: Boolean get() = previous.isFinal
-                override val isLateinit: Boolean get() = previous.isLateinit
-                override val isOpen: Boolean get() = previous.isOpen
-                override val name: String = path
-                override val parameters: List<KParameter> get() = previous.parameters
-                override val returnType: KType get() = notImplemented()
-                override val typeParameters: List<KTypeParameter> get() = previous.typeParameters
-                override val visibility: KVisibility? get() = previous.visibility
-                override fun call(vararg args: Any?): R = notImplemented()
-                override fun callBy(args: Map<KParameter, Any?>): R = notImplemented()
-                override fun get(receiver: T): R = notImplemented()
-                override fun getDelegate(receiver: T): Any? = notImplemented()
-                override fun invoke(p1: T): R = notImplemented()
-            }
-
+            CustomProperty(previous, path)
     }
 }
 

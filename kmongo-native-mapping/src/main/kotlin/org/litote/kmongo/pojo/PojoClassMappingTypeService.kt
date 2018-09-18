@@ -119,7 +119,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         }
     }
 
-    override fun <T> getPath(property: KProperty<T>): String {
+    override fun <T> calculatePath(property: KProperty<T>): String {
         val owner = property.javaField?.declaringClass
                 ?: try {
                     property.javaGetter?.declaringClass

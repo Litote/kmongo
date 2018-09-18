@@ -195,7 +195,7 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
         return CodecRegistries.fromProviders(KMongoConfiguration.jacksonCodecProvider)
     }
 
-    override fun <T> getPath(property: KProperty<T>): String {
+    override fun <T> calculatePath(property: KProperty<T>): String {
         val owner = property.javaField?.declaringClass
                 ?: try {
                     property.javaGetter?.declaringClass
@@ -207,8 +207,7 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
                 ?.let {
                     findIdProperty(it)?.name == property.name
                 } == true
-        )
-            "_id"
+        ) "_id"
         else KMongoConfiguration
             .extendedJsonMapper
             .deserializationConfig
@@ -229,7 +228,6 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
                         }
                 }
             }
-            ?.name
-                ?: property.name
+            ?.name ?: property.name
     }
 }
