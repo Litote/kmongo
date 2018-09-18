@@ -51,6 +51,91 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 
+@Volatile
+internal var customModuleInitialized: Boolean = false
+
+private object CustomJacksonModule : SimpleModule() {
+
+    init {
+        addSerializer(DBRef::class.java, object : JsonSerializer<DBRef>() {
+            override fun serialize(value: DBRef?, gen: JsonGenerator, serializers: SerializerProvider) {
+                if (value == null) {
+                    gen.writeNull()
+                } else {
+                    gen.writeStartObject()
+                    gen.writeStringField("\$ref", value.collectionName)
+                    gen.writeFieldName("\$id")
+                    val id = value.id
+                    when (id) {
+                        is String -> gen.writeString(id)
+                        is Long -> gen.writeNumber(id)
+                        is Int -> gen.writeNumber(id)
+                        is Float -> gen.writeNumber(id)
+                        is Double -> gen.writeNumber(id)
+                        is BigInteger -> gen.writeNumber(id)
+                        is BigDecimal -> gen.writeNumber(id)
+                        is ObjectId -> gen.writeObjectId(id)
+                        else -> error("dbRef with id $id of type ${id.javaClass} is not supported")
+                    }
+                    if (value.databaseName != null) {
+                        gen.writeStringField("\$db", value.databaseName)
+                    }
+                    gen.writeEndObject()
+                }
+            }
+        })
+        addDeserializer(DBRef::class.java, object : JsonDeserializer<DBRef>() {
+            override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): DBRef? {
+                return if (jp.isExpectedStartObjectToken) {
+                    jp.nextValue()
+                    val ref = jp.valueAsString
+                    jp.nextValue()
+                    val id = when (jp.currentToken) {
+                        JsonToken.VALUE_EMBEDDED_OBJECT -> jp.embeddedObject
+                        JsonToken.VALUE_STRING -> jp.valueAsString
+                        else -> jp.decimalValue
+                    }
+                    var db: String? = null
+                    while (jp.currentToken != JsonToken.END_OBJECT) {
+                        if (jp.currentName == "\$db") {
+                            db = jp.valueAsString
+                        }
+                        jp.nextToken()
+                    }
+                    DBRef(db, ref, id)
+                } else {
+                    null
+                }
+            }
+        })
+
+        //check DBObject exists
+        try {
+            addSerializer(DBObject::class.java, object : JsonSerializer<DBObject>() {
+                override fun serialize(
+                    value: DBObject,
+                    gen: JsonGenerator,
+                    serializers: SerializerProvider
+                ) {
+                    val map = value.toMap()
+                    serializers
+                        .findTypedValueSerializer(map::class.java, true, null)
+                        .serialize(map, gen, serializers)
+                }
+            })
+                .addDeserializer(DBObject::class.java, object : JsonDeserializer<DBObject>() {
+                    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): DBObject? {
+                        val map = jp.readValueAs(Map::class.java)
+                        return BasicDBObject(map)
+                    }
+                })
+        } catch (exception: Throwable) {
+            //ignore - this is a sync driver class only
+        }
+    }
+
+}
+
 /**
  *
  */
@@ -102,88 +187,10 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
     }
 
     override fun coreCodecRegistry(): CodecRegistry {
-
-        registerBsonModule(
-            SimpleModule()
-                .addSerializer(DBRef::class.java, object : JsonSerializer<DBRef>() {
-                    override fun serialize(value: DBRef?, gen: JsonGenerator, serializers: SerializerProvider) {
-                        if (value == null) {
-                            gen.writeNull()
-                        } else {
-                            gen.writeStartObject()
-                            gen.writeStringField("\$ref", value.collectionName)
-                            gen.writeFieldName("\$id")
-                            val id = value.id
-                            when (id) {
-                                is String -> gen.writeString(id)
-                                is Long -> gen.writeNumber(id)
-                                is Int -> gen.writeNumber(id)
-                                is Float -> gen.writeNumber(id)
-                                is Double -> gen.writeNumber(id)
-                                is BigInteger -> gen.writeNumber(id)
-                                is BigDecimal -> gen.writeNumber(id)
-                                is ObjectId -> gen.writeObjectId(id)
-                                else -> error("dbRef with id $id of type ${id.javaClass} is not supported")
-                            }
-                            if (value.databaseName != null) {
-                                gen.writeStringField("\$db", value.databaseName)
-                            }
-                            gen.writeEndObject()
-                        }
-                    }
-                })
-                .addDeserializer(DBRef::class.java, object : JsonDeserializer<DBRef>() {
-                    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): DBRef? {
-                        return if (jp.isExpectedStartObjectToken) {
-                            jp.nextValue()
-                            val ref = jp.getValueAsString()
-                            jp.nextValue()
-                            val id = when (jp.currentToken) {
-                                JsonToken.VALUE_EMBEDDED_OBJECT -> jp.embeddedObject
-                                JsonToken.VALUE_STRING -> jp.getValueAsString()
-                                else -> jp.decimalValue
-                            }
-                            var db: String? = null
-                            while (jp.currentToken != JsonToken.END_OBJECT) {
-                                if (jp.getCurrentName() == "\$db") {
-                                    db = jp.getValueAsString()
-                                }
-                                jp.nextToken()
-                            }
-                            DBRef(db, ref, id)
-                        } else {
-                            null
-                        }
-                    }
-                })
-
-                .apply {
-                    //check DBObject exists
-                    try {
-                        addSerializer(DBObject::class.java, object : JsonSerializer<DBObject>() {
-                            override fun serialize(
-                                value: DBObject,
-                                gen: JsonGenerator,
-                                serializers: SerializerProvider
-                            ) {
-                                val map = value.toMap()
-                                serializers
-                                    .findTypedValueSerializer(map::class.java, true, null)
-                                    .serialize(map, gen, serializers)
-                            }
-                        })
-                            .addDeserializer(DBObject::class.java, object : JsonDeserializer<DBObject>() {
-                                override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): DBObject? {
-                                    val map = jp.readValueAs(Map::class.java)
-                                    return BasicDBObject(map)
-                                }
-                            })
-                    } catch (exception: Throwable) {
-                        //ignore - this is a sync driver class only
-                    }
-                }
-        )
-
+        if (!customModuleInitialized) {
+            customModuleInitialized = true
+            registerBsonModule(CustomJacksonModule)
+        }
 
         return CodecRegistries.fromProviders(KMongoConfiguration.jacksonCodecProvider)
     }
@@ -215,9 +222,9 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
                             config
                         )
                         .findProperties()
-                        .firstOrNull {
-                            it.accessor?.member?.let {
-                                it.name == property.javaGetter?.name || it.name == property.javaField?.name
+                        .firstOrNull { beanDef ->
+                            beanDef.accessor?.member?.let { member ->
+                                member.name == property.javaGetter?.name || member.name == property.javaField?.name
                             } ?: false
                         }
                 }

@@ -58,6 +58,7 @@ import org.litote.kmongo.MongoOperator.unset
 import org.litote.kmongo.service.ClassMappingType
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
@@ -77,7 +78,7 @@ object KMongoUtil {
             bit
         ).map { it.toString() }
 
-    private val internalDefaultRegistry: CodecRegistry by lazy {
+    private val internalDefaultRegistry: CodecRegistry by lazy(PUBLICATION) {
         ClassMappingType.codecRegistry(
             MongoClientSettings.getDefaultCodecRegistry()
         )

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.bson.codecs.configuration.CodecProvider
 import org.litote.kmongo.jackson.JacksonCodecProvider
 import org.litote.kmongo.jackson.ObjectMapperFactory
+import org.litote.kmongo.jackson.customModuleInitialized
 import kotlin.reflect.KClass
 
 /**
@@ -117,7 +118,7 @@ object KMongoConfiguration {
 
     /**
      * Reset the jackson configuration.
-     * 
+     *
      * Useful if you need to manage hot class reloading (see https://github.com/Litote/kmongo/issues/75 )
      *
      * Usage:
@@ -131,11 +132,12 @@ object KMongoConfiguration {
      *  client = KMongo.createClient(..)
      */
     fun resetConfiguration() {
-        extendedJsonMapper= ObjectMapperFactory.createExtendedJsonObjectMapper()
+        extendedJsonMapper = ObjectMapperFactory.createExtendedJsonObjectMapper()
         bsonMapper = ObjectMapperFactory.createBsonObjectMapper()
         bsonMapperCopy = ObjectMapperFactory.createBsonObjectMapperCopy()
         currentJacksonCodecProvider = null
         currentFilterIdBsonMapper = null
+        customModuleInitialized = false
     }
 
     /**
