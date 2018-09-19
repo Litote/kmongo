@@ -34,16 +34,22 @@ class ChangeStreamTest : AllCategoriesKMongoBaseTest<Friend>() {
         val friends = ArrayBlockingQueue<Friend>(3)
         Thread.sleep(100)
         col.watch().fullDocument(FullDocument.UPDATE_LOOKUP).listen {
-            friends.add(it.fullDocument)
+            println(it.fullDocument)
+            if(it.fullDocument != null) {
+                friends.add(it.fullDocument)
+            }
         }
         
-        Thread.sleep(1000)
+        Thread.sleep(100)
         val fred = Friend("Fred")
         col.insertOne(fred)
+        Thread.sleep(100)
         val ivan = Friend("Ivan")
         col.insertOne(ivan)
+        Thread.sleep(100)
         val lea = Friend("Lea")
         col.insertOne(lea)
+        Thread.sleep(100)
 
         //retrieve all friends in the right order
         assertEquals(fred, friends.poll(10, TimeUnit.SECONDS))
