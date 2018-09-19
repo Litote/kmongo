@@ -52,8 +52,8 @@ class ChangeStreamTest : AllCategoriesKMongoBaseTest<Friend>() {
         Thread.sleep(100)
 
         //retrieve all friends in the right order
-        assertEquals(fred, friends.poll(10, TimeUnit.SECONDS))
-        assertEquals(ivan, friends.poll(10, TimeUnit.SECONDS))
-        assertEquals(lea, friends.poll(10, TimeUnit.SECONDS))
+        assertEquals(fred, friends.poll(50, TimeUnit.SECONDS))
+        assertEquals(ivan, friends.poll(50, TimeUnit.SECONDS))
+        assertEquals(lea, friends.poll(50, TimeUnit.SECONDS))
     }
 }
