@@ -31,6 +31,13 @@ private val disablePathCache = System.getProperty("org.litote.kmongo.disablePath
 internal val pathCache: MutableMap<String, String>
         by lazySoft { ConcurrentHashMap<String, String>() }
 
+private val kPropertyPathClass =
+    try {
+        Class.forName("org.litote.kmongo.property.KPropertyPath")
+    } catch (e: Exception) {
+        null
+    }
+
 /**
  *  Provides an object mapping utility using [java.util.ServiceLoader].
  */
@@ -66,6 +73,10 @@ interface ClassMappingTypeService {
     fun coreCodecRegistry(): CodecRegistry
 
     fun <T> getPath(property: KProperty<T>): String {
+        //sanity check
+        if (kPropertyPathClass?.isInstance(property) == true) {
+            return calculatePath(property)
+        }
         //the idea is that KProperties are usually generated as (java) anonymous class
         //so we can safely store them as class name
         //we check that class package does not start with kotlin to avoid corner cases
