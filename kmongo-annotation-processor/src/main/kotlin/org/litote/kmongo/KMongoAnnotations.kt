@@ -41,8 +41,8 @@ import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 import javax.tools.StandardLocation
+import kotlin.reflect.jvm.internal.impl.builtins.jvm.JavaToKotlinClassMap
 import kotlin.reflect.jvm.internal.impl.name.FqName
-import kotlin.reflect.jvm.internal.impl.platform.JavaToKotlinClassMap
 
 //see https://github.com/square/kotlinpoet/issues/236
 internal fun Element.javaToKotlinType(): TypeName =
