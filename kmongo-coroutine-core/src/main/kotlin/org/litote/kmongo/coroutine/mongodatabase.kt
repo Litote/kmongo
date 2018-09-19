@@ -108,6 +108,7 @@ suspend fun MongoDatabase.createCollection(collectionName: String, options: Crea
  * @return the collection
  * @see defaultCollectionName
  */
+@Deprecated("use same function with org.litote.kmongo.async package - will be removed in 4.0")
 inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T>
         = getCollection(defaultCollectionName(T::class), T::class.java)
 
@@ -120,6 +121,7 @@ inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T>
  * @return the collection
  * @see defaultCollectionName
  */
+@Deprecated("use same function with org.litote.kmongo.async package - will be removed in 4.0")
 inline fun <reified T : Any> MongoDatabase.getCollectionOfName(name: String): MongoCollection<T>
         = getCollection(name, T::class.java)
 

@@ -69,38 +69,6 @@ import kotlin.reflect.KProperty1
 //*******
 
 /**
- * Gets a collection.
- *
- * @param collectionName the name of the collection to return
- * @param <T>            the default target type of the collection to return
- * @return the collection
- */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-inline fun <reified T : Any> MongoDatabase.getCollection(collectionName: String): MongoCollection<T> =
-    getCollectionOfName(collectionName)
-
-/**
- * Gets a collection.
- *
- * @param collectionName the name of the collection to return
- * @param <T>            the default target type of the collection to return
- * @return the collection
- */
-inline fun <reified T : Any> MongoDatabase.getCollectionOfName(collectionName: String): MongoCollection<T> =
-    getCollection(collectionName, T::class.java)
-
-/**
- * Gets a collection.
- *
- * @param <T>            the default target type of the collection to return
- *                       - the name of the collection is determined by [defaultCollectionName]
- * @return the collection
- * @see defaultCollectionName
- */
-inline fun <reified T : Any> MongoDatabase.getCollection(): MongoCollection<T> =
-    getCollection(defaultCollectionName(T::class), T::class.java)
-
-/**
  * Executes the given command in the context of the current database with the given read preference.
  *
  * @param command        the command to be run
@@ -129,15 +97,6 @@ inline fun <reified TResult : Any> MongoDatabase.runCommand(
 //*******
 //MongoCollection extension methods
 //*******
-
-/**
- * Create a new MongoCollection instance with a different default class to cast any documents returned from the database into..
- *
- * @param <NewTDocument> the default class to cast any documents returned from the database into.
- * @return a new MongoCollection instance with the different default class
- */
-inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument> =
-    withDocumentClass(NewTDocument::class.java)
 
 /**
  * Counts the number of documents in the collection according to the given options.

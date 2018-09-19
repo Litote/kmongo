@@ -65,6 +65,12 @@ import kotlin.reflect.KProperty1
 //*******
 
 /**
+ * Returns a [MongoDatabase] with a KMongo codec.
+ */
+fun MongoDatabase.withKMongo(): MongoDatabase =
+    withCodecRegistry(KMongo.configureRegistry(codecRegistry))
+
+/**
  * Gets a collection.
  *
  * @param collectionName the name of the collection to return
@@ -119,6 +125,12 @@ inline fun <reified TResult : Any> MongoDatabase.runCommand(command: String): TR
 //*******
 //MongoCollection extension methods
 //*******
+
+/**
+ * Returns a [MongoCollection] with a KMongo codec.
+ */
+fun <T> MongoCollection<T>.withKMongo(): MongoCollection<T> =
+    withCodecRegistry(KMongo.configureRegistry(codecRegistry))
 
 /**
  * Create a new MongoCollection instance with a different default class to cast any documents returned from the database into..

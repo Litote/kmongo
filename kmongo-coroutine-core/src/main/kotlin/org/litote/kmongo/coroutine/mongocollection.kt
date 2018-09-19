@@ -59,6 +59,7 @@ import kotlin.reflect.KProperty1
  * @param <NewTDocument> the default class to cast any documents returned from the database into.
  * @return a new MongoCollection instance with the different default class
  */
+@Deprecated("use same function with org.litote.kmongo.async package - will be removed in 4.0")
 inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument> =
     withDocumentClass(NewTDocument::class.java)
 

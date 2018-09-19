@@ -228,7 +228,7 @@ object KMongo {
     private fun configureOptions(clientOptions: MongoClientOptions): MongoClientOptions =
         MongoClientOptions.builder(clientOptions).codecRegistry(configureRegistry(clientOptions.codecRegistry)).build()
 
-    private fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry {
+    internal fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry {
         return ClassMappingType.codecRegistry(codecRegistry)
     }
 }

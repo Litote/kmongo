@@ -19,6 +19,7 @@ import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.async.client.MongoClient
 import com.mongodb.async.client.MongoClients
+import org.bson.codecs.configuration.CodecRegistry
 import org.litote.kmongo.service.ClassMappingType
 
 /**
@@ -68,5 +69,9 @@ object KMongo {
                 .applyConnectionString(connectionString)
                 .build()
         )
+    }
+
+    internal fun configureRegistry(codecRegistry: CodecRegistry): CodecRegistry {
+        return ClassMappingType.codecRegistry(codecRegistry)
     }
 }
