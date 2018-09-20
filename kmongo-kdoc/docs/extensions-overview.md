@@ -361,7 +361,16 @@ KMongo does not fix the "for" issue, but **does solve automatically memory leaks
 
 You have nothing to change in your code - just compile it with the KMongo dependency in the classpath! 
 
-   
+## withKMongo
+
+The recommended method, in order to setup KMongo, is to use `KMongo.createClient()`
+to get a `MongoClient` instance.
+
+However you can also get a MongoClient instance directly from the java driver and then call
+`MongoDatabase#withKMongo` or `MongoCollection#withKMongo` extensions to enable KMongo object mapping support.     
+
+This is especially useful if you have already a java project and you want to migrate progressively
+to Kotlin.
 
 ## KDoc
 
