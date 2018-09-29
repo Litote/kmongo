@@ -104,7 +104,7 @@
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.jvmTarget>1.6</kotlin.compiler.jvmTarget>
     </properties>
 
     <dependencies>
