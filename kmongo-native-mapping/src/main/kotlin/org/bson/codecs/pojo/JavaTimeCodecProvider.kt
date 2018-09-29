@@ -76,23 +76,21 @@ internal object JavaTimeCodecProvider : CodecProvider {
         }
 
         override fun toTemporal(date: Date): T =
-                getInstance(date).apply {
-                    time = date
-                }
+            getInstance(date).apply {
+                time = date
+            }
 
         abstract fun getInstance(date: Date): T
     }
 
     private object CalendarCodec : AbstractCalendarCodec<Calendar>(Calendar::class) {
 
-        override fun getInstance(date: Date): Calendar
-                = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        override fun getInstance(date: Date): Calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
     }
 
     private object GregorianCalendarCodec : AbstractCalendarCodec<GregorianCalendar>(GregorianCalendar::class) {
 
-        override fun getInstance(date: Date): GregorianCalendar
-                = GregorianCalendar(TimeZone.getTimeZone("UTC"))
+        override fun getInstance(date: Date): GregorianCalendar = GregorianCalendar(TimeZone.getTimeZone("UTC"))
     }
 
 
@@ -119,7 +117,8 @@ internal object JavaTimeCodecProvider : CodecProvider {
 
     private object OffsetTimeCodec : JavaTimeCodec<OffsetTime>(OffsetTime::class) {
 
-        override fun epochMillis(temporal: OffsetTime): Long = OffsetDateTimeCodec.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
+        override fun epochMillis(temporal: OffsetTime): Long =
+            OffsetDateTimeCodec.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
 
         override fun toTemporal(date: Date): OffsetTime = OffsetDateTimeCodec.toTemporal(date).toOffsetTime()
     }
@@ -140,23 +139,32 @@ internal object JavaTimeCodecProvider : CodecProvider {
 
     private object LocalTimeCodec : JavaTimeCodec<LocalTime>(LocalTime::class) {
 
-        override fun epochMillis(temporal: LocalTime): Long = LocalDateTimeCodec.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
+        override fun epochMillis(temporal: LocalTime): Long =
+            LocalDateTimeCodec.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
 
         override fun toTemporal(date: Date): LocalTime = LocalDateTimeCodec.toTemporal(date).toLocalTime()
     }
 
     private val codecs: Map<KClass<*>, JavaTimeCodec<*>> =
+        try {
             listOf(
-                    CalendarCodec,
-                    GregorianCalendarCodec,
-                    InstantCodec,
-                    ZonedDateTimeCodec,
-                    OffsetDateTimeCodec,
-                    OffsetTimeCodec,
-                    LocalDateTimeCodec,
-                    LocalDateCodec,
-                    LocalTimeCodec
-            ).map { it.kClass to it }.toMap()
+                CalendarCodec,
+                GregorianCalendarCodec,
+                InstantCodec,
+                ZonedDateTimeCodec,
+                OffsetDateTimeCodec,
+                OffsetTimeCodec,
+                LocalDateTimeCodec,
+                LocalDateCodec,
+                LocalTimeCodec
+            )
+        } catch (e: NoClassDefFoundError) {
+            //jdk7 version
+            listOf(
+                CalendarCodec,
+                GregorianCalendarCodec
+            )
+        }.map { it.kClass to it }.toMap()
 
     override fun <T : Any> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? {
         @Suppress("UNCHECKED_CAST")
