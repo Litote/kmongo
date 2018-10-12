@@ -18,6 +18,7 @@ package org.litote.kmongo.jackson
 import com.fasterxml.jackson.core.Base64Variants
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_FLOAT
 import com.fasterxml.jackson.core.JsonToken.VALUE_STRING
 import com.fasterxml.jackson.core.TreeNode
@@ -33,6 +34,7 @@ import com.fasterxml.jackson.databind.node.BinaryNode
 import com.fasterxml.jackson.databind.node.POJONode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.databind.node.ValueNode
+import de.undercouch.bson4jackson.BsonConstants
 import de.undercouch.bson4jackson.BsonParser
 import de.undercouch.bson4jackson.types.Decimal128
 import org.bson.BsonTimestamp
@@ -67,8 +69,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.OffsetTime
-import java.time.ZoneOffset.UTC
 import java.time.ZoneId
+import java.time.ZoneOffset.UTC
 import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
@@ -419,6 +421,20 @@ internal class BsonModule : SimpleModule() {
         }
     }
 
+    private object BsonDateDeserializer : JsonDeserializer<Date>() {
+
+        override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Date {
+            if (jp is BsonParser) {
+                if (jp.currentToken != JsonToken.VALUE_EMBEDDED_OBJECT || jp.currentBsonType != BsonConstants.TYPE_DATETIME) {
+                    throw ctxt.handleUnexpectedToken(Date::class.java, jp) as Throwable
+                }
+                return jp.embeddedObject as Date
+            } else {
+                return jp.embeddedObject?.let { it as Date } ?: Date(jp.longValue)
+            }
+        }
+    }
+
     override fun setupModule(context: SetupContext) {
         super.setupModule(context)
 
@@ -464,6 +480,7 @@ internal class BsonModule : SimpleModule() {
         addDeserializer(Calendar::class.java, CalendarBsonDeserializer)
         addSerializer(ZoneId::class.java, ZoneIdBsonSerializer)
         addDeserializer(ZoneId::class.java, ZoneIdBsonDeserializer)
+        addDeserializer(Date::class.java, BsonDateDeserializer);
 
         addSerializer(KProperty::class.java, KPropertySerializer)
     }
