@@ -47,6 +47,7 @@ internal object ObjectMapperFactory {
             .registerModule(BsonModule())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
+            .addHandler(StringDeserializationProblemHandler)
             .registerModules(loadedModules)
     }
 

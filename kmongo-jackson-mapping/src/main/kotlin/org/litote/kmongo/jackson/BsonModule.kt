@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler.NOT_HANDLED
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.BinaryNode
@@ -361,7 +362,23 @@ internal class BsonModule : SimpleModule() {
             return if (jp.currentToken == VALUE_STRING) {
                 IdTransformer.wrapId(jp.valueAsString)
             } else {
-                IdTransformer.wrapId(jp.embeddedObject)
+                IdTransformer.wrapId(
+                    jp.embeddedObject
+                            ?: StringDeserializationProblemHandler.handleUnexpectedToken(
+                                ctxt,
+                                String::class.java,
+                                jp.currentToken,
+                                jp,
+                                ""
+                            )
+                                .let {
+                                    if (it == NOT_HANDLED) {
+                                        error("not valid object found when trying to deserialize Id")
+                                    } else {
+                                        it
+                                    }
+                                }
+                )
             }
         }
     }

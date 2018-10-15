@@ -150,11 +150,7 @@ internal class JacksonCodec<T : Any>(
         }
     }
 
-    private val rawBsonDocumentCodec: Codec<RawBsonDocument>
-
-    init {
-        this.rawBsonDocumentCodec = codecRegistry.get(RawBsonDocument::class.java)
-    }
+    private val rawBsonDocumentCodec: Codec<RawBsonDocument> = codecRegistry.get(RawBsonDocument::class.java)
 
     override fun decode(reader: BsonReader, decoderContext: DecoderContext): T? {
         val buffer = BasicOutputBuffer(128)
