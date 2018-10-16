@@ -39,6 +39,12 @@ internal object StringDeserializationProblemHandler : DeserializationProblemHand
             val fieldName = p.nextFieldName()
             if (fieldName == "$oid") {
                 return p.nextTextValue()
+                    .also {
+                        while(p.currentToken != JsonToken.END_OBJECT) {
+                            p.nextToken()
+                        }
+                    }
+
             }
         }
         return super.handleUnexpectedToken(ctxt, targetType, t, p, failureMsg)

@@ -35,7 +35,7 @@ import kotlin.test.assertEquals
 class Issue85ObjectIdIsNotProperlyDeserializedInAStringPropertyWhenPropertyIsInherited :
     AllCategoriesKMongoBaseTest<Issue85ObjectIdIsNotProperlyDeserializedInAStringPropertyWhenPropertyIsInherited.I>() {
 
-    data class MainData(@get:BsonId override val myId: String? = null) : I()
+    data class MainData(@get:BsonId override val myId: String?, override val s: String) : I()
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     @JsonSubTypes(
@@ -43,6 +43,7 @@ class Issue85ObjectIdIsNotProperlyDeserializedInAStringPropertyWhenPropertyIsInh
     )
     abstract class I {
         abstract val myId: String?
+        abstract val s: String
     }
 
     data class MainData2(@get:BsonId override val myId: Id<I2>? = null) : I2()
@@ -69,11 +70,12 @@ class Issue85ObjectIdIsNotProperlyDeserializedInAStringPropertyWhenPropertyIsInh
     fun `serialization and deserialization is ok`() {
         //insert an object id
         val document =
-            Document.parse("""{ "_id" : { "$oid": "5bb4d3a8d20c290001ac67e9" },"@type":"test"}""")
+            Document.parse("""{ "_id" : { "$oid": "5bb4d3a8d20c290001ac67e9" },"@type":"test", "s":"a"}""")
         col.withDocumentClass<Document>().insertOne(document)
 
         //load a string
         assertEquals("5bb4d3a8d20c290001ac67e9", col.findOne()!!.myId)
+        assertEquals("a", col.findOne()!!.s)
     }
 
     @Test
@@ -83,7 +85,7 @@ class Issue85ObjectIdIsNotProperlyDeserializedInAStringPropertyWhenPropertyIsInh
             Document.parse("""{ "_id" : { "$oid": "5bb4d3a8d20c290001ac67e9" },"@type":"test"}""")
         col.withDocumentClass<Document>().insertOne(document)
 
-        //load a string
+        //load an Id
         assertEquals("5bb4d3a8d20c290001ac67e9", col.withDocumentClass<I2>().findOne()!!.myId.toString())
     }
 
@@ -94,7 +96,7 @@ class Issue85ObjectIdIsNotProperlyDeserializedInAStringPropertyWhenPropertyIsInh
             Document.parse("""{ "_id" : { "$oid": "5bb4d3a8d20c290001ac67e9" },"@type":"test"}""")
         col.withDocumentClass<Document>().insertOne(document)
 
-        //load a string
+        //load an ObjectId
         assertEquals(ObjectId("5bb4d3a8d20c290001ac67e9"), col.withDocumentClass<I3>().findOne()!!.myId)
     }
 
