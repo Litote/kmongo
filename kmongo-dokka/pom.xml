@@ -68,7 +68,6 @@
                 <configuration>
                     <args>
                         <arg>-Xallow-kotlin-package</arg>
-                        <arg>-Xcoroutines=enable</arg>
                     </args>
                     <sourceDirs>
                         <sourceDirs>${project.basedir}/kmongo-id/src/main/kotlin</sourceDirs>
