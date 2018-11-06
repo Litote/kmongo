@@ -17,7 +17,12 @@
 package org.litote.kmongo.property
 
 import org.litote.kmongo.path
-import kotlin.reflect.*
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty1
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeParameter
+import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.jvm.isAccessible
 
