@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.coroutine.issues
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.bson.conversions.Bson
 import org.junit.Test
 import org.litote.kmongo.EMPTY_BSON

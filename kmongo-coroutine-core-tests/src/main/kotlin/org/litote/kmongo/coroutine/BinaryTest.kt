@@ -15,7 +15,7 @@
  */
 package org.litote.kmongo.coroutine
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.bson.types.Binary
 import org.junit.Assert.assertArrayEquals
 import org.junit.Before
