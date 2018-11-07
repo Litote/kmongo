@@ -86,6 +86,7 @@ open class KPropertyPath<T, R>(
     override val isFinal: Boolean get() = previous?.isFinal ?: false && property.isFinal
     override val isLateinit: Boolean get() = previous?.isLateinit ?: false && property.isLateinit
     override val isOpen: Boolean get() = previous?.isOpen ?: false && property.isOpen
+    override val isSuspend: Boolean get() = property.isSuspend
     override val name: String get() = path
     override val parameters: List<KParameter> get() = property.parameters
     override val returnType: KType get() = property.returnType
@@ -110,6 +111,7 @@ open class KPropertyPath<T, R>(
             override val isFinal: Boolean get() = previous.isFinal
             override val isLateinit: Boolean get() = previous.isLateinit
             override val isOpen: Boolean get() = previous.isOpen
+            override val isSuspend: Boolean get() = previous.isSuspend
             override val name: String = path
             override val parameters: List<KParameter> get() = previous.parameters
             override val returnType: KType get() = notImplemented()

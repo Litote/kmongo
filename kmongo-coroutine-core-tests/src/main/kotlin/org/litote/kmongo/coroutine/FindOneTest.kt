@@ -17,7 +17,7 @@ package org.litote.kmongo.coroutine
 
 import com.mongodb.ReadPreference
 import com.mongodb.client.model.Filters
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.oid

@@ -20,14 +20,16 @@ import com.mongodb.async.SingleResultCallback
 import com.mongodb.async.client.MongoClient
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.async.client.MongoDatabase
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.bson.types.ObjectId
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import org.litote.kmongo.async.KFlapdoodleAsync
 import org.litote.kmongo.util.KMongoUtil
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.reflect.KClass
 
 /**

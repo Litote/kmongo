@@ -63,10 +63,10 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.2.70</kotlin.version>
+        <kotlin.version>1.3.0</kotlin.version>
         <mongo.version>3.8.2</mongo.version>
         <mongo.base.version>3.8</mongo.base.version>
-        <coroutine.version>0.26.0</coroutine.version>
+        <coroutine.version>1.0.0</coroutine.version>
         <rxjava.version>2.2.2</rxjava.version>
         <rxkotlin.version>2.3.0</rxkotlin.version>
         <jackson.version>2.9.7</jackson.version>
@@ -423,7 +423,6 @@
                 <version>${kotlin.version}</version>
                 <configuration>
                     <args>
-                        <arg>-Xcoroutines=enable</arg>
                         <arg>-Xallow-kotlin-package</arg>
                     </args>
                 </configuration>

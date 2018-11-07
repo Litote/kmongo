@@ -18,7 +18,7 @@ package org.litote.kmongo.coroutine
 
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument.AFTER
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.junit.Test
