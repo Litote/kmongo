@@ -20,7 +20,6 @@ import org.junit.Test
 import org.litote.kmongo.model.SubData2_
 import org.litote.kmongo.model.TestData_
 import org.litote.kmongo.model.other.SimpleReferencedData
-import org.litote.kmongo.model.other.SimpleReferencedData_
 import java.util.Locale
 import kotlin.test.assertEquals
 
@@ -30,7 +29,7 @@ import kotlin.test.assertEquals
 class PathTest {
 
     @Test
-    fun testSimplePropertyPath() { /*
+    fun testSimplePropertyPath() {
         assertEquals("date", TestData_.Date.name)
         assertEquals("referenced", TestData_.Referenced.name)
         assertEquals(
@@ -75,7 +74,7 @@ class PathTest {
         //check compilation
         if (false)
             (TestData_.Map2.keyProjection(Locale.ENGLISH) eq SimpleReferencedData()).json
-                    */
+
         assertEquals(
             "set.$.labels.zh_CN",
             TestData_.Set.posOp.labels.keyProjection(Locale.CHINA).name
