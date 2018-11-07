@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-root</artifactId>
-        <version>3.8.4-SNAPSHOT</version>
+        <version>3.9.0</version>
     </parent>
 
     <artifactId>kmongo-async-core</artifactId>
