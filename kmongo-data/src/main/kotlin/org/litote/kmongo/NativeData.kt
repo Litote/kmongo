@@ -23,6 +23,7 @@ package org.litote.kmongo
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
+@Deprecated("will be removed in next version")
 annotation class NativeData(
     /**
      * Set to internal visibility the generated classes.

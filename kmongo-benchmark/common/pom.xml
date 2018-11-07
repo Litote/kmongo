@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-benchmark</artifactId>
-        <version>3.8.2-SNAPSHOT</version>
+        <version>3.9.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>kmongo-benchmark-common</artifactId>

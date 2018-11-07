@@ -3,7 +3,7 @@
  [![Apache2 license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
  [![Build Status](https://travis-ci.org/Litote/kmongo.png)](https://travis-ci.org/Litote/kmongo)
  [![codebeat badge](https://codebeat.co/badges/ed919223-2b9a-4b60-97d5-695b460fcbb7)](https://codebeat.co/projects/github-com-litote-kmongo-master)
- [![codecov](https://codecov.io/gh/Litote/kmongo/branch/master/graph/badge.svg)](https://codecov.io/gh/Litote/kmongo)
+ <!--[![codecov](https://codecov.io/gh/Litote/kmongo/branch/master/graph/badge.svg)](https://codecov.io/gh/Litote/kmongo)-->
  [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
  [![Pure Kotlin](https://img.shields.io/badge/100%25-kotlin-blue.svg)](https://kotlinlang.org/)
  

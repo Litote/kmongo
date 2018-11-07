@@ -65,7 +65,7 @@
         <!-- dependencies -->
         <kotlin.version>1.3.0</kotlin.version>
         <mongo.version>3.9.0</mongo.version>
-        <mongo.base.version>3.8</mongo.base.version>
+        <mongo.base.version>3.9</mongo.base.version>
         <coroutine.version>1.0.0</coroutine.version>
         <rxjava.version>2.2.3</rxjava.version>
         <rxkotlin.version>2.3.0</rxkotlin.version>

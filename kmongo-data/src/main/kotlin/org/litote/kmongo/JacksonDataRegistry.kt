@@ -25,6 +25,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
+@Deprecated("will be removed in next version")
 annotation class JacksonDataRegistry(
     /**
      * List of data classes.
