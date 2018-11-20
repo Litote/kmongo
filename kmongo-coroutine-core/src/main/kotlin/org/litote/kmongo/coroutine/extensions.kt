@@ -52,18 +52,6 @@ suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<
     }
 }
 
-suspend inline fun <T> singleNonNullResult(crossinline callback: (SingleResultCallback<T>) -> Unit): T {
-    return suspendCoroutine { continuation ->
-        callback(SingleResultCallback { result: T, throwable: Throwable? ->
-            if (throwable != null) {
-                continuation.resumeWithException(throwable)
-            } else {
-                continuation.resume(result)
-            }
-        })
-    }
-}
-
 //*******
 //IndexModel extension methods
 //*******

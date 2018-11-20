@@ -10,7 +10,7 @@ import com.mongodb.async.client.MongoClient
  * <p>Note: A ClientSession instance can not be used concurrently in multiple asynchronous operations.</p>
  */
 suspend fun MongoClient.startSession(): ClientSession {
-    return singleNonNullResult(this::startSession)
+    return singleResult(this::startSession) ?: throw IllegalStateException("Unexpected null result from startSession()")
 }
 
 /**
@@ -21,5 +21,5 @@ suspend fun MongoClient.startSession(): ClientSession {
  * @param options  the options for the client session
  */
 suspend fun MongoClient.startSession(options: ClientSessionOptions): ClientSession {
-    return singleNonNullResult { this.startSession(options, it) }
+    return singleResult { this.startSession(options, it) } ?: throw IllegalStateException("Unexpected null result from startSession()")
 }
