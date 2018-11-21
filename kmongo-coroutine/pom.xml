@@ -50,7 +50,7 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <groups>org.litote.kmongo.JacksonMappingCategory</groups>
+                    <groups>org.litote.kmongo.JacksonMappingCategory,org.litote.kmongo.CoreCategory</groups>
                     <dependenciesToScan>
                         <dependency>org.litote.kmongo:kmongo-coroutine-core-tests</dependency>
                     </dependenciesToScan>
