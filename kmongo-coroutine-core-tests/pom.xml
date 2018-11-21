@@ -50,6 +50,11 @@
             <artifactId>kotlin-test-junit</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.nhaarman.mockitokotlin2</groupId>
+            <artifactId>mockito-kotlin</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>
