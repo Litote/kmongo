@@ -683,7 +683,7 @@ fun <T> MongoCollection<T>.findOneAndUpdate(
 /**
  * Create an index with the given keys and options.
  *
- * @param keys                an object describing the index key(s), which may not be null.
+ * @param keys an object describing the index key(s), which may not be null.
  * @param indexOptions the options for the index
  * @return the index name
  */
@@ -711,7 +711,7 @@ fun <T> MongoCollection<T>.ensureIndex(keys: Bson, indexOptions: IndexOptions = 
 }
 
 /**
- * Create an ascending with the given keys and options.
+ * Create an ascending index with the given keys and options.
  * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
  * already exists, then drop the existing index and create a new one.
  *
