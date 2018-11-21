@@ -49,7 +49,7 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <groups>org.litote.kmongo.NativeMappingCategory</groups>
+                    <groups>org.litote.kmongo.NativeMappingCategory,org.litote.kmongo.CoreCategory</groups>
                     <dependenciesToScan>
                         <dependency>org.litote.kmongo:kmongo-coroutine-core-tests</dependency>
                     </dependenciesToScan>
