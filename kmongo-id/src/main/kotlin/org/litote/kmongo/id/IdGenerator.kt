@@ -17,6 +17,7 @@
 package org.litote.kmongo.id
 
 import org.litote.kmongo.Id
+import java.util.ServiceLoader
 import kotlin.reflect.KClass
 import kotlin.reflect.full.valueParameters
 
@@ -31,17 +32,13 @@ interface IdGenerator {
             get() = defaultIdGenerator
             set(value) {
                 defaultIdGenerator = value
-                initialized = true
             }
 
-        val defaultGeneratorInitialized: Boolean get() = initialized
-
         @Volatile
-        private var defaultIdGenerator: IdGenerator = UUIDStringIdGenerator
-
-        @Volatile
-        private var initialized: Boolean = false
-
+        private var defaultIdGenerator: IdGenerator =
+            ServiceLoader.load(IdGeneratorProvider::class.java)
+                .iterator().asSequence().maxBy { it.priority }?.generator
+                    ?: UUIDStringIdGenerator
     }
 
     /**
@@ -62,11 +59,10 @@ interface IdGenerator {
     /**
      * Create a new id from its String representation.
      */
-    fun create(s: String)
-            = idClass
-            .constructors
-            .firstOrNull { it.valueParameters.size == 1 && it.valueParameters.first().type.classifier == String::class }
-            ?.call(s)
+    fun create(s: String) = idClass
+        .constructors
+        .firstOrNull { it.valueParameters.size == 1 && it.valueParameters.first().type.classifier == String::class }
+        ?.call(s)
             ?: error("no constructor with a single string arg found for $idClass}")
 
 }

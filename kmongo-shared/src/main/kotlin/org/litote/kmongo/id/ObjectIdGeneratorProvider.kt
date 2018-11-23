@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Litote
+ * Copyright (C) 2017/2018 Litote
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,13 @@
 
 package org.litote.kmongo.id
 
-import org.bson.types.ObjectId
-import org.litote.kmongo.Id
-import kotlin.reflect.KClass
-
 /**
- * [ObjectId] generator.
+ *
  */
-object ObjectIdGenerator : IdGenerator {
+internal class ObjectIdGeneratorProvider : IdGeneratorProvider {
 
-    override val idClass: KClass<out Id<*>> = WrappedObjectId::class
+    override val priority: Int = 1
 
-    override val wrappedIdClass: KClass<out Any> = ObjectId::class
-
-    override fun <T> generateNewId(): Id<T> = WrappedObjectId(ObjectId())
+    override val generator: IdGenerator = ObjectIdGenerator
 
 }

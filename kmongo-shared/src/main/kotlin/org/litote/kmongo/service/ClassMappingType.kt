@@ -16,8 +16,6 @@
 
 package org.litote.kmongo.service
 
-import org.litote.kmongo.id.IdGenerator
-import org.litote.kmongo.id.ObjectIdGenerator
 import java.util.ServiceLoader
 
 private val mappingTypeProvider
@@ -42,10 +40,10 @@ private val defaultService by lazy {
 
 @Volatile
 private var selectedService: ClassMappingTypeService? =
-        System.getProperty("org.litote.mongo.test.mapping.service")
-                ?.let {
-                    Class.forName(it).getConstructor().newInstance() as ClassMappingTypeService
-                }
+    System.getProperty("org.litote.mongo.test.mapping.service")
+        ?.let {
+            Class.forName(it).getConstructor().newInstance() as ClassMappingTypeService
+        }
 
 private var currentService: ClassMappingTypeService
     get() = selectedService ?: defaultService
@@ -57,13 +55,6 @@ private var currentService: ClassMappingTypeService
  * [ClassMappingTypeService] currently used retrieved via [java.util.ServiceLoader].
  */
 object ClassMappingType : ClassMappingTypeService by currentService {
-
-    init {
-        //objectId generator by default
-        if (!IdGenerator.defaultGeneratorInitialized) {
-            IdGenerator.defaultGenerator = ObjectIdGenerator
-        }
-    }
 
     /**
      * Do not use the [ClassMappingTypeService.priority] method do define the service used,
