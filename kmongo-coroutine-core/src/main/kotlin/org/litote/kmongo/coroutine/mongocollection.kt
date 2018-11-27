@@ -18,6 +18,7 @@ package org.litote.kmongo.coroutine
 
 import com.mongodb.MongoCommandException
 import com.mongodb.async.client.AggregateIterable
+import com.mongodb.async.client.ClientSession
 import com.mongodb.async.client.DistinctIterable
 import com.mongodb.async.client.FindIterable
 import com.mongodb.async.client.ListIndexesIterable
@@ -680,6 +681,22 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
 ): T? {
     return singleResult { findOneAndUpdate(toBson(filter), toBson(update), options, it) }
+}
+
+/**
+ * Drops this collection from the Database.
+ */
+suspend fun <T> MongoCollection<T>.drop() {
+    singleResult(this::drop)
+}
+
+/**
+ * Drops this collection from the Database.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ */
+suspend fun <T> MongoCollection<T>.drop(clientSession: ClientSession) {
+    singleResult<Void> { this.drop(clientSession, it)  }
 }
 
 /**
