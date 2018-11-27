@@ -22,6 +22,7 @@ import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
 import org.litote.kmongo.issues.Issue95NullDeserializedTo0.Task
 import org.litote.kmongo.withDocumentClass
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 /**
@@ -29,7 +30,7 @@ import kotlin.test.assertNull
  */
 class Issue95NullDeserializedTo0 : AllCategoriesKMongoBaseTest<Task>() {
 
-    data class Task(val int: Int? = null)
+    data class Task(val int: Int? = null, val double: Double = Double.NaN)
 
     @Test
     fun generateNullInt() {
@@ -44,5 +45,12 @@ class Issue95NullDeserializedTo0 : AllCategoriesKMongoBaseTest<Task>() {
         col.withDocumentClass<Document>().insertOne(Document())
         assertNull(col.findOne()!!.int)
         assertNull(col.withDocumentClass<Document>().findOne()!!["int"])
+    }
+
+    @Test
+    fun generateNanDouble() {
+        col.insertOne(Task())
+        assertEquals(Double.NaN, col.findOne()!!.double)
+        assertEquals(Double.NaN, col.withDocumentClass<Document>().findOne()!!["double"])
     }
 }
