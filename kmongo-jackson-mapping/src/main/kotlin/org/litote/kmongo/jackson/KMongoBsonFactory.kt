@@ -21,10 +21,12 @@ import de.undercouch.bson4jackson.BsonConstants
 import de.undercouch.bson4jackson.BsonFactory
 import de.undercouch.bson4jackson.BsonGenerator
 import de.undercouch.bson4jackson.BsonParser
+import de.undercouch.bson4jackson.io.ByteOrderUtil
 import de.undercouch.bson4jackson.types.Timestamp
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
 import org.bson.types.ObjectId
+import org.litote.kmongo.jackson.BsonModule.KMongoObjectId
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -108,6 +110,13 @@ internal class KMongoBsonFactory : BsonFactory() {
 
         private fun convertToNativeObjectId(id: de.undercouch.bson4jackson.types.ObjectId): org.bson.types.ObjectId {
             return org.bson.types.ObjectId.createFromLegacyFormat(id.time, id.machine, id.inc)
+        }
+
+        override fun readObjectId(): de.undercouch.bson4jackson.types.ObjectId {
+            val time = ByteOrderUtil.flip(_in.readInt())
+            val machine = ByteOrderUtil.flip(_in.readInt())
+            val inc = ByteOrderUtil.flip(_in.readInt())
+            return KMongoObjectId(time, machine, inc)
         }
     }
 

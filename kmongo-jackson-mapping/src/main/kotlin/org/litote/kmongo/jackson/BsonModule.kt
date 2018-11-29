@@ -81,6 +81,35 @@ import kotlin.reflect.KProperty
 
 internal class BsonModule : SimpleModule() {
 
+    class KMongoObjectId(time: Int, machine: Int, inc: Int) :
+        de.undercouch.bson4jackson.types.ObjectId(time, machine, inc) {
+
+        override fun toString(): String {
+            return ObjectId.createFromLegacyFormat(time, machine, inc).toString()
+        }
+    }
+
+    private object BsonObjectIdDeserializer : JsonDeserializer<de.undercouch.bson4jackson.types.ObjectId>() {
+        override fun deserialize(
+            jp: JsonParser,
+            ctxt: DeserializationContext
+        ): de.undercouch.bson4jackson.types.ObjectId {
+            if (jp is BsonParser) {
+                if (jp.currentToken != JsonToken.VALUE_EMBEDDED_OBJECT || jp.currentBsonType != BsonConstants.TYPE_OBJECTID) {
+                    @Suppress("DEPRECATION")
+                    throw ctxt.mappingException(de.undercouch.bson4jackson.types.ObjectId::class.java)
+                }
+                return jp.embeddedObject as de.undercouch.bson4jackson.types.ObjectId
+            } else {
+                val tree = jp.codec.readTree<TreeNode>(jp)
+                val time = (tree.get("\$time") as ValueNode).asInt()
+                val machine = (tree.get("\$machine") as ValueNode).asInt()
+                val inc = (tree.get("\$inc") as ValueNode).asInt()
+                return KMongoObjectId(time, machine, inc)
+            }
+        }
+    }
+
     private object ObjectIdBsonSerializer : JsonSerializer<ObjectId>() {
 
         override fun serialize(objectId: ObjectId, gen: JsonGenerator, serializerProvider: SerializerProvider) {
@@ -461,6 +490,7 @@ internal class BsonModule : SimpleModule() {
     init {
         addSerializer(ObjectId::class.java, ObjectIdBsonSerializer)
         addDeserializer(ObjectId::class.java, ObjectIdBsonDeserializer)
+        addDeserializer(de.undercouch.bson4jackson.types.ObjectId::class.java, BsonObjectIdDeserializer)
         addSerializer(Binary::class.java, BinaryBsonSerializer)
         addDeserializer(Binary::class.java, BinaryBsonDeserializer)
         addSerializer(BsonTimestamp::class.java, BsonTimestampBsonSerializer)
