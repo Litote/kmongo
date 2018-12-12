@@ -176,6 +176,16 @@ suspend fun <T : Any> MongoCollection<T>.findOne(filter: Bson): T? {
 }
 
 /**
+ * Finds the first document that match the filter in the collection.
+ *
+ * @param filter the query filter
+ * @param clientSession  the client session with which to associate this operation
+ */
+suspend fun <T: Any> MongoCollection<T>.findOne(filter: Bson, clientSession: ClientSession): T? {
+    return singleResult { find(clientSession, filter).first(it) }
+}
+
+/**
  * Finds the first document that match the filters in the collection.
  *
  * @param filters the query filters
@@ -191,6 +201,16 @@ suspend fun <T> MongoCollection<T>.findOne(vararg filters: Bson?): T? =
  */
 suspend fun <T : Any> MongoCollection<T>.findOneById(id: Any): T? {
     return findOne(idFilterQuery(id))
+}
+
+/**
+ * Finds the document that match the id parameter.
+ *
+ * @param id       the object id
+ * @param clientSession  the client session with which to associate this operation
+ */
+suspend fun <T : Any> MongoCollection<T>.findOneById(id: Any, clientSession: ClientSession): T? {
+    return findOne(idFilterQuery(id), clientSession)
 }
 
 /**
