@@ -91,11 +91,11 @@ class ProjectionTest : AllCategoriesKMongoBaseTest<Friend>() {
         )
 
         val result2: List<String?> =
-            col.projection(Friend::name, options = { it.descendingSort(SingleProjection<*>::field) })
+            col.projection(Friend::name, options = { it.ascendingSort(Friend::name) })
                 .toList()
 
         assertEquals(
-            listOf("Joe", "Bob"),
+            listOf("Bob", "Joe"),
             result2
         )
 
