@@ -17,7 +17,9 @@
 package org.litote.kmongo
 
 import org.bson.Document
+import org.litote.kmongo.model.Coordinate
 import org.litote.kmongo.model.Friend
+import org.litote.kmongo.util.SingleProjection
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -30,6 +32,8 @@ class ProjectionTest : AllCategoriesKMongoBaseTest<Friend>() {
     //projectionWithoutId
     //Document extension methods
     //singleProjection
+
+    data class FriendWithNameOnly(val name: String)
 
     @Test
     fun `projection works as expected`() {
@@ -47,6 +51,87 @@ class ProjectionTest : AllCategoriesKMongoBaseTest<Friend>() {
 
         assertEquals(
             listOf("Joe", "Bob"),
+            result
+        )
+    }
+
+    @Test
+    fun `projection without mandatory field is ok if not retrieved in projection`() {
+        col.bulkWrite(
+            insertOne(Friend("Joe")),
+            insertOne(Friend("Bob"))
+        )
+        val result: Iterable<String> =
+            col.withDocumentClass<FriendWithNameOnly>()
+                .find()
+                .descendingSort(FriendWithNameOnly::name)
+                .projection(FriendWithNameOnly::name)
+                .map { it.name }
+                .toList()
+
+        assertEquals(
+            listOf("Joe", "Bob"),
+            result
+        )
+    }
+
+    @Test
+    fun `single projection is ok`() {
+        col.bulkWrite(
+            insertOne(Friend("Joe")),
+            insertOne(Friend("Bob"))
+        )
+        val result: List<String?> =
+            col.projection(Friend::name, Friend::name eq "Joe")
+                .toList()
+
+        assertEquals(
+            listOf("Joe"),
+            result
+        )
+
+        val result2: List<String?> =
+            col.projection(Friend::name, options = { it.descendingSort(SingleProjection<*>::field) })
+                .toList()
+
+        assertEquals(
+            listOf("Joe", "Bob"),
+            result2
+        )
+
+    }
+
+    @Test
+    fun `pair projection is ok`() {
+        col.bulkWrite(
+            insertOne(Friend("Joe", coordinate = Coordinate(1, 2))),
+            insertOne(Friend("Bob", coordinate = Coordinate(3, 4)))
+        )
+        val result: Pair<String?, Coordinate?>? =
+            col.projection(Friend::name, Friend::coordinate, Friend::name eq "Joe").first()
+
+        assertEquals(
+            "Joe" to Coordinate(1, 2),
+            result
+        )
+    }
+
+    @Test
+    fun `triple projection is ok`() {
+        col.bulkWrite(
+            insertOne(Friend("Joe", "Here", coordinate = Coordinate(1, 2), tags = listOf("t1"))),
+            insertOne(Friend("Bob", "Here", coordinate = Coordinate(3, 4), tags = listOf("t2")))
+        )
+        val result: Triple<String?, Coordinate?, List<String>?>? =
+            col.projection(
+                Friend::name,
+                Friend::coordinate,
+                Friend::tags,
+                Friend::name eq "Joe"
+            ).first()
+
+        assertEquals(
+            Triple("Joe", Coordinate(1, 2), listOf("t1")),
             result
         )
     }

@@ -54,6 +54,12 @@ import org.litote.kmongo.util.KMongoUtil.toBson
 import org.litote.kmongo.util.KMongoUtil.toBsonList
 import org.litote.kmongo.util.KMongoUtil.toBsonModifier
 import org.litote.kmongo.util.KMongoUtil.toWriteModel
+import org.litote.kmongo.util.PairProjection
+import org.litote.kmongo.util.SingleProjection
+import org.litote.kmongo.util.TripleProjection
+import org.litote.kmongo.util.pairProjectionCodecRegistry
+import org.litote.kmongo.util.singleProjectionCodecRegistry
+import org.litote.kmongo.util.tripleProjectionCodecRegistry
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -881,6 +887,79 @@ fun <T> FindIterable<T>.projection(projection: String): FindIterable<T> = projec
 fun <T> FindIterable<T>.projection(vararg projections: KProperty<*>): FindIterable<T> =
     projection(include(*projections))
 
+
+/**
+ * Returns the specified field for all matching documents.
+ *
+ * @param property the property to return
+ * @param query the optional find query
+ * @param options the optional [FindIterable] modifiers
+ * @return a property value iterable
+ */
+inline fun <T, reified F> MongoCollection<T>.projection(
+    property: KProperty<F>,
+    query: Bson = EMPTY_BSON,
+    options: (FindIterable<SingleProjection<F>>) -> FindIterable<SingleProjection<F>> = { it }
+): MongoIterable<F> =
+    withDocumentClass<SingleProjection<F>>()
+        .withCodecRegistry(singleProjectionCodecRegistry<F>(codecRegistry))
+        .find(query)
+        .let { options(it) }
+        .projection(fields(excludeId(), include(property)))
+        .map { it.field }
+
+/**
+ * Returns the specified two fields for all matching documents.
+ *
+ * @param property1 the first property to return
+ * @param property2 the second property to return
+ * @param query the optional find query
+ * @param options the optional [FindIterable] modifiers
+ * @return a pair of property values iterable
+ */
+inline fun <T, reified F1, reified F2> MongoCollection<T>.projection(
+    property1: KProperty<F1>,
+    property2: KProperty<F2>,
+    query: Bson = EMPTY_BSON,
+    options: (FindIterable<PairProjection<F1, F2>>) -> FindIterable<PairProjection<F1, F2>> = { it }
+): MongoIterable<Pair<F1?, F2?>> =
+    withDocumentClass<PairProjection<F1, F2>>()
+        .withCodecRegistry(pairProjectionCodecRegistry<F1, F2>(property1.path(), property2.path(), codecRegistry))
+        .find(query)
+        .let { options(it) }
+        .projection(fields(excludeId(), include(property1), include(property2)))
+        .map { it.field1 to it.field2 }
+
+/**
+ * Returns the specified three fields for all matching documents.
+ *
+ * @param property1 the first property to return
+ * @param property2 the second property to return
+ * @param property3 the third property to return
+ * @param query the optional find query
+ * @param options the optional [FindIterable] modifiers
+ * @return a triple of property values iterable
+ */
+inline fun <T, reified F1, reified F2, reified F3> MongoCollection<T>.projection(
+    property1: KProperty<F1>,
+    property2: KProperty<F2>,
+    property3: KProperty<F3>,
+    query: Bson = EMPTY_BSON,
+    options: (FindIterable<TripleProjection<F1, F2, F3>>) -> FindIterable<TripleProjection<F1, F2, F3>> = { it }
+): MongoIterable<Triple<F1?, F2?, F3?>> =
+    withDocumentClass<TripleProjection<F1, F2, F3>>()
+        .withCodecRegistry(
+            tripleProjectionCodecRegistry<F1, F2, F3>(
+                property1.path(),
+                property2.path(),
+                property3.path(),
+                codecRegistry
+            )
+        )
+        .find(query)
+        .let { options(it) }
+        .projection(fields(excludeId(), include(property1), include(property2), include(property3)))
+        .map { Triple(it.field1, it.field2, it.field3) }
 
 /**
  * Sets the sort criteria to apply to the query.
