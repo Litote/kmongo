@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor
 import org.bson.BsonBinaryWriter
 import org.bson.BsonReader
+import org.bson.BsonType
 import org.bson.BsonValue
 import org.bson.BsonWriter
 import org.bson.RawBsonDocument
@@ -51,6 +52,7 @@ import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.map
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.number
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.objectId
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.string
+import org.litote.kmongo.json
 import org.litote.kmongo.util.MongoIdUtil
 import java.io.IOException
 import java.io.UncheckedIOException
@@ -153,11 +155,16 @@ internal class JacksonCodec<T : Any>(
     private val rawBsonDocumentCodec: Codec<RawBsonDocument> = codecRegistry.get(RawBsonDocument::class.java)
 
     override fun decode(reader: BsonReader, decoderContext: DecoderContext): T? {
+        //string to object conversion
+        if (reader.currentBsonType == BsonType.STRING) {
+            val s = reader.readString()
+            return notBsonObjectMapper.readValue(s.json, type)
+        }
         val buffer = BasicOutputBuffer(128)
         val writer = BsonBinaryWriter(buffer)
-        try {
+        return try {
             writer.pipe(reader)
-            return bsonObjectMapper.readValue(buffer.internalBuffer, type)
+            bsonObjectMapper.readValue(buffer.internalBuffer, type)
         } finally {
             writer.close()
             buffer.close()
