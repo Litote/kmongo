@@ -25,10 +25,15 @@ import kotlin.reflect.KClass
  */
 object ObjectIdGenerator : IdGenerator {
 
+    /**
+     * Generates a new WrappedObjectId.
+     */
+    fun <T> newObjectId(): WrappedObjectId<T> = ObjectIdGenerator.generateNewId()
+
     override val idClass: KClass<out Id<*>> = WrappedObjectId::class
 
     override val wrappedIdClass: KClass<out Any> = ObjectId::class
 
-    override fun <T> generateNewId(): Id<T> = WrappedObjectId(ObjectId())
+    override fun <T> generateNewId(): WrappedObjectId<T> = WrappedObjectId(ObjectId())
 
 }

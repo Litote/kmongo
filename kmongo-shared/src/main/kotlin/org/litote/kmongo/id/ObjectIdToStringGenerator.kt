@@ -25,9 +25,14 @@ import kotlin.reflect.KClass
  */
 object ObjectIdToStringGenerator : IdGenerator {
 
+    /**
+     * Generates a new StringId.
+     */
+    fun <T> newStringId(): StringId<T> = ObjectIdToStringGenerator.generateNewId()
+
     override val idClass: KClass<out Id<*>> = StringId::class
 
     override val wrappedIdClass: KClass<out Any> = String::class
 
-    override fun <T> generateNewId(): Id<T> = StringId(ObjectId().toHexString())
+    override fun <T> generateNewId(): StringId<T> = StringId(ObjectId().toHexString())
 }

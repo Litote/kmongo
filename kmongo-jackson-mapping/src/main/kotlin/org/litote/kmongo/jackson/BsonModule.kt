@@ -45,6 +45,8 @@ import org.bson.types.MinKey
 import org.bson.types.ObjectId
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
+import org.litote.kmongo.id.StringId
+import org.litote.kmongo.id.WrappedObjectId
 import org.litote.kmongo.id.jackson.IdKeyDeserializer
 import org.litote.kmongo.id.jackson.IdKeySerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.BinaryExtendedJsonSerializer
@@ -385,11 +387,18 @@ internal class BsonModule : SimpleModule() {
         }
     }
 
-    private object IdBsonDeserializer : JsonDeserializer<Id<*>>() {
+    private object IdBsonDeserializer : AbstractIdBsonDeserializer<Id<*>>()
 
-        override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Id<*> {
+    private object StringIdBsonDeserializer : AbstractIdBsonDeserializer<StringId<*>>()
+
+    private object WrappedObjectIdBsonDeserializer : AbstractIdBsonDeserializer<WrappedObjectId<*>>()
+
+    private abstract class AbstractIdBsonDeserializer<T : Id<*>> : JsonDeserializer<T>() {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): T {
             return if (jp.currentToken == VALUE_STRING) {
-                IdTransformer.wrapId(jp.valueAsString)
+                IdTransformer.wrapId(jp.valueAsString) as T
             } else {
                 IdTransformer.wrapId(
                     jp.embeddedObject
@@ -407,7 +416,7 @@ internal class BsonModule : SimpleModule() {
                                         it
                                     }
                                 }
-                )
+                ) as T
             }
         }
     }
@@ -508,6 +517,10 @@ internal class BsonModule : SimpleModule() {
         addDeserializer(Id::class.java, IdBsonDeserializer)
         addKeySerializer(Id::class.java, IdKeySerializer())
         addKeyDeserializer(Id::class.java, IdKeyDeserializer())
+        addDeserializer(StringId::class.java, StringIdBsonDeserializer)
+        addKeyDeserializer(StringId::class.java, IdKeyDeserializer())
+        addDeserializer(WrappedObjectId::class.java, WrappedObjectIdBsonDeserializer)
+        addKeyDeserializer(WrappedObjectId::class.java, IdKeyDeserializer())
 
         addSerializer(Instant::class.java, InstantBsonSerializer)
         addSerializer(ZonedDateTime::class.java, ZonedDateTimeBsonSerializer)
