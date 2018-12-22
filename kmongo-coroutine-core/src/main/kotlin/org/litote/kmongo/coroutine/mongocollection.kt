@@ -86,6 +86,33 @@ suspend fun <T> MongoCollection<T>.count(filter: String, options: CountOptions =
 }
 
 /**
+ * Counts the number of documents in the collection.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @since 3.6
+ * @mongodb.server.release 3.6
+ * {@link #countDocuments(ClientSession, SingleResultCallback)} instead
+ */
+@Deprecated("use countDocuments instead")
+suspend fun <T> MongoCollection<T>.count(clientSession: ClientSession): Long {
+    return singleResult { count(clientSession, it) } ?: 0L
+}
+
+/**
+ * Counts the number of documents in the collection according to the given options.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter   the query filter
+ * @param options  optional parameter, the options describing the count
+ * @since 3.6
+ * @mongodb.server.release 3.6
+ */
+@Deprecated("use countDocuments instead")
+suspend fun <T> MongoCollection<T>.count(clientSession: ClientSession, filter: String, options: CountOptions = CountOptions()): Long {
+    return singleResult { count(clientSession, toBson(filter), options, it) } ?: 0L
+}
+
+/**
  * Counts the number of documents
  *
  * @return count of all collection
@@ -103,6 +130,27 @@ suspend fun <T> MongoCollection<T>.countDocuments(): Long {
 suspend fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions = CountOptions()): Long {
     return singleResult { countDocuments(toBson(filter), options, it) } ?: 0L
 }
+
+/**
+ * Counts the number of documents
+ * @param clientSession  the client session with which to associate this operation
+ *
+ * @return count of all collection
+ */
+suspend fun <T> MongoCollection<T>.countDocuments(clientSession: ClientSession): Long {
+    return singleResult { countDocuments(clientSession, it)  } ?: 0L
+}
+
+/**
+ * Counts the number of documents in the collection according to the given options.
+ *
+ * @param filter   the query filter
+ * @param options  optional parameter, the options describing the count * @return count of filtered collection
+ */
+suspend fun <T> MongoCollection<T>.countDocuments(clientSession: ClientSession, filter: String, options: CountOptions = CountOptions()): Long {
+    return singleResult { countDocuments(clientSession, toBson(filter), options, it) } ?: 0L
+}
+
 
 /**
  * Gets the distinct values of the specified field name.
@@ -268,6 +316,24 @@ suspend fun <T : Any> MongoCollection<T>.insertMany(
 }
 
 /**
+ * Inserts one or more documents.  A call to this method is equivalent to a call to the {@code bulkWrite} method
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param documents the documents to insert
+ * @param options   the options to apply to the operation
+ * @throws com.mongodb.MongoBulkWriteException if there's an exception in the bulk write operation
+ * @throws com.mongodb.MongoException          if the write failed due some other failure
+ * @see com.mongodb.async.client.MongoCollection#bulkWrite
+ */
+suspend fun <T : Any> MongoCollection<T>.insertMany(
+        clientSession: ClientSession,
+        documents: List<T>,
+        options: InsertManyOptions = InsertManyOptions()
+): Void? {
+    return singleResult { insertMany(clientSession, documents, options, it) }
+}
+
+/**
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
  *
  * @param document the document to insert
@@ -283,6 +349,26 @@ suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(
     options: InsertOneOptions = InsertOneOptions()
 ): Void? {
     return singleResult { insertOne(document, options, it) }
+}
+
+/**
+ * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param document the document to insert
+ * @param options  the options to apply to the operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the insert command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoCommandException      if the write failed due to document validation reasons
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(
+        clientSession: ClientSession,
+        document: TDocument,
+        options: InsertOneOptions = InsertOneOptions()
+): Void? {
+    return singleResult { insertOne(clientSession, document, options, it) }
 }
 
 /**
@@ -310,6 +396,33 @@ suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(
 }
 
 /**
+ * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
+
+ * @param clientSession  the client session with which to associate this operation
+ * @param document the document to insert
+ * @param options  the options to apply to the operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the insert command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoCommandException      if the write failed due to document validation reasons
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(
+        clientSession: ClientSession,
+        document: String,
+        options: InsertOneOptions = InsertOneOptions()
+) {
+    singleResult<Void> {
+        withDocumentClass<BsonDocument>().insertOne(
+                clientSession,
+                toBson(document, T::class),
+                options,
+                it
+        )
+    }
+}
+
+/**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
  * modified.
  *
@@ -330,6 +443,25 @@ suspend fun <T> MongoCollection<T>.deleteOne(
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
  * modified.
  *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter   the query filter to apply the the delete operation
+ *
+ * @return the result of the remove one operation
+ *
+ * @throws com.mongodb.MongoWriteException
+ * @throws com.mongodb.MongoWriteConcernException
+ * @throws com.mongodb.MongoException
+ */
+suspend fun <T> MongoCollection<T>.deleteOne(
+        clientSession: ClientSession,
+        filter: String,
+        deleteOptions: DeleteOptions = DeleteOptions()
+): DeleteResult? = singleResult { deleteOne(clientSession, toBson(filter), deleteOptions, it) }
+
+/**
+ * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
+ * modified.
+ *
  * @param filters the query filters to apply the the delete operation
  *
  * @return the result of the remove one operation
@@ -342,6 +474,24 @@ suspend fun <T> MongoCollection<T>.deleteOne(
     vararg filters: Bson?,
     deleteOptions: DeleteOptions = DeleteOptions()
 ): DeleteResult? = singleResult { deleteOne(and(*filters), deleteOptions, it) }
+
+/**
+ * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
+ * modified.
+ * @param clientSession  the client session with which to associate this operation
+ * @param filters the query filters to apply the the delete operation
+ *
+ * @return the result of the remove one operation
+ *
+ * @throws com.mongodb.MongoWriteException       if the write failed due some other failure specific to the delete command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T> MongoCollection<T>.deleteOne(
+        clientSession: ClientSession,
+        vararg filters: Bson?,
+        deleteOptions: DeleteOptions = DeleteOptions()
+): DeleteResult? = singleResult { deleteOne(clientSession, and(*filters), deleteOptions, it) }
 
 /**
  * Removes at most one document from the id parameter.  If no documents match, the collection is not
@@ -359,7 +509,6 @@ suspend fun <T> MongoCollection<T>.deleteOneById(id: Any): DeleteResult? {
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
- *
  * @param filter   the query filter to apply the the delete operation
  * @param options  the options to apply to the delete operation
  *
@@ -379,6 +528,27 @@ suspend fun <T> MongoCollection<T>.deleteMany(
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
  *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter   the query filter to apply the the delete operation
+ * @param options  the options to apply to the delete operation
+ *
+ * @return the result of the remove many operation
+ *
+ * @throws com.mongodb.MongoWriteException
+ * @throws com.mongodb.MongoWriteConcernException
+ * @throws com.mongodb.MongoException
+ */
+suspend fun <T> MongoCollection<T>.deleteMany(
+        clientSession: ClientSession,
+        filter: String,
+        options: DeleteOptions = DeleteOptions()
+): DeleteResult? {
+    return singleResult { deleteMany(clientSession, toBson(filter), options, it) }
+}
+
+/**
+ * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
+ *
  * @param filters   the query filters to apply the the delete operation
  * @param options  the options to apply to the delete operation
  *
@@ -392,6 +562,25 @@ suspend fun <T> MongoCollection<T>.deleteMany(
     vararg filters: Bson?,
     options: DeleteOptions = DeleteOptions()
 ): DeleteResult? = singleResult { deleteMany(and(*filters), options, it) }
+
+/**
+ * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filters   the query filters to apply the the delete operation
+ * @param options  the options to apply to the delete operation
+ *
+ * @return the result of the remove many operation
+ *
+ * @throws com.mongodb.MongoWriteException
+ * @throws com.mongodb.MongoWriteConcernException
+ * @throws com.mongodb.MongoException
+ */
+suspend fun <T> MongoCollection<T>.deleteMany(
+        clientSession: ClientSession,
+        vararg filters: Bson?,
+        options: DeleteOptions = DeleteOptions()
+): DeleteResult? = singleResult { deleteMany(clientSession, and(*filters), options, it) }
 
 /**
  * Save the document.
@@ -433,6 +622,29 @@ suspend fun <T : Any> MongoCollection<T>.replaceOneById(
     options: ReplaceOptions = ReplaceOptions()
 ): UpdateResult? {
     return replaceOne(idFilterQuery(id), replacement, options)
+}
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param id          the object id
+ * @param replacement the replacement document
+ * @param options     the options to apply to the replace operation
+ *
+ * @return the result of the replace one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T : Any> MongoCollection<T>.replaceOneById(
+        clientSession: ClientSession,
+        id: Any,
+        replacement: T,
+        options: ReplaceOptions = ReplaceOptions()
+): UpdateResult? {
+    return replaceOne(clientSession, idFilterQuery(id), replacement, options)
 }
 
 /**
@@ -499,6 +711,37 @@ suspend fun <T : Any> MongoCollection<T>.replaceOne(
             KMongoUtil.filterIdToBson(replacement),
             options,
             it
+        )
+    }
+}
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter      the query filter to apply to the replace operation
+ * @param replacement the replacement document
+ * @param options     the options to apply to the replace operation
+ *
+ * @return the result of the replace one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T : Any> MongoCollection<T>.replaceOne(
+        clientSession: ClientSession,
+        filter: Bson,
+        replacement: T,
+        options: ReplaceOptions = ReplaceOptions()
+): UpdateResult? {
+    return singleResult {
+        withDocumentClass<BsonDocument>().replaceOne(
+                clientSession,
+                filter,
+                KMongoUtil.filterIdToBson(replacement),
+                options,
+                it
         )
     }
 }
@@ -861,6 +1104,32 @@ suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
                 codecRegistry,
                 T::class
             ), options, it
+        )
+    }
+}
+
+/**
+ * Executes a mix of inserts, updates, replaces, and deletes.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param requests the writes to execute
+ * @param options  the options to apply to the bulk write operation
+ *
+ * @return the result of the bulk write
+ */
+suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
+        clientSession: ClientSession,
+        vararg requests: String,
+        options: BulkWriteOptions = BulkWriteOptions()
+): BulkWriteResult? {
+    return singleResult {
+        withDocumentClass<BsonDocument>().bulkWrite(
+                clientSession,
+                KMongoUtil.toWriteModel(
+                        requests,
+                        codecRegistry,
+                        T::class
+                ), options, it
         )
     }
 }
