@@ -47,9 +47,10 @@ class FindOneTest : KMongoCoroutineBaseTest<Friend>() {
     @Test
     fun `can find one by filter in ClientSession`() = runBlocking {
         col.insertOne(Friend("John", "22 Wall Street Avenue"))
-        val clientSession = rule.mongoClient.startSession()
-        val friend = col.findOne(Filters.eq("name", "John"), clientSession) ?: throw AssertionError("Value must not null!")
-        assertEquals("John", friend.name)
+        rule.mongoClient.startSession().use {
+            val friend = col.findOne(Filters.eq("name", "John"), it) ?: throw AssertionError("Value must not null!")
+            assertEquals("John", friend.name)
+        }
     }
 
     @Test
@@ -70,10 +71,11 @@ class FindOneTest : KMongoCoroutineBaseTest<Friend>() {
     @Test
     fun `can find one by Object Id in clientSession`() = runBlocking {
         val john = Friend(ObjectId(), "John")
-        val clientSession = rule.mongoClient.startSession()
-        col.insertOne(john)
-        val friend = col.findOneById(john._id ?: Any(), clientSession) ?: throw AssertionError("Value must not null!")
-        assertEquals(john._id, friend._id)
+        rule.mongoClient.startSession().use {
+            col.insertOne(john)
+            val friend = col.findOneById(john._id ?: Any(), it) ?: throw AssertionError("Value must not null!")
+            assertEquals(john._id, friend._id)
+        }
     }
 
 

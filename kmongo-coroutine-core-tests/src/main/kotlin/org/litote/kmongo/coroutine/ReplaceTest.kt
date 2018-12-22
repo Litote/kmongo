@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.coroutine
 
+import com.mongodb.client.model.Filters
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.litote.kmongo.model.Friend
@@ -36,6 +37,17 @@ class ReplaceTest : KMongoCoroutineBaseTest<Friend>() {
     }
 
     @Test
+    fun `can replace with id in ClientSession`() = runBlocking {
+        val friend = Friend("Peter", "31 rue des Lilas")
+        col.insertOne(friend)
+        rule.mongoClient.startSession().use {
+            col.replaceOneById(it, friend._id ?: Any(), Friend("John"))
+            val replacedFriend = col.findOne(Filters.eq("name", "John"), it) ?: throw AssertionError("Value must not null!")
+            assertEquals("John", replacedFriend.name)
+        }
+    }
+
+    @Test
     fun canReplaceTheSameDocument() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
         col.insertOne(friend)
@@ -47,5 +59,19 @@ class ReplaceTest : KMongoCoroutineBaseTest<Friend>() {
         assertEquals("Johnny", replacedFriend.name)
         assertEquals("123 Wall Street", replacedFriend.address)
         assertEquals(friend._id, replacedFriend._id)
+    }
+
+    @Test
+    fun `can replace one by filter in ClientSession`() = runBlocking {
+        val friend = Friend("John", "123 Wall Street")
+        col.insertOne(friend)
+        friend.name = "Johnny"
+
+        rule.mongoClient.startSession().use {
+            col.replaceOne(it, Filters.eq("name", "John"), friend)
+            val replacedFriend = col.findOne(Filters.eq("name", "Johnny"), it) ?: throw AssertionError("Value must not null!")
+            assertEquals("Johnny", replacedFriend.name)
+
+        }
     }
 }

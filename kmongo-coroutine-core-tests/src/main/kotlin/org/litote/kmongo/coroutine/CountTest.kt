@@ -52,6 +52,24 @@ class CountTest : KMongoCoroutineBaseTest<Friend>() {
     }
 
     @Test
+    fun `can count in ClientSession`() = runBlocking {
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
+        rule.mongoClient.startSession().use {
+            val count = col.count(it)
+            assertEquals(2, count)
+        }
+    }
+
+    @Test
+    fun `can count with parameters in ClientSession`() = runBlocking {
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
+        rule.mongoClient.startSession().use {
+            val count = col.count(it, "{name:'Peter'}}")
+            assertEquals(1, count)
+        }
+    }
+
+    @Test
     fun canCountDocuments() = runBlocking {
         col.insertMany(listOf(newFriend(), newFriend()))
         val count = col.countDocuments()
@@ -72,5 +90,21 @@ class CountTest : KMongoCoroutineBaseTest<Friend>() {
         assertEquals(1, count)
     }
 
+    @Test
+    fun `can count documents in ClientSession`() = runBlocking {
+        col.insertMany(listOf(newFriend(), newFriend()))
+        rule.mongoClient.startSession().use {
+            val count = col.countDocuments(it)
+            assertEquals(2, count)
+        }
+    }
 
+    @Test
+    fun `can count documents with parameters in ClientSession`() = runBlocking {
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
+        rule.mongoClient.startSession().use {
+            val count = col.countDocuments(it, "{name:'Peter'}}")
+            assertEquals(1, count)
+        }
+    }
 }
