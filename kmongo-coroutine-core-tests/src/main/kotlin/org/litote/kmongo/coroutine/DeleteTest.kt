@@ -38,6 +38,17 @@ class DeleteTest : KMongoCoroutineBaseTest<Friend>() {
     }
 
     @Test
+    fun `can delete one in ClientSession`() = runBlocking {
+        col.insertMany(listOf(Friend("John"), Friend("Peter")))
+        rule.mongoClient.startSession().use {
+            col.deleteOne(it, "{name:'John'}")
+            val list = col.find(it).toList()
+            assertEquals(1, list.size)
+            assertEquals("Peter", list.first().name)
+        }
+    }
+
+    @Test
     fun canDeleteByObjectId() = runBlocking {
         col.insertOne("{ _id:{$oid:'47cc67093475061e3d95369d'}, name:'John'}")
         col.deleteOneById(ObjectId("47cc67093475061e3d95369d"))
@@ -51,5 +62,15 @@ class DeleteTest : KMongoCoroutineBaseTest<Friend>() {
         col.deleteMany("{}")
         val count = col.count()
         assertEquals(0, count)
+    }
+
+    @Test
+    fun `can remove all in ClientSession`() = runBlocking {
+        col.insertMany(listOf(Friend("John"), Friend("Peter")))
+        rule.mongoClient.startSession().use {
+            col.deleteMany(it, "{}")
+            val count = col.countDocuments(it)
+            assertEquals(0, count)
+        }
     }
 }
