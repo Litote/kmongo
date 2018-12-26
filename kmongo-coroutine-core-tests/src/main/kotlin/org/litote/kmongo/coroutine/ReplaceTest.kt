@@ -42,7 +42,7 @@ class ReplaceTest : KMongoCoroutineBaseTest<Friend>() {
         col.insertOne(friend)
         rule.mongoClient.startSession().use {
             col.replaceOneById(it, friend._id ?: Any(), Friend("John"))
-            val replacedFriend = col.findOne(Filters.eq("name", "John"), it) ?: throw AssertionError("Value must not null!")
+            val replacedFriend = col.findOne(it, Filters.eq("name", "John")) ?: throw AssertionError("Value must not null!")
             assertEquals("John", replacedFriend.name)
         }
     }
@@ -69,7 +69,7 @@ class ReplaceTest : KMongoCoroutineBaseTest<Friend>() {
 
         rule.mongoClient.startSession().use {
             col.replaceOne(it, Filters.eq("name", "John"), friend)
-            val replacedFriend = col.findOne(Filters.eq("name", "Johnny"), it) ?: throw AssertionError("Value must not null!")
+            val replacedFriend = col.findOne(it, Filters.eq("name", "Johnny")) ?: throw AssertionError("Value must not null!")
             assertEquals("Johnny", replacedFriend.name)
 
         }
