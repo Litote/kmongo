@@ -217,6 +217,16 @@ suspend fun <T : Any> MongoCollection<T>.findOne(filter: String = KMongoUtil.EMP
 /**
  * Finds the first document that match the filter in the collection.
  *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter the query filter
+ */
+suspend fun <T : Any> MongoCollection<T>.findOne(clientSession: ClientSession, filter: String = KMongoUtil.EMPTY_JSON): T? {
+    return singleResult { find(clientSession, toBson(filter)).first(it) }
+}
+
+/**
+ * Finds the first document that match the filter in the collection.
+ *
  * @param filter the query filter
  */
 suspend fun <T : Any> MongoCollection<T>.findOne(filter: Bson): T? {
@@ -226,10 +236,10 @@ suspend fun <T : Any> MongoCollection<T>.findOne(filter: Bson): T? {
 /**
  * Finds the first document that match the filter in the collection.
  *
- * @param filter the query filter
  * @param clientSession  the client session with which to associate this operation
+ * @param filter the query filter
  */
-suspend fun <T: Any> MongoCollection<T>.findOne(filter: Bson, clientSession: ClientSession): T? {
+suspend fun <T: Any> MongoCollection<T>.findOne(clientSession: ClientSession, filter: Bson): T? {
     return singleResult { find(clientSession, filter).first(it) }
 }
 
@@ -258,7 +268,7 @@ suspend fun <T : Any> MongoCollection<T>.findOneById(id: Any): T? {
  * @param clientSession  the client session with which to associate this operation
  */
 suspend fun <T : Any> MongoCollection<T>.findOneById(id: Any, clientSession: ClientSession): T? {
-    return findOne(idFilterQuery(id), clientSession)
+    return findOne(clientSession, idFilterQuery(id))
 }
 
 /**
@@ -770,6 +780,29 @@ suspend fun <T> MongoCollection<T>.updateOne(
 /**
  * Update a single document in the collection according to the specified arguments.
  *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter   a document describing the query filter
+ * @param update   a document describing the update. The update to apply must include only update operators.
+ * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T> MongoCollection<T>.updateOne(
+        clientSession: ClientSession,
+        filter: String,
+        update: String,
+        options: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return singleResult { updateOne(clientSession, toBson(filter), toBson(update), options, it) }
+}
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+ *
  * @param filter   a document describing the query filter
  * @param update   the update object
  * @param options  the options to apply to the update operation
@@ -785,6 +818,27 @@ suspend fun <T> MongoCollection<T>.updateOne(
     update: Any,
     options: UpdateOptions = UpdateOptions()
 ): UpdateResult? = singleResult { updateOne(toBson(filter), setModifier(update), options, it) }
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter   a document describing the query filter
+ * @param update   the update object
+ * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T> MongoCollection<T>.updateOne(
+        clientSession: ClientSession,
+        filter: String,
+        update: Any,
+        options: UpdateOptions = UpdateOptions()
+): UpdateResult? = singleResult { updateOne(clientSession, toBson(filter), setModifier(update), options, it) }
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -810,6 +864,29 @@ suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
 /**
  * Update a single document in the collection according to the specified arguments.
  *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter   a document describing the query filter
+ * @param target  the update object - must have an non null id
+ * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
+        clientSession: ClientSession,
+        filter: Bson,
+        target: T,
+        options: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return singleResult { updateOne(clientSession, filter, KMongoUtil.toBsonModifier(target), options, it) }
+}
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+ *
  * @param target  the update object - must have an non null id
  * @param options  the options to apply to the update operation
  *
@@ -824,6 +901,27 @@ suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
     options: UpdateOptions = UpdateOptions()
 ): UpdateResult? {
     return updateOneById(KMongoUtil.extractId(target, T::class), target, options)
+}
+
+/**
+ * Update a single document in the collection according to the specified arguments.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param target  the update object - must have an non null id
+ * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
+        clientSession: ClientSession,
+        target: T,
+        options: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return updateOneById(clientSession, KMongoUtil.extractId(target, T::class), target, options)
 }
 
 /**
@@ -854,6 +952,36 @@ suspend fun <T> MongoCollection<T>.updateOneById(
     }
 
 /**
+ * Update a single document in the collection according to the specified arguments.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param id        the object id
+ * @param update    the update object
+ * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T> MongoCollection<T>.updateOneById(
+        clientSession: ClientSession,
+        id: Any,
+        update: Any,
+        options: UpdateOptions = UpdateOptions()
+): UpdateResult? =
+        singleResult {
+            updateOne(
+                    clientSession,
+                    idFilterQuery(id),
+                    KMongoUtil.toBsonModifier(update),
+                    options,
+                    it
+            )
+        }
+
+/**
  * Update all documents in the collection according to the specified arguments.
  *
  * @param filter   a document describing the query filter
@@ -877,6 +1005,7 @@ suspend fun <T> MongoCollection<T>.updateMany(
 /**
  * Update all documents in the collection according to the specified arguments.
  *
+ * @param clientSession  the client session with which to associate this operation
  * @param filter   a document describing the query filter
  * @param update   a document describing the update. The update to apply must include only update operators.
  * @param updateOptions the options to apply to the update operation
@@ -888,10 +1017,53 @@ suspend fun <T> MongoCollection<T>.updateMany(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T> MongoCollection<T>.updateMany(
-    filter: Bson,
-    vararg updates: SetTo<*>,
-    updateOptions: UpdateOptions = UpdateOptions()
+        clientSession: ClientSession,
+        filter: String,
+        update: String,
+        updateOptions: UpdateOptions = UpdateOptions()
+): UpdateResult? {
+    return singleResult { updateMany(clientSession, toBson(filter), toBson(update), updateOptions, it) }
+}
+
+/**
+ * Update all documents in the collection according to the specified arguments.
+ *
+ * @param filter   a document describing the query filter
+ * @param update   a document describing the update. The update to apply must include only update operators.
+ * @param updateOptions the options to apply to the update operation
+ *
+ * @return the result of the update many operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T> MongoCollection<T>.updateMany(
+        filter: Bson,
+        vararg updates: SetTo<*>,
+        updateOptions: UpdateOptions = UpdateOptions()
 ): UpdateResult? = singleResult { updateMany(filter, set(*updates), updateOptions, it) }
+
+/**
+ * Update all documents in the collection according to the specified arguments.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter   a document describing the query filter
+ * @param update   a document describing the update. The update to apply must include only update operators.
+ * @param updateOptions the options to apply to the update operation
+ *
+ * @return the result of the update many operation
+ *
+ * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+ * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+ * @throws com.mongodb.MongoException             if the write failed due some other failure
+ */
+suspend fun <T> MongoCollection<T>.updateMany(
+        clientSession: ClientSession,
+        filter: Bson,
+        vararg updates: SetTo<*>,
+        updateOptions: UpdateOptions = UpdateOptions()
+): UpdateResult? = singleResult { updateMany(clientSession, filter, set(*updates), updateOptions, it) }
 
 /**
  * Atomically find a document and remove it.
@@ -906,6 +1078,23 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(
     options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
 ): T? {
     return singleResult { findOneAndDelete(toBson(filter), options, it) }
+}
+
+/**
+ * Atomically find a document and remove it.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter   the query filter to find the document with
+ * @param options  the options to apply to the operation
+ *
+ * @return the document that was removed.  If no documents matched the query filter, then null will be returned
+ */
+suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(
+        clientSession: ClientSession,
+        filter: String,
+        options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
+): T? {
+    return singleResult { findOneAndDelete(clientSession, toBson(filter), options, it) }
 }
 
 /**
@@ -928,6 +1117,27 @@ suspend fun <T> MongoCollection<T>.findOneAndReplace(
 }
 
 /**
+ * Atomically find a document and replace it.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter      the query filter to apply the the replace operation
+ * @param replacement the replacement document
+ * @param options     the options to apply to the operation
+ *
+ * @return the document that was replaced.  Depending on the value of the `returnOriginal` property, this will either be the
+ * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
+ * returned
+ */
+suspend fun <T> MongoCollection<T>.findOneAndReplace(
+        clientSession: ClientSession,
+        filter: String,
+        replacement: T,
+        options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
+): T? {
+    return singleResult { findOneAndReplace(clientSession, toBson(filter), replacement, options, it) }
+}
+
+/**
  * Atomically find a document and update it.
  *
  * @param filter   a document describing the query filter
@@ -944,6 +1154,27 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
 ): T? {
     return singleResult { findOneAndUpdate(toBson(filter), toBson(update), options, it) }
+}
+
+/**
+ * Atomically find a document and update it.
+ *
+ * @param clientSession  the client session with which to associate this operation
+ * @param filter   a document describing the query filter
+ * @param update   a document describing the update. The update to apply must include only update operators.
+ * @param options  the options to apply to the operation
+ *
+ * @return the document that was updated.  Depending on the value of the `returnOriginal` property, this will either be the
+ * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
+ * returned
+ */
+suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(
+        clientSession: ClientSession,
+        filter: String,
+        update: String,
+        options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): T? {
+    return singleResult { findOneAndUpdate(clientSession, toBson(filter), toBson(update), options, it) }
 }
 
 /**
