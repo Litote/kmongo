@@ -19,15 +19,23 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.litote.jackson.JacksonModuleServiceLoader
 import java.util.ServiceLoader
 
 internal object ObjectMapperFactory {
 
+    private class SetMappingModule : SimpleModule() {
+        init {
+            addAbstractTypeMapping(Set::class.java, LinkedHashSet::class.java)
+        }
+    }
+
     fun createExtendedJsonObjectMapper(): ObjectMapper {
         return ObjectMapper()
             .registerKotlinModule()
+            .registerModule(SetMappingModule())
             .registerModule(ExtendedJsonModule())
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
             .registerModules(loadedModules)
@@ -44,6 +52,7 @@ internal object ObjectMapperFactory {
     private fun configureBson(mapper: ObjectMapper): ObjectMapper {
         return mapper.registerModule(de.undercouch.bson4jackson.BsonModule())
             .registerKotlinModule()
+            .registerModule(SetMappingModule())
             .registerModule(BsonModule())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
