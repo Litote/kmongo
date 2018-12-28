@@ -46,3 +46,4 @@ You can copy/paste your queries from the Mongo shell in your IDE. Write readable
 
 * [Deny Prasetyo](https://github.com/jasoet)  (kmongo-coroutine)
 * [Dilius](https://github.com/diliuskh) (kmongo-rxjava2)
+* [Denis Kilchichakov](https://github.com/augur) (kmongo-coroutine)

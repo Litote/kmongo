@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.coroutine
 
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOptions
 import kotlinx.coroutines.runBlocking
 import org.bson.types.ObjectId
@@ -23,6 +24,7 @@ import org.junit.Test
 import org.litote.kmongo.MongoOperator.exists
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.unset
+import org.litote.kmongo.SetTo
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -42,6 +44,35 @@ class UpdateTest : KMongoCoroutineBaseTest<Friend>() {
     }
 
     @Test
+    fun `can update multi in ClientSession`() = runBlocking {
+        rule.mongoClient.startSession().use {
+            col.insertMany(it, listOf(Friend("John"), Friend("John")))
+            col.updateMany(it, "{name:'John'}", "{$unset:{name:1}}")
+            val count = col.count(it, "{name:{$exists:true}}")
+            assertEquals(0, count)
+        }
+    }
+
+    @Test
+    fun `can update multi with non-string filters and updates`() = runBlocking {
+        col.insertMany(listOf(Friend("John"), Friend("John")))
+
+        col.updateMany(Filters.eq("name", "John"), SetTo(Friend::name, "Carl"))
+        val count = col.count("{name:'John'}")
+        assertEquals(0, count)
+    }
+
+    @Test
+    fun `can update multi with non-string filters and updates in ClientSession`() = runBlocking {
+        rule.mongoClient.startSession().use {
+            col.insertMany(it, listOf(Friend("John"), Friend("John")))
+            col.updateMany(it, Filters.eq("name", "John"), SetTo(Friend::name, "Carl"))
+            val count = col.count(it,"{name:'John'}")
+            assertEquals(0, count)
+        }
+    }
+
+    @Test
     fun canUpdateByObjectId() = runBlocking {
         val friend = Friend("Paul")
         col.insertOne(friend)
@@ -53,10 +84,32 @@ class UpdateTest : KMongoCoroutineBaseTest<Friend>() {
     }
 
     @Test
+    fun `can update by ObjectId in ClientSession`() = runBlocking {
+        val friend = Friend("Paul")
+        col.insertOne(friend)
+        rule.mongoClient.startSession().use {
+            col.updateOneById(it, friend._id!!, "{$set:{name:'John'}}")
+
+            val updatedFriend = col.findOne(it, Filters.eq("name", "John")) ?: throw AssertionError("Value must not null!")
+            assertEquals("John", updatedFriend.name)
+            assertEquals(friend._id, updatedFriend._id)
+        }
+    }
+
+    @Test
     fun canUpsert() = runBlocking {
         col.updateOne("{}", "{$set:{name:'John'}}", UpdateOptions().upsert(true))
         val friend = col.findOne("{name:'John'}") ?: throw AssertionError("Value must not null!")
         assertEquals("John", friend.name)
+    }
+
+    @Test
+    fun `can upsert in ClientSession`() = runBlocking {
+        rule.mongoClient.startSession().use {
+            col.updateOne(it, "{}", "{$set:{name:'John'}}", UpdateOptions().upsert(true))
+            val friend = col.findOne(it, "{name:'John'}") ?: throw AssertionError("Value must not null!")
+            assertEquals("John", friend.name)
+        }
     }
 
     @Test
@@ -83,6 +136,19 @@ class UpdateTest : KMongoCoroutineBaseTest<Friend>() {
     }
 
     @Test
+    fun `can partially update in ClientSession`() = runBlocking {
+        val friend = Friend("John", "123 Wall Street")
+        col.insertOne(friend)
+        rule.mongoClient.startSession().use {
+            val newDocument = Friend("Johnny")
+            col.updateOne(it, "{name:'John'}", newDocument)
+            val updatedFriend = col.findOne(it, "{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
+            assertEquals("Johnny", updatedFriend.name)
+            assertNull(updatedFriend.address)
+        }
+    }
+
+    @Test
     fun canUpdateTheSameDocument() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
         col.insertOne(friend)
@@ -94,4 +160,41 @@ class UpdateTest : KMongoCoroutineBaseTest<Friend>() {
         assertEquals(friend._id, updatedFriend._id)
     }
 
+    @Test
+    fun `can update the same document in ClientSession`() = runBlocking {
+        val friend = Friend("John", "123 Wall Street")
+        col.insertOne(friend)
+        friend.name = "Johnny"
+        rule.mongoClient.startSession().use {
+            col.updateOne(it, friend)
+            val updatedFriend = col.findOne(it, "{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
+            assertEquals("Johnny", updatedFriend.name)
+            assertEquals("123 Wall Street", updatedFriend.address)
+            assertEquals(friend._id, updatedFriend._id)
+        }
+    }
+
+    @Test
+    fun `can update document by bson filter`() = runBlocking {
+        val friend = Friend("John", "123 Wall Street")
+        col.insertOne(friend)
+        val newDocument = Friend("Johnny")
+        col.updateOne(Filters.eq("name", "John"), newDocument)
+        val updatedFriend = col.findOne("{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
+        assertEquals("Johnny", updatedFriend.name)
+        assertNull(updatedFriend.address)
+    }
+
+    @Test
+    fun `can update document by bson filter in ClientSession`() = runBlocking {
+        val friend = Friend("John", "123 Wall Street")
+        col.insertOne(friend)
+        rule.mongoClient.startSession().use {
+            val newDocument = Friend("Johnny")
+            col.updateOne(it, Filters.eq("name", "John"), newDocument)
+            val updatedFriend = col.findOne(it, "{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
+            assertEquals("Johnny", updatedFriend.name)
+            assertNull(updatedFriend.address)
+        }
+    }
 }
