@@ -28,6 +28,7 @@ import kotlin.test.assertTrue
 class ObjectMapperFactoryTest {
 
     data class T(val set:Set<String>, val mutableSet: MutableSet<String>)
+    data class M(val map:Map<String, Boolean>, val mutableMap: MutableMap<String, Boolean>)
 
     @Test
     fun `Set is deserialized as LinkedHashSet`() {
@@ -35,5 +36,13 @@ class ObjectMapperFactoryTest {
         assertEquals(setOf("b","a").toList(), t.set.toList())
         assertTrue { t.set is LinkedHashSet }
         assertTrue { t.mutableSet is LinkedHashSet }
+    }
+
+    @Test
+    fun `Map is deserialized as LinkedHashMap`() {
+        val m = KMongoConfiguration.extendedJsonMapper.readValue<M>("""{"map":{"b":true,"a":false},"mutableMap":{"e":true}}""")
+        assertEquals(mapOf("b" to true,"a" to false), m.map)
+        assertTrue { m.map is LinkedHashMap }
+        assertTrue { m.mutableMap is LinkedHashMap }
     }
 }
