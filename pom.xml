@@ -75,9 +75,9 @@
         <jackson-module-loader.version>0.1.0</jackson-module-loader.version>
 
         <!-- annotations processor -->
-        <kgenerator.version>0.1.0</kgenerator.version>
+        <kgenerator.version>0.2.0</kgenerator.version>
         <kjackson-data.version>0.1.0</kjackson-data.version>
-        <kjackson-generator.version>0.1.0</kjackson-generator.version>
+        <kjackson-generator.version>0.2.0</kjackson-generator.version>
         <kotlinx.metadata>0.0.5</kotlinx.metadata>
 
         <!-- test dependencies -->

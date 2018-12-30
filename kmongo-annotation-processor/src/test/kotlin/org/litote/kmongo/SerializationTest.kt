@@ -19,7 +19,6 @@ package org.litote.kmongo
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import org.junit.Ignore
 import org.junit.Test
 import org.litote.jackson.getJacksonModulesFromServiceLoader
 import org.litote.jackson.registerModulesFromServiceLoader
@@ -36,7 +35,6 @@ import kotlin.test.assertEquals
  */
 class SerializationTest {
 
-    @Ignore
     @Test
     fun `serialize and deserialize is ok`() {
         println(getJacksonModulesFromServiceLoader())

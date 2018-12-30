@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-org.litote.jackson.generator.KMongoJacksonProcessor
+org.litote.jackson.generator.KJacksonGeneratorProcessor
