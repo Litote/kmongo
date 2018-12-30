@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.coroutine
 
+import com.mongodb.Block
 import com.mongodb.MongoCommandException
 import com.mongodb.async.client.AggregateIterable
 import com.mongodb.async.client.ClientSession
@@ -1379,3 +1380,12 @@ suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
 ): BulkWriteResult? {
     return singleResult { bulkWrite(requests.toList(), options, it) }
 }
+
+/**
+ * Iterates over all documents in the view, applying the given block to each, and completing the returned future after all documents
+ * have been iterated, or an exception has occurred.
+ *
+ * @param block    the block to apply to each document
+ */
+suspend fun <T> FindIterable<T>.forEach(block: (T) -> Unit) = singleResult<Void> { forEach(Block { item -> block(item) }, it) }
+
