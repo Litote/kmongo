@@ -81,7 +81,7 @@
         <kotlinx.metadata>0.0.5</kotlinx.metadata>
 
         <!-- test dependencies -->
-        <flapdoodle.version>2.1.1</flapdoodle.version>
+        <flapdoodle.version>2.2.0</flapdoodle.version>
         <fongo.version>2.2.0-RC2</fongo.version>
         <sl4j.version>1.7.25</sl4j.version>
         <junit.version>4.12</junit.version>

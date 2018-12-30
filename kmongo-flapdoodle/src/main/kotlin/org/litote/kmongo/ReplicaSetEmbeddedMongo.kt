@@ -47,6 +47,7 @@ internal object ReplicaSetEmbeddedMongo {
         .cmdOptions(
             MongoCmdOptionsBuilder()
                 .useSmallFiles(true)
+                .useNoJournal(false)
                 .build()
         )
         .build()
@@ -57,6 +58,7 @@ internal object ReplicaSetEmbeddedMongo {
         .cmdOptions(
             MongoCmdOptionsBuilder()
                 .useSmallFiles(true)
+                .useNoJournal(false)
                 .build()
         )
         .build()
@@ -67,6 +69,7 @@ internal object ReplicaSetEmbeddedMongo {
         .cmdOptions(
             MongoCmdOptionsBuilder()
                 .useSmallFiles(true)
+                .useNoJournal(false)
                 .build()
         )
         .build()
