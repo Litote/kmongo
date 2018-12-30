@@ -129,9 +129,9 @@ internal object ReplicaSetEmbeddedMongo {
 
     private fun createInstance(): List<MongodProcess> =
         listOf(
-            MongodStarter.getDefaultInstance().prepare(rep1).start(),
-            MongodStarter.getDefaultInstance().prepare(rep2).start(),
-            MongodStarter.getDefaultInstance().prepare(rep3).start()
+            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep1).start(),
+            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep2).start(),
+            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep3).start()
         )
 
 }

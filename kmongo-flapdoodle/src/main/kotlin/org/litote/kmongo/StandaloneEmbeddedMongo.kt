@@ -49,6 +49,6 @@ internal object StandaloneEmbeddedMongo {
         )
 
     private fun createInstance(): MongodProcess {
-        return MongodStarter.getDefaultInstance().prepare(config).start()
+        return MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(config).start()
     }
 }
