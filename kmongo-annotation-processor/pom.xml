@@ -72,9 +72,14 @@
         </dependency>
         <dependency>
             <groupId>org.litote.jackson</groupId>
-            <artifactId>jackson-generator</artifactId>
+            <artifactId>jackson-data</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--dependency>
+            <groupId>org.litote.jackson</groupId>
+            <artifactId>jackson-generator</artifactId>
+            <scope>test</scope>
+        </dependency-->
     </dependencies>
 
     <build>
