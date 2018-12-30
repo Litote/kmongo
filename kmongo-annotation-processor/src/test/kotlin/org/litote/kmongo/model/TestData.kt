@@ -16,8 +16,8 @@
 
 package org.litote.kmongo.model
 
+import org.litote.jackson.data.JacksonData
 import org.litote.kmongo.Id
-import org.litote.kmongo.JacksonData
 import org.litote.kmongo.model.other.SimpleReferencedData
 import org.litote.kmongo.newId
 import java.util.Date

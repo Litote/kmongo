@@ -37,6 +37,10 @@
             <artifactId>kmongo-data</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.litote</groupId>
+            <artifactId>kreflect</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-core</artifactId>
             <scope>provided</scope>

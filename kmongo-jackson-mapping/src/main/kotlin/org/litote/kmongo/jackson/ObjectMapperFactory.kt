@@ -17,12 +17,10 @@ package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import org.litote.jackson.JacksonModuleServiceLoader
-import java.util.ServiceLoader
+import org.litote.jackson.registerModulesFromServiceLoader
 
 internal object ObjectMapperFactory {
 
@@ -38,7 +36,7 @@ internal object ObjectMapperFactory {
             .registerModule(SetMappingModule())
             .registerModule(ExtendedJsonModule())
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
-            .registerModules(loadedModules)
+            .registerModulesFromServiceLoader()
     }
 
     fun createBsonObjectMapper(): ObjectMapper {
@@ -57,14 +55,11 @@ internal object ObjectMapperFactory {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
             .addHandler(StringDeserializationProblemHandler)
-            .registerModules(loadedModules)
+            .registerModulesFromServiceLoader()
     }
 
     fun createFilterIdObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
         return objectMapper.copy().registerModule(FilterIdModule())
     }
 
-    private val loadedModules: List<Module> =
-        ServiceLoader.load(JacksonModuleServiceLoader::class.java)
-            .map { it.module() }
 }

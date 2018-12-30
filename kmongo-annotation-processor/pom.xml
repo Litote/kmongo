@@ -33,8 +33,8 @@
             <artifactId>kmongo-property</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.squareup</groupId>
-            <artifactId>kotlinpoet</artifactId>
+            <groupId>org.litote</groupId>
+            <artifactId>kgenerator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
@@ -68,6 +68,11 @@
         <dependency>
             <groupId>com.google.testing.compile</groupId>
             <artifactId>compile-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.jackson</groupId>
+            <artifactId>jackson-generator</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

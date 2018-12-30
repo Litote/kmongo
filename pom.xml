@@ -36,7 +36,6 @@
         <module>kmongo-shared</module>
         <module>kmongo-property</module>
         <module>kmongo-annotation-processor</module>
-        <module>kmongo-jackson-modules-service-loader</module>
         <module>kmongo-jackson-mapping</module>
         <module>kmongo-native-mapping</module>
         <module>kmongo-flapdoodle</module>
@@ -72,9 +71,12 @@
         <jackson.version>2.9.7</jackson.version>
         <jackson-module.version>2.9.7</jackson-module.version>
         <bson4jackson.version>2.9.2</bson4jackson.version>
+        <kreflect.version>1.0.0</kreflect.version>
+        <jackson-module-loader.version>0.1.0</jackson-module-loader.version>
 
         <!-- annotations processor -->
-        <kotlin-poet.version>0.7.0</kotlin-poet.version>
+        <kgenerator.version>0.1.0</kgenerator.version>
+        <kjackson-generator.version>0.1.0</kjackson-generator.version>
         <kotlinx.metadata>0.0.4</kotlinx.metadata>
 
         <!-- test dependencies -->
@@ -127,7 +129,12 @@
             <dependency>
                 <groupId>com.squareup</groupId>
                 <artifactId>kotlinpoet</artifactId>
-                <version>${kotlin-poet.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-stdlib-jdk7</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -177,9 +184,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-jackson-modules-service-loader</artifactId>
-                <version>${project.version}</version>
+                <groupId>org.litote.jackson</groupId>
+                <artifactId>jackson-module-loader</artifactId>
+                <version>${jackson-module-loader.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
@@ -301,6 +308,21 @@
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver-core</artifactId>
                 <version>${mongo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote</groupId>
+                <artifactId>kreflect</artifactId>
+                <version>${kreflect.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote</groupId>
+                <artifactId>kgenerator</artifactId>
+                <version>${kgenerator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.jackson</groupId>
+                <artifactId>jackson-generator</artifactId>
+                <version>${kjackson-generator.version}</version>
             </dependency>
 
             <dependency>

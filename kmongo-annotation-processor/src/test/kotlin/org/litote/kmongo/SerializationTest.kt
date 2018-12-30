@@ -20,14 +20,14 @@ import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.Test
-import org.litote.jackson.JacksonModuleServiceLoader
+import org.litote.jackson.getJacksonModulesFromServiceLoader
+import org.litote.jackson.registerModulesFromServiceLoader
 import org.litote.kmongo.id.ObjectIdToStringGenerator
 import org.litote.kmongo.id.jackson.IdJacksonModule
 import org.litote.kmongo.model.TestData
 import org.litote.kmongo.model.other.SimpleReferencedData
 import java.util.Date
 import java.util.Locale
-import java.util.ServiceLoader
 import kotlin.test.assertEquals
 
 /**
@@ -37,13 +37,12 @@ class SerializationTest {
 
     @Test
     fun `serialize and deserialize is ok`() {
+        println(getJacksonModulesFromServiceLoader())
         val mapper = ObjectMapper()
             .registerKotlinModule()
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
             .registerModule(IdJacksonModule(ObjectIdToStringGenerator))
-            .registerModules(
-                ServiceLoader.load(JacksonModuleServiceLoader::class.java).map { it.module() }
-            )
+            .registerModulesFromServiceLoader()
 
         val data = TestData(
             setOf(SimpleReferencedData()),

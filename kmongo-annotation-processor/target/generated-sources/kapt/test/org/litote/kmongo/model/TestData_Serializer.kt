@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import org.litote.jackson.JacksonModuleServiceLoader
 
-class TestData_Serializer : StdSerializer<TestData>(TestData::class.java),
+internal class TestData_Serializer : StdSerializer<TestData>(TestData::class.java),
         JacksonModuleServiceLoader {
-    override fun module() = SimpleModule().addSerializer(this)
+    override fun module() = SimpleModule().addSerializer(TestData::class.java, this)
 
     override fun serialize(
-            value: TestData,
-            gen: JsonGenerator,
-            serializers: SerializerProvider
+        value: TestData,
+        gen: JsonGenerator,
+        serializers: SerializerProvider
     ) {
         gen.writeStartObject()
         gen.writeFieldName("set")
@@ -30,7 +30,8 @@ class TestData_Serializer : StdSerializer<TestData>(TestData::class.java),
         if(_date_ == null) { gen.writeNull() } else {serializers.defaultSerializeValue(_date_, gen)}
         gen.writeFieldName("referenced")
         val _referenced_ = value.referenced
-        if(_referenced_ == null) { gen.writeNull() } else {serializers.defaultSerializeValue(_referenced_, gen)}
+        if(_referenced_ == null) { gen.writeNull() } else
+                {serializers.defaultSerializeValue(_referenced_, gen)}
         gen.writeFieldName("map")
         val _map_ = value.map
         serializers.defaultSerializeValue(_map_, gen)
@@ -44,14 +45,17 @@ class TestData_Serializer : StdSerializer<TestData>(TestData::class.java),
         val _nullableBoolean_ = value.nullableBoolean
         if(_nullableBoolean_ == null) { gen.writeNull() } else {gen.writeBoolean(_nullableBoolean_)}
         gen.writeFieldName("privateData")
-        val _privateData_ = org.litote.kmongo.property.findPropertyValue<org.litote.kmongo.model.TestData,kotlin.String>(value, "privateData")
+        val _privateData_ =
+                org.litote.kreflect.findPropertyValue<org.litote.kmongo.model.TestData,kotlin.String>(value,
+                "privateData")
         gen.writeString(_privateData_)
         gen.writeFieldName("id")
         val _id_ = value.id
         serializers.defaultSerializeValue(_id_, gen)
         gen.writeFieldName("byteArray")
         val _byteArray_ = value.byteArray
-        if(_byteArray_ == null) { gen.writeNull() } else {serializers.defaultSerializeValue(_byteArray_, gen)}
+        if(_byteArray_ == null) { gen.writeNull() } else
+                {serializers.defaultSerializeValue(_byteArray_, gen)}
         gen.writeEndObject()
     }
 }

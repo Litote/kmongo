@@ -21,12 +21,14 @@ import org.litote.kmongo.property.KMapPropertyPath
 import org.litote.kmongo.property.KMapSimplePropertyPath
 import org.litote.kmongo.property.KPropertyPath
 
-open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, TestData?>) : KPropertyPath<T, TestData?>(previous,property) {
+open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, TestData?>) :
+        KPropertyPath<T, TestData?>(previous,property) {
     val set: SimpleReferencedData_Col<T>
         get() = SimpleReferencedData_Col(this,TestData::set)
 
     val list: KCollectionSimplePropertyPath<T, List<Boolean>?>
-        get() = org.litote.kmongo.property.KCollectionSimplePropertyPath<T, kotlin.collections.List<kotlin.Boolean>?>(this,TestData::list)
+        get() = org.litote.kmongo.property.KCollectionSimplePropertyPath<T,
+                kotlin.collections.List<kotlin.Boolean>?>(this,TestData::list)
 
     val name_: KPropertyPath<T, String?>
         get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.String?>(this,TestData::name)
@@ -38,25 +40,33 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
         get() = SimpleReferencedData_(this,TestData::referenced)
 
     val map: KMapSimplePropertyPath<T, Id<Locale>?, Set<String>?>
-        get() = org.litote.kmongo.property.KMapSimplePropertyPath<T, org.litote.kmongo.Id<java.util.Locale>?, kotlin.collections.Set<kotlin.String>?>(this,TestData::map)
+        get() = org.litote.kmongo.property.KMapSimplePropertyPath<T,
+                org.litote.kmongo.Id<java.util.Locale>?,
+                kotlin.collections.Set<kotlin.String>?>(this,TestData::map)
 
     val map2: SimpleReferenced2Data_Map<T, Locale>
         get() = SimpleReferenced2Data_Map(this,TestData::map2)
 
     val nullableFloat: KPropertyPath<T, Float?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.Float?>(this,TestData::nullableFloat)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.Float?>(this,TestData::nullableFloat)
 
     val nullableBoolean: KPropertyPath<T, Boolean?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.Boolean?>(this,TestData::nullableBoolean)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.Boolean?>(this,TestData::nullableBoolean)
 
     val privateData: KPropertyPath<T, String?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.String?>(this,org.litote.kmongo.property.findProperty<TestData,String?>("privateData"))
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.String?>(this,org.litote.kreflect.findProperty<TestData,String?>("privateData"))
 
     val id: KPropertyPath<T, Id<*>?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, org.litote.kmongo.Id<*>?>(this,TestData::id)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                org.litote.kmongo.Id<*>?>(this,TestData::id)
 
     val byteArray: KPropertyPath<T, ByteArray?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.ByteArray?>(this,TestData::byteArray)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.ByteArray?>(this,TestData::byteArray)
+
     companion object {
         val Set: SimpleReferencedData_Col<TestData>
             get() = SimpleReferencedData_Col<TestData>(null,TestData::set)
@@ -77,19 +87,22 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
         val NullableBoolean: KProperty1<TestData, Boolean?>
             get() = TestData::nullableBoolean
         val PrivateData: KProperty1<TestData, String?>
-            get() = org.litote.kmongo.property.findProperty<TestData,String?>("privateData")
+            get() = org.litote.kreflect.findProperty<TestData,String?>("privateData")
         val Id: KProperty1<TestData, Id<*>?>
             get() = TestData::id
         val ByteArray: KProperty1<TestData, ByteArray?>
             get() = TestData::byteArray}
 }
 
-open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<TestData>?>) : KCollectionPropertyPath<T, TestData?, TestData_<T>>(previous,property) {
+open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*,
+        Collection<TestData>?>) : KCollectionPropertyPath<T, TestData?,
+        TestData_<T>>(previous,property) {
     val set: SimpleReferencedData_Col<T>
         get() = SimpleReferencedData_Col(this,TestData::set)
 
     val list: KCollectionSimplePropertyPath<T, List<Boolean>?>
-        get() = org.litote.kmongo.property.KCollectionSimplePropertyPath<T, kotlin.collections.List<kotlin.Boolean>?>(this,TestData::list)
+        get() = org.litote.kmongo.property.KCollectionSimplePropertyPath<T,
+                kotlin.collections.List<kotlin.Boolean>?>(this,TestData::list)
 
     val name_: KPropertyPath<T, String?>
         get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.String?>(this,TestData::name)
@@ -101,35 +114,45 @@ open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<
         get() = SimpleReferencedData_(this,TestData::referenced)
 
     val map: KMapSimplePropertyPath<T, Id<Locale>?, Set<String>?>
-        get() = org.litote.kmongo.property.KMapSimplePropertyPath<T, org.litote.kmongo.Id<java.util.Locale>?, kotlin.collections.Set<kotlin.String>?>(this,TestData::map)
+        get() = org.litote.kmongo.property.KMapSimplePropertyPath<T,
+                org.litote.kmongo.Id<java.util.Locale>?,
+                kotlin.collections.Set<kotlin.String>?>(this,TestData::map)
 
     val map2: SimpleReferenced2Data_Map<T, Locale>
         get() = SimpleReferenced2Data_Map(this,TestData::map2)
 
     val nullableFloat: KPropertyPath<T, Float?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.Float?>(this,TestData::nullableFloat)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.Float?>(this,TestData::nullableFloat)
 
     val nullableBoolean: KPropertyPath<T, Boolean?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.Boolean?>(this,TestData::nullableBoolean)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.Boolean?>(this,TestData::nullableBoolean)
 
     val privateData: KPropertyPath<T, String?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.String?>(this,org.litote.kmongo.property.findProperty<TestData,String?>("privateData"))
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.String?>(this,org.litote.kreflect.findProperty<TestData,String?>("privateData"))
 
     val id: KPropertyPath<T, Id<*>?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, org.litote.kmongo.Id<*>?>(this,TestData::id)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                org.litote.kmongo.Id<*>?>(this,TestData::id)
 
     val byteArray: KPropertyPath<T, ByteArray?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.ByteArray?>(this,TestData::byteArray)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.ByteArray?>(this,TestData::byteArray)
 
     @Suppress("UNCHECKED_CAST")
-    override fun memberWithAdditionalPath(additionalPath: String): TestData_<T> = TestData_(this, customProperty(this, additionalPath))}
+    override fun memberWithAdditionalPath(additionalPath: String): TestData_<T> = TestData_(this,
+            customProperty(this, additionalPath))}
 
-open class TestData_Map<T, K>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Map<K, TestData>?>) : KMapPropertyPath<T, K, TestData?, TestData_<T>>(previous,property) {
+open class TestData_Map<T, K>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Map<K,
+        TestData>?>) : KMapPropertyPath<T, K, TestData?, TestData_<T>>(previous,property) {
     val set: SimpleReferencedData_Col<T>
         get() = SimpleReferencedData_Col(this,TestData::set)
 
     val list: KCollectionSimplePropertyPath<T, List<Boolean>?>
-        get() = org.litote.kmongo.property.KCollectionSimplePropertyPath<T, kotlin.collections.List<kotlin.Boolean>?>(this,TestData::list)
+        get() = org.litote.kmongo.property.KCollectionSimplePropertyPath<T,
+                kotlin.collections.List<kotlin.Boolean>?>(this,TestData::list)
 
     val name_: KPropertyPath<T, String?>
         get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.String?>(this,TestData::name)
@@ -141,25 +164,33 @@ open class TestData_Map<T, K>(previous: KPropertyPath<T, *>?, property: KPropert
         get() = SimpleReferencedData_(this,TestData::referenced)
 
     val map: KMapSimplePropertyPath<T, Id<Locale>?, Set<String>?>
-        get() = org.litote.kmongo.property.KMapSimplePropertyPath<T, org.litote.kmongo.Id<java.util.Locale>?, kotlin.collections.Set<kotlin.String>?>(this,TestData::map)
+        get() = org.litote.kmongo.property.KMapSimplePropertyPath<T,
+                org.litote.kmongo.Id<java.util.Locale>?,
+                kotlin.collections.Set<kotlin.String>?>(this,TestData::map)
 
     val map2: SimpleReferenced2Data_Map<T, Locale>
         get() = SimpleReferenced2Data_Map(this,TestData::map2)
 
     val nullableFloat: KPropertyPath<T, Float?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.Float?>(this,TestData::nullableFloat)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.Float?>(this,TestData::nullableFloat)
 
     val nullableBoolean: KPropertyPath<T, Boolean?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.Boolean?>(this,TestData::nullableBoolean)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.Boolean?>(this,TestData::nullableBoolean)
 
     val privateData: KPropertyPath<T, String?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.String?>(this,org.litote.kmongo.property.findProperty<TestData,String?>("privateData"))
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.String?>(this,org.litote.kreflect.findProperty<TestData,String?>("privateData"))
 
     val id: KPropertyPath<T, Id<*>?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, org.litote.kmongo.Id<*>?>(this,TestData::id)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                org.litote.kmongo.Id<*>?>(this,TestData::id)
 
     val byteArray: KPropertyPath<T, ByteArray?>
-        get() = org.litote.kmongo.property.KPropertyPath<T, kotlin.ByteArray?>(this,TestData::byteArray)
+        get() = org.litote.kmongo.property.KPropertyPath<T,
+                kotlin.ByteArray?>(this,TestData::byteArray)
 
     @Suppress("UNCHECKED_CAST")
-    override fun memberWithAdditionalPath(additionalPath: String): TestData_<T> = TestData_(this, customProperty(this, additionalPath))}
+    override fun memberWithAdditionalPath(additionalPath: String): TestData_<T> = TestData_(this,
+            customProperty(this, additionalPath))}

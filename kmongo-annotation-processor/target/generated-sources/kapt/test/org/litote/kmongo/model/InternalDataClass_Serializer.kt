@@ -6,14 +6,15 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import org.litote.jackson.JacksonModuleServiceLoader
 
-internal class InternalDataClass_Serializer : StdSerializer<InternalDataClass>(InternalDataClass::class.java),
-        JacksonModuleServiceLoader {
-    override fun module() = SimpleModule().addSerializer(this)
+internal class InternalDataClass_Serializer :
+        StdSerializer<InternalDataClass>(InternalDataClass::class.java), JacksonModuleServiceLoader
+        {
+    override fun module() = SimpleModule().addSerializer(InternalDataClass::class.java, this)
 
     override fun serialize(
-            value: InternalDataClass,
-            gen: JsonGenerator,
-            serializers: SerializerProvider
+        value: InternalDataClass,
+        gen: JsonGenerator,
+        serializers: SerializerProvider
     ) {
         gen.writeStartObject()
         gen.writeFieldName("l")

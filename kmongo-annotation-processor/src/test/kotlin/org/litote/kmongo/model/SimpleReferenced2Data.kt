@@ -17,7 +17,7 @@
 package org.litote.kmongo.model
 
 import org.litote.kmongo.Data
-import org.litote.kmongo.JacksonData
+import org.litote.jackson.data.JacksonData
 
 /**
  *

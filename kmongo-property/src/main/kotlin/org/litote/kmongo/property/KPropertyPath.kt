@@ -31,6 +31,7 @@ import kotlin.reflect.jvm.isAccessible
  * Useful for private properties.
  */
 @Suppress("UNCHECKED_CAST")
+@Deprecated("use same method in org.litote.kreflect lib")
 inline fun <reified R : Any, T> setPropertyValue(owner: R, name: String, value: T?) =
     (findProperty<R, T>(name) as KMutableProperty1<R, T?>).apply { isAccessible = true }.set(owner, value)
 
@@ -40,6 +41,7 @@ inline fun <reified R : Any, T> setPropertyValue(owner: R, name: String, value: 
  * Useful for private properties.
  */
 @Suppress("UNCHECKED_CAST")
+@Deprecated("use same method in org.litote.kreflect lib")
 inline fun <reified R : Any, T> findPropertyValue(owner: R, name: String): T? =
     findProperty<R, T>(name).apply { isAccessible = true }.get(owner)
 
@@ -48,6 +50,7 @@ inline fun <reified R : Any, T> findPropertyValue(owner: R, name: String): T? =
  * Useful for private properties.
  */
 @Suppress("UNCHECKED_CAST")
+@Deprecated("use same method in org.litote.kreflect lib")
 inline fun <reified R : Any, T> findProperty(name: String): KProperty1<R, T?> =
     (R::class.declaredMembers.first { it.name == name } as KProperty1<R, T?>)
 
@@ -184,7 +187,7 @@ class KCollectionSimplePropertyPath<T, R>(
 open class KMapPropertyPath<T, K, R, MEMBER : KPropertyPath<T, R?>>(
     previous: KPropertyPath<T, *>?,
     property: KProperty1<*, Map<out K, R>?>
-) : KPropertyPath<T, Map<out K, R>?>(previous, property) {
+) : KPropertyPath<T, Map<out K?, R>?>(previous, property) {
 
     /**
      * To be overridden to returns the right type.
