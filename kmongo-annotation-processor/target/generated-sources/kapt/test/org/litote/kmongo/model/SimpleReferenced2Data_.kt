@@ -10,23 +10,23 @@ import org.litote.kmongo.property.KCollectionPropertyPath
 import org.litote.kmongo.property.KMapPropertyPath
 import org.litote.kmongo.property.KPropertyPath
 
+private val __Price: KProperty1<SimpleReferenced2Data, Double?>
+    get() = SimpleReferenced2Data::price
 class SimpleReferenced2Data_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*,
         SimpleReferenced2Data?>) : KPropertyPath<T, SimpleReferenced2Data?>(previous,property) {
     val price: KPropertyPath<T, Double?>
-        get() = org.litote.kmongo.property.KPropertyPath<T,
-                kotlin.Double?>(this,SimpleReferenced2Data::price)
+        get() = KPropertyPath<T, Double?>(this,__Price)
 
     companion object {
         val Price: KProperty1<SimpleReferenced2Data, Double?>
-            get() = SimpleReferenced2Data::price}
+            get() = __Price}
 }
 
 class SimpleReferenced2Data_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*,
         Collection<SimpleReferenced2Data>?>) : KCollectionPropertyPath<T, SimpleReferenced2Data?,
         SimpleReferenced2Data_<T>>(previous,property) {
     val price: KPropertyPath<T, Double?>
-        get() = org.litote.kmongo.property.KPropertyPath<T,
-                kotlin.Double?>(this,SimpleReferenced2Data::price)
+        get() = KPropertyPath<T, Double?>(this,__Price)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): SimpleReferenced2Data_<T> =
@@ -36,8 +36,7 @@ class SimpleReferenced2Data_Map<T, K>(previous: KPropertyPath<T, *>?, property: 
         SimpleReferenced2Data>?>) : KMapPropertyPath<T, K, SimpleReferenced2Data?,
         SimpleReferenced2Data_<T>>(previous,property) {
     val price: KPropertyPath<T, Double?>
-        get() = org.litote.kmongo.property.KPropertyPath<T,
-                kotlin.Double?>(this,SimpleReferenced2Data::price)
+        get() = KPropertyPath<T, Double?>(this,__Price)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): SimpleReferenced2Data_<T> =

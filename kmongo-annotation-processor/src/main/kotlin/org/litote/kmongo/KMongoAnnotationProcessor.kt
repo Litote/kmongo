@@ -21,7 +21,10 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.KModifier.INTERNAL
+import com.squareup.kotlinpoet.KModifier.OPEN
+import com.squareup.kotlinpoet.KModifier.OVERRIDE
+import com.squareup.kotlinpoet.KModifier.PRIVATE
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
@@ -143,7 +146,7 @@ class KMongoAnnotationProcessor : KGenerator() {
             .addTypeVariable(TypeVariableName("T"))
             .apply {
                 if (element.internal) {
-                    addModifiers(KModifier.INTERNAL)
+                    addModifiers(INTERNAL)
                 }
             }
             .primaryConstructor(
@@ -168,12 +171,12 @@ class KMongoAnnotationProcessor : KGenerator() {
                     .build()
             )
             .superclass(collectionSuperclass)
-            .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
+            .addSuperclassConstructorParameter("%L,%L", "previous", "property")
             .addFunction(
                 FunSpec.builder("memberWithAdditionalPath")
                     .addParameter("additionalPath", String::class.asClassName())
                     .returns(typeName.parameterizedBy(TypeVariableName("T")))
-                    .addModifiers(KModifier.OVERRIDE)
+                    .addModifiers(OVERRIDE)
                     .addAnnotation(
                         AnnotationSpec.builder(Suppress::class).addMember("\"UNCHECKED_CAST\"").build()
                     )
@@ -220,7 +223,7 @@ class KMongoAnnotationProcessor : KGenerator() {
             .addTypeVariable(TypeVariableName("K"))
             .apply {
                 if (element.internal) {
-                    addModifiers(KModifier.INTERNAL)
+                    addModifiers(INTERNAL)
                 }
             }
             .primaryConstructor(
@@ -246,17 +249,17 @@ class KMongoAnnotationProcessor : KGenerator() {
                     .build()
             )
             .superclass(mapSuperclass)
-            .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
+            .addSuperclassConstructorParameter("%L,%L", "previous", "property")
             .addFunction(
                 FunSpec.builder("memberWithAdditionalPath")
                     .addParameter("additionalPath", String::class.asClassName())
                     .returns(typeName.parameterizedBy(TypeVariableName("T")))
-                    .addModifiers(KModifier.OVERRIDE)
+                    .addModifiers(OVERRIDE)
                     .addAnnotation(
                         AnnotationSpec.builder(Suppress::class).addMember("\"UNCHECKED_CAST\"").build()
                     )
                     .addCode(
-                        "return %1T(this, customProperty(this, additionalPath))",
+                        "return %T(this, customProperty(this, additionalPath))",
                         typeName
                     )
                     .build()
@@ -287,7 +290,7 @@ class KMongoAnnotationProcessor : KGenerator() {
             .addTypeVariable(TypeVariableName("T"))
             .apply {
                 if (element.internal) {
-                    addModifiers(KModifier.INTERNAL)
+                    addModifiers(INTERNAL)
                 }
             }
             .primaryConstructor(
@@ -310,15 +313,15 @@ class KMongoAnnotationProcessor : KGenerator() {
                     .build()
             )
             .superclass(superclass)
-            .addSuperclassConstructorParameter("%1L,%2L", "previous", "property")
+            .addSuperclassConstructorParameter("%L,%L", "previous", "property")
 
         val collectionClassBuilder = collectionClassBuilder(element)
         val mapClassBuilder = mapClassBuilder(element)
 
         if (!element.modifiers.contains(Modifier.FINAL)) {
-            classBuilder.addModifiers(KModifier.OPEN)
-            collectionClassBuilder.addModifiers(KModifier.OPEN)
-            mapClassBuilder.addModifiers(KModifier.OPEN)
+            classBuilder.addModifiers(OPEN)
+            collectionClassBuilder.addModifiers(OPEN)
+            mapClassBuilder.addModifiers(OPEN)
         }
 
         val companionObject = TypeSpec.companionObjectBuilder()
@@ -409,46 +412,89 @@ class KMongoAnnotationProcessor : KGenerator() {
                 }
             }
 
-            fun propertyReference(start: Boolean) =
-                element.propertyReference(
-                    e,
-                    {
-                        findByProperty(
-                            sourceClassName,
-                            if (annotated) {
-                                ClassName(
-                                    packageOfReturnType,
-                                    returnType!!.simpleName.toString()
-                                )
-                            } else {
-                                propertyType.copy(nullable = true)
-                            },
-                            e.simpleName.toString()
-                        )
+            fun propertyReference(start: Boolean, ref: String? = null, onlyRef: Boolean = false) =
+                if (ref == null) {
+                    element.propertyReference(
+                        e,
+                        {
+                            findByProperty(
+                                sourceClassName,
+                                if (annotated) {
+                                    ClassName(
+                                        packageOfReturnType,
+                                        returnType!!.simpleName.toString()
+                                    )
+                                } else {
+                                    propertyType.copy(nullable = true)
+                                },
+                                e.simpleName.toString()
+                            )
+                        }
+                    ) {
+                        val pRef = CodeBlock.builder().add("%T::%L", sourceClassName, e.simpleName).build()
+                        if (!onlyRef && start && !annotated && collection) {
+                            CodeBlock.builder()
+                                .add(
+                                    "%T(%L, %L)",
+                                    KCollectionSimplePropertyPath::class.asClassName(),
+                                    if (start) "null" else "this",
+                                    pRef
+                                ).build()
+                        } else if (!onlyRef && start && !annotated && map) {
+                            CodeBlock.builder().add(
+                                "%T(%L, %L)",
+                                KMapSimplePropertyPath::class.asClassName(),
+                                if (start) "null" else "this",
+                                pRef
+                            )
+                                .build()
+                        } else {
+                            pRef
+                        }
                     }
-                ) {
-                    val pRef = CodeBlock.builder().add("%1T::%2L", sourceClassName, e.simpleName).build()
+                } else {
                     if (start && !annotated && collection) {
                         CodeBlock.builder()
                             .add(
-                                "%1T(%2L, %3L)",
+                                "%T(%L, %L)",
                                 KCollectionSimplePropertyPath::class.asClassName(),
                                 if (start) "null" else "this",
-                                pRef
+                                ref
                             ).build()
                     } else if (start && !annotated && map) {
                         CodeBlock.builder().add(
-                            "%1T(%2L, %3L)",
+                            "%T(%L, %L)",
                             KMapSimplePropertyPath::class.asClassName(),
                             if (start) "null" else "this",
-                            pRef
+                            ref
                         )
                             .build()
                     } else {
-                        pRef
+                        CodeBlock.of(ref)
                     }
                 }
 
+            val propertyDef = "__" + generatedCompanionFieldName(e)
+            //add property def
+            fileBuilder.addProperty(
+                PropertySpec
+                    .builder(
+                        propertyDef,
+                        KProperty1::class.asClassName().parameterizedBy(
+                            sourceClassName,
+                            propertyType.copy(nullable = true)
+                        )
+                    )
+                    .addModifiers(PRIVATE)
+                    .mutable(false)
+                    .getter(
+                        FunSpec.getterBuilder().apply {
+                            addCode("return %L", propertyReference(true, onlyRef = true))
+                        }
+                            .build()
+                    )
+                    .build()
+            )
 
             //add companion property
             companionObject.addProperty(
@@ -458,9 +504,13 @@ class KMongoAnnotationProcessor : KGenerator() {
                     .getter(
                         FunSpec.getterBuilder().apply {
                             if (annotated) {
-                                addCode("return %1T(null,%2L)", propertyClass(true), propertyReference(true))
+                                addCode(
+                                    "return %T(null,%L)",
+                                    propertyClass(true),
+                                    propertyReference(true, propertyDef)
+                                )
                             } else {
-                                addCode("return %1L", propertyReference(true))
+                                addCode("return %L", propertyReference(true, propertyDef))
                             }
                         }.build()
                     )
@@ -474,13 +524,13 @@ class KMongoAnnotationProcessor : KGenerator() {
                 .getter(
                     FunSpec.getterBuilder().apply {
                         addCode(
-                            "return %1L(this,%2L)\n",
+                            "return ${if (annotated) "%L" else "%T"}(this,%L)\n",
                             if (annotated) {
                                 generatedClassProperty(type, annotatedCollection, annotatedMap)
                             } else {
                                 classPropertyClass
                             },
-                            propertyReference(false)
+                            if (annotated || collection || map) propertyReference(false) else propertyDef
                         )
                     }.build()
                 )
