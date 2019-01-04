@@ -17,7 +17,6 @@
 package org.litote.kmongo
 
 import com.mongodb.ConnectionString
-import com.mongodb.async.SingleResultCallback
 import de.flapdoodle.embed.mongo.MongodProcess
 import org.bson.BsonDocument
 import org.bson.Document
@@ -31,7 +30,7 @@ internal object EmbeddedMongo {
 
     private val standalone = System.getProperty("kmongo.flapdoodle.replicaset") != "true"
 
-    fun connectionString(commandExecutor: (String, BsonDocument, SingleResultCallback<Document>) -> Unit): ConnectionString =
+    fun connectionString(commandExecutor: (String, BsonDocument, (Document?, Throwable?) -> Unit) -> Unit): ConnectionString =
         if (standalone) {
             StandaloneEmbeddedMongo.connectionString(commandExecutor)
         } else {

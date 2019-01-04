@@ -40,7 +40,7 @@ class Issue11BsonSerializerCanOnlyBeUsedWithBsonGenerator :
         col.withDocumentClass<Document>().insertOne(document)
         val document2 = col.findOneById(42)
         assertNotNull(document2)
-        assertEquals("United States Post Office", document2!!.title)
+        assertEquals("United States Post Office", document2.title)
         assertEquals(42, document2.id)
     }
 }

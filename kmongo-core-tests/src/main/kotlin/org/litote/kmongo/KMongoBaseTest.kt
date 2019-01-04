@@ -35,6 +35,8 @@ abstract class KMongoBaseTest<T : Any> : KMongoRootTest() {
 
     val database by lazy { rule.database }
 
+    val mongoClient by lazy { rule.mongoClient }
+
     inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection()
 
     inline fun <reified T : Any> dropCollection() = rule.dropCollection<T>()

@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-async</artifactId>
+            <artifactId>mongodb-driver-reactivestreams</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

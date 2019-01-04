@@ -43,7 +43,7 @@ internal object StandaloneEmbeddedMongo {
         createInstance()
     }
 
-    fun connectionString(commandExecutor: (String, BsonDocument, SingleResultCallback<Document>) -> Unit): ConnectionString =
+    fun connectionString(commandExecutor: (String, BsonDocument, (Document?, Throwable?) -> Unit) -> Unit): ConnectionString =
         ConnectionString(
             "mongodb://${mongodProcess.host}"
         )

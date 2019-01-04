@@ -17,7 +17,6 @@
 package org.litote.kmongo
 
 import com.mongodb.ConnectionString
-import com.mongodb.async.SingleResultCallback
 import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
 import de.flapdoodle.embed.mongo.config.IMongodConfig
@@ -79,10 +78,11 @@ internal object ReplicaSetEmbeddedMongo {
         createInstance()
     }
 
-    fun connectionString(commandExecutor: (String, BsonDocument, SingleResultCallback<Document>) -> Unit): ConnectionString {
+    fun connectionString(commandExecutor: (String, BsonDocument, (Document?, Throwable?) -> Unit) -> Unit): ConnectionString {
         val host = mongodProcesses[0].host
         val conf = BsonDocument("_id", BsonString("kmongo"))
             .apply {
+                put("protocolVersion", BsonInt32(1))
                 put("version", BsonInt32(1))
                 put(
                     "members",
@@ -101,8 +101,8 @@ internal object ReplicaSetEmbeddedMongo {
 
 
         try {
-            fun reconfigCallback(first: Boolean = false): SingleResultCallback<Document> =
-                SingleResultCallback { result, t ->
+            fun reconfigCallback(first: Boolean = false): (Document?, Throwable?) -> Unit =
+                { result, t ->
                     if (first || t != null) {
                         Thread.sleep(100)
                         commandExecutor.invoke(host, reconfigCommand, reconfigCallback())
@@ -110,11 +110,10 @@ internal object ReplicaSetEmbeddedMongo {
                 }
             commandExecutor.invoke(
                 host,
-                initCommand,
-                SingleResultCallback { result, t ->
-                    reconfigCallback(true)
-                }
-            )
+                initCommand
+            ) { result, t ->
+                reconfigCallback(true).invoke(result, t)
+            }
 
         } catch (e: Exception) {
             e.printStackTrace()

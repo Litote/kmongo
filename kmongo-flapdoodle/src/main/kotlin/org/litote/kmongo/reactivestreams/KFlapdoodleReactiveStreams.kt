@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Litote
+ * Copyright (C) 2017/2018 Litote
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,29 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.reactivestreams
 
 import com.mongodb.ConnectionString
-import com.mongodb.MongoClient
-import com.mongodb.client.MongoDatabase
-import org.litote.kmongo.KFlapdoodle.mongoClient
+import com.mongodb.reactivestreams.client.MongoClient
+import org.litote.kmongo.EmbeddedMongo
+import org.litote.kmongo.reactivestreams.KFlapdoodleReactiveStreams.mongoClient
 import org.litote.kmongo.service.MongoClientProvider
 
 /**
- * Main KFlapoodle object - to access sync [mongoClient].
+ * Async main KFlapoodle object - to access async [mongoClient].
  */
-object KFlapdoodle {
+object KFlapdoodleReactiveStreams {
 
     val mongoClient: MongoClient by lazy {
         MongoClientProvider.createMongoClient<MongoClient>(
             EmbeddedMongo.connectionString { host, command, callback ->
-                try {
-                    callback(
-                        MongoClientProvider
-                            .createMongoClient<MongoClient>(ConnectionString("mongodb://$host"))
-                            .getDatabase("admin")
-                            .runCommand(command),
-                        null
-                    )
-                } catch (e: Exception) {
-                    callback(null, e)
-                }
+                MongoClientProvider
+                    .createMongoClient<MongoClient>(ConnectionString("mongodb://$host"))
+                    .getDatabase("admin")
+                    .runCommand(command)
+                    .subscribe(SimpleSubscriber { callback.invoke(null, it) })
             }
         )
     }
-
-    fun getDatabase(dbName: String = "test"): MongoDatabase = mongoClient.getDatabase(dbName)
 
 }

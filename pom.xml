@@ -73,6 +73,7 @@
         <bson4jackson.version>2.9.2</bson4jackson.version>
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.1.0</jackson-module-loader.version>
+        <reactivestreams.version>1.10.0</reactivestreams.version>
 
         <!-- annotations processor -->
         <kgenerator.version>0.2.0</kgenerator.version>
@@ -102,7 +103,6 @@
         <plugin.exec.version>1.2.1</plugin.exec.version>
         <plugin.build-helper.version>1.8</plugin.build-helper.version>
         <plugin.shade.version>2.2</plugin.shade.version>
-
         
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
@@ -310,6 +310,12 @@
                 <artifactId>mongodb-driver-core</artifactId>
                 <version>${mongo.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-reactivestreams</artifactId>
+                <version>${reactivestreams.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.litote</groupId>
                 <artifactId>kreflect</artifactId>
