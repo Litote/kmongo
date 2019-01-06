@@ -14,27 +14,15 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.reactivestreams
+package org.litote.kmongo.async
 
-import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
+import com.mongodb.async.client.DistinctIterable
+import org.litote.kmongo.util.KMongoUtil
 
 /**
+ * Sets the query filter to apply to the query.
  *
+ * @param filter the filter, which may be null
+ * @return this
  */
-class CompleteSubscriber<T>(private val listener: (Throwable?) -> Unit) : Subscriber<T> {
-
-    override fun onComplete() {
-        listener(null)
-    }
-
-    override fun onSubscribe(s: Subscription) {
-    }
-
-    override fun onNext(t: T) {
-    }
-
-    override fun onError(t: Throwable) {
-        listener(t)
-    }
-}
+fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T> = filter(KMongoUtil.toBson(filter))

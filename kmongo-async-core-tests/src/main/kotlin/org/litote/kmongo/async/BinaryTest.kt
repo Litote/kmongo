@@ -22,6 +22,7 @@ import org.junit.Test
 import org.litote.kmongo.MongoOperator.binary
 import org.litote.kmongo.MongoOperator.type
 import org.litote.kmongo.async.BinaryTest.BinaryFriend
+import org.litote.kmongo.json
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -41,14 +42,14 @@ class BinaryTest : KMongoAsyncBaseTest<BinaryFriend>() {
         val expectedId = Binary("friend2".toByteArray())
         val expected = BinaryFriend(expectedId, "friend2")
 
-        col.insertOne(expected, { _, _ ->
+        col.insertOne(expected) { _, _ ->
             expected.name = "new friend"
             col.updateOne("{_id:${expectedId.json}}", expected) { _, _ ->
-                col.findOne("{_id:${expectedId.json}}", { r, _ ->
+                col.findOne("{_id:${expectedId.json}}") { r, _ ->
                     asyncTest { assertEquals(expected, r) }
-                })
+                }
             }
-        })
+        }
     }
 
     @Test

@@ -13,29 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.litote.kmongo.reactivestreams
 
-import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
+import org.bson.Document
+import org.junit.Test
+import org.litote.kmongo.model.Friend
+import kotlin.test.assertEquals
 
 /**
  *
  */
-internal class SimpleSubscriber<T>(private val listener: (Throwable?) -> Unit = {}) : Subscriber<T> {
+class CommandTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
-    override fun onComplete() {
-        listener(null)
+    @Test
+    fun canRunACommand() {
+        database.runCommand<Document>("{ ping: 1 }").listen { r, _ ->
+            asyncTest {
+                assertEquals(1.0, r!!.get("ok"))
+            }
+        }
     }
 
-    override fun onSubscribe(s: Subscription) {
-        s.request(Long.MAX_VALUE)
-    }
-
-    override fun onNext(t: T) {
-    }
-
-    override fun onError(t: Throwable) {
-        listener(t)
-    }
 }

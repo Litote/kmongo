@@ -23,6 +23,7 @@ import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
+import org.litote.kmongo.json
 import org.litote.kmongo.model.ExposableFriend
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
@@ -35,48 +36,48 @@ class FindOneAndModifyTest : KMongoAsyncBaseTest<Friend>() {
 
     @Test
     fun canFindAndUpdateOne() {
-        col.insertOne(Friend("John", "22 Wall Street Avenue"),
-            { _, _ ->
-                col.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}") { _, _ ->
-                    col.findOne("{name:'John'}", { friend, _ ->
-                        asyncTest {
-                            assertEquals("John", friend!!.name)
-                            assertEquals("A better place", friend.address)
-                        }
-                    })
+        col.insertOne(Friend("John", "22 Wall Street Avenue")
+        ) { _, _ ->
+            col.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}") { _, _ ->
+                col.findOne("{name:'John'}") { friend, _ ->
+                    asyncTest {
+                        assertEquals("John", friend!!.name)
+                        assertEquals("A better place", friend.address)
+                    }
                 }
-            })
+            }
+        }
     }
 
     @Test
     fun canFindAndUpdateWithNullValue() {
-        col.insertOne(Friend("John", "22 Wall Street Avenue"),
-            { _, _ ->
-                col.findOneAndUpdate("{name:'John'}", "{$set: {address: null}}") { _, _ ->
-                    col.findOne("{name:'John'}", { friend, _ ->
-                        asyncTest {
-                            assertEquals("John", friend!!.name)
-                            assertNull(friend.address)
-                        }
-                    })
+        col.insertOne(Friend("John", "22 Wall Street Avenue")
+        ) { _, _ ->
+            col.findOneAndUpdate("{name:'John'}", "{$set: {address: null}}") { _, _ ->
+                col.findOne("{name:'John'}") { friend, _ ->
+                    asyncTest {
+                        assertEquals("John", friend!!.name)
+                        assertNull(friend.address)
+                    }
                 }
-            })
+            }
+        }
     }
 
     @Test
     fun canFindAndUpdateWithDocument() {
         val col2 = col.withDocumentClass<Document>()
-        col.insertOne(Friend("John", "22 Wall Street Avenue"),
-            { _, _ ->
-                col2.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}") { _, _ ->
-                    col2.findOne("{name:'John'}", { friend, _ ->
-                        asyncTest {
-                            assertEquals("John", friend!!.get("name"))
-                            assertEquals("A better place", friend.get("address"))
-                        }
-                    })
+        col.insertOne(Friend("John", "22 Wall Street Avenue")
+        ) { _, _ ->
+            col2.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}") { _, _ ->
+                col2.findOne("{name:'John'}") { friend, _ ->
+                    asyncTest {
+                        assertEquals("John", friend!!.get("name"))
+                        assertEquals("A better place", friend.get("address"))
+                    }
                 }
-            })
+            }
+        }
     }
 
     @Test

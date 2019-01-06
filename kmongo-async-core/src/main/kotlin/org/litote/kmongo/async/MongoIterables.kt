@@ -14,28 +14,15 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.reactivestreams
+package org.litote.kmongo.async
 
-import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
+import com.mongodb.async.client.MongoIterable
 
 /**
+ * Iterates over all the documents, adding each to the given target.
  *
+ * @param target   the collection to insert into
+ * @param callback a callback that will be passed the target containing all documents
  */
-internal class SimpleSubscriber<T>(private val listener: (Throwable?) -> Unit = {}) : Subscriber<T> {
-
-    override fun onComplete() {
-        listener(null)
-    }
-
-    override fun onSubscribe(s: Subscription) {
-        s.request(Long.MAX_VALUE)
-    }
-
-    override fun onNext(t: T) {
-    }
-
-    override fun onError(t: Throwable) {
-        listener(t)
-    }
-}
+fun <TResult> MongoIterable<TResult>.toList(callback: (List<TResult>?, Throwable?) -> Unit) =
+    into(mutableListOf<TResult>(), callback)

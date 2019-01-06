@@ -16,26 +16,15 @@
 
 package org.litote.kmongo.reactivestreams
 
-import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
+import com.mongodb.client.model.IndexModel
+import com.mongodb.client.model.IndexOptions
+import org.litote.kmongo.util.KMongoUtil
 
 /**
+ * Construct an instance with the given keys and options.
  *
+ * @param keys the index keys
+ * @param options the index options
  */
-internal class SimpleSubscriber<T>(private val listener: (Throwable?) -> Unit = {}) : Subscriber<T> {
-
-    override fun onComplete() {
-        listener(null)
-    }
-
-    override fun onSubscribe(s: Subscription) {
-        s.request(Long.MAX_VALUE)
-    }
-
-    override fun onNext(t: T) {
-    }
-
-    override fun onError(t: Throwable) {
-        listener(t)
-    }
-}
+fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel =
+    IndexModel(KMongoUtil.toBson(keys), options)

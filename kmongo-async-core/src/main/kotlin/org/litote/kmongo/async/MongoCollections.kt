@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Litote
+ * Copyright (C) 2017/2018 Litote
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.litote.kmongo.async
 
-import com.mongodb.ReadPreference
 import com.mongodb.async.client.AggregateIterable
 import com.mongodb.async.client.DistinctIterable
 import com.mongodb.async.client.FindIterable
 import com.mongodb.async.client.ListIndexesIterable
 import com.mongodb.async.client.MapReduceIterable
 import com.mongodb.async.client.MongoCollection
-import com.mongodb.async.client.MongoDatabase
-import com.mongodb.async.client.MongoIterable
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.CountOptions
@@ -31,7 +29,6 @@ import com.mongodb.client.model.DeleteOptions
 import com.mongodb.client.model.FindOneAndDeleteOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.FindOneAndUpdateOptions
-import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.InsertOneOptions
 import com.mongodb.client.model.ReplaceOptions
@@ -45,58 +42,11 @@ import org.litote.kmongo.EMPTY_BSON
 import org.litote.kmongo.SetTo
 import org.litote.kmongo.and
 import org.litote.kmongo.ascending
-import org.litote.kmongo.descending
-import org.litote.kmongo.include
 import org.litote.kmongo.path
 import org.litote.kmongo.set
 import org.litote.kmongo.util.KMongoUtil
-import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
-import org.litote.kmongo.util.KMongoUtil.defaultCollectionName
-import org.litote.kmongo.util.KMongoUtil.extractId
-import org.litote.kmongo.util.KMongoUtil.filterIdToBson
-import org.litote.kmongo.util.KMongoUtil.idFilterQuery
-import org.litote.kmongo.util.KMongoUtil.setModifier
-import org.litote.kmongo.util.KMongoUtil.toBson
-import org.litote.kmongo.util.KMongoUtil.toBsonList
-import org.litote.kmongo.util.KMongoUtil.toBsonModifier
-import org.litote.kmongo.util.KMongoUtil.toWriteModel
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
-
-
-//*******
-//MongoDatabase extension methods
-//*******
-
-/**
- * Executes the given command in the context of the current database with the given read preference.
- *
- * @param command        the command to be run
- * @param readPreference the {@link com.mongodb.ReadPreference} to be used when executing the command
- * @param <TResult>      the type of the class to use instead of {@code Document}.
- * @param callback       the callback that is passed the command result
- */
-inline fun <reified TResult : Any> MongoDatabase.runCommand(
-    command: String,
-    readPreference: ReadPreference,
-    noinline callback: (TResult?, Throwable?) -> Unit
-) = runCommand(toBson(command), readPreference, TResult::class.java, callback)
-
-/**
- * Executes the given command in the context of the current database with the given read preference.
- *
- * @param command        the command to be run
- * @param <TResult>      the type of the class to use instead of {@code Document}.
- * @param callback       the callback that is passed the command result
- */
-inline fun <reified TResult : Any> MongoDatabase.runCommand(
-    command: String,
-    noinline callback: (TResult?, Throwable?) -> Unit
-) = runCommand(command, readPreference, callback)
-
-//*******
-//MongoCollection extension methods
-//*******
 
 /**
  * Counts the number of documents in the collection according to the given options.
@@ -112,11 +62,12 @@ fun <T> MongoCollection<T>.count(filter: String, callback: (Long?, Throwable?) -
  * Counts the number of documents in the collection according to the given options.
  *
  * @param filter   the query filter
+ * @param options  the options describing the count
  * @param callback the callback passed the number of documents in the collection
  */
 @Deprecated("use countDocuments instead")
 fun <T> MongoCollection<T>.count(filter: String, options: CountOptions, callback: (Long?, Throwable?) -> Unit) =
-    count(toBson(filter), options, callback)
+    count(KMongoUtil.toBson(filter), options, callback)
 
 /**
  * Counts the number of documents in the collection according to the given options.
@@ -131,10 +82,15 @@ fun <T> MongoCollection<T>.countDocuments(filter: String, callback: (Long?, Thro
  * Counts the number of documents in the collection according to the given options.
  *
  * @param filter   the query filter
+ * @param options  the options describing the count
  * @param callback the callback passed the number of documents in the collection
  */
-fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions, callback: (Long?, Throwable?) -> Unit) =
-    countDocuments(toBson(filter), options, callback)
+fun <T> MongoCollection<T>.countDocuments(
+    filter: String,
+    options: CountOptions,
+    callback: (Long?, Throwable?) -> Unit
+) =
+    countDocuments(KMongoUtil.toBson(filter), options, callback)
 
 
 /**
@@ -145,7 +101,7 @@ fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions,
  * @return an iterable of distinct values
  */
 inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctIterable<TResult> =
-    distinct(fieldName, EMPTY_JSON)
+    distinct(fieldName, KMongoUtil.EMPTY_JSON)
 
 /**
  * Gets the distinct values of the specified field name.
@@ -158,7 +114,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
 inline fun <reified TResult : Any> MongoCollection<*>.distinct(
     fieldName: String,
     filter: String
-): DistinctIterable<TResult> = distinct(fieldName, toBson(filter), TResult::class.java)
+): DistinctIterable<TResult> = distinct(fieldName, KMongoUtil.toBson(filter), TResult::class.java)
 
 /**
  * Gets the distinct values of the specified field.
@@ -180,7 +136,7 @@ inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
  * @param  filter the query filter
  * @return the find iterable interface
  */
-fun <T> MongoCollection<T>.find(filter: String): FindIterable<T> = find(toBson(filter))
+fun <T> MongoCollection<T>.find(filter: String): FindIterable<T> = find(KMongoUtil.toBson(filter))
 
 /**
  * Finds all documents in the collection.
@@ -196,7 +152,7 @@ fun <T> MongoCollection<T>.find(vararg filters: Bson?): FindIterable<T> = find(a
  * @param filter the query filter
  * @param callback a callback that is passed the first item or null
  */
-fun <T> MongoCollection<T>.findOne(filter: String = EMPTY_JSON, callback: (T?, Throwable?) -> Unit) =
+fun <T> MongoCollection<T>.findOne(filter: String = KMongoUtil.EMPTY_JSON, callback: (T?, Throwable?) -> Unit) =
     find(filter).first(callback)
 
 /**
@@ -224,7 +180,7 @@ fun <T> MongoCollection<T>.findOne(vararg filters: Bson?, callback: (T?, Throwab
  * @param callback a callback that is passed the first item or null
  */
 fun <T> MongoCollection<T>.findOneById(id: Any, callback: (T?, Throwable?) -> Unit) =
-    findOne(idFilterQuery(id), callback)
+    findOne(KMongoUtil.idFilterQuery(id), callback)
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
@@ -236,7 +192,7 @@ fun <T> MongoCollection<T>.findOneById(id: Any, callback: (T?, Throwable?) -> Un
  * @return an iterable containing the result of the aggregation operation
  */
 inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregateIterable<TResult> =
-    aggregate(toBsonList(pipeline, codecRegistry), TResult::class.java)
+    aggregate(KMongoUtil.toBsonList(pipeline, codecRegistry), TResult::class.java)
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
@@ -312,7 +268,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
     document: String,
     options: InsertOneOptions,
     noinline callback: (Void?, Throwable?) -> Unit
-) = withDocumentClass<BsonDocument>().insertOne(toBson(document, T::class), options, callback)
+) = withDocumentClass<BsonDocument>().insertOne(KMongoUtil.toBson(document, T::class), options, callback)
 
 
 /**
@@ -327,7 +283,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T> MongoCollection<T>.deleteOne(filter: String, callback: (DeleteResult?, Throwable?) -> Unit) =
-    deleteOne(toBson(filter), callback)
+    deleteOne(KMongoUtil.toBson(filter), callback)
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -355,7 +311,7 @@ fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?, callback: (DeleteRes
  * @throws com.mongodb.MongoException             returned via the callback
  */
 fun <T> MongoCollection<T>.deleteOneById(id: Any, callback: (DeleteResult?, Throwable?) -> Unit) =
-    deleteOne(idFilterQuery(id), callback)
+    deleteOne(KMongoUtil.idFilterQuery(id), callback)
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -372,7 +328,7 @@ fun <T> MongoCollection<T>.deleteMany(
     filter: String,
     options: DeleteOptions = DeleteOptions(),
     callback: (DeleteResult?, Throwable?) -> Unit
-) = deleteMany(toBson(filter), options, callback)
+) = deleteMany(KMongoUtil.toBson(filter), options, callback)
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -446,12 +402,15 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
     replacement: T,
     options: ReplaceOptions,
     callback: (UpdateResult?, Throwable?) -> Unit
-) = withDocumentClass<BsonDocument>().replaceOne(idFilterQuery(id), filterIdToBson(replacement), options, callback)
+) = withDocumentClass<BsonDocument>().replaceOne(
+    KMongoUtil.idFilterQuery(id),
+    KMongoUtil.filterIdToBson(replacement), options, callback
+)
 
 /**
  * Replace a document in the collection according to the specified arguments.
  *
- * @param replacement the document to replace - must have an non null id
+ * @param replacement the replacement document - must have a non null id
  * @param callback    the callback passed the result of the replace one operation
  *
  * @throws com.mongodb.MongoWriteException        returned via the callback
@@ -461,13 +420,13 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
 inline fun <reified T : Any> MongoCollection<T>.replaceOne(
     replacement: T,
     noinline callback: (UpdateResult?, Throwable?) -> Unit
-) = replaceOneById(extractId(replacement, T::class), replacement, callback)
+) = replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement, callback)
 
 /**
  * Replace a document in the collection according to the specified arguments.
  *
  * @param filter      the query filter to apply to the replace operation
- * @param replacement the document to replace - must have an non null id
+ * @param replacement the replacement document
  * @param callback    the callback passed the result of the replace one operation
  *
  * @throws com.mongodb.MongoWriteException        returned via the callback
@@ -488,7 +447,7 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(
  * Replace a document in the collection according to the specified arguments.
  *
  * @param filter      the query filter to apply to the replace operation
- * @param replacement the document to replace - must have an non null id
+ * @param replacement the replacement document
  * @param options     the options to apply to the replace operation
  * @param callback    the callback passed the result of the replace one operation
  *
@@ -526,7 +485,7 @@ fun <T : Any> MongoCollection<T>.replaceOne(
     options: ReplaceOptions,
     callback: (UpdateResult?, Throwable?) -> Unit
 ) = withDocumentClass<BsonDocument>().replaceOne(
-    toBson(filter),
+    KMongoUtil.toBson(filter),
     KMongoUtil.filterIdToBson(replacement),
     options,
     callback
@@ -566,7 +525,7 @@ fun <T> MongoCollection<T>.updateOne(
     update: String,
     options: UpdateOptions = UpdateOptions(),
     callback: (UpdateResult?, Throwable?) -> Unit
-) = updateOne(toBson(filter), toBson(update), options, callback)
+) = updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options, callback)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -585,7 +544,7 @@ fun <T> MongoCollection<T>.updateOne(
     update: Any,
     options: UpdateOptions = UpdateOptions(),
     callback: (UpdateResult?, Throwable?) -> Unit
-) = updateOne(toBson(filter), setModifier(update), options, callback)
+) = updateOne(KMongoUtil.toBson(filter), KMongoUtil.setModifier(update), options, callback)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -604,7 +563,7 @@ fun <T> MongoCollection<T>.updateOne(
     target: Any,
     options: UpdateOptions = UpdateOptions(),
     callback: (UpdateResult?, Throwable?) -> Unit
-) = updateOne(filter, toBsonModifier(target), options, callback)
+) = updateOne(filter, KMongoUtil.toBsonModifier(target), options, callback)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -622,7 +581,7 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(
     options: UpdateOptions = UpdateOptions(),
     noinline callback: (UpdateResult?, Throwable?) -> Unit
 ) {
-    return updateOneById(extractId(target, T::class), target, options, callback)
+    return updateOneById(KMongoUtil.extractId(target, T::class), target, options, callback)
 }
 
 /**
@@ -642,7 +601,7 @@ fun <T> MongoCollection<T>.updateOneById(
     update: Any,
     options: UpdateOptions = UpdateOptions(),
     callback: (UpdateResult?, Throwable?) -> Unit
-) = updateOne(idFilterQuery(id), toBsonModifier(update), options, callback)
+) = updateOne(KMongoUtil.idFilterQuery(id), KMongoUtil.toBsonModifier(update), options, callback)
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -661,7 +620,7 @@ fun <T> MongoCollection<T>.updateMany(
     update: String,
     updateOptions: UpdateOptions = UpdateOptions(),
     callback: (UpdateResult?, Throwable?) -> Unit
-) = updateMany(toBson(filter), toBson(update), updateOptions, callback)
+) = updateMany(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), updateOptions, callback)
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -693,7 +652,7 @@ fun <T> MongoCollection<T>.findOneAndDelete(
     filter: String,
     options: FindOneAndDeleteOptions = FindOneAndDeleteOptions(),
     callback: (T?, Throwable?) -> Unit
-) = findOneAndDelete(toBson(filter), options, callback)
+) = findOneAndDelete(KMongoUtil.toBson(filter), options, callback)
 
 /**
  * Atomically find a document and replace it.
@@ -711,7 +670,7 @@ fun <T> MongoCollection<T>.findOneAndReplace(
     replacement: T,
     options: FindOneAndReplaceOptions = FindOneAndReplaceOptions(),
     callback: (T?, Throwable?) -> Unit
-) = findOneAndReplace(toBson(filter), replacement, options, callback)
+) = findOneAndReplace(KMongoUtil.toBson(filter), replacement, options, callback)
 
 /**
  * Atomically find a document and update it.
@@ -729,7 +688,7 @@ fun <T> MongoCollection<T>.findOneAndUpdate(
     update: String,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions(),
     callback: (T?, Throwable?) -> Unit
-) = findOneAndUpdate(toBson(filter), toBson(update), options, callback)
+) = findOneAndUpdate(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options, callback)
 
 /**
  * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
@@ -748,7 +707,7 @@ fun <T> MongoCollection<T>.createIndex(key: String, callback: (String?, Throwabl
  * @param callback the callback that is completed once the index has been created
  */
 fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions, callback: (String?, Throwable?) -> Unit) =
-    createIndex(toBson(key), options, callback)
+    createIndex(KMongoUtil.toBson(key), options, callback)
 
 /**
  * Create an index with the given keys and options.
@@ -879,7 +838,7 @@ fun <T> MongoCollection<T>.dropIndex(keys: String, callback: (Void?, Throwable?)
  * @param callback  the callback that is completed once the index has been dropped
  */
 fun <T> MongoCollection<T>.dropIndexOfKeys(keys: String, callback: (Void?, Throwable?) -> Unit) =
-    dropIndex(toBson(keys), callback)
+    dropIndex(KMongoUtil.toBson(keys), callback)
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -891,7 +850,7 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
     vararg requests: String,
     noinline callback: (BulkWriteResult?, Throwable?) -> Unit
 ) = withDocumentClass<BsonDocument>().bulkWrite(
-    toWriteModel(requests, codecRegistry, T::class),
+    KMongoUtil.toWriteModel(requests, codecRegistry, T::class),
     BulkWriteOptions(),
     callback
 )
@@ -907,7 +866,11 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
     vararg requests: String,
     options: BulkWriteOptions = BulkWriteOptions(),
     noinline callback: (BulkWriteResult?, Throwable?) -> Unit
-) = withDocumentClass<BsonDocument>().bulkWrite(toWriteModel(requests, codecRegistry, T::class), options, callback)
+) = withDocumentClass<BsonDocument>().bulkWrite(
+    KMongoUtil.toWriteModel(requests, codecRegistry, T::class),
+    options,
+    callback
+)
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -923,163 +886,4 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
     options: BulkWriteOptions = BulkWriteOptions(),
     noinline callback: (BulkWriteResult?, Throwable?) -> Unit
 ) = bulkWrite(requests.toList(), options, callback)
-
-
-//*******
-//IndexModel extension methods
-//*******
-
-/**
- * Construct an instance with the given keys and options.
- *
- * @param keys the index keys
- * @param options the index options
- */
-fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel =
-    IndexModel(toBson(keys), options)
-
-//*******
-//DistinctIterable extension methods
-//*******
-
-/**
- * Sets the query filter to apply to the query.
- *
- * @param filter the filter, which may be null
- * @return this
- */
-fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T> = filter(toBson(filter))
-
-//*******
-//FindIterable extension methods
-//*******
-
-/**
- * Sets the query filter to apply to the query.
- *
- * @param filter the filter, which may be null
- * @return this
- */
-fun <T> FindIterable<T>.filter(filter: String): FindIterable<T> = filter(toBson(filter))
-
-/**
- * Sets the query modifiers to apply to this operation.
- *
- * @param modifiers the query modifiers to apply
- * @return this
- */
-fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T> = modifiers(toBson(modifiers))
-
-/**
- * Sets a document describing the fields to return for all matching documents.
- *
- * @param projection the project document
- * @return this
- */
-fun <T> FindIterable<T>.projection(projection: String): FindIterable<T> = projection(toBson(projection))
-
-/**
- * Sets a document describing the fields to return for all matching documents.
- *
- * @param projections the properties of the returned fields
- * @return this
- */
-fun <T> FindIterable<T>.projection(vararg projections: KProperty<*>): FindIterable<T> =
-    projection(include(*projections))
-
-
-/**
- * Sets the sort criteria to apply to the query.
- *
- * @param sort the sort criteria
- * @return this
- */
-fun <T> FindIterable<T>.sort(sort: String): FindIterable<T> = sort(toBson(sort))
-
-//*******
-//MapReduceIterable extension methods
-//*******
-
-/**
- * Sets the global variables that are accessible in the map, reduce and finalize functions.
- *
- * @param scope the global variables that are accessible in the map, reduce and finalize functions.
- * @return this
- */
-fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T> = scope(toBson(scope))
-
-/**
- * Sets the sort criteria to apply to the query.
- *
- * @param sort the sort criteria, which may be null
- * @return this
- */
-fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T> = sort(toBson(sort))
-
-/**
- * Sets the sort criteria with specified ascending properties to apply to the query.
- *
- * @param properties the properties
- * @return this
- */
-fun <T> MapReduceIterable<T>.ascendingSort(vararg properties: KProperty<*>): MapReduceIterable<T> =
-    sort(ascending(*properties))
-
-/**
- * Sets the sort criteria with specified descending properties to apply to the query.
- *
- * @param properties the properties
- * @return this
- */
-fun <T> MapReduceIterable<T>.descendingSort(vararg properties: KProperty<*>): MapReduceIterable<T> =
-    sort(descending(*properties))
-
-/**
- * Sets the query filter to apply to the query.
- *
- * @param filter the filter to apply to the query
- * @return this
- */
-fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T> = filter(toBson(filter))
-
-//*******
-//MongoIterable extension methods
-//*******
-
-/**
- * Iterates over all the documents, adding each to the given target.
- *
- * @param target   the collection to insert into
- * @param callback a callback that will be passed the target containing all documents
- */
-fun <TResult> MongoIterable<TResult>.toList(callback: (List<TResult>?, Throwable?) -> Unit) =
-    into(mutableListOf<TResult>(), callback)
-
-//*******
-//json extension property
-//*******
-
-/**
- * Get the extended json representation of this object
- *
- * See [Mongo extended json format](https://docs.mongodb.com/manual/reference/mongodb-extended-json) for details
- */
-@Deprecated("use same function with org.litote.kmongo package - this version will be removed in 3.9")
-val Any.json: String
-    get() = KMongoUtil.toExtendedJson(this)
-
-/**
- * Get the [org.bson.BsonValue] of this string.
- *
- * @throws Exception if the string content is not a valid json document format
- */
-@Deprecated("use same function with org.litote.kmongo package - this version will be removed in 3.9")
-val String.bson: BsonDocument
-    get() = toBson(this)
-
-/**
- * Format this string to remove space(s) between $ and next char
- */
-@Deprecated("use same function with org.litote.kmongo package - this version will be removed in 3.9")
-fun String.formatJson(): String = KMongoUtil.formatJson(this)
 

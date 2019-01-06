@@ -16,26 +16,13 @@
 
 package org.litote.kmongo.reactivestreams
 
-import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
+import com.mongodb.reactivestreams.client.DistinctPublisher
+import org.litote.kmongo.util.KMongoUtil
 
 /**
+ * Sets the query filter to apply to the query.
  *
+ * @param filter the filter, which may be null
+ * @return this
  */
-internal class SimpleSubscriber<T>(private val listener: (Throwable?) -> Unit = {}) : Subscriber<T> {
-
-    override fun onComplete() {
-        listener(null)
-    }
-
-    override fun onSubscribe(s: Subscription) {
-        s.request(Long.MAX_VALUE)
-    }
-
-    override fun onNext(t: T) {
-    }
-
-    override fun onError(t: Throwable) {
-        listener(t)
-    }
-}
+fun <T> DistinctPublisher<T>.filter(filter: String): DistinctPublisher<T> = filter(KMongoUtil.toBson(filter))

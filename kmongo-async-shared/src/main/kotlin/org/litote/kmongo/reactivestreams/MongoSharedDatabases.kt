@@ -37,17 +37,6 @@ fun MongoDatabase.withKMongo(): MongoDatabase =
  * @param <T>            the default target type of the collection to return
  * @return the collection
  */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-inline fun <reified T : Any> MongoDatabase.getCollection(collectionName: String): MongoCollection<T> =
-    getCollectionOfName(collectionName)
-
-/**
- * Gets a collection.
- *
- * @param collectionName the name of the collection to return
- * @param <T>            the default target type of the collection to return
- * @return the collection
- */
 inline fun <reified T : Any> MongoDatabase.getCollectionOfName(collectionName: String): MongoCollection<T> =
     getCollection(collectionName, T::class.java)
 

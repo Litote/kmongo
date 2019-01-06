@@ -23,12 +23,13 @@ import java.util.concurrent.TimeUnit
 internal class ReactiveStreamsTestContext {
 
     val lock = CountDownLatch(1)
+    @Volatile
     var error: Throwable? = null
 
     fun test(testToRun: () -> Unit) {
         try {
             testToRun()
-        } catch(t: Throwable) {
+        } catch (t: Throwable) {
             error = t
             throw t
         } finally {

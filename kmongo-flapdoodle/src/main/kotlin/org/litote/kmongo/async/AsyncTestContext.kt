@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit
 internal class AsyncTestContext {
 
     val lock = CountDownLatch(1)
+    @Volatile
     var error: Throwable? = null
 
     fun test(testToRun: () -> Unit) {

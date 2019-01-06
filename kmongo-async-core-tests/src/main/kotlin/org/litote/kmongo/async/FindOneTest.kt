@@ -20,6 +20,7 @@ import com.mongodb.client.model.Filters
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.oid
+import org.litote.kmongo.json
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

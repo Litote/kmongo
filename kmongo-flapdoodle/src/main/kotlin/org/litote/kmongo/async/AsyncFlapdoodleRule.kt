@@ -56,7 +56,7 @@ class AsyncFlapdoodleRule<T : Any>(val defaultDocumentClass: KClass<T>,
     fun <T : Any> getCollection(name: String, clazz: KClass<T>): MongoCollection<T>
             = database.getCollection(name, clazz.java)
 
-    fun <T> MongoCollection<T>.drop() {
+    private fun <T> MongoCollection<T>.drop() {
         val count = CountDownLatch(1)
         drop { _, _ -> count.countDown() }
         count.await(1, TimeUnit.SECONDS)
