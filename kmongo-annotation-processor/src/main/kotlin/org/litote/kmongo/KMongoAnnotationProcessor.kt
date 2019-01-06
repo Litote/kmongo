@@ -336,19 +336,11 @@ class KMongoAnnotationProcessor : KGenerator() {
                     debug { componentType }
                     debug { env.typeUtils.asElement(componentType) }
                     false to dataClasses.contains(env.typeUtils.asElement(componentType))
-                } else if (this is DeclaredType
-                    && env.typeUtils.isAssignable(
-                        env.typeUtils.erasure(this),
-                        env.elementUtils.getTypeElement("java.util.Collection").asType()
-                    )
-                ) {
+                } else if (this is DeclaredType && e.isCollection) {
                     true to
-                            (typeArguments.firstOrNull()?.run {
-                                val asElement = env.typeUtils.asElement(this)
-                                debug { asElement.javaClass }
-                                dataClasses.contains(asElement).also {
-                                    debug { it }
-                                }
+                            (e.typeArgumentElement()?.run {
+                                debug { javaClass }
+                                dataClasses.contains(this)
                             } == true)
                 } else {
                     false to false
@@ -356,19 +348,11 @@ class KMongoAnnotationProcessor : KGenerator() {
             }
             val (map, annotatedMap) = type.run {
                 debug { this is DeclaredType }
-                if (this is DeclaredType
-                    && env.typeUtils.isAssignable(
-                        env.typeUtils.erasure(this),
-                        env.elementUtils.getTypeElement("java.util.Map").asType()
-                    )
-                ) {
+                if (this is DeclaredType && e.isMap) {
                     true to
-                            (typeArguments.getOrNull(1)?.run {
-                                val asElement = env.typeUtils.asElement(this)
-                                debug { asElement.javaClass }
-                                dataClasses.contains(asElement).also {
-                                    debug { it }
-                                }
+                            (e.typeArgumentElement(1)?.run {
+                                debug { javaClass }
+                                dataClasses.contains(this)
                             } == true)
                 } else {
                     false to false
@@ -395,13 +379,13 @@ class KMongoAnnotationProcessor : KGenerator() {
                     if (collection) {
                         KCollectionSimplePropertyPath::class.asClassName().parameterizedBy(
                             sourceClass,
-                            firstTypeArgument(e).copy(nullable = true)
+                            e.typeArgument()!!.copy(nullable = true)
                         )
                     } else if (map) {
                         KMapSimplePropertyPath::class.asClassName().parameterizedBy(
                             sourceClass,
-                            firstTypeArgument(e).copy(nullable = true),
-                            secondTypeArgument(e).copy(nullable = true)
+                            e.typeArgument()!!.copy(nullable = true),
+                            e.typeArgument(1)!!.copy(nullable = true)
                         )
                     } else {
                         (if (start) KProperty1::class.asClassName() else KPropertyPath::class.asClassName()).parameterizedBy(

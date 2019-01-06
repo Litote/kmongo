@@ -18,10 +18,32 @@ internal class TestData_Serializer : StdSerializer<TestData>(TestData::class.jav
         gen.writeStartObject()
         gen.writeFieldName("set")
         val _set_ = value.set
-        serializers.defaultSerializeValue(_set_, gen)
+        serializers.findTypedValueSerializer(
+                serializers.config.typeFactory.constructCollectionType(
+                kotlin.collections.Set::class.java,
+                        serializers.config.typeFactory.constructType(org.litote.kmongo.model.other.SimpleReferencedData::class.java)
+                )
+                ,
+                true,
+                null
+                )
+                .serialize(_set_, gen, serializers)
         gen.writeFieldName("list")
         val _list_ = value.list
-        serializers.defaultSerializeValue(_list_, gen)
+        serializers.findTypedValueSerializer(
+                serializers.config.typeFactory.constructCollectionType(
+                kotlin.collections.List::class.java,
+                        serializers.config.typeFactory.constructCollectionType(
+                kotlin.collections.List::class.java,
+                        serializers.config.typeFactory.constructType(kotlin.Boolean::class.java)
+                )
+
+                )
+                ,
+                true,
+                null
+                )
+                .serialize(_list_, gen, serializers)
         gen.writeFieldName("name")
         val _name_ = value.name
         if(_name_ == null) { gen.writeNull() } else {gen.writeString(_name_)}
@@ -34,10 +56,35 @@ internal class TestData_Serializer : StdSerializer<TestData>(TestData::class.jav
                 {serializers.defaultSerializeValue(_referenced_, gen)}
         gen.writeFieldName("map")
         val _map_ = value.map
-        serializers.defaultSerializeValue(_map_, gen)
+        serializers.findTypedValueSerializer(
+                serializers.config.typeFactory.constructMapType(
+                kotlin.collections.Map::class.java,
+                        serializers.config.typeFactory.constructType(org.litote.kmongo.Id::class.java)
+                , serializers.config.typeFactory.constructCollectionType(
+                kotlin.collections.Set::class.java,
+                        serializers.config.typeFactory.constructType(kotlin.String::class.java)
+                )
+
+                )
+                ,
+                true,
+                null
+                )
+                .serialize(_map_, gen, serializers)
         gen.writeFieldName("map2")
         val _map2_ = value.map2
-        serializers.defaultSerializeValue(_map2_, gen)
+        serializers.findTypedValueSerializer(
+                serializers.config.typeFactory.constructMapType(
+                kotlin.collections.Map::class.java,
+                        serializers.config.typeFactory.constructType(java.util.Locale::class.java)
+                ,
+                        serializers.config.typeFactory.constructType(org.litote.kmongo.model.SimpleReferenced2Data::class.java)
+                )
+                ,
+                true,
+                null
+                )
+                .serialize(_map2_, gen, serializers)
         gen.writeFieldName("nullableFloat")
         val _nullableFloat_ = value.nullableFloat
         if(_nullableFloat_ == null) { gen.writeNull() } else {gen.writeNumber(_nullableFloat_)}
