@@ -168,7 +168,8 @@ fun MongoDatabase.createView(
  *
  * @mongodb.driver.manual reference/command/drop/ Drop Collection
  */
-inline fun <reified T : Any> MongoDatabase.dropCollection() = dropCollection(defaultCollectionName(T::class))
+inline fun <reified T : Any> MongoDatabase.dropCollection(): Completable =
+    dropCollection(defaultCollectionName(T::class))
 
 /**
  * Drops this collection from the Database.

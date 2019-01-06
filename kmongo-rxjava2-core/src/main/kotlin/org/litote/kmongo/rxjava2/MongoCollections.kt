@@ -763,7 +763,7 @@ fun <T> MongoCollection<T>.ensureIndex(
     return maybeResult<String> { createIndex(keys, indexOptions, it) }
         .onErrorResumeNext(
             completableResult { dropIndex(keys, it) }
-                .andThen(maybeResult<String> { createIndex(keys, indexOptions, it) })
+                .andThen(maybeResult { createIndex(keys, indexOptions, it) })
         )
         .flatMapCompletable { _ ->
             CompletableSource { cs -> cs.onComplete() }

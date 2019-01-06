@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Litote
+ * Copyright (C) 2017/2018 Litote
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.litote.kmongo.rxjava2
 
 import com.mongodb.ReadPreference
 import com.mongodb.client.model.Filters
 import org.bson.types.ObjectId
 import org.junit.Test
-import org.litote.kmongo.MongoOperator.oid
+import org.litote.kmongo.MongoOperator
 import org.litote.kmongo.json
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
@@ -28,7 +29,7 @@ import kotlin.test.assertNull
 /**
  *
  */
-class FindOneTest : KMongoRxBaseTest<Friend>() {
+class ReactiveStreamsFindOneTest : KMongoReactiveStreamsRxBaseTest<Friend>() {
 
     @Test
     fun canFindOne() {
@@ -40,7 +41,8 @@ class FindOneTest : KMongoRxBaseTest<Friend>() {
     @Test
     fun canFindOneBson() {
         col.insertOne(Friend("John", "22 Wall Street Avenue")).blockingAwait()
-        val friend = col.findOne(Filters.eq("name", "John")).blockingGet() ?: throw AssertionError("Value must not null!")
+        val friend =
+            col.findOne(Filters.eq("name", "John")).blockingGet() ?: throw AssertionError("Value must not null!")
         assertEquals("John", friend.name)
     }
 
@@ -73,7 +75,8 @@ class FindOneTest : KMongoRxBaseTest<Friend>() {
         val id = ObjectId()
         val john = Friend(id, "John")
         col.insertOne(john).blockingAwait()
-        val friend = col.findOne("{_id:{$oid:'$id'}}").blockingGet() ?: throw AssertionError("Value must not null!")
+        val friend = col.findOne("{_id:{${MongoOperator.oid}:'$id'}}").blockingGet()
+                ?: throw AssertionError("Value must not null!")
         assertEquals(id, friend._id)
     }
 

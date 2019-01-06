@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.reactivestreams
+package org.litote.kmongo.rxjava2
 
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.BulkWriteOptions
@@ -36,34 +36,49 @@ import com.mongodb.reactivestreams.client.FindPublisher
 import com.mongodb.reactivestreams.client.ListIndexesPublisher
 import com.mongodb.reactivestreams.client.MapReducePublisher
 import com.mongodb.reactivestreams.client.MongoCollection
-import com.mongodb.reactivestreams.client.Success
+import io.reactivex.Completable
+import io.reactivex.CompletableSource
+import io.reactivex.Maybe
+import io.reactivex.Single
 import org.bson.BsonDocument
 import org.bson.conversions.Bson
 import org.litote.kmongo.EMPTY_BSON
 import org.litote.kmongo.SetTo
 import org.litote.kmongo.and
+import org.litote.kmongo.ascending
 import org.litote.kmongo.path
 import org.litote.kmongo.set
 import org.litote.kmongo.util.KMongoUtil
-import org.reactivestreams.Publisher
+import org.litote.kmongo.util.KMongoUtil.filterIdToBson
+import org.litote.kmongo.util.KMongoUtil.idFilterQuery
+import org.litote.kmongo.util.KMongoUtil.toBson
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
 /**
- * Counts the number of documents in the collection according to the given options.
+ * Create a new MongoCollection instance with a different default class to cast any documents returned from the database into..
  *
- * @param filter   the query filter
+ * @param <NewTDocument> the default class to cast any documents returned from the database into.
+ * @return a new MongoCollection instance with the different default class
  */
-fun <T> MongoCollection<T>.countDocuments(filter: String): Publisher<Long> =
-    countDocuments(filter, CountOptions())
+inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument> =
+    withDocumentClass(NewTDocument::class.java)
+
+/**
+ * Counts the number of documents
+ *
+ * @return count of all collection
+ */
+fun <T> MongoCollection<T>.countDocuments(): Single<Long> = countDocuments().single()
 
 /**
  * Counts the number of documents in the collection according to the given options.
  *
  * @param filter   the query filter
+ * @return count of filtered collection
  */
-fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions): Publisher<Long> =
-    countDocuments(KMongoUtil.toBson(filter), options)
-
+fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions = CountOptions()): Single<Long> =
+    countDocuments(toBson(filter), options).single()
 
 /**
  * Gets the distinct values of the specified field name.
@@ -72,8 +87,9 @@ fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions)
  * @param <TResult>   the target type of the iterable
  * @return an iterable of distinct values
  */
-inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctPublisher<TResult> =
-    distinct(fieldName, KMongoUtil.EMPTY_JSON)
+inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctPublisher<TResult> {
+    return distinct(fieldName, KMongoUtil.EMPTY_JSON)
+}
 
 /**
  * Gets the distinct values of the specified field name.
@@ -86,21 +102,24 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
 inline fun <reified TResult : Any> MongoCollection<*>.distinct(
     fieldName: String,
     filter: String
-): DistinctPublisher<TResult> = distinct(fieldName, KMongoUtil.toBson(filter), TResult::class.java)
+): DistinctPublisher<TResult> {
+    return distinct(fieldName, toBson(filter), TResult::class.java)
+}
 
 /**
- * Gets the distinct values of the specified field.
+ * Gets the distinct values of the specified field name.
  *
- * @param fieldName   the field
+ * @param field   the field name
  * @param filter      the query filter
- * @param <TResult>   the target type of the iterable.
- *
+ * @param <TResult>   the target type of the iterable
  * @return an iterable of distinct values
  */
-inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
+inline fun <reified T : Any, reified TResult : Any> MongoCollection<*>.distinct(
     field: KProperty1<T, TResult>,
     filter: Bson = EMPTY_BSON
-): DistinctPublisher<TResult> = distinct(field.path(), filter, TResult::class.java)
+): DistinctPublisher<TResult> {
+    return distinct(field.path(), filter, TResult::class.java)
+}
 
 /**
  * Finds all documents that match the filter in the collection.
@@ -108,45 +127,45 @@ inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
  * @param  filter the query filter
  * @return the find iterable interface
  */
-fun <T> MongoCollection<T>.find(filter: String): FindPublisher<T> = find(KMongoUtil.toBson(filter))
+fun <T : Any> MongoCollection<T>.find(filter: String): FindPublisher<T> = find(toBson(filter))
 
 /**
- * Finds all documents in the collection.
+ * Finds all documents that match the filters in the collection.
  *
- * @param filters the query filters
+ * @param  filters the query filter
  * @return the find iterable interface
  */
-fun <T> MongoCollection<T>.find(vararg filters: Bson?): FindPublisher<T> = find(and(*filters))
+fun <T : Any> MongoCollection<T>.find(vararg filters: Bson?): FindPublisher<T> = find(and(*filters))
 
 /**
  * Finds the first document that match the filter in the collection.
  *
  * @param filter the query filter
  */
-fun <T> MongoCollection<T>.findOne(filter: String = KMongoUtil.EMPTY_JSON): Publisher<T> = find(filter).first()
+fun <T : Any> MongoCollection<T>.findOne(filter: String = KMongoUtil.EMPTY_JSON): Maybe<T> = find(filter).maybe()
 
 /**
  * Finds the first document that match the filter in the collection.
  *
  * @param filter the query filter
  */
-fun <T> MongoCollection<T>.findOne(filter: Bson): Publisher<T> = find(filter).first()
+fun <T : Any> MongoCollection<T>.findOne(filter: Bson): Maybe<T> = find(filter).first().maybe()
 
 /**
  * Finds the first document that match the filters in the collection.
  *
  * @param filters the query filters
  */
-fun <T> MongoCollection<T>.findOne(vararg filters: Bson?): Publisher<T> =
-    findOne(and(*filters))
+fun <T : Any> MongoCollection<T>.findOne(vararg filters: Bson?): Maybe<T> = find(*filters).first().maybe()
 
 /**
  * Finds the document that match the id parameter.
  *
  * @param id       the object id
  */
-fun <T> MongoCollection<T>.findOneById(id: Any): Publisher<T> =
-    findOne(KMongoUtil.idFilterQuery(id))
+fun <T : Any> MongoCollection<T>.findOneById(id: Any): Maybe<T> {
+    return findOne(idFilterQuery(id))
+}
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
@@ -157,8 +176,9 @@ fun <T> MongoCollection<T>.findOneById(id: Any): Publisher<T> =
  * @param <TResult>   the target document type of the iterable
  * @return an iterable containing the result of the aggregation operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregatePublisher<TResult> =
-    aggregate(KMongoUtil.toBsonList(pipeline, codecRegistry), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregatePublisher<TResult> {
+    return aggregate(KMongoUtil.toBsonList(pipeline, codecRegistry), TResult::class.java)
+}
 
 /**
  * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
@@ -169,8 +189,9 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
  * @param <TResult>   the target document type of the iterable
  * @return an iterable containing the result of the aggregation operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregatePublisher<TResult> =
-    aggregate(pipeline.toList(), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregatePublisher<TResult> {
+    return aggregate(pipeline.toList(), TResult::class.java)
+}
 
 /**
  * Aggregates documents according to the specified map-reduce function.
@@ -181,35 +202,12 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
  * *
  * @return an iterable containing the result of the map-reduce operation
  */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-inline fun <reified TResult : Any> MongoCollection<*>.mapReduce(
+inline fun <reified TResult : Any> MongoCollection<*>.mapReduceTyped(
     mapFunction: String,
     reduceFunction: String
-): MapReducePublisher<TResult> = mapReduceWith(mapFunction, reduceFunction)
-
-/**
- * Aggregates documents according to the specified map-reduce function.
- *
- * @param mapFunction    a JavaScript function that associates or "maps" a value with a key and emits the key and value pair.
- * @param reduceFunction a JavaScript function that "reduces" to a single object all the values associated with a particular key.
- * @param <TResult>      the target document type of the iterable.
- * *
- * @return an iterable containing the result of the map-reduce operation
- */
-inline fun <reified TResult : Any> MongoCollection<*>.mapReduceWith(
-    mapFunction: String,
-    reduceFunction: String
-): MapReducePublisher<TResult> = mapReduce(mapFunction, reduceFunction, TResult::class.java)
-
-
-/**
- * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
- *
- * @param document the document to insert
- */
-inline fun <reified T : Any> MongoCollection<T>.insertOne(
-    document: String
-): Publisher<Success> = insertOne(document, InsertOneOptions())
+): MapReducePublisher<TResult> {
+    return mapReduce(mapFunction, reduceFunction, TResult::class.java)
+}
 
 /**
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
@@ -219,8 +217,13 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
  */
 inline fun <reified T : Any> MongoCollection<T>.insertOne(
     document: String,
-    options: InsertOneOptions
-): Publisher<Success> = withDocumentClass<BsonDocument>().insertOne(KMongoUtil.toBson(document, T::class), options)
+    options: InsertOneOptions = InsertOneOptions()
+): Completable =
+    withDocumentClass<BsonDocument>().insertOne(
+        toBson(document, T::class),
+        options
+    )
+        .completable()
 
 
 /**
@@ -228,16 +231,24 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
  * modified.
  *
  * @param filter   the query filter to apply the the delete operation
+ *
+ * @return the result of the remove one operation
  */
-fun <T> MongoCollection<T>.deleteOne(filter: String): Publisher<DeleteResult> = deleteOne(KMongoUtil.toBson(filter))
+fun <T> MongoCollection<T>.deleteOne(filter: String): Maybe<DeleteResult> = deleteOne(toBson(filter)).maybe()
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
  * modified.
  *
- * @param filters   the query filters to apply the the delete operation
+ * @param filters   the query filter to apply the the delete operation
+ *
+ * @return the result of the remove one operation
+ *
+ * @throws com.mongodb.MongoWriteException
+ * @throws com.mongodb.MongoWriteConcernException
+ * @throws com.mongodb.MongoException
  */
-fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?): Publisher<DeleteResult> = deleteOne(and(*filters))
+fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?): Maybe<DeleteResult> = deleteOne(and(*filters)).maybe()
 
 /**
  * Removes at most one document from the id parameter.  If no documents match, the collection is not
@@ -245,8 +256,7 @@ fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?): Publisher<DeleteRes
  *
  * @param id   the object id
  */
-fun <T> MongoCollection<T>.deleteOneById(id: Any): Publisher<DeleteResult> =
-    deleteOne(KMongoUtil.idFilterQuery(id))
+fun <T> MongoCollection<T>.deleteOneById(id: Any): Maybe<DeleteResult> = deleteOne(idFilterQuery(id)).maybe()
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -257,18 +267,18 @@ fun <T> MongoCollection<T>.deleteOneById(id: Any): Publisher<DeleteResult> =
 fun <T> MongoCollection<T>.deleteMany(
     filter: String,
     options: DeleteOptions = DeleteOptions()
-): Publisher<DeleteResult> = deleteMany(KMongoUtil.toBson(filter), options)
+): Maybe<DeleteResult> = deleteMany(toBson(filter), options).maybe()
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
  *
- * @param filter   the query filter to apply the the delete operation
+ * @param filters   the query filters to apply the the delete operation
  * @param options  the options to apply to the delete operation
  */
 fun <T> MongoCollection<T>.deleteMany(
     vararg filters: Bson?,
     options: DeleteOptions = DeleteOptions()
-): Publisher<DeleteResult> = deleteMany(and(*filters), options)
+): Maybe<DeleteResult> = deleteMany(and(*filters), options).maybe()
 
 /**
  * Save the document.
@@ -277,12 +287,16 @@ fun <T> MongoCollection<T>.deleteMany(
  *
  * @param document the document to save
  */
-fun <T : Any> MongoCollection<T>.save(document: T): Publisher<*> {
+fun <T : Any> MongoCollection<T>.save(document: T): Completable {
     val id = KMongoUtil.getIdValue(document)
     return if (id != null) {
-        replaceOneById(id, document, ReplaceOptions().upsert(true))
+        replaceOneById(
+            id,
+            document,
+            ReplaceOptions().upsert(true)
+        ).flatMapCompletable { _ -> CompletableSource { cs -> cs.onComplete() } }
     } else {
-        insertOne(document)
+        insertOne(document).completable()
     }
 }
 
@@ -291,74 +305,27 @@ fun <T : Any> MongoCollection<T>.save(document: T): Publisher<*> {
  *
  * @param id          the object id
  * @param replacement the replacement document
- */
-fun <T : Any> MongoCollection<T>.replaceOneById(
-    id: Any,
-    replacement: T
-): Publisher<UpdateResult> = replaceOneById(id, replacement, ReplaceOptions())
-
-/**
- * Replace a document in the collection according to the specified arguments.
- *
- * @param id          the object id
- * @param replacement the replacement document
  * @param options     the options to apply to the replace operation
+ *
+ * @return the result of the replace one operation
  */
 fun <T : Any> MongoCollection<T>.replaceOneById(
     id: Any,
     replacement: T,
-    options: ReplaceOptions
-): Publisher<UpdateResult> = withDocumentClass<BsonDocument>().replaceOne(
-    KMongoUtil.idFilterQuery(id),
-    KMongoUtil.filterIdToBson(replacement), options
-)
+    options: ReplaceOptions = ReplaceOptions()
+): Maybe<UpdateResult> =
+    withDocumentClass<BsonDocument>().replaceOne(idFilterQuery(id), filterIdToBson(replacement), options).maybe()
 
 /**
  * Replace a document in the collection according to the specified arguments.
  *
- * @param replacement the replacement document - must have a non null id
+ * @param replacement the document to replace - must have an non null id
+ * @param options     the options to apply to the replace operation
  */
 inline fun <reified T : Any> MongoCollection<T>.replaceOne(
-    replacement: T
-): Publisher<UpdateResult> = replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement)
-
-/**
- * Replace a document in the collection according to the specified arguments.
- * The id of the provided document is not used, in order to avoid updated id error.
- * You may have to use [UpdateResult.getUpsertedId] in order to retrieve the generated id.
- *
- * @param filter      the query filter to apply to the replace operation
- * @param replacement the replacement document
- * @param options     the options to apply to the replace operation
- */
-inline fun <reified T : Any> MongoCollection<T>.replaceOneWithoutId(
-    filter: Bson,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): Publisher<UpdateResult> = withDocumentClass<BsonDocument>().replaceOne(
-    filter,
-    KMongoUtil.filterIdToBson(replacement),
-    options
-)
-
-/**
- * Replace a document in the collection according to the specified arguments.
- * The id of the provided document is not used, in order to avoid updated id error.
- * You may have to use [UpdateResult.getUpsertedId] in order to retrieve the generated id.
- *
- * @param filter      the query filter to apply to the replace operation
- * @param replacement the replacement document
- * @param options     the options to apply to the replace operation
- */
-fun <T : Any> MongoCollection<T>.replaceOneWithoutId(
-    filter: String,
-    replacement: T,
-    options: ReplaceOptions = ReplaceOptions()
-): Publisher<UpdateResult> = withDocumentClass<BsonDocument>().replaceOne(
-    KMongoUtil.toBson(filter),
-    KMongoUtil.filterIdToBson(replacement),
-    options
-)
+): Maybe<UpdateResult> = replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement, options)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -366,12 +333,36 @@ fun <T : Any> MongoCollection<T>.replaceOneWithoutId(
  * @param filter      the query filter to apply to the replace operation
  * @param replacement the replacement document
  * @param options     the options to apply to the replace operation
+ *
+ * @return the result of the update one operation
  */
 fun <T : Any> MongoCollection<T>.replaceOne(
     filter: String,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): Publisher<UpdateResult> = replaceOne(KMongoUtil.toBson(filter), replacement, options)
+): Maybe<UpdateResult> = replaceOne(toBson(filter), replacement, options).maybe()
+
+/**
+ * Replace a document in the collection according to the specified arguments.
+ * The id of the provided document is not used, in order to avoid updated id error.
+ * You may have to use [UpdateResult.getUpsertedId] in order to retrieve the generated id.
+ *
+ * @param filter      the query filter to apply to the replace operation
+ * @param replacement the replacement document
+ * @param options     the options to apply to the replace operation
+ *
+ * @return the result of the update one operation
+ */
+fun <T : Any> MongoCollection<T>.replaceOneWithoutId(
+    filter: Bson,
+    replacement: T,
+    options: ReplaceOptions = ReplaceOptions()
+): Maybe<UpdateResult> =
+    withDocumentClass<BsonDocument>().replaceOne(
+        filter,
+        KMongoUtil.filterIdToBson(replacement),
+        options
+    ).maybe()
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -379,51 +370,57 @@ fun <T : Any> MongoCollection<T>.replaceOne(
  * @param filter   a document describing the query filter
  * @param update   a document describing the update. The update to apply must include only update operators.
  * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
  */
 fun <T> MongoCollection<T>.updateOne(
     filter: String,
     update: String,
     options: UpdateOptions = UpdateOptions()
-): Publisher<UpdateResult> = updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options)
+): Maybe<UpdateResult> = updateOne(toBson(filter), toBson(update), options).maybe()
 
 /**
  * Update a single document in the collection according to the specified arguments.
  *
  * @param filter   a document describing the query filter
- * @param update   the update object
+ * @param target  the update object - must have an non null id
  * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
  */
-fun <T> MongoCollection<T>.updateOne(
+fun <T : Any> MongoCollection<T>.updateOne(
     filter: String,
-    update: Any,
+    target: T,
     options: UpdateOptions = UpdateOptions()
-): Publisher<UpdateResult> = updateOne(KMongoUtil.toBson(filter), KMongoUtil.setModifier(update), options)
+): Maybe<UpdateResult> = updateOne(toBson(filter), KMongoUtil.toBsonModifier(target), options).maybe()
 
 /**
  * Update a single document in the collection according to the specified arguments.
  *
  * @param filter   a document describing the query filter
- * @param update   the update object
+ * @param target  the update object - must have an non null id
  * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
  */
-fun <T> MongoCollection<T>.updateOne(
+fun <T : Any> MongoCollection<T>.updateOne(
     filter: Bson,
-    target: Any,
+    target: T,
     options: UpdateOptions = UpdateOptions()
-): Publisher<UpdateResult> = updateOne(filter, KMongoUtil.toBsonModifier(target), options)
+): Maybe<UpdateResult> = updateOne(filter, KMongoUtil.toBsonModifier(target), options).maybe()
 
 /**
  * Update a single document in the collection according to the specified arguments.
  *
  * @param target  the update object - must have an non null id
  * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
  */
 inline fun <reified T : Any> MongoCollection<T>.updateOne(
     target: T,
     options: UpdateOptions = UpdateOptions()
-): Publisher<UpdateResult> {
-    return updateOneById(KMongoUtil.extractId(target, T::class), target, options)
-}
+): Maybe<UpdateResult> = updateOneById(KMongoUtil.extractId(target, T::class), target, options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -431,49 +428,63 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(
  * @param id        the object id
  * @param update    the update object
  * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update one operation
  */
 fun <T> MongoCollection<T>.updateOneById(
     id: Any,
     update: Any,
     options: UpdateOptions = UpdateOptions()
-): Publisher<UpdateResult> = updateOne(KMongoUtil.idFilterQuery(id), KMongoUtil.toBsonModifier(update), options)
+): Maybe<UpdateResult> =
+    updateOne(
+        idFilterQuery(id),
+        KMongoUtil.toBsonModifier(update),
+        options
+    ).maybe()
 
 /**
  * Update all documents in the collection according to the specified arguments.
  *
  * @param filter   a document describing the query filter
  * @param update   a document describing the update. The update to apply must include only update operators.
- * @param updateOptions  the options to apply to the update operation
+ * @param options  the options to apply to the update operation
+ *
+ * @return the result of the update many operation
  */
 fun <T> MongoCollection<T>.updateMany(
     filter: String,
     update: String,
     updateOptions: UpdateOptions = UpdateOptions()
-): Publisher<UpdateResult> = updateMany(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), updateOptions)
+): Maybe<UpdateResult> = updateMany(toBson(filter), toBson(update), updateOptions).maybe()
 
 /**
  * Update all documents in the collection according to the specified arguments.
  *
- * @param filter        a document describing the query filter, which may not be null.
- * @param updates        a document describing the update, which may not be null. The update to apply must include only update operators.
- * @param updateOptions the options to apply to the update operation
+ * @param filter   a document describing the query filter
+ * @param updates   a document describing the update. The update to apply must include only update operators.
+ * @param updateOptions  the options to apply to the update operation
+ *
+ * @return the result of the update many operation
  */
-fun <T : Any> MongoCollection<T>.updateMany(
+fun <T> MongoCollection<T>.updateMany(
     filter: Bson,
     vararg updates: SetTo<*>,
     updateOptions: UpdateOptions = UpdateOptions()
-): Publisher<UpdateResult> = updateMany(filter, set(*updates), updateOptions)
+): Maybe<UpdateResult> = updateMany(filter, set(*updates), updateOptions).maybe()
 
 /**
  * Atomically find a document and remove it.
  *
  * @param filter   the query filter to find the document with
  * @param options  the options to apply to the operation
+ *
+ * @return the document that was removed.  If no documents matched the query filter, then null will be returned
  */
-fun <T> MongoCollection<T>.findOneAndDelete(
+fun <T : Any> MongoCollection<T>.findOneAndDelete(
     filter: String,
     options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
-): Publisher<T> = findOneAndDelete(KMongoUtil.toBson(filter), options)
+): Maybe<T> = findOneAndDelete(toBson(filter), options).maybe()
+
 
 /**
  * Atomically find a document and replace it.
@@ -481,12 +492,16 @@ fun <T> MongoCollection<T>.findOneAndDelete(
  * @param filter      the query filter to apply the the replace operation
  * @param replacement the replacement document
  * @param options     the options to apply to the operation
+ *
+ * @return the document that was updated.  Depending on the value of the `returnOriginal` property, this will either be the
+ * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
+ * returned
  */
 fun <T> MongoCollection<T>.findOneAndReplace(
     filter: String,
     replacement: T,
     options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
-): Publisher<T> = findOneAndReplace(KMongoUtil.toBson(filter), replacement, options)
+): Maybe<T> = findOneAndReplace(toBson(filter), replacement, options).maybe()
 
 /**
  * Atomically find a document and update it.
@@ -494,71 +509,111 @@ fun <T> MongoCollection<T>.findOneAndReplace(
  * @param filter   a document describing the query filter
  * @param update   a document describing the update. The update to apply must include only update operators.
  * @param options  the options to apply to the operation
+ *
+ * @return the document that was updated.  Depending on the value of the `returnOriginal` property, this will either be the
+ * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
+ * returned
  */
-fun <T> MongoCollection<T>.findOneAndUpdate(
+fun <T : Any> MongoCollection<T>.findOneAndUpdate(
     filter: String,
     update: String,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
-): Publisher<T> = findOneAndUpdate(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options)
+): Maybe<T> = findOneAndUpdate(toBson(filter), toBson(update), options).maybe()
 
 /**
- * Creates an index.
- *
- * @param key      an object describing the index key(s)
- */
-fun <T> MongoCollection<T>.createIndex(key: String): Publisher<String> =
-    createIndex(key, IndexOptions())
-
-/**
- * Creates an index.
+ * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
 
  * @param key      an object describing the index key(s)
  * @param options  the options for the index
+ *
+ * @return the index name
  */
-fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions): Publisher<String> =
-    createIndex(KMongoUtil.toBson(key), options)
+fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions = IndexOptions()): Maybe<String> =
+    createIndex(toBson(key), options).maybe()
+
+/**
+ * Create an index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+ *
+ * @param key      an object describing the index key(s)
+ * @param indexOptions  the options for the index
+ *
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions = IndexOptions()):
+        Completable {
+    return createIndex(keys, indexOptions)
+        .onErrorResumeNext(
+            dropIndex(keys)
+                .completable()
+                .andThen(createIndex(keys, indexOptions))
+        )
+        .flatMapCompletable { _ ->
+            CompletableSource { cs -> cs.onComplete() }
+        }
+}
+
+/**
+ * Create an index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+ *
+ * @param keys      an object describing the index key(s)
+ * @param indexOptions  the options for the index
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.ensureIndex(
+    keys: Bson,
+    indexOptions: IndexOptions = IndexOptions()
+): Completable {
+    return createIndex(keys, indexOptions).maybe()
+        .onErrorResumeNext(
+            dropIndex(keys).completable()
+                .andThen(createIndex(keys, indexOptions).maybe())
+        )
+        .flatMapCompletable { _ ->
+            CompletableSource { cs -> cs.onComplete() }
+        }
+}
+
+/**
+ * Create an index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+ *
+ * @param properties    the properties, which must contain at least one
+ * @param indexOptions  the options for the index
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.ensureIndex(
+    vararg properties: KProperty<*>,
+    indexOptions: IndexOptions = IndexOptions()
+): Completable = ensureIndex(ascending(*properties), indexOptions)
+
+/**
+ * Create an [IndexOptions.unique] index with the given keys and options.
+ * If the creation of the index is not doable because an index with the same keys but with different [IndexOptions]
+ * already exists, then drop the existing index and create a new one.
+ *
+ * @param properties    the properties, which must contain at least one
+ * @param indexOptions  the options for the index
+ * @return the index name
+ */
+fun <T> MongoCollection<T>.ensureUniqueIndex(
+    vararg properties: KProperty<*>,
+    indexOptions: IndexOptions = IndexOptions()
+): Completable = ensureIndex(ascending(*properties), indexOptions.unique(true))
 
 /**
  * Get all the indexes in this collection.
-
+ *
  * @param <TResult>   the target document type of the iterable.
+ *
  * @return the list indexes iterable interface
  */
 inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesPublisher<TResult> =
     listIndexes(TResult::class.java)
-
-/**
- * Drops the index given the keys used to create it.
-
- * @param keys the keys of the index to remove
- */
-fun <T> MongoCollection<T>.dropIndexOfKeys(keys: String): Publisher<Success> = dropIndex(KMongoUtil.toBson(keys))
-
-/**
- * Executes a mix of inserts, updates, replaces, and deletes.
-
- * @param requests the writes to execute
- */
-inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
-    vararg requests: String
-): Publisher<BulkWriteResult> = withDocumentClass<BsonDocument>().bulkWrite(
-    KMongoUtil.toWriteModel(requests, codecRegistry, T::class),
-    BulkWriteOptions()
-)
-
-/**
- * Executes a mix of inserts, updates, replaces, and deletes.
- *
- * @param requests the writes to execute
- * @param options  the options to apply to the bulk write operation
- */
-inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
-    vararg requests: String,
-    options: BulkWriteOptions = BulkWriteOptions()
-): Publisher<BulkWriteResult> = withDocumentClass<BsonDocument>().bulkWrite(
-    KMongoUtil.toWriteModel(requests, codecRegistry, T::class),
-    options
-)
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -569,7 +624,25 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
  * @return the result of the bulk write
  */
 inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
+    vararg requests: String,
+    options: BulkWriteOptions = BulkWriteOptions()
+): Maybe<BulkWriteResult> =
+    withDocumentClass<BsonDocument>().bulkWrite(
+        KMongoUtil.toWriteModel(
+            requests,
+            codecRegistry,
+            T::class
+        ),
+        options
+    ).maybe()
+
+/**
+ * Executes a mix of inserts, updates, replaces, and deletes.
+ *
+ * @param requests the writes to execute
+ * @param options  the options to apply to the bulk write operation
+ */
+inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
     vararg requests: WriteModel<T>,
     options: BulkWriteOptions = BulkWriteOptions()
-): Publisher<BulkWriteResult> = bulkWrite(requests.toList(), options)
-
+): Maybe<BulkWriteResult> = bulkWrite(requests.toList(), options).maybe()

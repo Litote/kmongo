@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.async
+package org.litote.kmongo.rxjava2
 
-import com.mongodb.client.model.IndexModel
-import com.mongodb.client.model.IndexOptions
+import com.mongodb.reactivestreams.client.DistinctPublisher
 import org.litote.kmongo.util.KMongoUtil
 
 /**
- * Construct an instance with the given keys and options.
+ * Sets the query filter to apply to the query.
  *
- * @param keys the index keys
- * @param options the index options
+ * @param filter the filter, which may be null
+ * @return this
  */
-@Deprecated("use org.litote.kmongo.IndexModel instead - will be removed in 4.0")
-fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel =
-    IndexModel(KMongoUtil.toBson(keys), options)
+fun <T> DistinctPublisher<T>.filter(filter: String): DistinctPublisher<T> = filter(KMongoUtil.toBson(filter))

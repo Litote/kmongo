@@ -62,6 +62,7 @@ suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<
  * @param keys the index keys
  * @param options the index options
  */
+@Deprecated("use org.litote.kmongo.IndexModel instead - will be removed in 4.0")
 fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel =
     IndexModel(toBson(keys), options)
 

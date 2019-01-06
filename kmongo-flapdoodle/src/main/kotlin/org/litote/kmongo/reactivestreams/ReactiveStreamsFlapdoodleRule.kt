@@ -34,7 +34,8 @@ import kotlin.reflect.KClass
 class ReactiveStreamsFlapdoodleRule<T : Any>(
     val defaultDocumentClass: KClass<T>,
     val generateRandomCollectionName: Boolean = false,
-    val dbName: String = "test"
+    val dbName: String = "test",
+    val wait:Boolean = false
 ) : TestRule {
 
     companion object {
@@ -91,7 +92,9 @@ class ReactiveStreamsFlapdoodleRule<T : Any>(
                 try {
                     testContext = ReactiveStreamsTestContext()
                     base.evaluate()
-                    testContext.waitToComplete()
+                    if(wait) {
+                        testContext.waitToComplete()
+                    }
                 } finally {
                     col.dropAndWait()
                 }

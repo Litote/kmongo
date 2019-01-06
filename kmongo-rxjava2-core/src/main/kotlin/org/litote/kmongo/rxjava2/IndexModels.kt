@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Litote
+ * Copyright (C) 2017/2018 Litote
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.rxjava2
 
 import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
-import org.bson.BsonDocument
 import org.litote.kmongo.util.KMongoUtil
 
 /**
@@ -27,26 +26,6 @@ import org.litote.kmongo.util.KMongoUtil
  * @param keys the index keys
  * @param options the index options
  */
+@Deprecated("use org.litote.kmongo.IndexModel instead - will be removed in 4.0")
 fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel =
     IndexModel(KMongoUtil.toBson(keys), options)
-
-/**
- * Get the extended json representation of this object
- *
- * See [Mongo extended json format](https://docs.mongodb.com/manual/reference/mongodb-extended-json) for details
- */
-val Any.json: String
-    get() = KMongoUtil.toExtendedJson(this)
-
-/**
- * Get the [org.bson.BsonValue] of this string.
- *
- * @throws Exception if the string content is not a valid json document format
- */
-val String.bson: BsonDocument
-    get() = KMongoUtil.toBson(this)
-
-/**
- * Format this string to remove space(s) between $ and next char
- */
-fun String.formatJson(): String = KMongoUtil.formatJson(this)
