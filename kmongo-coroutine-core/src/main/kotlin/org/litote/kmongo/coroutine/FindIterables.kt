@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.rxjava2
+package org.litote.kmongo.coroutine
 
-import com.mongodb.reactivestreams.client.FindPublisher
+import com.mongodb.Block
+import com.mongodb.async.client.FindIterable
 import org.litote.kmongo.ascending
 import org.litote.kmongo.descending
 import org.litote.kmongo.include
@@ -29,7 +30,15 @@ import kotlin.reflect.KProperty
  * @param filter the filter, which may be null
  * @return this
  */
-fun <T> FindPublisher<T>.filter(filter: String): FindPublisher<T> = filter(KMongoUtil.toBson(filter))
+fun <T> FindIterable<T>.filter(filter: String): FindIterable<T> = filter(KMongoUtil.toBson(filter))
+
+/**
+ * Sets the query filter to apply to the query.
+ *
+ * @param filter the filter, which may be null
+ * @return this
+ */
+suspend fun <T> FindIterable<T>.first(): T? = singleResult { first(it) }
 
 /**
  * Sets the query modifiers to apply to this operation.
@@ -37,7 +46,7 @@ fun <T> FindPublisher<T>.filter(filter: String): FindPublisher<T> = filter(KMong
  * @param modifiers the query modifiers to apply
  * @return this
  */
-fun <T> FindPublisher<T>.modifiers(modifiers: String): FindPublisher<T> = modifiers(KMongoUtil.toBson(modifiers))
+fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T> = modifiers(KMongoUtil.toBson(modifiers))
 
 /**
  * Sets a document describing the fields to return for all matching documents.
@@ -45,7 +54,7 @@ fun <T> FindPublisher<T>.modifiers(modifiers: String): FindPublisher<T> = modifi
  * @param projection the project document
  * @return this
  */
-fun <T> FindPublisher<T>.projection(projection: String): FindPublisher<T> = projection(KMongoUtil.toBson(projection))
+fun <T> FindIterable<T>.projection(projection: String): FindIterable<T> = projection(KMongoUtil.toBson(projection))
 
 /**
  * Sets a document describing the fields to return for all matching documents.
@@ -53,7 +62,7 @@ fun <T> FindPublisher<T>.projection(projection: String): FindPublisher<T> = proj
  * @param projections the properties of the returned fields
  * @return this
  */
-fun <T> FindPublisher<T>.projection(vararg projections: KProperty<*>): FindPublisher<T> =
+fun <T> FindIterable<T>.projection(vararg projections: KProperty<*>): FindIterable<T> =
     projection(include(*projections))
 
 /**
@@ -62,7 +71,8 @@ fun <T> FindPublisher<T>.projection(vararg projections: KProperty<*>): FindPubli
  * @param sort the sort criteria
  * @return this
  */
-fun <T> FindPublisher<T>.sort(sort: String): FindPublisher<T> = sort(KMongoUtil.toBson(sort))
+fun <T> FindIterable<T>.sort(sort: String): FindIterable<T> = sort(KMongoUtil.toBson(sort))
+
 
 /**
  * Sets the sort criteria with specified ascending properties to apply to the query.
@@ -70,8 +80,7 @@ fun <T> FindPublisher<T>.sort(sort: String): FindPublisher<T> = sort(KMongoUtil.
  * @param properties the properties
  * @return this
  */
-fun <T> FindPublisher<T>.ascendingSort(vararg properties: KProperty<*>): FindPublisher<T> =
-    sort(ascending(*properties))
+fun <T> FindIterable<T>.ascendingSort(vararg properties: KProperty<*>): FindIterable<T> = sort(ascending(*properties))
 
 /**
  * Sets the sort criteria with specified descending properties to apply to the query.
@@ -79,6 +88,13 @@ fun <T> FindPublisher<T>.ascendingSort(vararg properties: KProperty<*>): FindPub
  * @param properties the properties
  * @return this
  */
-fun <T> FindPublisher<T>.descendingSort(vararg properties: KProperty<*>): FindPublisher<T> =
-    sort(descending(*properties))
+fun <T> FindIterable<T>.descendingSort(vararg properties: KProperty<*>): FindIterable<T> = sort(descending(*properties))
 
+/**
+ * Iterates over all documents in the view, applying the given block to each, and completing the returned future after all documents
+ * have been iterated, or an exception has occurred.
+ *
+ * @param block    the block to apply to each document
+ */
+suspend fun <T> FindIterable<T>.forEach(block: (T) -> Unit) =
+    singleResult<Void> { forEach(Block { item -> block(item) }, it) }

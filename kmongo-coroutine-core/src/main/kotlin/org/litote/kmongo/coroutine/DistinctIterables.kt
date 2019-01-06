@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.rxjava2
+package org.litote.kmongo.coroutine
 
-import com.mongodb.reactivestreams.client.DistinctPublisher
+import com.mongodb.async.client.DistinctIterable
 import org.litote.kmongo.util.KMongoUtil
 
 /**
@@ -25,4 +25,4 @@ import org.litote.kmongo.util.KMongoUtil
  * @param filter the filter, which may be null
  * @return this
  */
-fun <T> DistinctPublisher<T>.filter(filter: String): DistinctPublisher<T> = filter(KMongoUtil.toBson(filter))
+fun <T> DistinctIterable<T>.filter(filter: String): DistinctIterable<T> = filter(KMongoUtil.toBson(filter))

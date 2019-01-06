@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Litote
+ * Copyright (C) 2017/2018 Litote
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.litote.kmongo.coroutine
 
 import com.mongodb.MongoCommandException
-import com.mongodb.async.client.MongoCollection
+import com.mongodb.reactivestreams.client.MongoCollection
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -25,14 +26,17 @@ import org.litote.kmongo.MongoOperator.and
 import org.litote.kmongo.MongoOperator.limit
 import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.MongoOperator.project
-import org.litote.kmongo.coroutine.AggregateTest.Article
+import org.litote.kmongo.coroutine.ReactiveStreamsAggregateTest.Article
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-class AggregateTest : KMongoCoroutineBaseTest<Article>() {
+/**
+ *
+ */
+class ReactiveStreamsAggregateTest : KMongoReactiveStreamsCoroutineBaseTest<Article>() {
 
     data class Article(val title: String, val author: String, val tags: List<String>) {
 
@@ -44,27 +48,26 @@ class AggregateTest : KMongoCoroutineBaseTest<Article>() {
     @Before
     fun setup() = runBlocking<Unit> {
 
-        col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"))
-        col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"))
-        col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"))
+        col.insertOneAndAwait(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"))
+        col.insertOneAndAwait(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"))
+        col.insertOneAndAwait(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"))
 
         friendCol = getCollection()
-        friendCol.insertOne(Friend("William"))
-        friendCol.insertOne(Friend("John"))
-        friendCol.insertOne(Friend("Richard"))
+        friendCol.insertOneAndAwait(Friend("William"))
+        friendCol.insertOneAndAwait(Friend("John"))
+        friendCol.insertOneAndAwait(Friend("Richard"))
     }
 
     @After
-    fun tearDown() = runBlocking<Unit> {
+    fun tearDown() {
         rule.dropCollection<Friend>()
     }
 
     override fun getDefaultCollectionClass(): KClass<Article> = Article::class
 
     @Test
-    fun canAggregate() = runBlocking<Unit> {
-        col.aggregate<Article>("{$match:{}}")
-                .toList()
+    fun canAggregate() = runBlocking {
+        assertEquals(3, col.aggregate<Article>("{$match:{}}").toList().size)
     }
 
     @Test
@@ -84,14 +87,17 @@ class AggregateTest : KMongoCoroutineBaseTest<Article>() {
 
     @Test
     fun canAggregateWithManyMatch() = runBlocking {
-        val data = col.aggregate<Article>("{$match:{$and:[{tags:'virus'}, {tags:'pandemic'}]}}").toList()
+        val data =
+            col.aggregate<Article>("{$match:{$and:[{tags:'virus'}, {tags:'pandemic'}]}}")
+                .toList()
         assertEquals(1, data.size)
         assertEquals("World War Z", data.first().title)
     }
 
     @Test
     fun canAggregateWithManyOperators() = runBlocking {
-        val data = col.aggregate<Article>("[{$match:{tags:'virus'}},{$limit:1}]").toList()
+        val data =
+            col.aggregate<Article>("[{$match:{tags:'virus'}},{$limit:1}]").toList()
         assertEquals(1, data.size)
     }
 
@@ -100,7 +106,7 @@ class AggregateTest : KMongoCoroutineBaseTest<Article>() {
         assertFailsWith(MongoCommandException::class) {
             runBlocking {
                 col.aggregate<Article>("{\$invalid:{}}")
-                        .toList()
+                    .toList()
             }
         }
     }
@@ -108,7 +114,7 @@ class AggregateTest : KMongoCoroutineBaseTest<Article>() {
     @Test
     fun shouldPopulateIds() = runBlocking {
         val data = friendCol.aggregate<Friend>("{$project: {_id: '\$_id', name: '\$name'}}")
-                .toList()
+            .toList()
         assertEquals(3, data.size)
         assertTrue(data.all { it._id != null })
     }

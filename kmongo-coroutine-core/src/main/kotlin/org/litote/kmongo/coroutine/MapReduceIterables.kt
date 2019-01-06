@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.rxjava2
+package org.litote.kmongo.coroutine
 
-import com.mongodb.reactivestreams.client.MapReducePublisher
-import org.litote.kmongo.ascending
-import org.litote.kmongo.descending
+import com.mongodb.async.client.MapReduceIterable
 import org.litote.kmongo.util.KMongoUtil
-import kotlin.reflect.KProperty
 
 /**
  * Sets the global variables that are accessible in the map, reduce and finalize functions.
@@ -28,7 +25,7 @@ import kotlin.reflect.KProperty
  * @param scope the global variables that are accessible in the map, reduce and finalize functions.
  * @return this
  */
-fun <T> MapReducePublisher<T>.scope(scope: String): MapReducePublisher<T> = scope(KMongoUtil.toBson(scope))
+fun <T> MapReduceIterable<T>.scope(scope: String): MapReduceIterable<T> = scope(KMongoUtil.toBson(scope))
 
 /**
  * Sets the sort criteria to apply to the query.
@@ -36,26 +33,7 @@ fun <T> MapReducePublisher<T>.scope(scope: String): MapReducePublisher<T> = scop
  * @param sort the sort criteria, which may be null
  * @return this
  */
-fun <T> MapReducePublisher<T>.sort(sort: String): MapReducePublisher<T> = sort(KMongoUtil.toBson(sort))
-
-/**
- * Sets the sort criteria with specified ascending properties to apply to the query.
- *
- * @param properties the properties
- * @return this
- */
-fun <T> MapReducePublisher<T>.ascendingSort(vararg properties: KProperty<*>): MapReducePublisher<T> =
-    sort(ascending(*properties))
-
-/**
- * Sets the sort criteria with specified descending properties to apply to the query.
- *
- * @param properties the properties
- * @return this
- */
-fun <T> MapReducePublisher<T>.descendingSort(vararg properties: KProperty<*>): MapReducePublisher<T> =
-    sort(descending(*properties))
-
+fun <T> MapReduceIterable<T>.sort(sort: String): MapReduceIterable<T> = sort(KMongoUtil.toBson(sort))
 
 /**
  * Sets the query filter to apply to the query.
@@ -63,5 +41,5 @@ fun <T> MapReducePublisher<T>.descendingSort(vararg properties: KProperty<*>): M
  * @param filter the filter to apply to the query
  * @return this
  */
-fun <T> MapReducePublisher<T>.filter(filter: String): MapReducePublisher<T> = filter(KMongoUtil.toBson(filter))
+fun <T> MapReduceIterable<T>.filter(filter: String): MapReduceIterable<T> = filter(KMongoUtil.toBson(filter))
 

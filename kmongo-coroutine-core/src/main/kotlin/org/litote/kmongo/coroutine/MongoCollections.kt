@@ -16,7 +16,6 @@
 
 package org.litote.kmongo.coroutine
 
-import com.mongodb.Block
 import com.mongodb.MongoCommandException
 import com.mongodb.async.client.AggregateIterable
 import com.mongodb.async.client.ClientSession
@@ -109,7 +108,11 @@ suspend fun <T> MongoCollection<T>.count(clientSession: ClientSession): Long {
  * @mongodb.server.release 3.6
  */
 @Deprecated("use countDocuments instead")
-suspend fun <T> MongoCollection<T>.count(clientSession: ClientSession, filter: String, options: CountOptions = CountOptions()): Long {
+suspend fun <T> MongoCollection<T>.count(
+    clientSession: ClientSession,
+    filter: String,
+    options: CountOptions = CountOptions()
+): Long {
     return singleResult { count(clientSession, toBson(filter), options, it) } ?: 0L
 }
 
@@ -139,7 +142,7 @@ suspend fun <T> MongoCollection<T>.countDocuments(filter: String, options: Count
  * @return count of all collection
  */
 suspend fun <T> MongoCollection<T>.countDocuments(clientSession: ClientSession): Long {
-    return singleResult { countDocuments(clientSession, it)  } ?: 0L
+    return singleResult { countDocuments(clientSession, it) } ?: 0L
 }
 
 /**
@@ -148,7 +151,11 @@ suspend fun <T> MongoCollection<T>.countDocuments(clientSession: ClientSession):
  * @param filter   the query filter
  * @param options  optional parameter, the options describing the count * @return count of filtered collection
  */
-suspend fun <T> MongoCollection<T>.countDocuments(clientSession: ClientSession, filter: String, options: CountOptions = CountOptions()): Long {
+suspend fun <T> MongoCollection<T>.countDocuments(
+    clientSession: ClientSession,
+    filter: String,
+    options: CountOptions = CountOptions()
+): Long {
     return singleResult { countDocuments(clientSession, toBson(filter), options, it) } ?: 0L
 }
 
@@ -221,7 +228,10 @@ suspend fun <T : Any> MongoCollection<T>.findOne(filter: String = KMongoUtil.EMP
  * @param clientSession  the client session with which to associate this operation
  * @param filter the query filter
  */
-suspend fun <T : Any> MongoCollection<T>.findOne(clientSession: ClientSession, filter: String = KMongoUtil.EMPTY_JSON): T? {
+suspend fun <T : Any> MongoCollection<T>.findOne(
+    clientSession: ClientSession,
+    filter: String = KMongoUtil.EMPTY_JSON
+): T? {
     return singleResult { find(clientSession, toBson(filter)).first(it) }
 }
 
@@ -240,7 +250,7 @@ suspend fun <T : Any> MongoCollection<T>.findOne(filter: Bson): T? {
  * @param clientSession  the client session with which to associate this operation
  * @param filter the query filter
  */
-suspend fun <T: Any> MongoCollection<T>.findOne(clientSession: ClientSession, filter: Bson): T? {
+suspend fun <T : Any> MongoCollection<T>.findOne(clientSession: ClientSession, filter: Bson): T? {
     return singleResult { find(clientSession, filter).first(it) }
 }
 
@@ -337,9 +347,9 @@ suspend fun <T : Any> MongoCollection<T>.insertMany(
  * @see com.mongodb.async.client.MongoCollection#bulkWrite
  */
 suspend fun <T : Any> MongoCollection<T>.insertMany(
-        clientSession: ClientSession,
-        documents: List<T>,
-        options: InsertManyOptions = InsertManyOptions()
+    clientSession: ClientSession,
+    documents: List<T>,
+    options: InsertManyOptions = InsertManyOptions()
 ): Void? {
     return singleResult { insertMany(clientSession, documents, options, it) }
 }
@@ -375,9 +385,9 @@ suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <TDocument : Any> MongoCollection<TDocument>.insertOne(
-        clientSession: ClientSession,
-        document: TDocument,
-        options: InsertOneOptions = InsertOneOptions()
+    clientSession: ClientSession,
+    document: TDocument,
+    options: InsertOneOptions = InsertOneOptions()
 ): Void? {
     return singleResult { insertOne(clientSession, document, options, it) }
 }
@@ -419,16 +429,16 @@ suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend inline fun <reified T : Any> MongoCollection<T>.insertOne(
-        clientSession: ClientSession,
-        document: String,
-        options: InsertOneOptions = InsertOneOptions()
+    clientSession: ClientSession,
+    document: String,
+    options: InsertOneOptions = InsertOneOptions()
 ) {
     singleResult<Void> {
         withDocumentClass<BsonDocument>().insertOne(
-                clientSession,
-                toBson(document, T::class),
-                options,
-                it
+            clientSession,
+            toBson(document, T::class),
+            options,
+            it
         )
     }
 }
@@ -464,9 +474,9 @@ suspend fun <T> MongoCollection<T>.deleteOne(
  * @throws com.mongodb.MongoException
  */
 suspend fun <T> MongoCollection<T>.deleteOne(
-        clientSession: ClientSession,
-        filter: String,
-        deleteOptions: DeleteOptions = DeleteOptions()
+    clientSession: ClientSession,
+    filter: String,
+    deleteOptions: DeleteOptions = DeleteOptions()
 ): DeleteResult? = singleResult { deleteOne(clientSession, toBson(filter), deleteOptions, it) }
 
 /**
@@ -499,9 +509,9 @@ suspend fun <T> MongoCollection<T>.deleteOne(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T> MongoCollection<T>.deleteOne(
-        clientSession: ClientSession,
-        vararg filters: Bson?,
-        deleteOptions: DeleteOptions = DeleteOptions()
+    clientSession: ClientSession,
+    vararg filters: Bson?,
+    deleteOptions: DeleteOptions = DeleteOptions()
 ): DeleteResult? = singleResult { deleteOne(clientSession, and(*filters), deleteOptions, it) }
 
 /**
@@ -550,9 +560,9 @@ suspend fun <T> MongoCollection<T>.deleteMany(
  * @throws com.mongodb.MongoException
  */
 suspend fun <T> MongoCollection<T>.deleteMany(
-        clientSession: ClientSession,
-        filter: String,
-        options: DeleteOptions = DeleteOptions()
+    clientSession: ClientSession,
+    filter: String,
+    options: DeleteOptions = DeleteOptions()
 ): DeleteResult? {
     return singleResult { deleteMany(clientSession, toBson(filter), options, it) }
 }
@@ -588,9 +598,9 @@ suspend fun <T> MongoCollection<T>.deleteMany(
  * @throws com.mongodb.MongoException
  */
 suspend fun <T> MongoCollection<T>.deleteMany(
-        clientSession: ClientSession,
-        vararg filters: Bson?,
-        options: DeleteOptions = DeleteOptions()
+    clientSession: ClientSession,
+    vararg filters: Bson?,
+    options: DeleteOptions = DeleteOptions()
 ): DeleteResult? = singleResult { deleteMany(clientSession, and(*filters), options, it) }
 
 /**
@@ -650,10 +660,10 @@ suspend fun <T : Any> MongoCollection<T>.replaceOneById(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T : Any> MongoCollection<T>.replaceOneById(
-        clientSession: ClientSession,
-        id: Any,
-        replacement: T,
-        options: ReplaceOptions = ReplaceOptions()
+    clientSession: ClientSession,
+    id: Any,
+    replacement: T,
+    options: ReplaceOptions = ReplaceOptions()
 ): UpdateResult? {
     return replaceOne(clientSession, idFilterQuery(id), replacement, options)
 }
@@ -741,18 +751,18 @@ suspend fun <T : Any> MongoCollection<T>.replaceOne(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T : Any> MongoCollection<T>.replaceOne(
-        clientSession: ClientSession,
-        filter: Bson,
-        replacement: T,
-        options: ReplaceOptions = ReplaceOptions()
+    clientSession: ClientSession,
+    filter: Bson,
+    replacement: T,
+    options: ReplaceOptions = ReplaceOptions()
 ): UpdateResult? {
     return singleResult {
         withDocumentClass<BsonDocument>().replaceOne(
-                clientSession,
-                filter,
-                KMongoUtil.filterIdToBson(replacement),
-                options,
-                it
+            clientSession,
+            filter,
+            KMongoUtil.filterIdToBson(replacement),
+            options,
+            it
         )
     }
 }
@@ -793,10 +803,10 @@ suspend fun <T> MongoCollection<T>.updateOne(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T> MongoCollection<T>.updateOne(
-        clientSession: ClientSession,
-        filter: String,
-        update: String,
-        options: UpdateOptions = UpdateOptions()
+    clientSession: ClientSession,
+    filter: String,
+    update: String,
+    options: UpdateOptions = UpdateOptions()
 ): UpdateResult? {
     return singleResult { updateOne(clientSession, toBson(filter), toBson(update), options, it) }
 }
@@ -835,10 +845,10 @@ suspend fun <T> MongoCollection<T>.updateOne(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T> MongoCollection<T>.updateOne(
-        clientSession: ClientSession,
-        filter: String,
-        update: Any,
-        options: UpdateOptions = UpdateOptions()
+    clientSession: ClientSession,
+    filter: String,
+    update: Any,
+    options: UpdateOptions = UpdateOptions()
 ): UpdateResult? = singleResult { updateOne(clientSession, toBson(filter), setModifier(update), options, it) }
 
 /**
@@ -877,10 +887,10 @@ suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
-        clientSession: ClientSession,
-        filter: Bson,
-        target: T,
-        options: UpdateOptions = UpdateOptions()
+    clientSession: ClientSession,
+    filter: Bson,
+    target: T,
+    options: UpdateOptions = UpdateOptions()
 ): UpdateResult? {
     return singleResult { updateOne(clientSession, filter, KMongoUtil.toBsonModifier(target), options, it) }
 }
@@ -918,9 +928,9 @@ suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
-        clientSession: ClientSession,
-        target: T,
-        options: UpdateOptions = UpdateOptions()
+    clientSession: ClientSession,
+    target: T,
+    options: UpdateOptions = UpdateOptions()
 ): UpdateResult? {
     return updateOneById(clientSession, KMongoUtil.extractId(target, T::class), target, options)
 }
@@ -967,20 +977,20 @@ suspend fun <T> MongoCollection<T>.updateOneById(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T> MongoCollection<T>.updateOneById(
-        clientSession: ClientSession,
-        id: Any,
-        update: Any,
-        options: UpdateOptions = UpdateOptions()
+    clientSession: ClientSession,
+    id: Any,
+    update: Any,
+    options: UpdateOptions = UpdateOptions()
 ): UpdateResult? =
-        singleResult {
-            updateOne(
-                    clientSession,
-                    idFilterQuery(id),
-                    KMongoUtil.toBsonModifier(update),
-                    options,
-                    it
-            )
-        }
+    singleResult {
+        updateOne(
+            clientSession,
+            idFilterQuery(id),
+            KMongoUtil.toBsonModifier(update),
+            options,
+            it
+        )
+    }
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -1018,10 +1028,10 @@ suspend fun <T> MongoCollection<T>.updateMany(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T> MongoCollection<T>.updateMany(
-        clientSession: ClientSession,
-        filter: String,
-        update: String,
-        updateOptions: UpdateOptions = UpdateOptions()
+    clientSession: ClientSession,
+    filter: String,
+    update: String,
+    updateOptions: UpdateOptions = UpdateOptions()
 ): UpdateResult? {
     return singleResult { updateMany(clientSession, toBson(filter), toBson(update), updateOptions, it) }
 }
@@ -1040,9 +1050,9 @@ suspend fun <T> MongoCollection<T>.updateMany(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T> MongoCollection<T>.updateMany(
-        filter: Bson,
-        vararg updates: SetTo<*>,
-        updateOptions: UpdateOptions = UpdateOptions()
+    filter: Bson,
+    vararg updates: SetTo<*>,
+    updateOptions: UpdateOptions = UpdateOptions()
 ): UpdateResult? = singleResult { updateMany(filter, set(*updates), updateOptions, it) }
 
 /**
@@ -1060,10 +1070,10 @@ suspend fun <T> MongoCollection<T>.updateMany(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 suspend fun <T> MongoCollection<T>.updateMany(
-        clientSession: ClientSession,
-        filter: Bson,
-        vararg updates: SetTo<*>,
-        updateOptions: UpdateOptions = UpdateOptions()
+    clientSession: ClientSession,
+    filter: Bson,
+    vararg updates: SetTo<*>,
+    updateOptions: UpdateOptions = UpdateOptions()
 ): UpdateResult? = singleResult { updateMany(clientSession, filter, set(*updates), updateOptions, it) }
 
 /**
@@ -1091,9 +1101,9 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(
  * @return the document that was removed.  If no documents matched the query filter, then null will be returned
  */
 suspend fun <T : Any> MongoCollection<T>.findOneAndDelete(
-        clientSession: ClientSession,
-        filter: String,
-        options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
+    clientSession: ClientSession,
+    filter: String,
+    options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
 ): T? {
     return singleResult { findOneAndDelete(clientSession, toBson(filter), options, it) }
 }
@@ -1130,10 +1140,10 @@ suspend fun <T> MongoCollection<T>.findOneAndReplace(
  * returned
  */
 suspend fun <T> MongoCollection<T>.findOneAndReplace(
-        clientSession: ClientSession,
-        filter: String,
-        replacement: T,
-        options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
+    clientSession: ClientSession,
+    filter: String,
+    replacement: T,
+    options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
 ): T? {
     return singleResult { findOneAndReplace(clientSession, toBson(filter), replacement, options, it) }
 }
@@ -1170,10 +1180,10 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(
  * returned
  */
 suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(
-        clientSession: ClientSession,
-        filter: String,
-        update: String,
-        options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+    clientSession: ClientSession,
+    filter: String,
+    update: String,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
 ): T? {
     return singleResult { findOneAndUpdate(clientSession, toBson(filter), toBson(update), options, it) }
 }
@@ -1191,7 +1201,7 @@ suspend fun <T> MongoCollection<T>.drop() {
  * @param clientSession  the client session with which to associate this operation
  */
 suspend fun <T> MongoCollection<T>.drop(clientSession: ClientSession) {
-    singleResult<Void> { this.drop(clientSession, it)  }
+    singleResult<Void> { this.drop(clientSession, it) }
 }
 
 /**
@@ -1350,18 +1360,18 @@ suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
  * @return the result of the bulk write
  */
 suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
-        clientSession: ClientSession,
-        vararg requests: String,
-        options: BulkWriteOptions = BulkWriteOptions()
+    clientSession: ClientSession,
+    vararg requests: String,
+    options: BulkWriteOptions = BulkWriteOptions()
 ): BulkWriteResult? {
     return singleResult {
         withDocumentClass<BsonDocument>().bulkWrite(
-                clientSession,
-                KMongoUtil.toWriteModel(
-                        requests,
-                        codecRegistry,
-                        T::class
-                ), options, it
+            clientSession,
+            KMongoUtil.toWriteModel(
+                requests,
+                codecRegistry,
+                T::class
+            ), options, it
         )
     }
 }
@@ -1380,12 +1390,3 @@ suspend inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
 ): BulkWriteResult? {
     return singleResult { bulkWrite(requests.toList(), options, it) }
 }
-
-/**
- * Iterates over all documents in the view, applying the given block to each, and completing the returned future after all documents
- * have been iterated, or an exception has occurred.
- *
- * @param block    the block to apply to each document
- */
-suspend fun <T> FindIterable<T>.forEach(block: (T) -> Unit) = singleResult<Void> { forEach(Block { item -> block(item) }, it) }
-

@@ -21,5 +21,6 @@ suspend fun MongoClient.startSession(): ClientSession {
  * @param options  the options for the client session
  */
 suspend fun MongoClient.startSession(options: ClientSessionOptions): ClientSession {
-    return singleResult { this.startSession(options, it) } ?: throw IllegalStateException("Unexpected null result from startSession()")
+    return singleResult { this.startSession(options, it) }
+            ?: throw IllegalStateException("Unexpected null result from startSession()")
 }

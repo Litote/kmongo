@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo.reactivestreams
+package org.litote.kmongo.coroutine
 
-import com.mongodb.client.model.IndexModel
-import com.mongodb.client.model.IndexOptions
-import org.litote.kmongo.util.KMongoUtil
+import com.mongodb.async.client.MongoIterable
 
 /**
- * Construct an instance with the given keys and options.
+ * Iterates over all the documents, adding each to the given target.
  *
- * @param keys the index keys
- * @param options the index options
+ * @param target   the collection to insert into
+ * @param callback a callback that will be passed the target containing all documents
  */
-fun IndexModel.IndexModel(keys: String, options: IndexOptions = IndexOptions()): IndexModel =
-    IndexModel(KMongoUtil.toBson(keys), options)
+suspend fun <T> MongoIterable<T>.toList(): MutableList<T> {
+    return singleResult { into(mutableListOf(), it) } ?: arrayListOf()
+}
+

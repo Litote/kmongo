@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Litote
+ * Copyright (C) 2017/2018 Litote
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.litote.kmongo.coroutine
 
 import kotlinx.coroutines.runBlocking
 import org.bson.types.Binary
-import org.junit.Assert.assertArrayEquals
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.litote.kmongo.MongoOperator.binary
-import org.litote.kmongo.MongoOperator.type
-import org.litote.kmongo.coroutine.BinaryTest.BinaryFriend
+import org.litote.kmongo.MongoOperator
+import org.litote.kmongo.coroutine.ReactiveStreamsBinaryTest.BinaryFriend
 import org.litote.kmongo.json
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class BinaryTest : KMongoCoroutineBaseTest<BinaryFriend>() {
+/**
+ *
+ */
+class ReactiveStreamsBinaryTest : KMongoReactiveStreamsCoroutineBaseTest<BinaryFriend>() {
 
     data class BinaryFriend(val _id: Binary, var name: String = "none")
 
@@ -47,7 +50,7 @@ class BinaryTest : KMongoCoroutineBaseTest<BinaryFriend>() {
         val expectedId = Binary("friend2".toByteArray())
         val expected = BinaryFriend(expectedId, "friend2")
 
-        col.insertOne(expected)
+        col.insertOneAndAwait(expected)
         expected.name = "new friend"
 
         col.updateOne("{_id:${expectedId.json}}", expected)
@@ -61,7 +64,7 @@ class BinaryTest : KMongoCoroutineBaseTest<BinaryFriend>() {
         val expectedId = Binary("friend".toByteArray())
         val expected = BinaryFriend(expectedId, "friend")
 
-        col.insertOne(expected)
+        col.insertOneAndAwait(expected)
         val savedFriend = col.findOne("{_id:${expectedId.json}}")
         assertNotNull(savedFriend)
         assertEquals(expected, savedFriend)
@@ -78,13 +81,14 @@ class BinaryTest : KMongoCoroutineBaseTest<BinaryFriend>() {
     fun canMarshallBinary() = runBlocking {
         val doc = BinaryFriend(Binary("abcde".toByteArray()))
 
-        col.insertOne(doc)
-        val count = col.count("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}")
+        col.insertOneAndAwait(doc)
+        val count =
+            col.countDocuments("{'_id' : { ${MongoOperator.binary} : 'YWJjZGU=' , ${MongoOperator.type} : '0'}}")
         val savedDoc = col.findOne("{_id:${doc._id.json}}") ?: throw AssertionError("Must not NUll")
 
         assertEquals(1, count)
         assertEquals(doc._id.type, savedDoc._id.type)
-        assertArrayEquals(doc._id.data, savedDoc._id.data)
+        Assert.assertArrayEquals(doc._id.data, savedDoc._id.data)
     }
 
 }
