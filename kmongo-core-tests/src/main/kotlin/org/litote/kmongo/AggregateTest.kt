@@ -47,7 +47,7 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
         col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"))
         col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"))
 
-        friendCol = getCollection<Friend>()
+        friendCol = getCollection()
         friendCol.insertOne(Friend("William"))
         friendCol.insertOne(Friend("John"))
         friendCol.insertOne(Friend("Richard"))
