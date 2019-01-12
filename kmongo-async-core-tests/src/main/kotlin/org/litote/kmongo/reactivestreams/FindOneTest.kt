@@ -28,8 +28,8 @@ class FindOneTest : KMongoReactiveStreamsBaseTest<Friend>() {
     @Test
     fun canFindOne() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"))
-            .listen { _, _ ->
-                col.findOne("{name:'John'}").listen { friend, _ ->
+            .forEach { _, _ ->
+                col.findOne("{name:'John'}").forEach { friend, _ ->
                     asyncTest { assertEquals("John", friend!!.name) }
                 }
             }
@@ -38,8 +38,8 @@ class FindOneTest : KMongoReactiveStreamsBaseTest<Friend>() {
     @Test
     fun canFindOneBson() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"))
-            .listen { _, _ ->
-                col.findOne(Filters.eq("name", "John")).listen { friend, _ ->
+            .forEach { _, _ ->
+                col.findOne(Filters.eq("name", "John")).forEach { friend, _ ->
                     asyncTest { assertEquals("John", friend!!.name) }
                 }
             }

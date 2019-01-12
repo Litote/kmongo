@@ -59,7 +59,7 @@ class ReactiveStreamsFlapdoodleRule<T : Any>(
     fun <T : Any> getCollection(name: String, clazz: KClass<T>): MongoCollection<T> =
         database.getCollection(name, clazz.java)
 
-    private fun <T : Any> MongoCollection<T>.dropAndWait() {
+    fun <T : Any> MongoCollection<T>.dropAndWait() {
         val count = CountDownLatch(1)
         drop().subscribe(SimpleSubscriber { count.countDown() })
         count.await(1, TimeUnit.SECONDS)

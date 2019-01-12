@@ -36,7 +36,7 @@ class DistinctTest : KMongoReactiveStreamsBaseTest<Friend>() {
                 Friend("Smith", wallStreetAvenue),
                 Friend("Peter", "24 Wall Street Avenue")
             )
-        ).listen { _, _ ->
+        ).forEach { _, _ ->
             col.distinct<String>("address").listenList { r, _ ->
                 asyncTest {
                     assertEquals(2, r!!.size)

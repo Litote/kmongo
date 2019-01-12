@@ -28,9 +28,9 @@ class FindOneAndModifyTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canFindAndUpdateOne() {
-        col.insertOne(Friend("John", "22 Wall Street Avenue")).listen { _, _ ->
-            col.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}").listen { _, _ ->
-                col.findOne("{name:'John'}").listen { friend, _ ->
+        col.insertOne(Friend("John", "22 Wall Street Avenue")).forEach { _, _ ->
+            col.findOneAndUpdate("{name:'John'}", "{$set: {address: 'A better place'}}").forEach { _, _ ->
+                col.findOne("{name:'John'}").forEach { friend, _ ->
                     asyncTest {
                         assertEquals("John", friend!!.name)
                         assertEquals("A better place", friend.address)

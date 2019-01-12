@@ -32,9 +32,9 @@ class UpdateTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canUpdateMulti() {
-        col.insertMany(listOf(Friend("John"), Friend("John"))).listen { _, _ ->
-            col.updateMany("{name:'John'}", "{$unset:{name:1}}").listen { _, _ ->
-                col.countDocuments("{name:{$exists:true}}").listen { r, _ ->
+        col.insertMany(listOf(Friend("John"), Friend("John"))).forEach { _, _ ->
+            col.updateMany("{name:'John'}", "{$unset:{name:1}}").forEach { _, _ ->
+                col.countDocuments("{name:{$exists:true}}").forEach { r, _ ->
                     asyncTest {
                         assertEquals(0, r)
                     }
@@ -46,9 +46,9 @@ class UpdateTest : KMongoReactiveStreamsBaseTest<Friend>() {
     @Test
     fun canUpdateByObjectId() {
         val friend = Friend("Paul")
-        col.insertOne(friend).listen { _, _ ->
-            col.updateOneById(friend._id!!, "{$set:{name:'John'}}").listen { _, _ ->
-                col.findOne("{name:'John'}").listen { r, _ ->
+        col.insertOne(friend).forEach { _, _ ->
+            col.updateOneById(friend._id!!, "{$set:{name:'John'}}").forEach { _, _ ->
+                col.findOne("{name:'John'}").forEach { r, _ ->
                     asyncTest {
                         assertEquals("John", r!!.name)
                         assertEquals(friend._id, r._id)
@@ -60,8 +60,8 @@ class UpdateTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canUpsert() {
-        col.updateOne("{}", "{$set:{name:'John'}}", UpdateOptions().upsert(true)).listen { _, _ ->
-            col.findOne("{name:'John'}").listen { r, _ ->
+        col.updateOne("{}", "{$set:{name:'John'}}", UpdateOptions().upsert(true)).forEach { _, _ ->
+            col.findOne("{name:'John'}").forEach { r, _ ->
                 asyncTest {
                     assertEquals("John", r!!.name)
                 }
@@ -72,10 +72,10 @@ class UpdateTest : KMongoReactiveStreamsBaseTest<Friend>() {
     @Test
     fun canPartiallyUdpateWithAPreexistingDocument() {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOne(friend).listen { _, _ ->
+        col.insertOne(friend).forEach { _, _ ->
             val preexistingDocument = Friend(friend._id!!, "Johnny")
-            col.updateOne("{name:'John'}", preexistingDocument).listen { _, _ ->
-                col.findOne("{name:'Johnny'}").listen { r, _ ->
+            col.updateOne("{name:'John'}", preexistingDocument).forEach { _, _ ->
+                col.findOne("{name:'Johnny'}").forEach { r, _ ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
                         assertNull(r.address)

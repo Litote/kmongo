@@ -29,9 +29,9 @@ class ReplaceTest : KMongoReactiveStreamsBaseTest<Friend>() {
     @Test
     fun canReplaceWithId() {
         val friend = Friend("Peter", "31 rue des Lilas")
-        col.insertOne(friend).listen { _, _ ->
-            col.replaceOneById(friend._id!!, Friend("John")).listen { _, _ ->
-                col.findOne("{name:'John'}}").listen { r, _ ->
+        col.insertOne(friend).forEach { _, _ ->
+            col.replaceOneById(friend._id!!, Friend("John")).forEach { _, _ ->
+                col.findOne("{name:'John'}}").forEach { r, _ ->
                     asyncTest {
                         assertEquals("John", r!!.name)
                         assertNull(r.address)
@@ -44,10 +44,10 @@ class ReplaceTest : KMongoReactiveStreamsBaseTest<Friend>() {
     @Test
     fun canReplaceTheSameDocument() {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOne(friend).listen { _, _ ->
+        col.insertOne(friend).forEach { _, _ ->
             friend.name = "Johnny"
-            col.replaceOne(friend).listen { _, _ ->
-                col.findOne("{name:'Johnny'}").listen { r, _ ->
+            col.replaceOne(friend).forEach { _, _ ->
+                col.findOne("{name:'Johnny'}").forEach { r, _ ->
                     asyncTest {
                         assertEquals("Johnny", r!!.name)
                         assertEquals("123 Wall Street", r.address)

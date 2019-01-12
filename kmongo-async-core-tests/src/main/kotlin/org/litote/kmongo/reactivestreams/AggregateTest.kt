@@ -39,17 +39,17 @@ class AggregateTest : KMongoReactiveStreamsBaseTest<Article>() {
     fun setup() {
         val count = CountDownLatch(6)
 
-        col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus")).listen { _, _ -> count.countDown() }
+        col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus")).forEach { _, _ -> count.countDown() }
         col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"))
-            .listen { _, _ -> count.countDown() }
+            .forEach { _, _ -> count.countDown() }
         col.insertOne(
             Article("World War Z", "Max Brooks", "horror", "virus", "pandemic")
-        ).listen { _, _ -> count.countDown() }
+        ).forEach { _, _ -> count.countDown() }
 
         friendCol = getCollection<Friend>()
-        friendCol.insertOne(Friend("William")).listen { _, _ -> count.countDown() }
-        friendCol.insertOne(Friend("John")).listen { _, _ -> count.countDown() }
-        friendCol.insertOne(Friend("Richard")).listen { _, _ -> count.countDown() }
+        friendCol.insertOne(Friend("William")).forEach { _, _ -> count.countDown() }
+        friendCol.insertOne(Friend("John")).forEach { _, _ -> count.countDown() }
+        friendCol.insertOne(Friend("Richard")).forEach { _, _ -> count.countDown() }
 
         count.await(20, TimeUnit.SECONDS)
     }
@@ -62,7 +62,7 @@ class AggregateTest : KMongoReactiveStreamsBaseTest<Article>() {
     @Test
     fun canAggregate() {
         col.aggregate<Article>("{$match:{}}")
-            .listenList { l, t ->
+            .listenList { l, _ ->
                 asyncTest { assertEquals(3, l!!.size) }
             }
     }

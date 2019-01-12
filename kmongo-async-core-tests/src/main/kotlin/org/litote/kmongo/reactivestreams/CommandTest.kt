@@ -27,7 +27,7 @@ class CommandTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canRunACommand() {
-        database.runCommand<Document>("{ ping: 1 }").listen { r, _ ->
+        database.runCommand<Document>("{ ping: 1 }").forEach { r, _ ->
             asyncTest {
                 assertEquals(1.0, r!!.get("ok"))
             }

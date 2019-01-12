@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 /**
  * Listen each element from the publisher.
  */
-fun <T> Publisher<T>.listen(listener: (T?, Throwable?) -> Unit): Unit =
+fun <T> Publisher<T>.forEach(listener: (T?, Throwable?) -> Unit): Unit =
     subscribe(object : Subscriber<T> {
         override fun onComplete() {
             //do nothing
@@ -46,7 +46,7 @@ fun <T> Publisher<T>.listen(listener: (T?, Throwable?) -> Unit): Unit =
 /**
  * Listen list of not null elements from the publisher.
  */
-fun <T> Publisher<T>.listenList(listener: (List<T>?, Throwable?) -> Unit): Unit {
+fun <T> Publisher<T>.listenList(listener: (List<T>?, Throwable?) -> Unit) {
     val r = ConcurrentLinkedQueue<T>()
     subscribe(object : Subscriber<T> {
         override fun onComplete() {

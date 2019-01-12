@@ -29,8 +29,8 @@ class DeleteTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canDeleteASpecificDocument() {
-        col.insertMany(listOf(Friend("John"), Friend("Peter"))).listen { _, _ ->
-            col.deleteOne("{name:'John'}").listen { _, _ ->
+        col.insertMany(listOf(Friend("John"), Friend("Peter"))).forEach { _, _ ->
+            col.deleteOne("{name:'John'}").forEach { _, _ ->
                 col.find().listenList { list, _ ->
                     asyncTest {
                         assertEquals(1, list!!.size)
@@ -43,9 +43,9 @@ class DeleteTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canDeleteByObjectId() {
-        col.insertOne("{ _id:{$oid:'47cc67093475061e3d95369d'}, name:'John'}").listen { _, _ ->
-            col.deleteOneById(ObjectId("47cc67093475061e3d95369d")).listen { _, _ ->
-                col.countDocuments().listen { c, _ ->
+        col.insertOne("{ _id:{$oid:'47cc67093475061e3d95369d'}, name:'John'}").forEach { _, _ ->
+            col.deleteOneById(ObjectId("47cc67093475061e3d95369d")).forEach { _, _ ->
+                col.countDocuments().forEach { c, _ ->
                     asyncTest {
                         assertEquals(0, c)
                     }
@@ -56,9 +56,9 @@ class DeleteTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canRemoveAll() {
-        col.insertMany(listOf(Friend("John"), Friend("Peter"))).listen { _, _ ->
-            col.deleteMany("{}").listen { _, _ ->
-                col.countDocuments().listen { c, _ ->
+        col.insertMany(listOf(Friend("John"), Friend("Peter"))).forEach { _, _ ->
+            col.deleteMany("{}").forEach { _, _ ->
+                col.countDocuments().forEach { c, _ ->
                     asyncTest {
                         assertEquals(0, c)
                     }

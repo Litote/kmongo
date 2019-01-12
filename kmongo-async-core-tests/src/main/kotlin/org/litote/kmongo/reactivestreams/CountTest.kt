@@ -31,8 +31,8 @@ class CountTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canCountDocuments() {
-        col.insertMany(listOf(newFriend(), newFriend())).listen { _, _ ->
-            col.countDocuments().listen { r, _ ->
+        col.insertMany(listOf(newFriend(), newFriend())).forEach { _, _ ->
+            col.countDocuments().forEach { r, _ ->
                 asyncTest {
                     assertEquals(2, r)
                 }
@@ -42,8 +42,8 @@ class CountTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canCountDocumentsWithQuery() {
-        col.insertMany(listOf(newFriend(), newFriend())).listen { _, _ ->
-            col.countDocuments("{name:{$exists:true}}").listen { r, _ ->
+        col.insertMany(listOf(newFriend(), newFriend())).forEach { _, _ ->
+            col.countDocuments("{name:{$exists:true}}").forEach { r, _ ->
                 asyncTest {
                     assertEquals(2, r)
                 }
@@ -53,8 +53,8 @@ class CountTest : KMongoReactiveStreamsBaseTest<Friend>() {
 
     @Test
     fun canCountDocumentsWithParameters() {
-        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue"))).listen { _, _ ->
-            col.countDocuments("{name:'Peter'}}").listen { r, _ ->
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue"))).forEach { _, _ ->
+            col.countDocuments("{name:'Peter'}}").forEach { r, _ ->
                 asyncTest {
                     assertEquals(1, r)
                 }
