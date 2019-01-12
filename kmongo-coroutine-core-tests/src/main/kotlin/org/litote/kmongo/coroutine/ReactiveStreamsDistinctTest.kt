@@ -33,7 +33,7 @@ class ReactiveStreamsDistinctTest : KMongoReactiveStreamsCoroutineBaseTest<Frien
 
     @Test
     fun distinctOnStringEntities() = runBlocking {
-        col.insertManyAndAwait(listOf(
+        col.insertMany(listOf(
             Friend("John", wallStreetAvenue),
             Friend("Smith", wallStreetAvenue),
             Friend("Peter", "24 Wall Street Avenue")
@@ -47,7 +47,7 @@ class ReactiveStreamsDistinctTest : KMongoReactiveStreamsCoroutineBaseTest<Frien
 
     @Test
     fun distinctOnIntegerEntities() = runBlocking {
-        col.insertManyAndAwait(listOf(
+        col.insertMany(listOf(
             Friend("John", Coordinate(1, 2)),
             Friend("Smith", Coordinate(1, 2)),
             Friend("Peter", Coordinate(125, 72))
@@ -62,7 +62,7 @@ class ReactiveStreamsDistinctTest : KMongoReactiveStreamsCoroutineBaseTest<Frien
     @Test
     fun distinctOnTypedProperty() = runBlocking {
 
-        col.insertManyAndAwait(listOf(
+        col.insertMany(listOf(
             Friend("John", Coordinate(1, 2)),
             Friend("Smith", Coordinate(1, 2)),
             Friend("Peter", Coordinate(125, 72))
@@ -75,7 +75,7 @@ class ReactiveStreamsDistinctTest : KMongoReactiveStreamsCoroutineBaseTest<Frien
 
     @Test
     fun distinctWithQuery() = runBlocking {
-        col.insertManyAndAwait(listOf(
+        col.insertMany(listOf(
             Friend("John", Coordinate(1, 2)),
             Friend("Smith", Coordinate(125, 72)),
             Friend(null, Coordinate(125, 72))
@@ -89,7 +89,7 @@ class ReactiveStreamsDistinctTest : KMongoReactiveStreamsCoroutineBaseTest<Frien
 
     @Test
     fun distinctWithParameterizedQuery() = runBlocking {
-        col.insertManyAndAwait(listOf(
+        col.insertMany(listOf(
             Friend("John", Coordinate(1, 2)),
             Friend("Peter", Coordinate(3, 4))
         ))

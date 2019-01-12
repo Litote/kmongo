@@ -37,18 +37,18 @@ class ReactiveStreamsBulkWriteTest : KMongoReactiveStreamsCoroutineBaseTest<Frie
             "{ insertOne : { \"document\" : ${newFriend().json} } }",
             "{ insertOne : { \"document\" : ${newFriend().json} } }"
         )
-        assertEquals(2, col.countDocumentsAndAwait())
+        assertEquals(2, col.countDocuments())
     }
 
     @Test
     fun `can do bulk write in ClientSession`() = runBlocking {
-        rule.mongoClient.startSessionAndAwait().use {
+        mongoClient.startSession().use {
             col.bulkWrite(
                 it,
                 "{ insertOne : { \"document\" : ${newFriend().json} } }",
                 "{ insertOne : { \"document\" : ${newFriend().json} } }"
             )
-            assertEquals(2, col.countDocumentsAndAwait(it))
+            assertEquals(2, col.countDocuments(it))
         }
     }
 }

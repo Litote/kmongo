@@ -50,7 +50,7 @@ class ReactiveStreamsBinaryTest : KMongoReactiveStreamsCoroutineBaseTest<BinaryF
         val expectedId = Binary("friend2".toByteArray())
         val expected = BinaryFriend(expectedId, "friend2")
 
-        col.insertOneAndAwait(expected)
+        col.insertOne(expected)
         expected.name = "new friend"
 
         col.updateOne("{_id:${expectedId.json}}", expected)
@@ -64,7 +64,7 @@ class ReactiveStreamsBinaryTest : KMongoReactiveStreamsCoroutineBaseTest<BinaryF
         val expectedId = Binary("friend".toByteArray())
         val expected = BinaryFriend(expectedId, "friend")
 
-        col.insertOneAndAwait(expected)
+        col.insertOne(expected)
         val savedFriend = col.findOne("{_id:${expectedId.json}}")
         assertNotNull(savedFriend)
         assertEquals(expected, savedFriend)
@@ -81,7 +81,7 @@ class ReactiveStreamsBinaryTest : KMongoReactiveStreamsCoroutineBaseTest<BinaryF
     fun canMarshallBinary() = runBlocking {
         val doc = BinaryFriend(Binary("abcde".toByteArray()))
 
-        col.insertOneAndAwait(doc)
+        col.insertOne(doc)
         val count =
             col.countDocuments("{'_id' : { ${MongoOperator.binary} : 'YWJjZGU=' , ${MongoOperator.type} : '0'}}")
         val savedDoc = col.findOne("{_id:${doc._id.json}}") ?: throw AssertionError("Must not NUll")

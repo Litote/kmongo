@@ -30,7 +30,7 @@ class ReactiveStreamsReplaceTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
     @Test
     fun canReplaceWithId() = runBlocking {
         val friend = Friend("Peter", "31 rue des Lilas")
-        col.insertOneAndAwait(friend)
+        col.insertOne(friend)
         col.replaceOneById(friend._id ?: Any(), Friend("John"))
         val replacedFriend = col.findOne("{name:'John'}}") ?: throw AssertionError("Value must not null!")
         assertEquals("John", replacedFriend.name)
@@ -39,8 +39,8 @@ class ReactiveStreamsReplaceTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
     @Test
     fun `can replace with id in ClientSession`() = runBlocking {
         val friend = Friend("Peter", "31 rue des Lilas")
-        col.insertOneAndAwait(friend)
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertOne(friend)
+        mongoClient.startSession().use {
             col.replaceOneById(it, friend._id ?: Any(), Friend("John"))
             val replacedFriend = col.findOne(it, Filters.eq("name", "John")) ?: throw AssertionError("Value must not null!")
             assertEquals("John", replacedFriend.name)
@@ -50,7 +50,7 @@ class ReactiveStreamsReplaceTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
     @Test
     fun canReplaceTheSameDocument() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOneAndAwait(friend)
+        col.insertOne(friend)
         friend.name = "Johnny"
 
         col.replaceOne(friend)
@@ -64,11 +64,11 @@ class ReactiveStreamsReplaceTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
     @Test
     fun `can replace one by filter in ClientSession`() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOneAndAwait(friend)
+        col.insertOne(friend)
         friend.name = "Johnny"
 
-        rule.mongoClient.startSessionAndAwait().use {
-            col.replaceOneAndAwait(it, Filters.eq("name", "John"), friend)
+        mongoClient.startSession().use {
+            col.replaceOne(it, Filters.eq("name", "John"), friend)
             val replacedFriend = col.findOne(it, Filters.eq("name", "Johnny")) ?: throw AssertionError("Value must not null!")
             assertEquals("Johnny", replacedFriend.name)
 

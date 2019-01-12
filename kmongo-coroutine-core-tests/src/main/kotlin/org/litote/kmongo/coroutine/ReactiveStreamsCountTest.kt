@@ -33,38 +33,38 @@ class ReactiveStreamsCountTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>(
 
     @Test
     fun canCount() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), newFriend()))
-        val count = col.countDocumentsAndAwait()
+        col.insertMany(listOf(newFriend(), newFriend()))
+        val count = col.countDocuments()
         assertEquals(2, count)
     }
 
     @Test
     fun canCountWithQuery() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), newFriend()))
+        col.insertMany(listOf(newFriend(), newFriend()))
         val count = col.countDocuments("{name:{${MongoOperator.exists}:true}}")
         assertEquals(2, count)
     }
 
     @Test
     fun canCountWithParameters() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
         val count = col.countDocuments("{name:'Peter'}}")
         assertEquals(1, count)
     }
 
     @Test
     fun `can count in ClientSession`() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
-        rule.mongoClient.startSessionAndAwait().use {
-            val count = col.countDocumentsAndAwait(it)
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
+        mongoClient.startSession().use {
+            val count = col.countDocuments(it)
             assertEquals(2, count)
         }
     }
 
     @Test
     fun `can count with parameters in ClientSession`() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
+        mongoClient.startSession().use {
             val count = col.countDocuments(it, "{name:'Peter'}}")
             assertEquals(1, count)
         }
@@ -72,38 +72,38 @@ class ReactiveStreamsCountTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>(
 
     @Test
     fun canCountDocuments() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), newFriend()))
-        val count = col.countDocumentsAndAwait()
+        col.insertMany(listOf(newFriend(), newFriend()))
+        val count = col.countDocuments()
         assertEquals(2, count)
     }
 
     @Test
     fun canCountDocumentsWithQuery() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), newFriend()))
+        col.insertMany(listOf(newFriend(), newFriend()))
         val count = col.countDocuments("{name:{${MongoOperator.exists}:true}}")
         assertEquals(2, count)
     }
 
     @Test
     fun canCountDocumentsWithParameters() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
         val count = col.countDocuments("{name:'Peter'}}")
         assertEquals(1, count)
     }
 
     @Test
     fun `can count documents in ClientSession`() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), newFriend()))
-        rule.mongoClient.startSessionAndAwait().use {
-            val count = col.countDocumentsAndAwait(it)
+        col.insertMany(listOf(newFriend(), newFriend()))
+        mongoClient.startSession().use {
+            val count = col.countDocuments(it)
             assertEquals(2, count)
         }
     }
 
     @Test
     fun `can count documents with parameters in ClientSession`() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
+        mongoClient.startSession().use {
             val count = col.countDocuments(it, "{name:'Peter'}}")
             assertEquals(1, count)
         }

@@ -30,7 +30,7 @@ class ReactiveStreamsDeleteTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
 
     @Test
     fun canDeleteASpecificDocument() = runBlocking {
-        col.insertManyAndAwait(listOf(Friend("John"), Friend("Peter")))
+        col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteOne("{name:'John'}")
         val list = col.find().toList()
         assertEquals(1, list.size)
@@ -39,8 +39,8 @@ class ReactiveStreamsDeleteTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
 
     @Test
     fun `can delete one in ClientSession`() = runBlocking {
-        col.insertManyAndAwait(listOf(Friend("John"), Friend("Peter")))
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertMany(listOf(Friend("John"), Friend("Peter")))
+        mongoClient.startSession().use {
             col.deleteOne(it, "{name:'John'}")
             val list = col.find(it).toList()
             assertEquals(1, list.size)
@@ -52,24 +52,24 @@ class ReactiveStreamsDeleteTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     fun canDeleteByObjectId() = runBlocking {
         col.insertOne("{ _id:{${MongoOperator.oid}:'47cc67093475061e3d95369d'}, name:'John'}")
         col.deleteOneById(ObjectId("47cc67093475061e3d95369d"))
-        val count = col.countDocumentsAndAwait()
+        val count = col.countDocuments()
         assertEquals(0, count)
     }
 
     @Test
     fun canRemoveAll() = runBlocking {
-        col.insertManyAndAwait(listOf(Friend("John"), Friend("Peter")))
+        col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteMany("{}")
-        val count = col.countDocumentsAndAwait()
+        val count = col.countDocuments()
         assertEquals(0, count)
     }
 
     @Test
     fun `can remove all in ClientSession`() = runBlocking {
-        col.insertManyAndAwait(listOf(Friend("John"), Friend("Peter")))
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertMany(listOf(Friend("John"), Friend("Peter")))
+        mongoClient.startSession().use {
             col.deleteMany(it, "{}")
-            val count = col.countDocumentsAndAwait(it)
+            val count = col.countDocuments(it)
             assertEquals(0, count)
         }
     }

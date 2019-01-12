@@ -37,11 +37,13 @@ open class KMongoReactiveStreamsCoroutineBaseTest<T : Any> : KMongoRootTest() {
     @JvmField
     val rule = ReactiveStreamsFlapdoodleRule(getDefaultCollectionClass())
 
-    val col by lazy { rule.col }
+    val mongoClient by lazy { rule.mongoClient.coroutine}
 
-    val database by lazy { rule.database }
+    val col by lazy { rule.col.coroutine }
 
-    inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection<T>()
+    val database by lazy { rule.database.coroutine }
+
+    inline fun <reified T : Any> getCollection(): CoroutineCollection<T> = rule.getCollection<T>().coroutine
 
     @Suppress("UNCHECKED_CAST")
     open fun getDefaultCollectionClass(): KClass<T> = Friend::class as KClass<T>

@@ -32,29 +32,29 @@ class ReactiveStreamsInsertTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
 
     @Test
     fun `can insert one`() = runBlocking {
-        col.insertOneAndAwait(newFriend())
-        assertEquals(1, col.countDocumentsAndAwait())
+        col.insertOne(newFriend())
+        assertEquals(1, col.countDocuments())
     }
 
     @Test
     fun `can insert one in ClientSession`() = runBlocking {
-        rule.mongoClient.startSessionAndAwait().use {
-            col.insertOneAndAwait(it, newFriend())
-            assertEquals(1, col.countDocumentsAndAwait(it))
+        mongoClient.startSession().use {
+            col.insertOne(it, newFriend())
+            assertEquals(1, col.countDocuments(it))
         }
     }
 
     @Test
     fun `can insert many`() = runBlocking {
-        col.insertManyAndAwait(listOf(newFriend(), newFriend()))
-        assertEquals(2, col.countDocumentsAndAwait())
+        col.insertMany(listOf(newFriend(), newFriend()))
+        assertEquals(2, col.countDocuments())
     }
 
     @Test
     fun `can insert many in ClientSession`() = runBlocking {
-        rule.mongoClient.startSessionAndAwait().use {
-            col.insertManyAndAwait(it, listOf(newFriend(), newFriend()))
-            assertEquals(2, col.countDocumentsAndAwait(it))
+        mongoClient.startSession().use {
+            col.insertMany(it, listOf(newFriend(), newFriend()))
+            assertEquals(2, col.countDocuments(it))
         }
     }
 }

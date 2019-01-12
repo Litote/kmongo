@@ -17,7 +17,6 @@
 package org.litote.kmongo.coroutine
 
 import com.mongodb.MongoCommandException
-import com.mongodb.reactivestreams.client.MongoCollection
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -43,19 +42,19 @@ class ReactiveStreamsAggregateTest : KMongoReactiveStreamsCoroutineBaseTest<Arti
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())
     }
 
-    lateinit var friendCol: MongoCollection<Friend>
+    lateinit var friendCol: CoroutineCollection<Friend>
 
     @Before
     fun setup() = runBlocking<Unit> {
 
-        col.insertOneAndAwait(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"))
-        col.insertOneAndAwait(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"))
-        col.insertOneAndAwait(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"))
+        col.insertOne(Article("Zombie Panic", "Kirsty Mckay", "horror", "virus"))
+        col.insertOne(Article("Apocalypse Zombie", "Maberry Jonathan", "horror", "dead"))
+        col.insertOne(Article("World War Z", "Max Brooks", "horror", "virus", "pandemic"))
 
         friendCol = getCollection()
-        friendCol.insertOneAndAwait(Friend("William"))
-        friendCol.insertOneAndAwait(Friend("John"))
-        friendCol.insertOneAndAwait(Friend("Richard"))
+        friendCol.insertOne(Friend("William"))
+        friendCol.insertOne(Friend("John"))
+        friendCol.insertOne(Friend("Richard"))
     }
 
     @After

@@ -38,7 +38,7 @@ class ReactiveStreamsFindOneAndModifyTest : KMongoReactiveStreamsCoroutineBaseTe
 
     @Test
     fun canFindAndUpdateOne() = runBlocking {
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
         col.findOneAndUpdate("{name:'John'}", "{${MongoOperator.set}: {address: 'A better place'}}")
                 ?: throw AssertionError("Value cannot null!")
         val savedFriend = col.findOne("{name:'John'}") ?: throw AssertionError("Value cannot null!")
@@ -48,8 +48,8 @@ class ReactiveStreamsFindOneAndModifyTest : KMongoReactiveStreamsCoroutineBaseTe
 
     @Test
     fun `can find and update one in ClientSession`() = runBlocking {
-        rule.mongoClient.startSessionAndAwait().use {
-            col.insertOneAndAwait(it, Friend("John", "22 Wall Street Avenue"))
+        mongoClient.startSession().use {
+            col.insertOne(it, Friend("John", "22 Wall Street Avenue"))
             col.findOneAndUpdate(it, "{name:'John'}", "{${MongoOperator.set}: {address: 'A better place'}}")
                     ?: throw AssertionError("Value cannot null!")
             val savedFriend = col.findOne(it, "{name:'John'}") ?: throw AssertionError("Value cannot null!")
@@ -60,7 +60,7 @@ class ReactiveStreamsFindOneAndModifyTest : KMongoReactiveStreamsCoroutineBaseTe
 
     @Test
     fun canFindAndUpdateWithNullValue() = runBlocking {
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
         col.findOneAndUpdate("{name:'John'}", "{${MongoOperator.set}: {address: null}}")
                 ?: throw AssertionError("Value cannot null!")
         val friend = col.findOne("{name:'John'}") ?: throw AssertionError("Value cannot null!")
@@ -71,7 +71,7 @@ class ReactiveStreamsFindOneAndModifyTest : KMongoReactiveStreamsCoroutineBaseTe
     @Test
     fun canFindAndUpdateWithDocument() = runBlocking {
         val col2 = col.withDocumentClass<Document>()
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
         col2.findOneAndUpdate("{name:'John'}", "{${MongoOperator.set}: {address: 'A better place'}}")
                 ?: throw AssertionError("Value cannot null!")
         val friend = col2.findOne("{name:'John'}") ?: throw AssertionError("Value cannot null!")
@@ -105,18 +105,18 @@ class ReactiveStreamsFindOneAndModifyTest : KMongoReactiveStreamsCoroutineBaseTe
 
     @Test
     fun `can find and delete one`() = runBlocking {
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
         col.findOneAndDelete("{name:'John'}")
-        val count = col.countDocumentsAndAwait()
+        val count = col.countDocuments()
         assertEquals(0, count)
     }
 
     @Test
     fun `can find and delete one in ClientSesison`() = runBlocking {
-        rule.mongoClient.startSessionAndAwait().use {
+        mongoClient.startSession().use {
             col.insertOne(it, Friend("John", "22 Wall Street Avenue"))
             col.findOneAndDelete(it, "{name:'John'}")
-            val count = col.countDocumentsAndAwait(it)
+            val count = col.countDocuments(it)
             assertEquals(0, count)
         }
     }
@@ -124,10 +124,10 @@ class ReactiveStreamsFindOneAndModifyTest : KMongoReactiveStreamsCoroutineBaseTe
     @Test
     fun `can find and replace one`() = runBlocking {
         val oldFriend = Friend("John", "22 Wall Street Avenue")
-        col.insertOneAndAwait(oldFriend)
+        col.insertOne(oldFriend)
         val newFriend = Friend("Bob", "22 Wall Street Avenue", _id = oldFriend._id)
         col.findOneAndReplace("{name:'John'}", newFriend, FindOneAndReplaceOptions().upsert(true))
-        val count = col.countDocumentsAndAwait()
+        val count = col.countDocuments()
         assertEquals(1, count)
         val countBobs = col.countDocuments("{name:'Bob'}")
         assertEquals(1, countBobs)
@@ -135,12 +135,12 @@ class ReactiveStreamsFindOneAndModifyTest : KMongoReactiveStreamsCoroutineBaseTe
 
     @Test
     fun `can find and replace one in ClientSession`() = runBlocking {
-        rule.mongoClient.startSessionAndAwait().use {
+        mongoClient.startSession().use {
             val oldFriend = Friend("John", "22 Wall Street Avenue")
             col.insertOne(it, oldFriend)
             val newFriend = Friend("Bob", "22 Wall Street Avenue", _id = oldFriend._id)
             col.findOneAndReplace(it, "{name:'John'}", newFriend, FindOneAndReplaceOptions().upsert(true))
-            val count = col.countDocumentsAndAwait(it)
+            val count = col.countDocuments(it)
             assertEquals(1, count)
             val countBobs = col.countDocuments(it, "{name:'Bob'}")
             assertEquals(1, countBobs)

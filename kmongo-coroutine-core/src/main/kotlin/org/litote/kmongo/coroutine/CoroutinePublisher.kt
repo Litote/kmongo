@@ -21,10 +21,31 @@ import org.reactivestreams.Publisher
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
+ * Gets coroutine version of [Publisher].
+ */
+val <T> Publisher<T>.coroutine: CoroutinePublisher<T> get() = CoroutinePublisher(this)
+
+/**
  * Provides a list of not null elements from the publisher.
  */
 suspend fun <T> Publisher<T>.toList(): List<T> {
     val r = ConcurrentLinkedQueue<T>()
     consumeEach { r.add(it) }
     return r.toList()
+}
+
+
+/**
+ * Coroutine wrapper around [Publisher].
+ */
+open class CoroutinePublisher<T>(private val publisher: Publisher<T>) {
+
+    /**
+     * Provides a list of not null elements from the publisher.
+     */
+    suspend fun toList(): List<T> {
+        val r = ConcurrentLinkedQueue<T>()
+        publisher.consumeEach { r.add(it) }
+        return r.toList()
+    }
 }

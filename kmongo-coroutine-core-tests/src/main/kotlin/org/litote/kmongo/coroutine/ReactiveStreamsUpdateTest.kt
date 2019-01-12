@@ -34,7 +34,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
 
     @Test
     fun canUpdateMulti() = runBlocking {
-        col.insertManyAndAwait(listOf(Friend("John"), Friend("John")))
+        col.insertMany(listOf(Friend("John"), Friend("John")))
 
         col.updateMany("{name:'John'}", "{${MongoOperator.unset}:{name:1}}")
         val count = col.countDocuments("{name:{${MongoOperator.exists}:true}}")
@@ -43,7 +43,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
 
     @Test
     fun `can update multi in ClientSession`() = runBlocking {
-        rule.mongoClient.startSessionAndAwait().use {
+        mongoClient.startSession().use {
             col.insertMany(it, listOf(Friend("John"), Friend("John")))
             col.updateMany(it, "{name:'John'}", "{${MongoOperator.unset}:{name:1}}")
             val count = col.countDocuments(it, "{name:{${MongoOperator.exists}:true}}")
@@ -53,7 +53,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
 
     @Test
     fun `can update multi with non-string filters and updates`() = runBlocking {
-        col.insertManyAndAwait(listOf(Friend("John"), Friend("John")))
+        col.insertMany(listOf(Friend("John"), Friend("John")))
 
         col.updateMany(Filters.eq("name", "John"), SetTo(Friend::name, "Carl"))
         val count = col.countDocuments("{name:'John'}")
@@ -62,7 +62,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
 
     @Test
     fun `can update multi with non-string filters and updates in ClientSession`() = runBlocking {
-        rule.mongoClient.startSessionAndAwait().use {
+        mongoClient.startSession().use {
             col.insertMany(it, listOf(Friend("John"), Friend("John")))
             col.updateMany(it, Filters.eq("name", "John"), SetTo(Friend::name, "Carl"))
             val count = col.countDocuments(it, "{name:'John'}")
@@ -73,7 +73,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     @Test
     fun canUpdateByObjectId() = runBlocking {
         val friend = Friend("Paul")
-        col.insertOneAndAwait(friend)
+        col.insertOne(friend)
         col.updateOneById(friend._id!!, "{${MongoOperator.set}:{name:'John'}}")
 
         val updatedFriend = col.findOne("{name:'John'}") ?: throw AssertionError("Value must not null!")
@@ -84,8 +84,8 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     @Test
     fun `can update by ObjectId in ClientSession`() = runBlocking {
         val friend = Friend("Paul")
-        col.insertOneAndAwait(friend)
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertOne(friend)
+        mongoClient.startSession().use {
             col.updateOneById(it, friend._id!!, "{${MongoOperator.set}:{name:'John'}}")
 
             val updatedFriend =
@@ -104,7 +104,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
 
     @Test
     fun `can upsert in ClientSession`() = runBlocking {
-        rule.mongoClient.startSessionAndAwait().use {
+        mongoClient.startSession().use {
             col.updateOne(it, "{}", "{${MongoOperator.set}:{name:'John'}}", UpdateOptions().upsert(true))
             val friend = col.findOne(it, "{name:'John'}") ?: throw AssertionError("Value must not null!")
             assertEquals("John", friend.name)
@@ -114,7 +114,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     @Test
     fun canPartiallyUdpateWithAPreexistingDocument() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOneAndAwait(friend)
+        col.insertOne(friend)
         val preexistingDocument = Friend(_id = friend._id ?: ObjectId(), name = "Johnny")
         col.updateOne("{name:'John'}", preexistingDocument)
         val updatedFriend = col.findOne("{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
@@ -126,7 +126,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     @Test
     fun canPartiallyUdpateWithANewDocument() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOneAndAwait(friend)
+        col.insertOne(friend)
         val newDocument = Friend("Johnny")
         col.updateOne("{name:'John'}", newDocument)
         val updatedFriend = col.findOne("{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
@@ -137,8 +137,8 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     @Test
     fun `can partially update in ClientSession`() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOneAndAwait(friend)
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertOne(friend)
+        mongoClient.startSession().use {
             val newDocument = Friend("Johnny")
             col.updateOne(it, "{name:'John'}", newDocument)
             val updatedFriend = col.findOne(it, "{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
@@ -150,7 +150,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     @Test
     fun canUpdateTheSameDocument() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOneAndAwait(friend)
+        col.insertOne(friend)
         friend.name = "Johnny"
         col.updateOne(friend)
         val updatedFriend = col.findOne("{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
@@ -162,9 +162,9 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     @Test
     fun `can update the same document in ClientSession`() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOneAndAwait(friend)
+        col.insertOne(friend)
         friend.name = "Johnny"
-        rule.mongoClient.startSessionAndAwait().use {
+        mongoClient.startSession().use {
             col.updateOne(it, friend)
             val updatedFriend = col.findOne(it, "{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
             assertEquals("Johnny", updatedFriend.name)
@@ -176,7 +176,7 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     @Test
     fun `can update document by bson filter`() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOneAndAwait(friend)
+        col.insertOne(friend)
         val newDocument = Friend("Johnny")
         col.updateOne(Filters.eq("name", "John"), newDocument)
         val updatedFriend = col.findOne("{name:'Johnny'}") ?: throw AssertionError("Value must not null!")
@@ -187,8 +187,8 @@ class ReactiveStreamsUpdateTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     @Test
     fun `can update document by bson filter in ClientSession`() = runBlocking {
         val friend = Friend("John", "123 Wall Street")
-        col.insertOneAndAwait(friend)
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertOne(friend)
+        mongoClient.startSession().use {
             val newDocument = Friend("Johnny")
             col.updateOne(it, Filters.eq("name", "John"), newDocument)
             val updatedFriend = col.findOne(it, "{name:'Johnny'}") ?: throw AssertionError("Value must not null!")

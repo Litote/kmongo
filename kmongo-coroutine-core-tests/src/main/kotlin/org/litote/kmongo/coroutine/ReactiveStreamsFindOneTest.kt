@@ -34,15 +34,15 @@ class ReactiveStreamsFindOneTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
 
     @Test
     fun canFindOne() = runBlocking {
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
         val friend = col.findOne("{name:'John'}") ?: throw AssertionError("Value must not null!")
         assertEquals("John", friend.name)
     }
 
     @Test
     fun `can find one by string filter in ClientSession`() = runBlocking {
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
+        mongoClient.startSession().use {
             val friend = col.findOne(it, "{name:'John'}") ?: throw AssertionError("Value must not null!")
             assertEquals("John", friend.name)
         }
@@ -50,15 +50,15 @@ class ReactiveStreamsFindOneTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
 
     @Test
     fun canFindOneBson() = runBlocking {
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
         val friend = col.findOne(Filters.eq("name", "John")) ?: throw AssertionError("Value must not null!")
         assertEquals("John", friend.name)
     }
 
     @Test
     fun `can find one by bson filter in ClientSession`() = runBlocking {
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
-        rule.mongoClient.startSessionAndAwait().use {
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
+        mongoClient.startSession().use {
             val friend = col.findOne(it, Filters.eq("name", "John")) ?: throw AssertionError("Value must not null!")
             assertEquals("John", friend.name)
         }
@@ -66,7 +66,7 @@ class ReactiveStreamsFindOneTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
 
     @Test
     fun canFindOneWithEmptyQuery() = runBlocking {
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
         val friend = col.findOne() ?: throw AssertionError("Value must not null!")
         assertEquals("John", friend.name)
     }
@@ -74,7 +74,7 @@ class ReactiveStreamsFindOneTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
     @Test
     fun canFindOneWithObjectId() = runBlocking {
         val john = Friend(ObjectId(), "John")
-        col.insertOneAndAwait(john)
+        col.insertOne(john)
         val friend = col.findOneById(john._id ?: Any()) ?: throw AssertionError("Value must not null!")
         assertEquals(john._id, friend._id)
     }
@@ -82,8 +82,8 @@ class ReactiveStreamsFindOneTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
     @Test
     fun `can find one by Object Id in clientSession`() = runBlocking {
         val john = Friend(ObjectId(), "John")
-        rule.mongoClient.startSessionAndAwait().use {
-            col.insertOneAndAwait(john)
+        mongoClient.startSession().use {
+            col.insertOne(john)
             val friend = col.findOneById(john._id ?: Any(), it) ?: throw AssertionError("Value must not null!")
             assertEquals(john._id, friend._id)
         }
@@ -94,7 +94,7 @@ class ReactiveStreamsFindOneTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
     fun canFindOneWithObjectIdInQuery() = runBlocking {
         val id = ObjectId()
         val john = Friend(id, "John")
-        col.insertOneAndAwait(john)
+        col.insertOne(john)
         val friend = col.findOne("{_id:${id.json}}") ?: throw AssertionError("Value must not null!")
         assertEquals(id, friend._id)
     }
@@ -103,7 +103,7 @@ class ReactiveStreamsFindOneTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
     fun canFindOneWithObjectIdAsString() = runBlocking {
         val id = ObjectId()
         val john = Friend(id, "John")
-        col.insertOneAndAwait(john)
+        col.insertOne(john)
         val friend = col.findOne("{_id:{${MongoOperator.oid}:'$id'}}") ?: throw AssertionError("Value must not null!")
         assertEquals(id, friend._id)
     }
@@ -116,7 +116,7 @@ class ReactiveStreamsFindOneTest : KMongoReactiveStreamsCoroutineBaseTest<Friend
 
     @Test
     fun canFindOneWithReadPreference() = runBlocking {
-        col.insertOneAndAwait(Friend("John", "22 Wall Street Avenue"))
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
         val friend = col.withReadPreference(ReadPreference.primaryPreferred()).findOne("{name:'John'}")
                 ?: throw AssertionError("Value must not null!")
         assertEquals("John", friend.name)
