@@ -24,6 +24,7 @@ import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 //*******
 //MongoCollection extension methods
@@ -51,7 +52,8 @@ inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): 
  *
  * @param listener the main listener
  * @param fullDocument [FullDocument] option
- * @param subscribeListener Triggered when watch is started (or restarted)
+ * @param subscribeListener Triggered when watch is started (or reopened)
+ * @param reopenListener Triggered when watch is reopened
  * @param reopenDelayInMS wait the specified time before trying to recovering
  * @param errorListener listen exceptions
  */
@@ -59,7 +61,8 @@ inline fun <reified T : Any> MongoCollection<T>.watchIndefinitely(
     fullDocument: FullDocument = FullDocument.DEFAULT,
     noinline subscribeListener: () -> Unit = {},
     noinline errorListener: (Throwable) -> Unit = {},
-    reopenDelayInMS: Long = 5,
+    noinline reopenListener: () -> Unit = {},
+    reopenDelayInMS: Long = 5000,
     noinline listener: (ChangeStreamDocument<T>) -> Unit
 ) {
     watchIndefinitely(
@@ -68,6 +71,7 @@ inline fun <reified T : Any> MongoCollection<T>.watchIndefinitely(
         },
         subscribeListener = subscribeListener,
         errorListener = errorListener,
+        reopenListener = reopenListener,
         reopenDelayInMS = reopenDelayInMS,
         listener = listener
     )
@@ -80,7 +84,8 @@ inline fun <reified T : Any> MongoCollection<T>.watchIndefinitely(
  *
  * @param listener the main listener
  * @param watchProvider provides [ChangeStreamPublisher]
- * @param subscribeListener Triggered when watch is started (or restarted)
+ * @param subscribeListener Triggered when watch is started (or reopened)
+ * @param reopenListener Triggered when watch is reopened
  * @param reopenDelayInMS wait the specified time before trying to recovering
  * @param errorListener listen exceptions
  */
@@ -88,43 +93,72 @@ fun <T> MongoCollection<T>.watchIndefinitely(
     watchProvider: (MongoCollection<T>) -> ChangeStreamPublisher<T>,
     subscribeListener: () -> Unit = {},
     errorListener: (Throwable) -> Unit = {},
-    reopenDelayInMS: Long = 5,
+    reopenListener: () -> Unit = {},
+    reopenDelayInMS: Long = 5000,
     listener: (ChangeStreamDocument<T>) -> Unit
 ) {
     watchProvider(this).subscribe(
-        object : Subscriber<ChangeStreamDocument<T>> {
-            override fun onComplete() {
-                //wait to allow system to recover
-                Executors.newSingleThreadScheduledExecutor().apply {
-                    schedule(
-                        {
-                            watchIndefinitely(
-                                watchProvider,
-                                subscribeListener,
-                                errorListener,
-                                reopenDelayInMS,
-                                listener
-                            )
-                            awaitTermination(1, TimeUnit.MINUTES)
-                        },
-                        reopenDelayInMS,
-                        TimeUnit.SECONDS
-                    )
-                }
-            }
+        WatchSubscriber(
+            this,
+            watchProvider,
+            subscribeListener,
+            errorListener,
+            reopenListener,
+            reopenDelayInMS,
+            listener
+        )
+    )
+}
 
-            override fun onSubscribe(s: Subscription) {
-                s.request(Long.MAX_VALUE)
-                subscribeListener.invoke()
-            }
+private class WatchSubscriber<T>(
+    val col: MongoCollection<T>,
+    val watchProvider: (MongoCollection<T>) -> ChangeStreamPublisher<T>,
+    val subscribeListener: () -> Unit = {},
+    val errorListener: (Throwable) -> Unit = {},
+    val reopenListener: () -> Unit = {},
+    val reopenDelayInMS: Long = 5000,
+    val listener: (ChangeStreamDocument<T>) -> Unit
+) : Subscriber<ChangeStreamDocument<T>> {
 
-            override fun onNext(t: ChangeStreamDocument<T>) {
-                listener(t)
-            }
+    private val complete = AtomicBoolean()
 
-            override fun onError(t: Throwable) {
-                errorListener(t)
-                onComplete()
+    override fun onComplete() {
+        //run only one
+        if (!complete.getAndSet(true)) {
+            //wait to allow system to recover
+            Executors.newSingleThreadScheduledExecutor().apply {
+                schedule(
+                    {
+                        reopenListener()
+                        col.watchIndefinitely(
+                            watchProvider,
+                            subscribeListener,
+                            errorListener,
+                            reopenListener,
+                            reopenDelayInMS,
+                            listener
+                        )
+                        awaitTermination(1, TimeUnit.MINUTES)
+                    },
+                    reopenDelayInMS,
+                    TimeUnit.MILLISECONDS
+                )
             }
-        })
+        }
+    }
+
+    override fun onSubscribe(s: Subscription) {
+        s.request(Long.MAX_VALUE)
+        subscribeListener()
+    }
+
+    override fun onNext(t: ChangeStreamDocument<T>) {
+        listener(t)
+    }
+
+    override fun onError(t: Throwable) {
+        errorListener(t)
+        onComplete()
+    }
+
 }
