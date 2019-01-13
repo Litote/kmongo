@@ -17,27 +17,31 @@
 package org.litote.kmongo.reactivestreams
 
 import com.mongodb.client.model.changestream.OperationType
-import org.litote.kmongo.model.Friend
+import org.litote.kmongo.reactivestreams.WatchTest.Watch
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.Test
 
 /**
  *
  */
-class WatchTest : KMongoReactiveStreamsBaseTest<Friend>() {
+class WatchTest : KMongoReactiveStreamsBaseTest<Watch>() {
+
+    data class Watch(val name: String)
 
     @Test
     fun `check invalidate event does not close watchIndefinitely`() {
-        val friend = Friend("Paul")
+        val friend = Watch("Paul")
         val dropped = AtomicBoolean()
-        var counter = CountDownLatch(1)
+        val counter1 = CountDownLatch(1)
+        val counter2 = CountDownLatch(1)
+
         col.watchIndefinitely(subscribeListener = {
+
+            println("subscribed $dropped")
             if (!dropped.get()) {
                 col.insertOne(friend).forEach { _, _ ->
-                    counter.await()
-                    counter = CountDownLatch(1)
+                    counter1.await()
                     dropped.set(true)
                     col.drop().forEach { _, _ ->
                     }
@@ -45,13 +49,14 @@ class WatchTest : KMongoReactiveStreamsBaseTest<Friend>() {
             } else {
                 col.insertOne(friend).forEach { _, _ ->
                     asyncTest {
-                        counter.await()
+                        counter2.await()
                     }
                 }
             }
         }) {
             if (it.operationType == OperationType.INSERT) {
-                counter.countDown()
+                counter1.countDown()
+                counter2.countDown()
             }
         }
     }
