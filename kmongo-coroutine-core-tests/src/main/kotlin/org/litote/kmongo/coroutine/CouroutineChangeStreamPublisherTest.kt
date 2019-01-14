@@ -26,11 +26,14 @@ import kotlinx.coroutines.runBlocking
 import org.bson.BsonDocument
 import org.bson.BsonTimestamp
 import org.junit.Test
+import org.junit.experimental.categories.Category
+import org.litote.kmongo.CoreCategory
 import java.util.concurrent.TimeUnit
 
 /**
  *
  */
+@Category(CoreCategory::class)
 class CoroutineChangeStreamPublisherTest {
 
     val publisher: ChangeStreamPublisher<*> = mock()

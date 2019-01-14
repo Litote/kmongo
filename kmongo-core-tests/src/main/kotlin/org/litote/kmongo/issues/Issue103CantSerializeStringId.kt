@@ -17,7 +17,7 @@
 package org.litote.kmongo.issues
 
 import org.junit.Test
-import org.litote.kmongo.KMongoBaseTest
+import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
 import org.litote.kmongo.id.ObjectIdGenerator.newObjectId
 import org.litote.kmongo.id.ObjectIdToStringGenerator.newStringId
@@ -30,7 +30,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class Issue103CantSerializeStringId : KMongoBaseTest<Data>() {
+class Issue103CantSerializeStringId : AllCategoriesKMongoBaseTest<Data>() {
 
     data class Data(val _id: StringId<Data> = newStringId())
     data class Data2(val _id: WrappedObjectId<Data> = newObjectId())

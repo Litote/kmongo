@@ -17,8 +17,8 @@
 package org.litote.kmongo.issues
 
 import org.junit.Test
+import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.Id
-import org.litote.kmongo.KMongoBaseTest
 import org.litote.kmongo.eq
 import org.litote.kmongo.issues.Issue108ProjectionError.Data
 import org.litote.kmongo.newId
@@ -28,10 +28,10 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class Issue108ProjectionError : KMongoBaseTest<Data>() {
+class Issue108ProjectionError : AllCategoriesKMongoBaseTest<Data>() {
 
     data class Data(val _id: Id<Data> = newId(), val nation: Nation)
-    data class Nation(val name:String)
+    data class Nation(val name: String)
 
     @Test
     fun `deserializing is ok`() {

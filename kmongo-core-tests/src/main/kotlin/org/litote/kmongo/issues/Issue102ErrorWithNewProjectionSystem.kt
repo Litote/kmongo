@@ -17,7 +17,9 @@
 package org.litote.kmongo.issues
 
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.litote.kmongo.Id
+import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoBaseTest
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
@@ -29,6 +31,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
+@Category(JacksonMappingCategory::class)
 class Issue102ErrorWithNewProjectionSystem : KMongoBaseTest<NationRelation>() {
 
     enum class Level { NATION, NONE, OTHER }

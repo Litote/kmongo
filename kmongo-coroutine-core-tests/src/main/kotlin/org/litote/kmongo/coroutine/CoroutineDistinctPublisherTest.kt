@@ -23,12 +23,15 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import org.junit.experimental.categories.Category
+import org.litote.kmongo.CoreCategory
 import org.litote.kmongo.EMPTY_BSON
 import java.util.concurrent.TimeUnit
 
 /**
  *
  */
+@Category(CoreCategory::class)
 class CoroutineDistinctPublisherTest {
 
     val publisher: DistinctPublisher<*> = mock()
