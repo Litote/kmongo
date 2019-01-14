@@ -77,7 +77,7 @@ class CoroutineMapReducePublisher<T>(val publisher: MapReducePublisher<T>) :
      * @return this
      * @mongodb.driver.manual reference/method/cursor.sort/ Sort
      */
-    fun sort(sort: Bson): CoroutineMapReducePublisher<T> = publisher.scope(sort).coroutine
+    fun sort(sort: Bson): CoroutineMapReducePublisher<T> = publisher.sort(sort).coroutine
 
     /**
      * Sets the query filter to apply to the query.

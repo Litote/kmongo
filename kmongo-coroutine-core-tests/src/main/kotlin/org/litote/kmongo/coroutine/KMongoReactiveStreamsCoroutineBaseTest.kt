@@ -16,7 +16,6 @@
 
 package org.litote.kmongo.coroutine
 
-import com.mongodb.reactivestreams.client.MongoCollection
 import org.junit.Rule
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
@@ -37,7 +36,7 @@ open class KMongoReactiveStreamsCoroutineBaseTest<T : Any> : KMongoRootTest() {
     @JvmField
     val rule = ReactiveStreamsFlapdoodleRule(getDefaultCollectionClass())
 
-    val mongoClient by lazy { rule.mongoClient.coroutine}
+    val mongoClient by lazy { rule.mongoClient.coroutine }
 
     val col by lazy { rule.col.coroutine }
 

@@ -27,7 +27,6 @@ import org.litote.kmongo.MongoOperator
 import org.litote.kmongo.json
 import org.litote.kmongo.model.ExposableFriend
 import org.litote.kmongo.model.Friend
-import org.litote.kmongo.reactivestreams.withDocumentClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
