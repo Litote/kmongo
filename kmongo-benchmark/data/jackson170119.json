@@ -1,0 +1,514 @@
+[
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.driverFriend",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 267543.6125088251,
+            "scoreError" : 2816.251654643303,
+            "scoreConfidence" : [
+                264727.3608541818,
+                270359.86416346836
+            ],
+            "scorePercentiles" : {
+                "0.0" : 266349.7784809913,
+                "50.0" : 267783.5074689285,
+                "90.0" : 268114.9011516788,
+                "95.0" : 268114.9011516788,
+                "99.0" : 268114.9011516788,
+                "99.9" : 268114.9011516788,
+                "99.99" : 268114.9011516788,
+                "99.999" : 268114.9011516788,
+                "99.9999" : 268114.9011516788,
+                "100.0" : 268114.9011516788
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    268114.9011516788,
+                    268093.5789557878,
+                    267783.5074689285,
+                    266349.7784809913,
+                    267376.2964867389
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.driverFriendWithBuddies",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 252001.45101260106,
+            "scoreError" : 492.4210476608617,
+            "scoreConfidence" : [
+                251509.0299649402,
+                252493.87206026193
+            ],
+            "scorePercentiles" : {
+                "0.0" : 251818.22744022627,
+                "50.0" : 252064.79026004017,
+                "90.0" : 252117.62210879233,
+                "95.0" : 252117.62210879233,
+                "99.0" : 252117.62210879233,
+                "99.9" : 252117.62210879233,
+                "99.99" : 252117.62210879233,
+                "99.999" : 252117.62210879233,
+                "99.9999" : 252117.62210879233,
+                "100.0" : 252117.62210879233
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    252117.62210879233,
+                    251918.66718520824,
+                    251818.22744022627,
+                    252064.79026004017,
+                    252087.94806873833
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.jacksonFriend",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 120627.22536004373,
+            "scoreError" : 189.23731388635775,
+            "scoreConfidence" : [
+                120437.98804615736,
+                120816.46267393009
+            ],
+            "scorePercentiles" : {
+                "0.0" : 120571.28324396121,
+                "50.0" : 120631.28260401568,
+                "90.0" : 120699.61833062496,
+                "95.0" : 120699.61833062496,
+                "99.0" : 120699.61833062496,
+                "99.9" : 120699.61833062496,
+                "99.99" : 120699.61833062496,
+                "99.999" : 120699.61833062496,
+                "99.9999" : 120699.61833062496,
+                "100.0" : 120699.61833062496
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    120593.9100266533,
+                    120631.28260401568,
+                    120699.61833062496,
+                    120640.03259496353,
+                    120571.28324396121
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.jacksonFriendData",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 152820.94403114304,
+            "scoreError" : 1344.9772250329297,
+            "scoreConfidence" : [
+                151475.9668061101,
+                154165.92125617596
+            ],
+            "scorePercentiles" : {
+                "0.0" : 152239.62018441156,
+                "50.0" : 152941.07716549214,
+                "90.0" : 153164.56483200623,
+                "95.0" : 153164.56483200623,
+                "99.0" : 153164.56483200623,
+                "99.9" : 153164.56483200623,
+                "99.99" : 153164.56483200623,
+                "99.999" : 153164.56483200623,
+                "99.9999" : 153164.56483200623,
+                "100.0" : 153164.56483200623
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    152239.62018441156,
+                    152806.7641476947,
+                    153164.56483200623,
+                    152952.69382611074,
+                    152941.07716549214
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.jacksonFriendSimpleData",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 201395.47948103532,
+            "scoreError" : 609.1084573971256,
+            "scoreConfidence" : [
+                200786.3710236382,
+                202004.58793843244
+            ],
+            "scorePercentiles" : {
+                "0.0" : 201137.4670037463,
+                "50.0" : 201466.8679672977,
+                "90.0" : 201513.61897087362,
+                "95.0" : 201513.61897087362,
+                "99.0" : 201513.61897087362,
+                "99.9" : 201513.61897087362,
+                "99.99" : 201513.61897087362,
+                "99.999" : 201513.61897087362,
+                "99.9999" : 201513.61897087362,
+                "100.0" : 201513.61897087362
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    201137.4670037463,
+                    201507.56568568453,
+                    201351.87777757453,
+                    201513.61897087362,
+                    201466.8679672977
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.jacksonFriendWithBuddies",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 59508.523687595225,
+            "scoreError" : 214.65913982194553,
+            "scoreConfidence" : [
+                59293.86454777328,
+                59723.18282741717
+            ],
+            "scorePercentiles" : {
+                "0.0" : 59439.68826384659,
+                "50.0" : 59496.81307876401,
+                "90.0" : 59575.55964329916,
+                "95.0" : 59575.55964329916,
+                "99.0" : 59575.55964329916,
+                "99.9" : 59575.55964329916,
+                "99.99" : 59575.55964329916,
+                "99.999" : 59575.55964329916,
+                "99.9999" : 59575.55964329916,
+                "100.0" : 59575.55964329916
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    59476.742612327136,
+                    59553.81483973927,
+                    59496.81307876401,
+                    59575.55964329916,
+                    59439.68826384659
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.jacksonFriendWithBuddiesCodec",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 333382.9520512872,
+            "scoreError" : 2391.4412480009146,
+            "scoreConfidence" : [
+                330991.51080328634,
+                335774.3932992881
+            ],
+            "scorePercentiles" : {
+                "0.0" : 332736.0064543728,
+                "50.0" : 333168.8691238768,
+                "90.0" : 334357.668174909,
+                "95.0" : 334357.668174909,
+                "99.0" : 334357.668174909,
+                "99.9" : 334357.668174909,
+                "99.99" : 334357.668174909,
+                "99.999" : 334357.668174909,
+                "99.9999" : 334357.668174909,
+                "100.0" : 334357.668174909
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    332736.0064543728,
+                    333572.9957223658,
+                    334357.668174909,
+                    333079.2207809119,
+                    333168.8691238768
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.jacksonFriendWithBuddiesData",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 95112.57521673948,
+            "scoreError" : 533.1462214633758,
+            "scoreConfidence" : [
+                94579.4289952761,
+                95645.72143820286
+            ],
+            "scorePercentiles" : {
+                "0.0" : 94961.90337338488,
+                "50.0" : 95079.08591119942,
+                "90.0" : 95326.2657129299,
+                "95.0" : 95326.2657129299,
+                "99.0" : 95326.2657129299,
+                "99.9" : 95326.2657129299,
+                "99.99" : 95326.2657129299,
+                "99.999" : 95326.2657129299,
+                "99.9999" : 95326.2657129299,
+                "100.0" : 95326.2657129299
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    95155.93764542566,
+                    95326.2657129299,
+                    94961.90337338488,
+                    95079.08591119942,
+                    95039.68344075754
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.jacksonFriendWithBuddiesWithCustomDeserializer",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 171922.33553747385,
+            "scoreError" : 1785.7754903116374,
+            "scoreConfidence" : [
+                170136.5600471622,
+                173708.1110277855
+            ],
+            "scorePercentiles" : {
+                "0.0" : 171178.43023521485,
+                "50.0" : 171954.16917031087,
+                "90.0" : 172359.03969902135,
+                "95.0" : 172359.03969902135,
+                "99.0" : 172359.03969902135,
+                "99.9" : 172359.03969902135,
+                "99.99" : 172359.03969902135,
+                "99.999" : 172359.03969902135,
+                "99.9999" : 172359.03969902135,
+                "100.0" : 172359.03969902135
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    172256.56641696088,
+                    172359.03969902135,
+                    171954.16917031087,
+                    171178.43023521485,
+                    171863.4721658613
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.litote.kmongo.CodecRegistryBenchmark.jacksonFriendWithCustomDeserializer",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-11/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "11",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11+28",
+        "warmupIterations" : 2,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 197407.7787584577,
+            "scoreError" : 725.9138201800997,
+            "scoreConfidence" : [
+                196681.86493827758,
+                198133.6925786378
+            ],
+            "scorePercentiles" : {
+                "0.0" : 197160.32749486165,
+                "50.0" : 197423.2723680556,
+                "90.0" : 197624.0311575479,
+                "95.0" : 197624.0311575479,
+                "99.0" : 197624.0311575479,
+                "99.9" : 197624.0311575479,
+                "99.99" : 197624.0311575479,
+                "99.999" : 197624.0311575479,
+                "99.9999" : 197624.0311575479,
+                "100.0" : 197624.0311575479
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    197545.6213945854,
+                    197423.2723680556,
+                    197160.32749486165,
+                    197285.6413772378,
+                    197624.0311575479
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    }
+]
+
+

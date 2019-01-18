@@ -31,6 +31,7 @@ import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
+import org.litote.jackson.data.JacksonData
 import org.litote.kmongo.util.KMongoCodecBase
 import org.litote.kmongo.util.KMongoCodecProvider
 
@@ -57,19 +58,21 @@ class FriendDeserializer : JsonDeserializer<FriendWithCustomDeserializer>() {
                 nextToken()
                 when (fieldName) {
                     "_id" -> id = p.readValueAs(ObjectId::class.java)
-                    "name" -> name = p.text
-                    "address" -> address = p.text
-                    "coordinate" -> coordinate = p.readValueAs(CoordinateWithCustomDeserializer::class.java)
+                    "name" -> name = if (currentToken == JsonToken.VALUE_NULL) null else p.text
+                    "address" -> address = if (currentToken == JsonToken.VALUE_NULL) null else p.text
+                    "coordinate" -> coordinate = if (currentToken == JsonToken.VALUE_NULL) null else p.readValueAs(
+                        CoordinateWithCustomDeserializer::class.java
+                    )
                     "gender" -> gender = p.text?.let { Gender.valueOf(it) }
-                    else -> if (currentToken == JsonToken.END_OBJECT || currentToken == JsonToken.END_ARRAY) {
-                        p.skipChildren()
-                    } else {
+                    else -> {
+                        if (currentToken == JsonToken.START_OBJECT || currentToken == JsonToken.START_ARRAY) {
+                            p.skipChildren()
+                        }
                         nextToken()
                     }
                 }
             }
 
-            nextToken()
             return FriendWithCustomDeserializer(id, name, address, coordinate, gender)
         }
     }
@@ -116,12 +119,14 @@ class FriendWithBuddiesDeserializer : JsonDeserializer<FriendWithBuddiesWithCust
                 nextToken()
                 when (fieldName) {
                     "_id" -> id = p.readValueAs(ObjectId::class.java)
-                    "name" -> name = p.text
-                    "address" -> address = p.text
-                    "coordinate" -> coordinate = p.readValueAs(CoordinateWithCustomDeserializer::class.java)
+                    "name" -> name = if (currentToken == JsonToken.VALUE_NULL) null else p.text
+                    "address" -> address = if (currentToken == JsonToken.VALUE_NULL) null else p.text
+                    "coordinate" -> coordinate = if (currentToken == JsonToken.VALUE_NULL) null else p.readValueAs(
+                        CoordinateWithCustomDeserializer::class.java
+                    )
                     "gender" -> gender = p.text?.let { Gender.valueOf(it) }
                     "buddies" -> buddies = p.readValueAs(buddiesTypeReference)
-                    else -> if (currentToken == JsonToken.END_OBJECT || currentToken == JsonToken.END_ARRAY) {
+                    else -> if (currentToken == JsonToken.START_OBJECT || currentToken == JsonToken.START_ARRAY) {
                         p.skipChildren()
                     } else {
                         nextToken()
@@ -164,9 +169,9 @@ class CoordinateDeserializer : JsonDeserializer<CoordinateWithCustomDeserializer
                 val fieldName = currentName
                 nextToken()
                 when (fieldName) {
-                    "lat" -> lat = p.intValue
-                    "lng" -> lng = p.intValue
-                    else -> if (currentToken == JsonToken.END_OBJECT || currentToken == JsonToken.END_ARRAY) {
+                    "lat" -> lat = if (currentToken == JsonToken.VALUE_NULL) null else p.intValue
+                    "lng" -> lng = if (currentToken == JsonToken.VALUE_NULL) null else p.intValue
+                    else -> if (currentToken == JsonToken.START_OBJECT || currentToken == JsonToken.START_ARRAY) {
                         p.skipChildren()
                     } else {
                         nextToken()
@@ -186,8 +191,8 @@ data class CoordinateWithCustomDeserializer(val lat: Int, val lng: Int)
 class FriendWithBuddiesCodec(codecRegistryProvider: () -> (CodecRegistry)) :
     KMongoCodecBase<FriendWithCustomCodecWithBuddies>(codecRegistryProvider) {
 
-    private val coordinateCodec: Codec<CoordinateWithCustomDeserializer>
-            by lazy(LazyThreadSafetyMode.NONE) { codecRegistry.get(CoordinateWithCustomDeserializer::class.java) }
+    private val coordinateCodec: Codec<CoordinateWithCustomCodec>
+            by lazy(LazyThreadSafetyMode.NONE) { codecRegistry.get(CoordinateWithCustomCodec::class.java) }
 
     override fun getEncoderClass(): Class<FriendWithCustomCodecWithBuddies> =
         FriendWithCustomCodecWithBuddies::class.java
@@ -202,7 +207,7 @@ class FriendWithBuddiesCodec(codecRegistryProvider: () -> (CodecRegistry)) :
         var id: ObjectId? = null
         var name: String? = null
         var address: String? = null
-        var coordinate: CoordinateWithCustomDeserializer? = null
+        var coordinate: CoordinateWithCustomCodec? = null
         var gender: Gender? = null
         var buddies: List<FriendWithCustomCodecWithBuddies>? = null
 
@@ -235,7 +240,7 @@ data class FriendWithCustomCodecWithBuddies(
     val id: ObjectId? = null,
     val name: String? = null,
     val address: String? = null,
-    val coordinate: CoordinateWithCustomDeserializer? = null,
+    val coordinate: CoordinateWithCustomCodec? = null,
     val gender: Gender? = null,
     val buddies: List<FriendWithCustomCodecWithBuddies> = emptyList()
 )
@@ -276,3 +281,34 @@ class CoordinateCodec(codecRegistryProvider: () -> (CodecRegistry)) :
 }
 
 data class CoordinateWithCustomCodec(val lat: Int, val lng: Int)
+
+@JacksonData
+data class FriendDataWithBuddies(
+    @BsonId
+    val id: ObjectId? = null,
+    val name: String? = null,
+    val address: String? = null,
+    val coordinate: CoordinateData? = null,
+    val gender: Gender? = null,
+    val buddies: List<FriendDataWithBuddies> = emptyList()
+)
+
+@JacksonData
+data class FriendData(
+    @BsonId
+    val id: ObjectId? = null,
+    val name: String? = null,
+    val address: String? = null,
+    val coordinate: CoordinateData? = null,
+    val gender: Gender? = null
+)
+
+@JacksonData
+data class FriendSimpleData(
+    val name: String? = null,
+    val address: String? = null,
+    val coordinate: CoordinateData? = null
+)
+
+@JacksonData
+data class CoordinateData(val lat: Int, val lng: Int)

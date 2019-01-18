@@ -21,9 +21,8 @@ internal class TestData_Serializer : StdSerializer<TestData>(TestData::class.jav
         serializers.findTypedValueSerializer(
                 serializers.config.typeFactory.constructCollectionType(
                 kotlin.collections.Set::class.java,
-                        serializers.config.typeFactory.constructType(org.litote.kmongo.model.other.SimpleReferencedData::class.java)
-                )
-                ,
+                serializers.config.typeFactory.constructType(org.litote.kmongo.model.other.SimpleReferencedData::class.java)
+                ),
                 true,
                 null
                 )
@@ -33,40 +32,41 @@ internal class TestData_Serializer : StdSerializer<TestData>(TestData::class.jav
         serializers.findTypedValueSerializer(
                 serializers.config.typeFactory.constructCollectionType(
                 kotlin.collections.List::class.java,
-                        serializers.config.typeFactory.constructCollectionType(
+                serializers.config.typeFactory.constructCollectionType(
                 kotlin.collections.List::class.java,
-                        serializers.config.typeFactory.constructType(kotlin.Boolean::class.java)
+                serializers.config.typeFactory.constructType(kotlin.Boolean::class.java)
                 )
-
-                )
-                ,
+                ),
                 true,
                 null
                 )
                 .serialize(_list_, gen, serializers)
         gen.writeFieldName("name")
         val _name_ = value.name
-        if(_name_ == null) { gen.writeNull() } else {gen.writeString(_name_)}
+        if(_name_ == null) { gen.writeNull() } else {
+                gen.writeString(_name_)
+                }
         gen.writeFieldName("date")
         val _date_ = value.date
-        if(_date_ == null) { gen.writeNull() } else {serializers.defaultSerializeValue(_date_, gen)}
+        if(_date_ == null) { gen.writeNull() } else {
+                serializers.defaultSerializeValue(_date_, gen)
+                }
         gen.writeFieldName("referenced")
         val _referenced_ = value.referenced
-        if(_referenced_ == null) { gen.writeNull() } else
-                {serializers.defaultSerializeValue(_referenced_, gen)}
+        if(_referenced_ == null) { gen.writeNull() } else {
+                serializers.defaultSerializeValue(_referenced_, gen)
+                }
         gen.writeFieldName("map")
         val _map_ = value.map
         serializers.findTypedValueSerializer(
                 serializers.config.typeFactory.constructMapType(
                 kotlin.collections.Map::class.java,
-                        serializers.config.typeFactory.constructType(org.litote.kmongo.Id::class.java)
-                , serializers.config.typeFactory.constructCollectionType(
+                serializers.config.typeFactory.constructType(org.litote.kmongo.Id::class.java),
+                serializers.config.typeFactory.constructCollectionType(
                 kotlin.collections.Set::class.java,
-                        serializers.config.typeFactory.constructType(kotlin.String::class.java)
+                serializers.config.typeFactory.constructType(kotlin.String::class.java)
                 )
-
-                )
-                ,
+                ),
                 true,
                 null
                 )
@@ -76,21 +76,23 @@ internal class TestData_Serializer : StdSerializer<TestData>(TestData::class.jav
         serializers.findTypedValueSerializer(
                 serializers.config.typeFactory.constructMapType(
                 kotlin.collections.Map::class.java,
-                        serializers.config.typeFactory.constructType(java.util.Locale::class.java)
-                ,
-                        serializers.config.typeFactory.constructType(org.litote.kmongo.model.SimpleReferenced2Data::class.java)
-                )
-                ,
+                serializers.config.typeFactory.constructType(java.util.Locale::class.java),
+                serializers.config.typeFactory.constructType(org.litote.kmongo.model.SimpleReferenced2Data::class.java)
+                ),
                 true,
                 null
                 )
                 .serialize(_map2_, gen, serializers)
         gen.writeFieldName("nullableFloat")
         val _nullableFloat_ = value.nullableFloat
-        if(_nullableFloat_ == null) { gen.writeNull() } else {gen.writeNumber(_nullableFloat_)}
+        if(_nullableFloat_ == null) { gen.writeNull() } else {
+                gen.writeNumber(_nullableFloat_)
+                }
         gen.writeFieldName("nullableBoolean")
         val _nullableBoolean_ = value.nullableBoolean
-        if(_nullableBoolean_ == null) { gen.writeNull() } else {gen.writeBoolean(_nullableBoolean_)}
+        if(_nullableBoolean_ == null) { gen.writeNull() } else {
+                gen.writeBoolean(_nullableBoolean_)
+                }
         gen.writeFieldName("privateData")
         val _privateData_ =
                 org.litote.kreflect.findPropertyValue<org.litote.kmongo.model.TestData,kotlin.String>(value,
@@ -101,8 +103,9 @@ internal class TestData_Serializer : StdSerializer<TestData>(TestData::class.jav
         serializers.defaultSerializeValue(_id_, gen)
         gen.writeFieldName("byteArray")
         val _byteArray_ = value.byteArray
-        if(_byteArray_ == null) { gen.writeNull() } else
-                {serializers.defaultSerializeValue(_byteArray_, gen)}
+        if(_byteArray_ == null) { gen.writeNull() } else {
+                serializers.defaultSerializeValue(_byteArray_, gen)
+                }
         gen.writeEndObject()
     }
 }

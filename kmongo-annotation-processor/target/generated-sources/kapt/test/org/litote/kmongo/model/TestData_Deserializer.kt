@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.module.SimpleModule
 import java.util.Date
 import java.util.Locale
@@ -26,111 +26,113 @@ import org.litote.jackson.JacksonModuleServiceLoader
 import org.litote.kmongo.Id
 import org.litote.kmongo.model.other.SimpleReferencedData
 
-internal class TestData_Deserializer : StdDeserializer<TestData>(TestData::class.java),
-        JacksonModuleServiceLoader {
+internal class TestData_Deserializer : JsonDeserializer<TestData>(), JacksonModuleServiceLoader {
     override fun module() = SimpleModule().addDeserializer(TestData::class.java, this)
 
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): TestData {
         with(p) {
             var _set_: MutableSet<SimpleReferencedData>? = null
-            var _set_set = false
+            var _set_set : Boolean = false
             var _list_: MutableList<List<Boolean>>? = null
-            var _list_set = false
+            var _list_set : Boolean = false
             var _name_: String? = null
-            var _name_set = false
+            var _name_set : Boolean = false
             var _date_: Date? = null
-            var _date_set = false
+            var _date_set : Boolean = false
             var _referenced_: SimpleReferencedData? = null
-            var _referenced_set = false
+            var _referenced_set : Boolean = false
             var _map_: MutableMap<Id<Locale>, Set<String>>? = null
-            var _map_set = false
+            var _map_set : Boolean = false
             var _map2_: MutableMap<Locale, SimpleReferenced2Data>? = null
-            var _map2_set = false
+            var _map2_set : Boolean = false
             var _nullableFloat_: Float? = null
-            var _nullableFloat_set = false
+            var _nullableFloat_set : Boolean = false
             var _nullableBoolean_: Boolean? = null
-            var _nullableBoolean_set = false
+            var _nullableBoolean_set : Boolean = false
             var _privateData_: String? = null
-            var _privateData_set = false
+            var _privateData_set : Boolean = false
             var _id_: Id<*>? = null
-            var _id_set = false
+            var _id_set : Boolean = false
             var _byteArray_: ByteArray? = null
-            var _byteArray_set = false
-            while (currentToken != JsonToken.END_OBJECT && currentToken != JsonToken.END_ARRAY) { 
-                if(currentToken != JsonToken.FIELD_NAME) { nextToken() }
-                if (currentToken == JsonToken.END_OBJECT || currentToken == JsonToken.END_ARRAY) {
-                        break } 
-                val fieldName = currentName
-                nextToken()
-                when (fieldName) { 
+            var _byteArray_set : Boolean = false
+            var _token_ : JsonToken? = currentToken
+            while (_token_?.isStructEnd != true) { 
+                if(_token_ != JsonToken.FIELD_NAME) {
+                        _token_ = nextToken()
+                        if (_token_?.isStructEnd == true) break
+                        }
+
+                val _fieldName_ = currentName
+                _token_ = nextToken()
+                when (_fieldName_) { 
                     "set" -> {
-                            _set_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _set_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.readValueAs(_set__reference);
                             _set_set = true
                             }
                     "list" -> {
-                            _list_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _list_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.readValueAs(_list__reference);
                             _list_set = true
                             }
                     "name" -> {
-                            _name_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _name_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.text;
                             _name_set = true
                             }
                     "date" -> {
-                            _date_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _date_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.readValueAs(Date::class.java);
                             _date_set = true
                             }
                     "referenced" -> {
-                            _referenced_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _referenced_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.readValueAs(SimpleReferencedData::class.java);
                             _referenced_set = true
                             }
                     "map" -> {
-                            _map_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _map_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.readValueAs(_map__reference);
                             _map_set = true
                             }
                     "map2" -> {
-                            _map2_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _map2_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.readValueAs(_map2__reference);
                             _map2_set = true
                             }
                     "nullableFloat" -> {
-                            _nullableFloat_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _nullableFloat_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.floatValue;
                             _nullableFloat_set = true
                             }
                     "nullableBoolean" -> {
-                            _nullableBoolean_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _nullableBoolean_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.booleanValue;
                             _nullableBoolean_set = true
                             }
                     "privateData" -> {
-                            _privateData_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _privateData_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.text;
                             _privateData_set = true
                             }
                     "id" -> {
-                            _id_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _id_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.readValueAs(_id__reference);
                             _id_set = true
                             }
                     "byteArray" -> {
-                            _byteArray_ = if(currentToken == JsonToken.VALUE_NULL) null
+                            _byteArray_ = if(_token_ == JsonToken.VALUE_NULL) null
                              else p.readValueAs(_byteArray__reference);
                             _byteArray_set = true
                             }
                     else -> {
-                            if (currentToken == JsonToken.START_OBJECT || currentToken ==
-                                    JsonToken.START_ARRAY)
+                            if (_token_?.isStructStart == true)
                             p.skipChildren()
                             nextToken()
                             }
                     } 
-                } 
+                _token_ = currentToken
+                        } 
             return if(_set_set && _list_set && _name_set && _date_set && _referenced_set && _map_set
                     && _map2_set && _nullableFloat_set && _nullableBoolean_set && _privateData_set
                     && _id_set && _byteArray_set)

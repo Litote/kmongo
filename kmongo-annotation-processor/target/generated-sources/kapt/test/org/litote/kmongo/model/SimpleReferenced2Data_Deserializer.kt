@@ -3,7 +3,7 @@ package org.litote.kmongo.model
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.module.SimpleModule
 import kotlin.Double
 import kotlin.String
@@ -14,35 +14,37 @@ import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.primaryConstructor
 import org.litote.jackson.JacksonModuleServiceLoader
 
-internal class SimpleReferenced2Data_Deserializer :
-        StdDeserializer<SimpleReferenced2Data>(SimpleReferenced2Data::class.java),
+internal class SimpleReferenced2Data_Deserializer : JsonDeserializer<SimpleReferenced2Data>(),
         JacksonModuleServiceLoader {
     override fun module() = SimpleModule().addDeserializer(SimpleReferenced2Data::class.java, this)
 
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): SimpleReferenced2Data {
         with(p) {
             var _price_: Double? = null
-            var _price_set = false
-            while (currentToken != JsonToken.END_OBJECT && currentToken != JsonToken.END_ARRAY) { 
-                if(currentToken != JsonToken.FIELD_NAME) { nextToken() }
-                if (currentToken == JsonToken.END_OBJECT || currentToken == JsonToken.END_ARRAY) {
-                        break } 
-                val fieldName = currentName
-                nextToken()
-                when (fieldName) { 
+            var _price_set : Boolean = false
+            var _token_ : JsonToken? = currentToken
+            while (_token_?.isStructEnd != true) { 
+                if(_token_ != JsonToken.FIELD_NAME) {
+                        _token_ = nextToken()
+                        if (_token_?.isStructEnd == true) break
+                        }
+
+                val _fieldName_ = currentName
+                _token_ = nextToken()
+                when (_fieldName_) { 
                     "price" -> {
-                            _price_ = if(currentToken == JsonToken.VALUE_NULL) null
-                             else p.readValueAs(Double::class.java);
+                            _price_ = if(_token_ == JsonToken.VALUE_NULL) null
+                             else p.doubleValue;
                             _price_set = true
                             }
                     else -> {
-                            if (currentToken == JsonToken.START_OBJECT || currentToken ==
-                                    JsonToken.START_ARRAY)
+                            if (_token_?.isStructStart == true)
                             p.skipChildren()
                             nextToken()
                             }
                     } 
-                } 
+                _token_ = currentToken
+                        } 
             return if(_price_set)
                     SimpleReferenced2Data(price = _price_!!)
                     else {

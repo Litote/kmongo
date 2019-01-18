@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-benchmark</artifactId>
-        <version>3.9.1-SNAPSHOT</version>
+        <version>3.9.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>kmongo-benchmark-jackson</artifactId>
@@ -37,6 +37,53 @@
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-benchmark-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.litote.jackson</groupId>
+            <artifactId>jackson-data</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.jackson</groupId>
+            <artifactId>jackson-generator</artifactId>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <version>${kotlin.version}</version>
+
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>kapt</id>
+                        <goals>
+                            <goal>kapt</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>src/main/kotlin</sourceDir>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
+                </executions>
+
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

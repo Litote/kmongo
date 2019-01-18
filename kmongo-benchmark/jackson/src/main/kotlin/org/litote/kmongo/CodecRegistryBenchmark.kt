@@ -54,6 +54,7 @@ open class CodecRegistryBenchmark {
         return decode(kmongoCodecRegistry)
     }
 
+
     @Benchmark
     fun jacksonFriendWithBuddiesWithCustomDeserializer(): FriendWithBuddiesWithCustomDeserializer {
         return decode(kmongoCodecRegistry)
@@ -61,6 +62,21 @@ open class CodecRegistryBenchmark {
 
     @Benchmark
     fun jacksonFriendWithBuddiesCodec(): FriendWithCustomCodecWithBuddies {
+        return decode(kmongoCodecRegistry)
+    }
+
+    @Benchmark
+    fun jacksonFriendData(): FriendData {
+        return decode(kmongoCodecRegistry)
+    }
+
+    @Benchmark
+    fun jacksonFriendWithBuddiesData(): FriendDataWithBuddies {
+        return decode(kmongoCodecRegistry)
+    }
+
+    @Benchmark
+    fun jacksonFriendSimpleData(): FriendSimpleData {
         return decode(kmongoCodecRegistry)
     }
 
@@ -75,6 +91,7 @@ open class CodecRegistryBenchmark {
         @JvmStatic
         fun main(args: Array<String>) {
             val b = CodecRegistryBenchmark()
+
             println(b.driverFriendWithBuddies())
             println(b.jacksonFriendWithBuddies())
             println(b.jacksonFriendWithBuddiesWithCustomDeserializer())
@@ -83,8 +100,12 @@ open class CodecRegistryBenchmark {
             println(b.jacksonFriend())
             println(b.jacksonFriendWithCustomDeserializer())
 
+            println(b.jacksonFriendData())
+            println(b.jacksonFriendWithBuddiesData())
+            println(b.jacksonFriendSimpleData())
+
             while (true) {
-                decode<FriendWithBuddies>(kmongoCodecRegistry)
+                decode<FriendWithCustomDeserializer>(kmongoCodecRegistry)
             }
         }
     }

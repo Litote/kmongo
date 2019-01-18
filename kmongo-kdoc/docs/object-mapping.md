@@ -130,3 +130,5 @@ In the end, as the framework is officially supported by the Mongo team, you can 
 We expect that, for most of the projects, the "native" bindings will be perfectly OK. For complex projects, or if you have already Jackson skills, the Jackson object mapping is a really nice choice.
 
 Choose your poison! :)
+
+See also [Performance section](../performance).
