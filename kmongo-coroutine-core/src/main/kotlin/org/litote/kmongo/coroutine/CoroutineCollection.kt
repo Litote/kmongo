@@ -1879,24 +1879,6 @@ suspend inline fun <reified T : Any> CoroutineCollection<T>.bulkWrite(
     )
 
 /**
- * Executes a mix of inserts, updates, replaces, and deletes.
- *
- * @param requests the writes to execute
- *
- * @return the result of the bulk write
- */
-suspend inline fun <reified T : Any> CoroutineCollection<T>.bulkWrite(vararg requests: String): BulkWriteResult =
-    withDocumentClass<BsonDocument>().bulkWrite(
-        KMongoUtil.toWriteModel(
-            requests,
-            codecRegistry,
-            T::class
-        ),
-        BulkWriteOptions()
-    )
-
-
-/**
  * Aggregates documents according to the specified aggregation pipeline.  If the pipeline ends with a $out stage, the returned
  * iterable will be a query of the collection that the aggregation was written to.  Note that in this case the pipeline will be
  * executed even if the iterable is never iterated.

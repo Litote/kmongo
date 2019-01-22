@@ -94,7 +94,7 @@ class CoroutineChangeStreamPublisherTest {
 
     @Test
     fun withDocumentClass() {
-        whenever(publisher.withDocumentClass<String>(String::class.java)).thenReturn(DoNothingPublisher())
+        whenever(publisher.withDocumentClass<String>(String::class.java)).thenReturn(DoSinglePublisher("a"))
         runBlocking {
             coroutine.withDocumentClass<String>()
         }
