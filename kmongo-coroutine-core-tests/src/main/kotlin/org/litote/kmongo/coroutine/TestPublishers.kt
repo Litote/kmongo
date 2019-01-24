@@ -18,13 +18,29 @@ package org.litote.kmongo.coroutine
 
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
+import java.lang.RuntimeException
 
-/**
- *
- */
 class DoNothingPublisher<T> : Publisher<T> {
 
     override fun subscribe(s: Subscriber<in T>) {
         s.onComplete()
     }
 }
+
+class DoSinglePublisher<T>(val t: T) : Publisher<T> {
+
+    override fun subscribe(s: Subscriber<in T>) {
+        s.onNext(t)
+        s.onComplete()
+    }
+
+}
+
+class ErrorPublisher<T>(val t: Throwable = RuntimeException()) : Publisher<T> {
+
+    override fun subscribe(s: Subscriber<in T>) {
+        s.onError(t)
+    }
+
+}
+
