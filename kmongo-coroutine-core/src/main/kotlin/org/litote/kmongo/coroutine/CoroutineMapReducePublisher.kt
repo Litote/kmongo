@@ -26,7 +26,7 @@ import org.bson.conversions.Bson
 import java.util.concurrent.TimeUnit
 
 /**
- * Gets coroutine version of [ChangeStreamPublisher].
+ * Gets coroutine version of [MapReducePublisher].
  */
 val <T> MapReducePublisher<T>.coroutine: CoroutineMapReducePublisher<T>
     get() = CoroutineMapReducePublisher(
@@ -34,7 +34,7 @@ val <T> MapReducePublisher<T>.coroutine: CoroutineMapReducePublisher<T>
     )
 
 /**
- * Coroutine wrapper around [ChangeStreamPublisher].
+ * Coroutine wrapper around [MapReducePublisher].
  */
 class CoroutineMapReducePublisher<T>(val publisher: MapReducePublisher<T>) :
     CoroutinePublisher<T>(publisher) {

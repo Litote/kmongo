@@ -17,14 +17,13 @@
 package org.litote.kmongo.coroutine
 
 import com.mongodb.client.model.Collation
-import com.mongodb.reactivestreams.client.ChangeStreamPublisher
 import com.mongodb.reactivestreams.client.DistinctPublisher
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.bson.conversions.Bson
 import java.util.concurrent.TimeUnit
 
 /**
- * Gets coroutine version of [ChangeStreamPublisher].
+ * Gets coroutine version of [CoroutineDistinctPublisher].
  */
 val <T> DistinctPublisher<T>.coroutine: CoroutineDistinctPublisher<T>
     get() = CoroutineDistinctPublisher(
@@ -32,7 +31,7 @@ val <T> DistinctPublisher<T>.coroutine: CoroutineDistinctPublisher<T>
     )
 
 /**
- * Coroutine wrapper around [ChangeStreamPublisher].
+ * Coroutine wrapper around [CoroutineDistinctPublisher].
  */
 class CoroutineDistinctPublisher<T>(val publisher: DistinctPublisher<T>) :
     CoroutinePublisher<T>(publisher) {

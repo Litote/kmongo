@@ -131,4 +131,4 @@ We expect that, for most of the projects, the "native" bindings will be perfectl
 
 Choose your poison! :)
 
-See also [Performance section](../performance).
+See also [Performance section](performance/index.html).

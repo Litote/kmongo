@@ -21,14 +21,14 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import java.util.concurrent.TimeUnit
 
 /**
- * Gets coroutine version of [ListCollectionsPublisher].
+ * Gets coroutine version of [CoroutineListIndexesPublisher].
  */
 val <T> ListIndexesPublisher<T>.coroutine: CoroutineListIndexesPublisher<T>
     get() =
         CoroutineListIndexesPublisher(this)
 
 /**
- * Coroutine wrapper around [ListCollectionsPublisher].
+ * Coroutine wrapper around [CoroutineListIndexesPublisher].
  */
 class CoroutineListIndexesPublisher<T>(val publisher: ListIndexesPublisher<T>) :
     CoroutinePublisher<T>(publisher) {

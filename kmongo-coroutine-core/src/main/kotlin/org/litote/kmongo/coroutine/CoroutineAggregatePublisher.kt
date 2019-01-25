@@ -18,7 +18,6 @@ package org.litote.kmongo.coroutine
 
 import com.mongodb.client.model.Collation
 import com.mongodb.reactivestreams.client.AggregatePublisher
-import com.mongodb.reactivestreams.client.ChangeStreamPublisher
 import com.mongodb.reactivestreams.client.Success
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
@@ -27,7 +26,7 @@ import java.util.concurrent.TimeUnit
 
 
 /**
- * Gets coroutine version of [ChangeStreamPublisher].
+ * Gets coroutine version of [AggregatePublisher].
  */
 val <T> AggregatePublisher<T>.coroutine: CoroutineAggregatePublisher<T>
     get() = CoroutineAggregatePublisher(
@@ -35,7 +34,7 @@ val <T> AggregatePublisher<T>.coroutine: CoroutineAggregatePublisher<T>
     )
 
 /**
- * Coroutine wrapper around [ChangeStreamPublisher].
+ * Coroutine wrapper around [AggregatePublisher].
  */
 class CoroutineAggregatePublisher<T>(val publisher: AggregatePublisher<T>) :
     CoroutinePublisher<T>(publisher) {

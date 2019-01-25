@@ -18,14 +18,13 @@ package org.litote.kmongo.coroutine
 
 import com.mongodb.CursorType
 import com.mongodb.client.model.Collation
-import com.mongodb.reactivestreams.client.ChangeStreamPublisher
 import com.mongodb.reactivestreams.client.FindPublisher
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.bson.conversions.Bson
 import java.util.concurrent.TimeUnit
 
 /**
- * Gets coroutine version of [ChangeStreamPublisher].
+ * Gets coroutine version of [CoroutineFindPublisher].
  */
 val <T> FindPublisher<T>.coroutine: CoroutineFindPublisher<T>
     get() = CoroutineFindPublisher(
@@ -33,7 +32,7 @@ val <T> FindPublisher<T>.coroutine: CoroutineFindPublisher<T>
     )
 
 /**
- * Coroutine wrapper around [ChangeStreamPublisher].
+ * Coroutine wrapper around [CoroutineFindPublisher].
  */
 class CoroutineFindPublisher<T>(val publisher: FindPublisher<T>) :
     CoroutinePublisher<T>(publisher) {
