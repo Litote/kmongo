@@ -23,11 +23,11 @@ val luke = col.aggregate<Jedi>(
 
 KMongo features are available via [Kotlin extensions](https://kotlinlang.org/docs/reference/extensions.html) -
 you use transparently [the core MongoDB java driver API](https://docs.mongodb.com/ecosystem/drivers/java/)
-(both sync and async drivers are supported)
+(both sync and reactive streams (ie async) drivers are supported)
 
-### With complete async support
+### With complete reactive streams & async support
 
-You can use extensions for classic callbacks style, [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html) or [RxJava2](http://reactivex.io/).
+You can use extensions for reactive streams style, [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html) or [RxJava2](http://reactivex.io/).
 
 ## Built-in Object Mapping
 

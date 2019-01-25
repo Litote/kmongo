@@ -27,7 +27,7 @@ And deserialize it using:
 - Jackson mapping (jacksonFriend)
 - Native/POJO mapping (nativeFriend)
 
-Measuring with [jmh](https://openjdk.java.net/projects/code-tools/jmh/):
+With [jmh](https://openjdk.java.net/projects/code-tools/jmh/):
 
 ![Simple benchmark](assets/images/benchmark1.png)
 

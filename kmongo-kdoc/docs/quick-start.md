@@ -12,14 +12,14 @@ I you don't know, start with the sync driver and add this dependency to your pro
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo</artifactId>
-  <version>3.9.1</version>
+  <version>3.9.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo:3.9.1'
+compile 'org.litote.kmongo:kmongo:3.9.2'
 ```
 
 And [start coding](#lets-start-coding)
@@ -37,14 +37,14 @@ For the asynchronous driver, classic callback style, [Kotlin Coroutines](https:/
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-async</artifactId>
-  <version>3.9.1</version>
+  <version>3.9.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-async:3.9.1'
+compile 'org.litote.kmongo:kmongo-async:3.9.2'
 ```
 
 #### Kotlin Coroutines
@@ -55,14 +55,14 @@ compile 'org.litote.kmongo:kmongo-async:3.9.1'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-coroutine</artifactId>
-  <version>3.9.1</version>
+  <version>3.9.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-coroutine:3.9.1'
+compile 'org.litote.kmongo:kmongo-coroutine:3.9.2'
 ```
 
 #### RxJava2
@@ -73,14 +73,14 @@ compile 'org.litote.kmongo:kmongo-coroutine:3.9.1'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-rxjava2</artifactId>
-  <version>3.9.1</version>
+  <version>3.9.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-rxjava2:3.9.1'
+compile 'org.litote.kmongo:kmongo-rxjava2:3.9.2'
 ```
 
 ## Object Mapping Engine
@@ -93,6 +93,8 @@ For example, replace ```kmongo``` by ```kmongo-native```, or ```kmongo-async``` 
 You can read more about the mapping engine in the [dedicated chapter](object-mapping/index.html#how-to-choose-the-mapping-engine). 
 
 ## Let's Start Coding
+
+### With the sync driver
 
 ```kotlin
 import org.litote.kmongo.* //NEEDED! import KMongo extensions
@@ -110,6 +112,28 @@ col.insertOne(Jedi("Luke Skywalker", 19))
 val yoda : Jedi? = col.findOne(Jedi::name eq "Yoda")
 
 (...)
+```
+
+### Asynchronously with Coroutines
+
+```kotlin
+import org.litote.kmongo.coroutine.* //NEEDED! import KMongo extensions
+
+data class Jedi(val name: String, val age: Int)
+
+val client = KMongo.createClient().coroutine //use coroutine extension
+val database = client.getDatabase("test") //normal java driver usage
+val col = database.getCollection<Jedi>() //KMongo extension method
+
+//async now
+runBlocking {
+    col.insertOne(Jedi("Luke Skywalker", 19))
+
+    val yoda : Jedi? = col.findOne(Jedi::name eq "Yoda")
+
+    (...)
+}
+
 ```
 
 ## KDoc

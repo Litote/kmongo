@@ -235,6 +235,14 @@ Or type-safe queries:
 col.distinct(Friend::address)
 ```
 
+### projection
+
+You can use [```MongoCollection.projection```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-mongo-collection/projection.html)
+functions in order to retrieve only one, two or three fields.
+
+If you need to retreive more than three fields, use a dedicated class with [```FindIterable.projection```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-find-iterable/projection.html) functions.
+
+
 ## Map-Reduce
 
 [```mapReduce```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-mongo-collection/map-reduce.html)
@@ -372,8 +380,12 @@ However you can also get a MongoClient instance directly from the java driver an
 This is especially useful if you have already a java project and you want to migrate progressively
 to Kotlin.
 
+## Coroutine
+
+If you use the coroutine library, use the ```coroutine``` extension method first to get KMongo extensions. 
+
 ## KDoc
 
-Please consult [KDoc](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-mongo-collection/index.html)
+Please consult [KDoc](http://litote.org/kmongo/dokka/kmongo/)
 for an exhaustive list of the KMongo extensions.
 
