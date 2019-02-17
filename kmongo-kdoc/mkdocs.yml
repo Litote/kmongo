@@ -22,7 +22,7 @@ markdown_extensions:
   - admonition
   - codehilite(guess_lang=false)
   - toc(permalink=true)
-copyright: 'Copyright &copy; 2016/2018 Litote'
+copyright: 'Copyright &copy; 2016/2019 Litote'
 extra:
   social:
     - type: 'github'

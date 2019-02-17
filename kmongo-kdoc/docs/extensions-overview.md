@@ -382,7 +382,7 @@ to Kotlin.
 
 ## Coroutine
 
-If you use the coroutine library, use the ```coroutine``` extension method first to get KMongo extensions. 
+If you use the kmongo-coroutine library, use the ```coroutine``` extension method first to get KMongo extensions. 
 
 ## KDoc
 

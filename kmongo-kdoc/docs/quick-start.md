@@ -27,9 +27,9 @@ And [start coding](#lets-start-coding)
 ### Async driver support
 
 KMongo can use the synchronous or the asynchronous java driver. 
-For the asynchronous driver, classic callback style, [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html) or [RxJava2](http://reactivex.io/) are supported.
+For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html) or [RxJava2](http://reactivex.io/) are supported.
 
-#### Classic callback style
+#### Reactive Streams style
 
 - with Maven
 
@@ -117,7 +117,8 @@ val yoda : Jedi? = col.findOne(Jedi::name eq "Yoda")
 ### Asynchronously with Coroutines
 
 ```kotlin
-import org.litote.kmongo.coroutine.* //NEEDED! import KMongo extensions
+import org.litote.kmongo.reactivestreams.*  //NEEDED! import KMongo reactivestreams extensions
+import org.litote.kmongo.coroutine.* //NEEDED! import KMongo coroutine extensions
 
 data class Jedi(val name: String, val age: Int)
 
