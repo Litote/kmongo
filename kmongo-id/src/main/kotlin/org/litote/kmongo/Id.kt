@@ -23,6 +23,10 @@ package org.litote.kmongo
  * it must provide a toString() method and a constructor with a one String arg,
  * and consistent equals & hashCode methods.
  *
+ * Please note that equals and hashcode methods of Id are "implementation dependant":
+ * If classes A and B are two implementations of Id, instances of A are always not equals to
+ * instances of B.
+ *
  * @param T the owner of the id
  */
 interface Id<T>
