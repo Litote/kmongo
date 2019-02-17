@@ -25,7 +25,7 @@ class Jedi(
 )
 ``` 
 
-It is easy to transform a String or an ObjectId in an Id<> with the *toId()* extension:
+It is easy to transform an ObjectId in Id<> with the *toId()* extension:
 
 ```kotlin
 LightSaber(ObjectId("myId").toId())
