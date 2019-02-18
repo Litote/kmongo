@@ -33,7 +33,7 @@ val <T> DistinctPublisher<T>.coroutine: CoroutineDistinctPublisher<T>
 /**
  * Coroutine wrapper around [CoroutineDistinctPublisher].
  */
-class CoroutineDistinctPublisher<T>(val publisher: DistinctPublisher<T>) :
+class CoroutineDistinctPublisher<T>(override val publisher: DistinctPublisher<T>) :
     CoroutinePublisher<T>(publisher) {
 
     /**

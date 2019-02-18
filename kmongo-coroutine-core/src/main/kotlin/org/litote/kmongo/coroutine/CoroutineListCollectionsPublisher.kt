@@ -31,7 +31,7 @@ val <T> ListCollectionsPublisher<T>.coroutine: CoroutineListCollectionsPublisher
 /**
  * Coroutine wrapper around [ListCollectionsPublisher].
  */
-class CoroutineListCollectionsPublisher<TResult>(val publisher: ListCollectionsPublisher<TResult>) :
+class CoroutineListCollectionsPublisher<TResult>(override val publisher: ListCollectionsPublisher<TResult>) :
     CoroutinePublisher<TResult>(publisher) {
 
     /**

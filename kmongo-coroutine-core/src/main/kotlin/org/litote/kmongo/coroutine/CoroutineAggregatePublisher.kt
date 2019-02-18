@@ -36,7 +36,7 @@ val <T> AggregatePublisher<T>.coroutine: CoroutineAggregatePublisher<T>
 /**
  * Coroutine wrapper around [AggregatePublisher].
  */
-class CoroutineAggregatePublisher<T>(val publisher: AggregatePublisher<T>) :
+class CoroutineAggregatePublisher<T>(override val publisher: AggregatePublisher<T>) :
     CoroutinePublisher<T>(publisher) {
     /**
      * Enables writing to temporary files. A null value indicates that it's unspecified.

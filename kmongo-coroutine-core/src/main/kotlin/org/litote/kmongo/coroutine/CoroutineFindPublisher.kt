@@ -34,7 +34,7 @@ val <T> FindPublisher<T>.coroutine: CoroutineFindPublisher<T>
 /**
  * Coroutine wrapper around [CoroutineFindPublisher].
  */
-class CoroutineFindPublisher<T>(val publisher: FindPublisher<T>) :
+class CoroutineFindPublisher<T>(override val publisher: FindPublisher<T>) :
     CoroutinePublisher<T>(publisher) {
 
     /**
