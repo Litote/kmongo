@@ -36,7 +36,7 @@ val <T> ChangeStreamPublisher<T>.coroutine: CoroutineChangeStreamPublisher<T>
 /**
  * Coroutine wrapper around [ChangeStreamPublisher].
  */
-class CoroutineChangeStreamPublisher<TResult>(val publisher: ChangeStreamPublisher<TResult>) :
+class CoroutineChangeStreamPublisher<TResult>(override val publisher: ChangeStreamPublisher<TResult>) :
     CoroutinePublisher<ChangeStreamDocument<TResult>>(publisher) {
 
     /**

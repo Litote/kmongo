@@ -36,7 +36,7 @@ val <T> MapReducePublisher<T>.coroutine: CoroutineMapReducePublisher<T>
 /**
  * Coroutine wrapper around [MapReducePublisher].
  */
-class CoroutineMapReducePublisher<T>(val publisher: MapReducePublisher<T>) :
+class CoroutineMapReducePublisher<T>(override val publisher: MapReducePublisher<T>) :
     CoroutinePublisher<T>(publisher) {
 
     /**

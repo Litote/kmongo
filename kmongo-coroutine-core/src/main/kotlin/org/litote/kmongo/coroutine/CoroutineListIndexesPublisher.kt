@@ -30,7 +30,7 @@ val <T> ListIndexesPublisher<T>.coroutine: CoroutineListIndexesPublisher<T>
 /**
  * Coroutine wrapper around [CoroutineListIndexesPublisher].
  */
-class CoroutineListIndexesPublisher<T>(val publisher: ListIndexesPublisher<T>) :
+class CoroutineListIndexesPublisher<T>(override val publisher: ListIndexesPublisher<T>) :
     CoroutinePublisher<T>(publisher) {
 
     /**

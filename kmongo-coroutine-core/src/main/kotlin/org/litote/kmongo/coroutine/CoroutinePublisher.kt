@@ -38,7 +38,7 @@ suspend fun <T> Publisher<T>.toList(): List<T> {
 /**
  * Coroutine wrapper around [Publisher].
  */
-open class CoroutinePublisher<T>(private val publisher: Publisher<T>) {
+open class CoroutinePublisher<T>(open val publisher: Publisher<T>) {
 
     /**
      * Provides a list of not null elements from the publisher.
@@ -48,7 +48,7 @@ open class CoroutinePublisher<T>(private val publisher: Publisher<T>) {
     /**
      * iterates over all elements from the publisher
      */
-    suspend fun consumeEach(action: suspend (T) -> kotlin.Unit): kotlin.Unit {
+    suspend fun consumeEach(action: suspend (T) -> kotlin.Unit) {
         publisher.consumeEach { action(it) }
     }
 }
