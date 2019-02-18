@@ -48,7 +48,7 @@ open class CoroutinePublisher<T>(private val publisher: Publisher<T>) {
     /**
      * iterates over all elements from the publisher
      */
-    suspend fun consumeEach(action: (T) -> kotlin.Unit): kotlin.Unit {
-        publisher.consumeEach(action)
+    suspend fun consumeEach(action: suspend (T) -> kotlin.Unit): kotlin.Unit {
+        publisher.consumeEach { action(it) }
     }
 }
