@@ -49,7 +49,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         return 0
     }
 
-    private fun encodeObject(BsonWriter writer, obj: Any) {
+    private fun encodeObject(writer: BsonWriter, obj: Any) {
         ClassMappingType.codecRegistry(MongoClientSettings.getDefaultCodecRegistry())
             .get(obj.javaClass)
             ?.encode(
