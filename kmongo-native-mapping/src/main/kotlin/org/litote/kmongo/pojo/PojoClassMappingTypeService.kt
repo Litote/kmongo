@@ -52,7 +52,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
     override fun filterIdToBson(obj: Any): BsonDocument {
         val bsonDocument = BsonDocument()
         val bsonWriter = BsonDocumentWriter(bsonDocument)
-        codecRegistryWithNullSerialization
+        ClassMappingType.codecRegistry(MongoClientSettings.getDefaultCodecRegistry())
             .get(obj.javaClass)
             ?.encode(
                 bsonWriter,
