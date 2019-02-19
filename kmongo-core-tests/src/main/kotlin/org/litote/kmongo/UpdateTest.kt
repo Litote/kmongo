@@ -81,11 +81,25 @@ class UpdateTest : AllCategoriesKMongoBaseTest<Friend>() {
         val friend = Friend("John", "123 Wall Street")
         col.insertOne(friend)
         val preexistingDocument = Friend(friend._id!!, "Johnny")
-        col.updateOne("{name:'John'}", preexistingDocument)
-        val r = col.findOne("{name:'Johnny'}")
-        assertEquals("Johnny", r!!.name)
-        assertNull(r.address)
-        assertEquals(friend._id, r._id)
+        val serializeNullDefault = ObjectMappingConfiguration.serializeNull
+        run {
+            ObjectMappingConfiguration.serializeNull = false
+            col.updateOne("{name:'John'}", preexistingDocument)
+            val r = col.findOne("{name:'Johnny'}")
+            assertEquals("Johnny", r!!.name)
+            assertEquals("123 Wall Street", r!!.address)
+            assertEquals(friend._id, r._id)
+            ObjectMappingConfiguration.serializeNull = serializeNullDefault
+        }
+        run {
+            ObjectMappingConfiguration.serializeNull = true
+            col.updateOne("{name:'John'}", preexistingDocument)
+            val r = col.findOne("{name:'Johnny'}")
+            assertEquals("Johnny", r!!.name)
+            assertNull(r.address)
+            assertEquals(friend._id, r._id)
+            ObjectMappingConfiguration.serializeNull = serializeNullDefault
+        }
     }
 
     @Test
@@ -93,10 +107,23 @@ class UpdateTest : AllCategoriesKMongoBaseTest<Friend>() {
         val friend = Friend("John", "123 Wall Street")
         col.insertOne(friend)
         val newDocument = Friend("Johnny")
-        col.updateOne("{name:'John'}", newDocument)
-        val r = col.findOne("{name:'Johnny'}")
-        assertEquals("Johnny", r!!.name)
-        assertNull(r.address)
+        val serializeNullDefault = ObjectMappingConfiguration.serializeNull
+        run {
+            ObjectMappingConfiguration.serializeNull = false
+            col.updateOne("{name:'John'}", newDocument)
+            val r = col.findOne("{name:'Johnny'}")
+            assertEquals("Johnny", r!!.name)
+            assertEquals("123 Wall Street", r!!.address)
+            ObjectMappingConfiguration.serializeNull = serializeNullDefault
+        }
+        run {
+            ObjectMappingConfiguration.serializeNull = true
+            col.updateOne("{name:'John'}", newDocument)
+            val r = col.findOne("{name:'Johnny'}")
+            assertEquals("Johnny", r!!.name)
+            assertNull(r.address)
+            ObjectMappingConfiguration.serializeNull = serializeNullDefault
+        }
     }
 
 }
