@@ -49,16 +49,19 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         return 0
     }
 
-    override fun filterIdToBson(obj: Any): BsonDocument {
-        val bsonDocument = BsonDocument()
-        val bsonWriter = BsonDocumentWriter(bsonDocument)
+    private fun encodeObject(BsonWriter writer, obj: Any) {
         ClassMappingType.codecRegistry(MongoClientSettings.getDefaultCodecRegistry())
             .get(obj.javaClass)
             ?.encode(
-                bsonWriter,
+                writer,
                 obj,
                 EncoderContext.builder().build()
             )
+    }
+
+    override fun filterIdToBson(obj: Any): BsonDocument {
+        val bsonDocument = BsonDocument()
+        encodeObject(BsonDocumentWriter(bsonDocument), obj)
         bsonDocument.remove("_id")
         return bsonDocument
     }
@@ -82,13 +85,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
                 //create a fake document to bypass bson writer built-in checks
                 jsonWriter.writeStartDocument()
                 jsonWriter.writeName("tmp")
-                ClassMappingType.codecRegistry(MongoClientSettings.getDefaultCodecRegistry())
-                    .get(obj.javaClass)
-                    ?.encode(
-                        jsonWriter,
-                        obj,
-                        EncoderContext.builder().build()
-                    )
+                encodeObject(jsonWriter, obj)
                 jsonWriter.writeEndDocument()
                 writer.toString().run {
                     substring("{ \"tmp\" :".length, length - "}".length).trim()
