@@ -107,11 +107,10 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
         val serializeNullDefault = ObjectMappingConfiguration.serializeNull
         run {
             ObjectMappingConfiguration.serializeNull = false
-            col.updateOne(Friend::name eq "John", preexistingDocument)
-            val r = col.findOne(friend::name eq "Johnny")
+            col.updateOne(Friend::name eq "John", newDocument)
+            val r = col.findOne(Friend::name eq "Johnny")
             assertEquals("Johnny", r!!.name)
             assertEquals("123 Wall Street", r!!.address)
-            assertEquals(friend._id, r._id)
             ObjectMappingConfiguration.serializeNull = serializeNullDefault
         }
         run {
