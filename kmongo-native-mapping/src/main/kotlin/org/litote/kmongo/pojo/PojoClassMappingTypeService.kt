@@ -19,6 +19,7 @@ package org.litote.kmongo.pojo
 import com.mongodb.MongoClientSettings
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
+import org.bson.BsonWriter
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.codecs.pojo.KMongoConvention
