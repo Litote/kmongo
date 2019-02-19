@@ -22,6 +22,7 @@ import org.litote.kmongo.MongoOperator.exists
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.unset
 import org.litote.kmongo.model.Friend
+import org.litote.kmongo.util.ObjectMappingConfiguration
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
