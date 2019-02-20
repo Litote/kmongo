@@ -44,6 +44,7 @@ import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.PairProjection
 import org.litote.kmongo.util.SingleProjection
 import org.litote.kmongo.util.TripleProjection
+import org.litote.kmongo.util.UpdateConfiguration
 import org.litote.kmongo.util.pairProjectionCodecRegistry
 import org.litote.kmongo.util.singleProjectionCodecRegistry
 import org.litote.kmongo.util.tripleProjectionCodecRegistry
@@ -438,6 +439,7 @@ fun <T> MongoCollection<T>.updateOne(
  * @param filter   a document describing the query filter
  * @param update   the update object
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  *
  * @return the result of the update one operation
  *
@@ -448,14 +450,16 @@ fun <T> MongoCollection<T>.updateOne(
 fun <T> MongoCollection<T>.updateOne(
     filter: String,
     update: Any,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBsonModifier(update), options)
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+): UpdateResult = updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBsonModifier(update, updateOnlyNotNullProperties), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
  *
  * @param target  the update object - must have an non null id
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  *
  * @return the result of the update one operation
  *
@@ -465,8 +469,9 @@ fun <T> MongoCollection<T>.updateOne(
  */
 inline fun <reified T : Any> MongoCollection<T>.updateOne(
     target: T,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOneById(KMongoUtil.extractId(target, T::class), target, options)
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+): UpdateResult = updateOneById(KMongoUtil.extractId(target, T::class), target, options, updateOnlyNotNullProperties)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -484,8 +489,9 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(
 fun <T> MongoCollection<T>.updateOne(
     filter: Bson,
     target: Any,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOne(filter, KMongoUtil.toBsonModifier(target), options)
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+): UpdateResult = updateOne(filter, KMongoUtil.toBsonModifier(target, updateOnlyNotNullProperties), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -512,6 +518,7 @@ fun <T : Any> MongoCollection<T>.updateOne(
  * @param id        the object id
  * @param update    the update object
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  *
  * @return the result of the update one operation
  *
@@ -519,8 +526,12 @@ fun <T : Any> MongoCollection<T>.updateOne(
  * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
-fun <T> MongoCollection<T>.updateOneById(id: Any, update: Any, options: UpdateOptions = UpdateOptions()): UpdateResult =
-    updateOne(KMongoUtil.idFilterQuery(id), KMongoUtil.toBsonModifier(update), options)
+fun <T> MongoCollection<T>.updateOneById(
+    id: Any,
+    update: Any,
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties): UpdateResult =
+    updateOne(KMongoUtil.idFilterQuery(id), KMongoUtil.toBsonModifier(update, updateOnlyNotNullProperties), options)
 
 /**
  * Update all documents in the collection according to the specified arguments.

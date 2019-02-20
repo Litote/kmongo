@@ -16,12 +16,14 @@
 
 package org.litote.kmongo.util
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.bson.codecs.configuration.CodecProvider
 import org.litote.kmongo.jackson.JacksonCodecProvider
 import org.litote.kmongo.jackson.ObjectMapperFactory
 import org.litote.kmongo.jackson.customModuleInitialized
+import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 
 /**
@@ -76,6 +78,14 @@ object KMongoConfiguration {
             }
             return currentFilterIdBsonMapper!!
         }
+
+    internal val bsonMapperWithoutNullSerialization: ObjectMapper by lazy(PUBLICATION) {
+        bsonMapper.copy().setSerializationInclusion(NON_NULL);
+    }
+
+    internal val currentFilterIdBsonMapperWithoutNullSerialization: ObjectMapper by lazy(PUBLICATION) {
+        filterIdBsonMapper.copy().setSerializationInclusion(NON_NULL);
+    }
 
     /**
      * Register a jackson [Module] for the two bson mappers, [bsonMapper] and [bsonMapperCopy].

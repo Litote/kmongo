@@ -48,7 +48,7 @@ interface ClassMappingTypeService {
      */
     fun priority(): Int
 
-    fun filterIdToBson(obj: Any): BsonDocument
+    fun filterIdToBson(obj: Any, filterNullProperties: Boolean = false): BsonDocument
 
     fun toExtendedJson(obj: Any?): String
 

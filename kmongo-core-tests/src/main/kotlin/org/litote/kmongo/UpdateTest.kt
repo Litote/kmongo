@@ -99,4 +99,27 @@ class UpdateTest : AllCategoriesKMongoBaseTest<Friend>() {
         assertNull(r.address)
     }
 
+    @Test
+    fun canPartiallyUpdateWithAnOtherDocumentWithSameIdWithoutNullProperties() {
+        val friend = Friend("John", "123 Wall Street")
+        col.insertOne(friend)
+        val preexistingDocument = Friend(friend._id!!, "Johnny")
+        col.updateOne("{name:'John'}", preexistingDocument, updateOnlyNotNullProperties = true)
+        val r = col.findOne("{name:'Johnny'}")
+        assertEquals("Johnny", r!!.name)
+        assertEquals("123 Wall Street", r.address)
+        assertEquals(friend._id, r._id)
+    }
+
+    @Test
+    fun canPartiallyUpdateWithANewDocumentWithoutNullProperties() {
+        val friend = Friend("John", "123 Wall Street")
+        col.insertOne(friend)
+        val newDocument = Friend("Johnny")
+        col.updateOne("{name:'John'}", newDocument, updateOnlyNotNullProperties = true)
+        val r = col.findOne("{name:'Johnny'}")
+        assertEquals("Johnny", r!!.name)
+        assertEquals("123 Wall Street", r.address)
+    }
+
 }

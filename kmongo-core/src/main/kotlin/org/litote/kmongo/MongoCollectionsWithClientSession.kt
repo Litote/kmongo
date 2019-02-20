@@ -42,9 +42,13 @@ import com.mongodb.client.result.UpdateResult
 import org.bson.BsonDocument
 import org.bson.conversions.Bson
 import org.litote.kmongo.util.KMongoUtil
+import org.litote.kmongo.util.KMongoUtil.extractId
+import org.litote.kmongo.util.KMongoUtil.toBson
+import org.litote.kmongo.util.KMongoUtil.toBsonModifier
 import org.litote.kmongo.util.PairProjection
 import org.litote.kmongo.util.SingleProjection
 import org.litote.kmongo.util.TripleProjection
+import org.litote.kmongo.util.UpdateConfiguration
 import org.litote.kmongo.util.pairProjectionCodecRegistry
 import org.litote.kmongo.util.singleProjectionCodecRegistry
 import org.litote.kmongo.util.tripleProjectionCodecRegistry
@@ -67,7 +71,7 @@ fun <T> MongoCollection<T>.count(
     filter: String,
     options: CountOptions = CountOptions()
 ): Long =
-    count(clientSession, KMongoUtil.toBson(filter), options)
+    count(clientSession, toBson(filter), options)
 
 /**
  * Counts the number of documents in the collection according to the given options.
@@ -83,7 +87,7 @@ fun <T> MongoCollection<T>.countDocuments(
     filter: String,
     options: CountOptions = CountOptions()
 ): Long =
-    countDocuments(clientSession, KMongoUtil.toBson(filter), options)
+    countDocuments(clientSession, toBson(filter), options)
 
 /**
  * Gets the distinct values of the specified field name.
@@ -99,7 +103,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(
     clientSession: ClientSession,
     fieldName: String,
     filter: String = KMongoUtil.EMPTY_JSON
-): DistinctIterable<TResult> = distinct(clientSession, fieldName, KMongoUtil.toBson(filter), TResult::class.java)
+): DistinctIterable<TResult> = distinct(clientSession, fieldName, toBson(filter), TResult::class.java)
 
 
 /**
@@ -126,7 +130,7 @@ inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
  * @return the find iterable interface
  */
 fun <T> MongoCollection<T>.find(clientSession: ClientSession, filter: String = KMongoUtil.EMPTY_JSON): FindIterable<T> =
-    find(clientSession, KMongoUtil.toBson(filter))
+    find(clientSession, toBson(filter))
 
 /**
  * Finds all documents in the collection.
@@ -267,7 +271,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
     clientSession: ClientSession,
     document: String,
     options: InsertOneOptions = InsertOneOptions()
-) = withDocumentClass<BsonDocument>().insertOne(clientSession, KMongoUtil.toBson(document, T::class), options)
+) = withDocumentClass<BsonDocument>().insertOne(clientSession, toBson(document, T::class), options)
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -283,7 +287,7 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
  * @throws com.mongodb.MongoException             if the write failed due some other failure
  */
 fun <T> MongoCollection<T>.deleteOne(clientSession: ClientSession, filter: String): DeleteResult =
-    deleteOne(clientSession, KMongoUtil.toBson(filter))
+    deleteOne(clientSession, toBson(filter))
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -333,7 +337,7 @@ fun <T> MongoCollection<T>.deleteMany(
     filter: String,
     options: DeleteOptions = DeleteOptions()
 ): DeleteResult =
-    deleteMany(clientSession, KMongoUtil.toBson(filter), options)
+    deleteMany(clientSession, toBson(filter), options)
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -417,7 +421,7 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(
     clientSession: ClientSession,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): UpdateResult = replaceOneById(clientSession, KMongoUtil.extractId(replacement, T::class), replacement, options)
+): UpdateResult = replaceOneById(clientSession, extractId(replacement, T::class), replacement, options)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -440,7 +444,7 @@ fun <T : Any> MongoCollection<T>.replaceOne(
 ): UpdateResult = withDocumentClass<BsonDocument>()
     .replaceOne(
         clientSession,
-        KMongoUtil.toBson(filter),
+        toBson(filter),
         KMongoUtil.filterIdToBson(replacement),
         options
     )
@@ -492,7 +496,7 @@ fun <T> MongoCollection<T>.updateOne(
     filter: String,
     update: String,
     options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOne(clientSession, KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options)
+): UpdateResult = updateOne(clientSession, toBson(filter), toBson(update), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -501,6 +505,7 @@ fun <T> MongoCollection<T>.updateOne(
  * @param filter   a document describing the query filter
  * @param update   the update object
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  *
  * @return the result of the update one operation
  *
@@ -512,8 +517,15 @@ fun <T> MongoCollection<T>.updateOne(
     clientSession: ClientSession,
     filter: String,
     update: Any,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOne(clientSession, KMongoUtil.toBson(filter), KMongoUtil.toBsonModifier(update), options)
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+): UpdateResult =
+    updateOne(
+        clientSession,
+        toBson(filter),
+        toBsonModifier(update, updateOnlyNotNullProperties),
+        options
+    )
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -521,6 +533,7 @@ fun <T> MongoCollection<T>.updateOne(
  * @param clientSession the client session with which to associate this operation
  * @param target  the update object - must have an non null id
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  *
  * @return the result of the update one operation
  *
@@ -531,8 +544,10 @@ fun <T> MongoCollection<T>.updateOne(
 inline fun <reified T : Any> MongoCollection<T>.updateOne(
     clientSession: ClientSession,
     target: T,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOneById(clientSession, KMongoUtil.extractId(target, T::class), target, options)
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+): UpdateResult =
+    updateOneById(clientSession, extractId(target, T::class), target, options, updateOnlyNotNullProperties)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -541,6 +556,7 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(
  * @param filter   a document describing the query filter
  * @param update   the update object
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  *
  * @return the result of the update one operation
  *
@@ -552,8 +568,10 @@ fun <T> MongoCollection<T>.updateOne(
     clientSession: ClientSession,
     filter: Bson,
     target: Any,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOne(clientSession, filter, KMongoUtil.toBsonModifier(target), options)
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+): UpdateResult =
+    updateOne(clientSession, filter, toBsonModifier(target, updateOnlyNotNullProperties), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -583,6 +601,7 @@ fun <T : Any> MongoCollection<T>.updateOne(
  * @param id        the object id
  * @param update    the update object
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  *
  * @return the result of the update one operation
  *
@@ -594,9 +613,15 @@ fun <T> MongoCollection<T>.updateOneById(
     clientSession: ClientSession,
     id: Any,
     update: Any,
-    options: UpdateOptions = UpdateOptions()
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
 ): UpdateResult =
-    updateOne(clientSession, KMongoUtil.idFilterQuery(id), KMongoUtil.toBsonModifier(update), options)
+    updateOne(
+        clientSession,
+        KMongoUtil.idFilterQuery(id),
+        toBsonModifier(update, updateOnlyNotNullProperties),
+        options
+    )
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -617,7 +642,7 @@ fun <T : Any> MongoCollection<T>.updateMany(
     filter: String,
     update: String,
     updateOptions: UpdateOptions = UpdateOptions()
-): UpdateResult = updateMany(clientSession, KMongoUtil.toBson(filter), KMongoUtil.toBson(update), updateOptions)
+): UpdateResult = updateMany(clientSession, toBson(filter), toBson(update), updateOptions)
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -653,7 +678,7 @@ fun <T> MongoCollection<T>.findOneAndDelete(
     clientSession: ClientSession,
     filter: String,
     options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
-): T? = findOneAndDelete(clientSession, KMongoUtil.toBson(filter), options)
+): T? = findOneAndDelete(clientSession, toBson(filter), options)
 
 /**
  * Atomically find a document and replace it.
@@ -672,7 +697,7 @@ fun <T> MongoCollection<T>.findOneAndReplace(
     filter: String,
     replacement: T,
     options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
-): T? = findOneAndReplace(clientSession, KMongoUtil.toBson(filter), replacement, options)
+): T? = findOneAndReplace(clientSession, toBson(filter), replacement, options)
 
 /**
  * Atomically find a document and update it.
@@ -691,7 +716,7 @@ fun <T> MongoCollection<T>.findOneAndUpdate(
     filter: String,
     update: String,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
-): T? = findOneAndUpdate(clientSession, KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options)
+): T? = findOneAndUpdate(clientSession, toBson(filter), toBson(update), options)
 
 /**
  * Create an index with the given keys and options.
@@ -706,7 +731,7 @@ fun <T> MongoCollection<T>.createIndex(
     keys: String,
     indexOptions: IndexOptions = IndexOptions()
 ): String =
-    createIndex(clientSession, KMongoUtil.toBson(keys), indexOptions)
+    createIndex(clientSession, toBson(keys), indexOptions)
 
 /**
  * Create an index with the given keys and options.
@@ -828,7 +853,7 @@ fun <T> MongoCollection<T>.dropIndex(clientSession: ClientSession, keys: String)
  * @param json the keys of the index to remove
  */
 fun <T> MongoCollection<T>.dropIndexOfKeys(clientSession: ClientSession, json: String) =
-    dropIndex(clientSession, KMongoUtil.toBson(json))
+    dropIndex(clientSession, toBson(json))
 
 
 /**

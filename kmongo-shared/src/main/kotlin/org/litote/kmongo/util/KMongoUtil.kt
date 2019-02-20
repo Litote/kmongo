@@ -123,7 +123,8 @@ object KMongoUtil {
             json.map { toBson(it) }
         }
 
-    fun filterIdToBson(obj: Any): BsonDocument = ClassMappingType.filterIdToBson(obj)
+    fun filterIdToBson(obj: Any, filterNullProperties:Boolean = false): BsonDocument =
+        ClassMappingType.filterIdToBson(obj, filterNullProperties)
 
     fun formatJson(json: String): String {
         return SPACE_REPLACE_PATTERN.matcher(json).replaceAll(QUOTE_REPLACE_MATCHER)
@@ -145,18 +146,18 @@ object KMongoUtil {
 
     private fun containsUpdateOperator(map: Map<*, *>): Boolean = UPDATE_OPERATORS.any { map.contains(it) }
 
-    fun toBsonModifier(obj: Any): Bson =
+    fun toBsonModifier(obj: Any, updateOnlyNotNullProperties: Boolean = false): Bson =
         when (obj) {
             is Bson -> obj
             is String -> toBson(obj)
-            else -> setModifier(obj)
+            else -> setModifier(obj, updateOnlyNotNullProperties)
         }
 
-    fun setModifier(obj: Any): Bson {
+    fun setModifier(obj: Any, updateOnlyNotNullProperties: Boolean = false): Bson {
         return if (obj is Map<*, *> && containsUpdateOperator(obj)) {
             toBson(toExtendedJson(obj))
         } else {
-            SimpleExpression("$set", filterIdToBson(obj))
+            SimpleExpression("$set", filterIdToBson(obj, updateOnlyNotNullProperties))
         }
     }
 

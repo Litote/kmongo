@@ -49,10 +49,10 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         return 0
     }
 
-    override fun filterIdToBson(obj: Any): BsonDocument {
+    override fun filterIdToBson(obj: Any, filterNullProperties: Boolean): BsonDocument {
         val bsonDocument = BsonDocument()
         val bsonWriter = BsonDocumentWriter(bsonDocument)
-        codecRegistryWithNullSerialization
+        (if (filterNullProperties) codecRegistry else codecRegistryWithNullSerialization)
             .get(obj.javaClass)
             ?.encode(
                 bsonWriter,

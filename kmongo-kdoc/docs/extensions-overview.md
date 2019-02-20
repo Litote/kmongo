@@ -60,6 +60,20 @@ col.updateOne(newFriend)
 
 ```
 
+- Null properties are taken into account during the update (they are set to null in the document in MongoDb).
+If you prefer to ignore null properties during the update, you can use the `updateOnlyNotNullProperties` parameter:
+
+```kotlin
+col.updateOne(newFriend, updateOnlyNotNullProperties = true)
+```
+
+If you think it should be the default behaviour for all updates:
+
+```kotlin
+UpdateConfiguration.updateOnlyNotNullProperties = true
+```
+
+
 [```updateMany```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-mongo-collection/update-many.html)
 is also supported.
 

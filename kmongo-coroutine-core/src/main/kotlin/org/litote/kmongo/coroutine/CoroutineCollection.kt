@@ -56,6 +56,12 @@ import org.litote.kmongo.ascending
 import org.litote.kmongo.path
 import org.litote.kmongo.set
 import org.litote.kmongo.util.KMongoUtil
+import org.litote.kmongo.util.KMongoUtil.extractId
+import org.litote.kmongo.util.KMongoUtil.idFilterQuery
+import org.litote.kmongo.util.KMongoUtil.setModifier
+import org.litote.kmongo.util.KMongoUtil.toBson
+import org.litote.kmongo.util.KMongoUtil.toBsonModifier
+import org.litote.kmongo.util.UpdateConfiguration
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -974,7 +980,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @return count of filtered collection
      */
     suspend fun countDocuments(filter: String, options: CountOptions = CountOptions()): Long =
-        countDocuments(KMongoUtil.toBson(filter), options)
+        countDocuments(toBson(filter), options)
 
     /**
      * Counts the number of documents in the collection according to the given options.
@@ -987,7 +993,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         clientSession: ClientSession,
         filter: String,
         options: CountOptions = CountOptions()
-    ): Long = countDocuments(clientSession, KMongoUtil.toBson(filter), options)
+    ): Long = countDocuments(clientSession, toBson(filter), options)
 
 
     /**
@@ -1000,7 +1006,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     inline fun <reified Type> distinct(
         fieldName: String,
         filter: String
-    ): CoroutineDistinctPublisher<Type> = distinct(fieldName, KMongoUtil.toBson(filter))
+    ): CoroutineDistinctPublisher<Type> = distinct(fieldName, toBson(filter))
 
     /**
      * Gets the distinct values of the specified field.
@@ -1020,7 +1026,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param  filter the query filter
      * @return the find iterable interface
      */
-    fun find(filter: String): CoroutineFindPublisher<T> = find(KMongoUtil.toBson(filter))
+    fun find(filter: String): CoroutineFindPublisher<T> = find(toBson(filter))
 
     /**
      * Finds all documents in the collection.
@@ -1046,7 +1052,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     suspend fun findOne(
         clientSession: ClientSession,
         filter: String = KMongoUtil.EMPTY_JSON
-    ): T? = find(clientSession, KMongoUtil.toBson(filter)).first()
+    ): T? = find(clientSession, toBson(filter)).first()
 
     /**
      * Finds the first document that match the filter in the collection.
@@ -1077,7 +1083,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      *
      * @param id       the object id
      */
-    suspend fun findOneById(id: Any): T? = findOne(KMongoUtil.idFilterQuery(id))
+    suspend fun findOneById(id: Any): T? = findOne(idFilterQuery(id))
 
     /**
      * Finds the document that match the id parameter.
@@ -1086,7 +1092,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param clientSession  the client session with which to associate this operation
      */
     suspend fun findOneById(id: Any, clientSession: ClientSession): T? {
-        return findOne(clientSession, KMongoUtil.idFilterQuery(id))
+        return findOne(clientSession, idFilterQuery(id))
     }
 
     /**
@@ -1100,7 +1106,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     suspend fun deleteOne(
         filter: String,
         deleteOptions: DeleteOptions = DeleteOptions()
-    ): DeleteResult = deleteOne(KMongoUtil.toBson(filter), deleteOptions)
+    ): DeleteResult = deleteOne(toBson(filter), deleteOptions)
 
     /**
      * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -1115,7 +1121,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         clientSession: ClientSession,
         filter: String,
         deleteOptions: DeleteOptions = DeleteOptions()
-    ): DeleteResult = deleteOne(clientSession, KMongoUtil.toBson(filter), deleteOptions)
+    ): DeleteResult = deleteOne(clientSession, toBson(filter), deleteOptions)
 
     /**
      * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -1151,7 +1157,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param id   the object id
      */
     suspend fun deleteOneById(id: Any): DeleteResult =
-        deleteOne(KMongoUtil.idFilterQuery(id))
+        deleteOne(idFilterQuery(id))
 
 
     /**
@@ -1164,7 +1170,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     suspend fun deleteMany(
         filter: String,
         options: DeleteOptions = DeleteOptions()
-    ): DeleteResult = deleteMany(KMongoUtil.toBson(filter), options)
+    ): DeleteResult = deleteMany(toBson(filter), options)
 
     /**
      * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -1179,7 +1185,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         clientSession: ClientSession,
         filter: String,
         options: DeleteOptions = DeleteOptions()
-    ): DeleteResult = deleteMany(clientSession, KMongoUtil.toBson(filter), options)
+    ): DeleteResult = deleteMany(clientSession, toBson(filter), options)
 
     /**
      * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -1239,7 +1245,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         id: Any,
         replacement: T,
         options: ReplaceOptions = ReplaceOptions()
-    ): UpdateResult = replaceOneWithoutId<T>(KMongoUtil.idFilterQuery(id), replacement, options)
+    ): UpdateResult = replaceOneWithoutId<T>(idFilterQuery(id), replacement, options)
 
     /**
      * Replace a document in the collection according to the specified arguments.
@@ -1256,7 +1262,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         id: Any,
         replacement: T,
         options: ReplaceOptions = ReplaceOptions()
-    ): UpdateResult = replaceOneWithoutId(clientSession, KMongoUtil.idFilterQuery(id), replacement, options)
+    ): UpdateResult = replaceOneWithoutId(clientSession, idFilterQuery(id), replacement, options)
 
     /**
      * Replace a document in the collection according to the specified arguments.
@@ -1271,7 +1277,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         filter: String,
         replacement: T,
         options: ReplaceOptions = ReplaceOptions()
-    ): UpdateResult = replaceOne(KMongoUtil.toBson(filter), replacement, options)
+    ): UpdateResult = replaceOne(toBson(filter), replacement, options)
 
     /**
      * Replace a document in the collection according to the specified arguments.
@@ -1333,7 +1339,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         filter: String,
         update: String,
         options: UpdateOptions = UpdateOptions()
-    ): UpdateResult = updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options)
+    ): UpdateResult = updateOne(toBson(filter), toBson(update), options)
 
     /**
      * Update a single document in the collection according to the specified arguments.
@@ -1353,8 +1359,8 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     ): UpdateResult =
         updateOne(
             clientSession,
-            KMongoUtil.toBson(filter),
-            KMongoUtil.toBson(update),
+            toBson(filter),
+            toBson(update),
             options
         )
 
@@ -1364,14 +1370,16 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param filter   a document describing the query filter
      * @param update   the update object
      * @param options  the options to apply to the update operation
+     * @param updateOnlyNotNullProperties if true do not change null properties
      *
      * @return the result of the update one operation
      */
     suspend fun updateOne(
         filter: String,
         update: Any,
-        options: UpdateOptions = UpdateOptions()
-    ): UpdateResult = updateOne(KMongoUtil.toBson(filter), KMongoUtil.setModifier(update), options)
+        options: UpdateOptions = UpdateOptions(),
+        updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+    ): UpdateResult = updateOne(toBson(filter), setModifier(update, updateOnlyNotNullProperties), options)
 
     /**
      * Update a single document in the collection according to the specified arguments.
@@ -1380,6 +1388,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param filter   a document describing the query filter
      * @param update   the update object
      * @param options  the options to apply to the update operation
+     * @param updateOnlyNotNullProperties if true do not change null properties
      *
      * @return the result of the update one operation
      */
@@ -1387,11 +1396,12 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         clientSession: ClientSession,
         filter: String,
         update: Any,
-        options: UpdateOptions = UpdateOptions()
+        options: UpdateOptions = UpdateOptions(),
+        updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
     ): UpdateResult = updateOne(
         clientSession,
-        KMongoUtil.toBson(filter),
-        KMongoUtil.setModifier(update),
+        toBson(filter),
+        setModifier(update, updateOnlyNotNullProperties),
         options
     )
 
@@ -1401,14 +1411,16 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param filter   a document describing the query filter
      * @param target  the update object - must have an non null id
      * @param options  the options to apply to the update operation
+     * @param updateOnlyNotNullProperties if true do not change null properties
      *
      * @return the result of the update one operation
      */
     suspend fun updateOne(
         filter: Bson,
         target: T,
-        options: UpdateOptions = UpdateOptions()
-    ): UpdateResult = updateOne(filter, KMongoUtil.toBsonModifier(target), options)
+        options: UpdateOptions = UpdateOptions(),
+        updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+    ): UpdateResult = updateOne(filter, toBsonModifier(target, updateOnlyNotNullProperties), options)
 
     /**
      * Update a single document in the collection according to the specified arguments.
@@ -1417,6 +1429,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param filter   a document describing the query filter
      * @param target  the update object - must have an non null id
      * @param options  the options to apply to the update operation
+     * @param updateOnlyNotNullProperties if true do not change null properties
      *
      * @return the result of the update one operation
      */
@@ -1424,8 +1437,10 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         clientSession: ClientSession,
         filter: Bson,
         target: T,
-        options: UpdateOptions = UpdateOptions()
-    ): UpdateResult = updateOne(clientSession, filter, KMongoUtil.toBsonModifier(target), options)
+        options: UpdateOptions = UpdateOptions(),
+        updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+    ): UpdateResult =
+        updateOne(clientSession, filter, toBsonModifier(target, updateOnlyNotNullProperties), options)
 
     /**
      * Update a single document in the collection according to the specified arguments.
@@ -1433,17 +1448,19 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param id        the object id
      * @param update    the update object
      * @param options  the options to apply to the update operation
+     * @param updateOnlyNotNullProperties if true do not change null properties
      *
      * @return the result of the update one operation
      */
     suspend fun updateOneById(
         id: Any,
         update: Any,
-        options: UpdateOptions = UpdateOptions()
+        options: UpdateOptions = UpdateOptions(),
+        updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
     ): UpdateResult =
         updateOne(
-            KMongoUtil.idFilterQuery(id),
-            KMongoUtil.toBsonModifier(update),
+            idFilterQuery(id),
+            toBsonModifier(update, updateOnlyNotNullProperties),
             options
         )
 
@@ -1454,6 +1471,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param id        the object id
      * @param update    the update object
      * @param options  the options to apply to the update operation
+     * @param updateOnlyNotNullProperties if true do not change null properties
      *
      * @return the result of the update one operation
      */
@@ -1461,12 +1479,13 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         clientSession: ClientSession,
         id: Any,
         update: Any,
-        options: UpdateOptions = UpdateOptions()
+        options: UpdateOptions = UpdateOptions(),
+        updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
     ): UpdateResult =
         updateOne(
             clientSession,
-            KMongoUtil.idFilterQuery(id),
-            KMongoUtil.toBsonModifier(update),
+            idFilterQuery(id),
+            toBsonModifier(update, updateOnlyNotNullProperties),
             options
         )
 
@@ -1483,7 +1502,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         filter: String,
         update: String,
         updateOptions: UpdateOptions = UpdateOptions()
-    ): UpdateResult = updateMany(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), updateOptions)
+    ): UpdateResult = updateMany(toBson(filter), toBson(update), updateOptions)
 
     /**
      * Update all documents in the collection according to the specified arguments.
@@ -1503,8 +1522,8 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     ): UpdateResult =
         updateMany(
             clientSession,
-            KMongoUtil.toBson(filter),
-            KMongoUtil.toBson(update),
+            toBson(filter),
+            toBson(update),
             updateOptions
         )
 
@@ -1551,7 +1570,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     suspend fun findOneAndDelete(
         filter: String,
         options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
-    ): T? = findOneAndDelete(KMongoUtil.toBson(filter), options)
+    ): T? = findOneAndDelete(toBson(filter), options)
 
     /**
      * Atomically find a document and remove it.
@@ -1566,7 +1585,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         clientSession: ClientSession,
         filter: String,
         options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
-    ): T? = findOneAndDelete(clientSession, KMongoUtil.toBson(filter), options)
+    ): T? = findOneAndDelete(clientSession, toBson(filter), options)
 
     /**
      * Atomically find a document and replace it.
@@ -1583,7 +1602,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         filter: String,
         replacement: T,
         options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
-    ): T? = findOneAndReplace(KMongoUtil.toBson(filter), replacement, options)
+    ): T? = findOneAndReplace(toBson(filter), replacement, options)
 
     /**
      * Atomically find a document and replace it.
@@ -1605,7 +1624,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     ): T? =
         findOneAndReplace(
             clientSession,
-            KMongoUtil.toBson(filter),
+            toBson(filter),
             replacement,
             options
         )
@@ -1625,7 +1644,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         filter: String,
         update: String,
         options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
-    ): T? = findOneAndUpdate(KMongoUtil.toBson(filter), KMongoUtil.toBson(update), options)
+    ): T? = findOneAndUpdate(toBson(filter), toBson(update), options)
 
     /**
      * Atomically find a document and update it.
@@ -1647,8 +1666,8 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     ): T? =
         findOneAndUpdate(
             clientSession,
-            KMongoUtil.toBson(filter),
-            KMongoUtil.toBson(update),
+            toBson(filter),
+            toBson(update),
             options
         )
 
@@ -1662,7 +1681,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     suspend fun createIndex(
         key: String,
         options: IndexOptions = IndexOptions()
-    ): String = createIndex(KMongoUtil.toBson(key), options)
+    ): String = createIndex(toBson(key), options)
 
     /**
      * Create an index with the given keys and options.
@@ -1766,7 +1785,7 @@ suspend inline fun <reified T : Any> CoroutineCollection<T>.insertOne(
     options: InsertOneOptions = InsertOneOptions()
 ): Success =
     withDocumentClass<BsonDocument>().insertOne(
-        KMongoUtil.toBson(document, T::class),
+        toBson(document, T::class),
         options
     )
 
@@ -1784,7 +1803,7 @@ suspend inline fun <reified T : Any> CoroutineCollection<T>.insertOne(
 ): Success =
     withDocumentClass<BsonDocument>().insertOne(
         clientSession,
-        KMongoUtil.toBson(document, T::class),
+        toBson(document, T::class),
         options
     )
 
@@ -1799,7 +1818,7 @@ suspend inline fun <reified T : Any> CoroutineCollection<T>.insertOne(
 suspend inline fun <reified T : Any> CoroutineCollection<T>.replaceOne(
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): UpdateResult = replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement, options)
+): UpdateResult = replaceOneById(extractId(replacement, T::class), replacement, options)
 
 
 /**
@@ -1807,13 +1826,15 @@ suspend inline fun <reified T : Any> CoroutineCollection<T>.replaceOne(
  *
  * @param target  the update object - must have an non null id
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  *
  * @return the result of the update one operation
  */
 suspend inline fun <reified T : Any> CoroutineCollection<T>.updateOne(
     target: T,
-    options: UpdateOptions = UpdateOptions()
-): UpdateResult = updateOneById(KMongoUtil.extractId(target, T::class), target, options)
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+): UpdateResult = updateOneById(extractId(target, T::class), target, options, updateOnlyNotNullProperties)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -1821,15 +1842,23 @@ suspend inline fun <reified T : Any> CoroutineCollection<T>.updateOne(
  * @param clientSession  the client session with which to associate this operation
  * @param target  the update object - must have an non null id
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  *
  * @return the result of the update one operation
  */
 suspend inline fun <reified T : Any> CoroutineCollection<T>.updateOne(
     clientSession: ClientSession,
     target: T,
-    options: UpdateOptions = UpdateOptions()
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
 ): UpdateResult? {
-    return updateOneById(clientSession, KMongoUtil.extractId(target, T::class), target, options)
+    return updateOneById(
+        clientSession,
+        extractId(target, T::class),
+        target,
+        options,
+        updateOnlyNotNullProperties
+    )
 }
 
 

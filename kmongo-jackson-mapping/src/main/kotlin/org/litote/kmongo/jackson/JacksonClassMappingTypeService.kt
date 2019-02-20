@@ -145,13 +145,20 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
         return 100
     }
 
-    override fun filterIdToBson(obj: Any): BsonDocument {
+    override fun filterIdToBson(obj: Any, filterNullProperties: Boolean): BsonDocument {
         val idProperty = MongoIdUtil.findIdProperty(obj.javaClass.kotlin)
         return RawBsonDocument(
             if (idProperty == null) {
-                KMongoConfiguration.bsonMapper.writeValueAsBytes(obj)
+                (if (filterNullProperties) KMongoConfiguration.bsonMapperWithoutNullSerialization
+                else KMongoConfiguration.bsonMapper)
+                    .writeValueAsBytes(obj)
             } else {
-                filterIdWriter(obj, idProperty, KMongoConfiguration.filterIdBsonMapper)
+                filterIdWriter(
+                    obj,
+                    idProperty,
+                    (if (filterNullProperties) KMongoConfiguration.currentFilterIdBsonMapperWithoutNullSerialization
+                    else KMongoConfiguration.filterIdBsonMapper)
+                )
                     .writeValueAsBytes(obj)
             }
         )
@@ -161,9 +168,14 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
         return KMongoConfiguration.extendedJsonMapper.writeValueAsString(obj)
     }
 
-    private fun filterIdWriter(obj: Any, idProperty: KProperty1<*, *>, mapper: ObjectMapper): ObjectWriter {
+    private fun filterIdWriter(
+        obj: Any,
+        idProperty: KProperty1<*, *>,
+        mapper: ObjectMapper
+    ): ObjectWriter {
         return mapper.writer(
             object : FilterProvider() {
+
                 override fun findFilter(filterId: Any): BeanPropertyFilter? {
                     throw UnsupportedOperationException()
                 }

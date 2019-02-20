@@ -30,7 +30,7 @@ class MockedClassMappingTypeService : ClassMappingTypeService {
         return 1000
     }
 
-    override fun filterIdToBson(obj: Any): BsonDocument = error("not implemented")
+    override fun filterIdToBson(obj: Any, filterNullProperties: Boolean): BsonDocument = error("not implemented")
 
     override fun toExtendedJson(obj: Any?): String = error("not implemented")
 
