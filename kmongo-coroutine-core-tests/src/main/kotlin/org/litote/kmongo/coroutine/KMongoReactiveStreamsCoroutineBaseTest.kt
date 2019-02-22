@@ -21,8 +21,8 @@ import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.NativeMappingCategory
-import org.litote.kmongo.model.Friend
 import org.litote.kmongo.reactivestreams.ReactiveStreamsFlapdoodleRule
+import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
 /**
@@ -45,6 +45,7 @@ open class KMongoReactiveStreamsCoroutineBaseTest<T : Any> : KMongoRootTest() {
     inline fun <reified T : Any> getCollection(): CoroutineCollection<T> = rule.getCollection<T>().coroutine
 
     @Suppress("UNCHECKED_CAST")
-    open fun getDefaultCollectionClass(): KClass<T> = Friend::class as KClass<T>
+    open fun getDefaultCollectionClass(): KClass<T> =
+        ((this::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<T>).kotlin
 
 }

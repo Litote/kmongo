@@ -24,41 +24,53 @@ import kotlin.reflect.full.companionObjectInstance
 /**
  *
  */
-internal class KotlinInstanceCreator<T : Any>(val kClass: KClass<T>, val instantiator: KFunction<*>) : InstanceCreator<T> {
+internal class KotlinInstanceCreator<T : Any>(val kClass: KClass<T>, val instantiator: KFunction<*>) :
+    InstanceCreator<T> {
 
-    private val properties: MutableMap<String, Any?> = mutableMapOf()
+    private val properties: MutableMap<String, Pair<Any?, PropertyModel<Any>>> = mutableMapOf()
 
     override fun <S : Any?> set(value: S, propertyModel: PropertyModel<S>) {
-        properties[propertyModel.name] = value
+        @Suppress("UNCHECKED_CAST")
+        properties[propertyModel.name] = value to propertyModel as PropertyModel<Any>
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun getInstance(): T {
         val params = instantiator
-                .parameters
-                .mapNotNull { paramDef ->
-                    if (paramDef.kind == KParameter.Kind.INSTANCE) {
-                        paramDef to kClass.companionObjectInstance
-                    } else {
-                        val name = paramDef.name
-                        val value = properties[name]
-                        val isMissing = !properties.containsKey(name)
+            .parameters
+            .asSequence()
+            .mapNotNull { paramDef ->
+                if (paramDef.kind == KParameter.Kind.INSTANCE) {
+                    paramDef to kClass.companionObjectInstance
+                } else {
+                    val name = paramDef.name
+                    val pair = properties.remove(name)
 
-                        if (isMissing && paramDef.isOptional) {
-                            null
-                        } else {
-                            if (value == null && !paramDef.type.isMarkedNullable) {
-                                throw MissingKotlinParameterException(
-                                        "Instantiation of $kClass value failed for property $name due to missing (therefore NULL) value for creator parameter $name which is a non-nullable type"
-                                )
-                            }
-                            paramDef to value
+                    if (pair == null && paramDef.isOptional) {
+                        null
+                    } else {
+                        val value = pair?.first
+                        if (value == null && !paramDef.type.isMarkedNullable) {
+                            throw MissingKotlinParameterException(
+                                "Instantiation of $kClass value failed for property $name due to missing (therefore NULL) value for creator parameter $name which is a non-nullable type"
+                            )
                         }
+                        paramDef to value
                     }
                 }
-                .toMap()
+            }
+            .toMap()
 
-        return instantiator.callBy(params) as T
+        @Suppress("UNCHECKED_CAST")
+        val result = instantiator.callBy(params) as T
+
+        //now try to set remaining properties
+        properties.values.forEach { (v, model) ->
+            if (model.isWritable) {
+                model.propertyAccessor.set(result, v)
+            }
+        }
+
+        return result
     }
 
 }
