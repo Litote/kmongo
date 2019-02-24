@@ -91,7 +91,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
                     )
                 jsonWriter.writeEndDocument()
                 writer.toString().run {
-                    substring("{ \"tmp\" :".length, length - "}".length).trim()
+                    substring("{ \"tmp\":".length, length - "}".length).trim()
                 }
             }
         }
