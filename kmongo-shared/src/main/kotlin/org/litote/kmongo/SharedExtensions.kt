@@ -19,6 +19,7 @@ package org.litote.kmongo
 import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
 import org.bson.BsonDocument
+import org.bson.Document
 import org.litote.kmongo.util.KMongoUtil
 
 /**
@@ -50,3 +51,18 @@ val String.bson: BsonDocument
  * Format this string to remove space(s) between $ and next char
  */
 fun String.formatJson(): String = KMongoUtil.formatJson(this)
+
+/**
+ * Find the value for the specified path from the document.
+ */
+fun <T> Document.findValue(path: String): T? {
+    val paths = path.split(".")
+    var d = this
+    if (paths.size > 1) {
+        for (s in paths.take(paths.size - 1)) {
+            d = d[s] as Document
+        }
+    }
+    @Suppress("UNCHECKED_CAST")
+    return d[paths.last()] as T?
+}
