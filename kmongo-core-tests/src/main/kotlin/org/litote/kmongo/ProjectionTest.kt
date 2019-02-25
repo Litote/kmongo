@@ -27,11 +27,6 @@ import kotlin.test.assertEquals
  */
 class ProjectionTest : AllCategoriesKMongoBaseTest<Friend>() {
 
-    //TODO
-    //projectionWithoutId
-    //Document extension methods
-    //singleProjection
-
     data class FriendWithNameOnly(val name: String)
 
     @Test

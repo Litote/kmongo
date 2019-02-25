@@ -252,9 +252,49 @@ col.distinct(Friend::address)
 ### projection
 
 You can use [```MongoCollection.projection```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-mongo-collection/projection.html)
-functions in order to retrieve only one, two or three fields.
+extension functions in order to retrieve only one, two or three fields. This is a "kmongo sync driver only feature" for now:
 
-If you need to retreive more than three fields, use a dedicated class with [```FindIterable.projection```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-find-iterable/projection.html) functions.
+```kotlin
+col.bulkWrite(
+    insertOne(Friend("Joe")),
+    insertOne(Friend("Bob"))
+    )
+val result: List<String?> = col.projection(Friend::name).toList()
+```
+
+If you need to retrieve more than three fields - or if you don't use the sync driver - you have two options:
+ 
+- Use a custom dedicated class with [```FindIterable.projection```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-find-iterable/projection.html) functions.
+- Use projection with org.bson.Document and use `findValue` extension function:
+
+```kotlin
+col.insertOne(Friend("Joe", Coordinate(1, 2)))
+val (name, lat, lng) =
+   col.withDocumentClass<Document>()
+       .find()
+       .descendingSort(Friend::name)
+       .projection(
+           fields(
+               include(
+                   Friend::name,
+                   Friend::coordinate / Coordinate::lat,
+                   Friend::coordinate / Coordinate::lng
+               ), 
+               excludeId()
+           )
+       )
+       .map {
+           Triple(
+               //classic Document.getString method  
+               it.getString("name"),
+               //get two levels property value
+               it.findValue<Int>("coordinate.lat"),
+               //use typed values
+               it.findValue(Friend::coordinate / Coordinate::lng)
+           )
+       }
+       .first()!!    
+```
 
 
 ## Map-Reduce
