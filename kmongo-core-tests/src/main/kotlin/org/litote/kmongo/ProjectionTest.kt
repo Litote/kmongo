@@ -19,7 +19,6 @@ package org.litote.kmongo
 import org.bson.Document
 import org.litote.kmongo.model.Coordinate
 import org.litote.kmongo.model.Friend
-import org.litote.kmongo.util.SingleProjection
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -53,6 +52,36 @@ class ProjectionTest : AllCategoriesKMongoBaseTest<Friend>() {
             listOf("Joe", "Bob"),
             result
         )
+    }
+
+    @Test
+    fun `multi fields projection works as expected`() {
+        col.insertOne(Friend("Joe", Coordinate(1, 2)))
+        val (name, lat, lng) =
+            col.withDocumentClass<Document>()
+                .find()
+                .descendingSort(Friend::name)
+                .projection(
+                    fields(
+                        include(
+                            Friend::name,
+                            Friend::coordinate / Coordinate::lat,
+                            Friend::coordinate / Coordinate::lng
+                        ), excludeId()
+                    )
+                )
+                .map {
+                    Triple(
+                        it.getString("name"),
+                        it.findValue<Int>("coordinate.lat"),
+                        it.findValue(Friend::coordinate / Coordinate::lng)
+                    )
+                }
+                .first()!!
+
+        assertEquals("Joe", name)
+        assertEquals(1, lat)
+        assertEquals(2, lng)
     }
 
     @Test
@@ -102,6 +131,17 @@ class ProjectionTest : AllCategoriesKMongoBaseTest<Friend>() {
     }
 
     @Test
+    fun `single multi fields projection is ok`() {
+        col.insertOne(Friend("Joe", Coordinate(2, 2)))
+        val result: Int? = col.projection(Friend::coordinate / Coordinate::lat).first()
+
+        assertEquals(
+            2,
+            result
+        )
+    }
+
+    @Test
     fun `pair projection is ok`() {
         col.bulkWrite(
             insertOne(Friend("Joe", coordinate = Coordinate(1, 2))),
@@ -114,6 +154,18 @@ class ProjectionTest : AllCategoriesKMongoBaseTest<Friend>() {
             "Joe" to Coordinate(1, 2),
             result
         )
+    }
+
+    @Test
+    fun `pair multi fields projection is ok`() {
+        col.insertOne(Friend("Joe", Coordinate(1, 2)))
+        val (lat, lng) = col.projection(
+            Friend::coordinate / Coordinate::lat,
+            Friend::coordinate / Coordinate::lng
+        ).first()!!
+
+        assertEquals(1, lat)
+        assertEquals(2, lng)
     }
 
     @Test

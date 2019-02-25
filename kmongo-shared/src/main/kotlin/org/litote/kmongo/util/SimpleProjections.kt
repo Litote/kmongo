@@ -17,12 +17,14 @@
 package org.litote.kmongo.util
 
 import org.bson.BsonReader
+import org.bson.BsonType
 import org.bson.BsonWriter
 import org.bson.codecs.Codec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
+import kotlin.reflect.KClass
 
 /**
  * Single projection (one field only).
@@ -39,12 +41,17 @@ class PairProjection<F1, F2>(val field1: F1?, val field2: F2?)
  */
 class TripleProjection<F1, F2, F3>(val field1: F1?, val field2: F2?, val field3: F3?)
 
+private class PathMap : LinkedHashMap<String, Any>()
+
 /**
  * This method is not part of the public API and may be removed or changed at any time.
  */
-inline fun <reified T> singleProjectionCodecRegistry(
+fun singleProjectionCodecRegistry(
+    property: String,
+    propertyClass: KClass<*>,
     baseRegistry: CodecRegistry
 ): CodecRegistry {
+    val pathMap = getMapPath(property to propertyClass)
     return CodecRegistries.fromRegistries(
         CodecRegistries.fromCodecs(
             object : Codec<SingleProjection<*>> {
@@ -59,12 +66,15 @@ inline fun <reified T> singleProjectionCodecRegistry(
                 }
 
                 override fun decode(reader: BsonReader, decoderContext: DecoderContext): SingleProjection<*> {
-                    reader.readStartDocument()
-                    reader.readName()
-                    val codec = baseRegistry.get(T::class.java)
-                    val r = codec.decode(reader, decoderContext)
-                    reader.readEndDocument()
-                    return SingleProjection(r)
+                    val result: MutableMap<String, Any> = mutableMapOf()
+                    reader.decode(
+                        pathMap,
+                        "",
+                        decoderContext,
+                        baseRegistry,
+                        result
+                    )
+                    return SingleProjection(result[property])
                 }
             }
         ),
@@ -75,11 +85,14 @@ inline fun <reified T> singleProjectionCodecRegistry(
 /**
  * This method is not part of the public API and may be removed or changed at any time.
  */
-inline fun <reified T1, reified T2> pairProjectionCodecRegistry(
+fun pairProjectionCodecRegistry(
     property1: String,
+    property1Class: KClass<*>,
     property2: String,
+    property2Class: KClass<*>,
     baseRegistry: CodecRegistry
 ): CodecRegistry {
+    val pathMap = getMapPath(property1 to property1Class, property2 to property2Class)
     return CodecRegistries.fromRegistries(
         CodecRegistries.fromCodecs(
             object : Codec<PairProjection<*, *>> {
@@ -94,26 +107,15 @@ inline fun <reified T1, reified T2> pairProjectionCodecRegistry(
                 }
 
                 override fun decode(reader: BsonReader, decoderContext: DecoderContext): PairProjection<*, *> {
-                    reader.readStartDocument()
-                    var r1: T1? = null
-                    var r2: T2? = null
-                    try {
-                        while (r1 == null || r2 == null)
-                            when (reader.readName()) {
-                                property1 -> {
-                                    val codec1 = baseRegistry.get(T1::class.java)
-                                    r1 = codec1.decode(reader, decoderContext)
-                                }
-                                property2 -> {
-                                    val codec2 = baseRegistry.get(T2::class.java)
-                                    r2 = codec2.decode(reader, decoderContext)
-                                }
-                            }
-                    } catch (e: Exception) {
-                        //ignore
-                    }
-                    reader.readEndDocument()
-                    return PairProjection(r1, r2)
+                    val result: MutableMap<String, Any> = mutableMapOf()
+                    reader.decode(
+                        pathMap,
+                        "",
+                        decoderContext,
+                        baseRegistry,
+                        result
+                    )
+                    return PairProjection(result[property1], result[property2])
                 }
             }
         ),
@@ -124,13 +126,16 @@ inline fun <reified T1, reified T2> pairProjectionCodecRegistry(
 /**
  * This method is not part of the public API and may be removed or changed at any time.
  */
-inline fun <reified T1, reified T2, reified T3> tripleProjectionCodecRegistry(
+fun tripleProjectionCodecRegistry(
     property1: String,
+    property1Class: KClass<*>,
     property2: String,
+    property2Class: KClass<*>,
     property3: String,
+    property3Class: KClass<*>,
     baseRegistry: CodecRegistry
 ): CodecRegistry {
-
+    val pathMap = getMapPath(property1 to property1Class, property2 to property2Class, property3 to property3Class)
     return CodecRegistries.fromRegistries(
         CodecRegistries.fromCodecs(
             object : Codec<TripleProjection<*, *, *>> {
@@ -145,34 +150,55 @@ inline fun <reified T1, reified T2, reified T3> tripleProjectionCodecRegistry(
                 }
 
                 override fun decode(reader: BsonReader, decoderContext: DecoderContext): TripleProjection<*, *, *> {
-                    reader.readStartDocument()
-                    var r1: T1? = null
-                    var r2: T2? = null
-                    var r3: T3? = null
-                    try {
-                        while (r1 == null || r2 == null || r3 == null)
-                            when (reader.readName()) {
-                                property1 -> {
-                                    val codec1 = baseRegistry.get(T1::class.java)
-                                    r1 = codec1.decode(reader, decoderContext)
-                                }
-                                property2 -> {
-                                    val codec2 = baseRegistry.get(T2::class.java)
-                                    r2 = codec2.decode(reader, decoderContext)
-                                }
-                                property3 -> {
-                                    val codec3 = baseRegistry.get(T3::class.java)
-                                    r3 = codec3.decode(reader, decoderContext)
-                                }
-                            }
-                    } catch (e: Exception) {
-                        //ignore
-                    }
-                    reader.readEndDocument()
-                    return TripleProjection(r1, r2, r3)
+                    val result: MutableMap<String, Any> = mutableMapOf()
+                    reader.decode(
+                        pathMap,
+                        "",
+                        decoderContext,
+                        baseRegistry,
+                        result
+                    )
+                    return TripleProjection(result[property1], result[property2], result[property3])
                 }
             }
         ),
         baseRegistry
     )
+}
+
+private fun getMapPath(vararg paths: Pair<String, KClass<*>>): PathMap {
+    val pathMap = PathMap()
+    paths.forEach { (p, k) ->
+        val split = p.split(".")
+        var m = pathMap
+        for (s in split.take(split.size - 1)) {
+            @Suppress("UNCHECKED_CAST")
+            m = m.getOrPut(s) { PathMap() } as PathMap
+        }
+        m[split.last()] = k
+
+    }
+    return pathMap
+}
+
+private fun BsonReader.decode(
+    pathMap: PathMap,
+    current: String,
+    decoderContext: DecoderContext,
+    registry: CodecRegistry,
+    result: MutableMap<String, Any>
+) {
+    readStartDocument()
+    while (readBsonType() != BsonType.END_OF_DOCUMENT) {
+        val n = readName()
+        val value = pathMap[n]
+        val newPath = if (current.isEmpty()) n else "$current.$n"
+        if (value is PathMap) {
+            decode(value, newPath, decoderContext, registry, result)
+        } else {
+            result[newPath] = registry.get((value as KClass<*>).java).decode(this, decoderContext)
+        }
+    }
+
+    readEndDocument()
 }

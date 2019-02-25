@@ -124,7 +124,8 @@ inline fun <reified T : Any, reified TResult> MongoCollection<T>.distinct(
  * @param filter the query filter
  * @return the find iterable interface
  */
-fun <T> MongoCollection<T>.find(filter: String = KMongoUtil.EMPTY_JSON): FindIterable<T> = find(KMongoUtil.toBson(filter))
+fun <T> MongoCollection<T>.find(filter: String = KMongoUtil.EMPTY_JSON): FindIterable<T> =
+    find(KMongoUtil.toBson(filter))
 
 /**
  * Finds all documents in the collection.
@@ -350,7 +351,8 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
     options: ReplaceOptions = ReplaceOptions()
 ): UpdateResult = withDocumentClass<BsonDocument>().replaceOne(
     KMongoUtil.idFilterQuery(id),
-    KMongoUtil.filterIdToBson(replacement), options)
+    KMongoUtil.filterIdToBson(replacement), options
+)
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -411,8 +413,10 @@ fun <T : Any> MongoCollection<T>.replaceOneWithFilter(
     filter: Bson,
     replacement: T,
     replaceOptions: ReplaceOptions = ReplaceOptions()
-): UpdateResult = withDocumentClass<BsonDocument>().replaceOne(filter,
-    KMongoUtil.filterIdToBson(replacement), replaceOptions)
+): UpdateResult = withDocumentClass<BsonDocument>().replaceOne(
+    filter,
+    KMongoUtil.filterIdToBson(replacement), replaceOptions
+)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -452,7 +456,8 @@ fun <T> MongoCollection<T>.updateOne(
     update: Any,
     options: UpdateOptions = UpdateOptions(),
     updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
-): UpdateResult = updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBsonModifier(update, updateOnlyNotNullProperties), options)
+): UpdateResult =
+    updateOne(KMongoUtil.toBson(filter), KMongoUtil.toBsonModifier(update, updateOnlyNotNullProperties), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -530,7 +535,8 @@ fun <T> MongoCollection<T>.updateOneById(
     id: Any,
     update: Any,
     options: UpdateOptions = UpdateOptions(),
-    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties): UpdateResult =
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+): UpdateResult =
     updateOne(KMongoUtil.idFilterQuery(id), KMongoUtil.toBsonModifier(update, updateOnlyNotNullProperties), options)
 
 /**
@@ -731,7 +737,6 @@ fun <T> MongoCollection<T>.dropIndex(keys: String) = dropIndexOfKeys(keys)
 fun <T> MongoCollection<T>.dropIndexOfKeys(json: String) = dropIndex(KMongoUtil.toBson(json))
 
 
-
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
  *
@@ -760,7 +765,6 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
 ): BulkWriteResult = bulkWrite(requests.toList(), options)
 
 
-
 /**
  * Returns the specified field for all matching documents.
  *
@@ -775,7 +779,7 @@ inline fun <T, reified F> MongoCollection<T>.projection(
     options: (FindIterable<SingleProjection<F>>) -> FindIterable<SingleProjection<F>> = { it }
 ): MongoIterable<F> =
     withDocumentClass<SingleProjection<F>>()
-        .withCodecRegistry(singleProjectionCodecRegistry<F>(codecRegistry))
+        .withCodecRegistry(singleProjectionCodecRegistry(property.path(), F::class, codecRegistry))
         .find(query)
         .let { options(it) }
         .projection(fields(excludeId(), include(property)))
@@ -797,7 +801,15 @@ inline fun <T, reified F1, reified F2> MongoCollection<T>.projection(
     options: (FindIterable<PairProjection<F1, F2>>) -> FindIterable<PairProjection<F1, F2>> = { it }
 ): MongoIterable<Pair<F1?, F2?>> =
     withDocumentClass<PairProjection<F1, F2>>()
-        .withCodecRegistry(pairProjectionCodecRegistry<F1, F2>(property1.path(), property2.path(), codecRegistry))
+        .withCodecRegistry(
+            pairProjectionCodecRegistry(
+                property1.path(),
+                F1::class,
+                property2.path(),
+                F2::class,
+                codecRegistry
+            )
+        )
         .find(query)
         .let { options(it) }
         .projection(fields(excludeId(), include(property1), include(property2)))
@@ -822,10 +834,13 @@ inline fun <T, reified F1, reified F2, reified F3> MongoCollection<T>.projection
 ): MongoIterable<Triple<F1?, F2?, F3?>> =
     withDocumentClass<TripleProjection<F1, F2, F3>>()
         .withCodecRegistry(
-            tripleProjectionCodecRegistry<F1, F2, F3>(
+            tripleProjectionCodecRegistry(
                 property1.path(),
+                F1::class,
                 property2.path(),
+                F2::class,
                 property3.path(),
+                F3::class,
                 codecRegistry
             )
         )

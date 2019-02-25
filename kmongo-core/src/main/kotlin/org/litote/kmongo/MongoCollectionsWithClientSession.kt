@@ -908,7 +908,7 @@ inline fun <T, reified F> MongoCollection<T>.projection(
     options: (FindIterable<SingleProjection<F>>) -> FindIterable<SingleProjection<F>> = { it }
 ): MongoIterable<F> =
     withDocumentClass<SingleProjection<F>>()
-        .withCodecRegistry(singleProjectionCodecRegistry<F>(codecRegistry))
+        .withCodecRegistry(singleProjectionCodecRegistry(property.path(), F::class, codecRegistry))
         .find(clientSession, query)
         .let { options(it) }
         .projection(fields(excludeId(), include(property)))
@@ -932,7 +932,15 @@ inline fun <T, reified F1, reified F2> MongoCollection<T>.projection(
     options: (FindIterable<PairProjection<F1, F2>>) -> FindIterable<PairProjection<F1, F2>> = { it }
 ): MongoIterable<Pair<F1?, F2?>> =
     withDocumentClass<PairProjection<F1, F2>>()
-        .withCodecRegistry(pairProjectionCodecRegistry<F1, F2>(property1.path(), property2.path(), codecRegistry))
+        .withCodecRegistry(
+            pairProjectionCodecRegistry(
+                property1.path(),
+                F1::class,
+                property2.path(),
+                F2::class,
+                codecRegistry
+            )
+        )
         .find(clientSession, query)
         .let { options(it) }
         .projection(fields(excludeId(), include(property1), include(property2)))
@@ -959,10 +967,13 @@ inline fun <T, reified F1, reified F2, reified F3> MongoCollection<T>.projection
 ): MongoIterable<Triple<F1?, F2?, F3?>> =
     withDocumentClass<TripleProjection<F1, F2, F3>>()
         .withCodecRegistry(
-            tripleProjectionCodecRegistry<F1, F2, F3>(
+            tripleProjectionCodecRegistry(
                 property1.path(),
+                F1::class,
                 property2.path(),
+                F2::class,
                 property3.path(),
+                F3::class,
                 codecRegistry
             )
         )
