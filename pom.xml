@@ -66,7 +66,7 @@
         <mongo.version>3.10.1</mongo.version>
         <mongo.base.version>3.9</mongo.base.version>
         <coroutine.version>1.1.1</coroutine.version>
-        <rxjava.version>2.2.6</rxjava.version>
+        <rxjava.version>2.2.7</rxjava.version>
         <rxkotlin.version>2.3.0</rxkotlin.version>
         <jackson.version>2.9.8</jackson.version>
         <jackson-module.version>2.9.8</jackson-module.version>
