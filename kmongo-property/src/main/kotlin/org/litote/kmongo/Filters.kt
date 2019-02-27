@@ -42,6 +42,11 @@ infix fun <T> KProperty<T>.eq(value: T): Bson = Filters.eq<T>(path(), value)
  * Creates a filter that matches all documents where the value of the property contains the specified value. Note that this doesn't
  * actually generate a $eq operator, as the query language doesn't require it.
  *
+ * Please be aware that although <TItem> can be an object, using this filter to find objects is extremely fragile.
+ * In particular, MongoDB only consider two documents equal if they have the same set of key/value pairs, in the same order.
+ *
+ * The elemMatch filter is a much better alternative for Object <TItem> values.
+ *
  * @param value     the value
  * @param <TItem>   the value type
  * @return the filter
