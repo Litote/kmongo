@@ -85,7 +85,7 @@ fun excludeId(): Bson = Projections.excludeId()
  * @return the projection
  * @mongodb.driver.manual reference/operator/projection/positional/#projection Project the first matching element ($ operator)
  */
-fun <T> KProperty<T>.elemMatch(): Bson = Projections.elemMatch(path())
+fun <T> KProperty<T>.elemMatchProj(): Bson = Projections.elemMatch(path())
 
 /**
  * Creates a projection that includes for the given property only the first element of the array value of that field that matches the given
@@ -95,7 +95,7 @@ fun <T> KProperty<T>.elemMatch(): Bson = Projections.elemMatch(path())
  * @return the projection
  * @mongodb.driver.manual reference/operator/projection/elemMatch elemMatch
  */
-fun <T> KProperty<T>.elemMatch(filter: Bson): Bson = Projections.elemMatch(path(), filter)
+fun <T> KProperty<T>.elemMatchProj(filter: Bson): Bson = Projections.elemMatch(path(), filter)
 
 /**
  * Creates a projection to the given property of the textScore, for use with text queries.
