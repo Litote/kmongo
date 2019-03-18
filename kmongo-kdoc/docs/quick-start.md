@@ -4,7 +4,7 @@
 
 Do you need to use the sync or the async driver?
 
-I you don't know, start with the sync driver and add this dependency to your project:
+If you don't know, start with the sync driver and add this dependency to your project:
 
 - with Maven
 
