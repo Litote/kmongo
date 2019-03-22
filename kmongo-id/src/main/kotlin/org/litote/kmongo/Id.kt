@@ -29,4 +29,12 @@ package org.litote.kmongo
  *
  * @param T the owner of the id
  */
-interface Id<T>
+
+interface Id<T> {
+
+    /**
+     * Cast Id<T> to Id<NewType>.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <NewType> cast(): Id<NewType> = this as Id<NewType>
+}
