@@ -44,8 +44,8 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
 
     private data class Result(
         @BsonId val title: String,
-        val averageYear: Double,
-        val count: Int,
+        val averageYear: Double = 0.0,
+        val count: Int = 0,
         val friends: List<Friend> = emptyList()
     )
 

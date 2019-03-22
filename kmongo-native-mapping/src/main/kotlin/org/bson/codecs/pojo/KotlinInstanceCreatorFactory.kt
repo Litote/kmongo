@@ -18,13 +18,14 @@ package org.bson.codecs.pojo
 
 import org.bson.codecs.pojo.KMongoConvention.Companion.getInstantiator
 import kotlin.reflect.KClass
+import kotlin.reflect.jvm.isAccessible
 
 /**
  *
  */
 internal class KotlinInstanceCreatorFactory<T : Any>(val kClass: KClass<T>) : InstanceCreatorFactory<T> {
 
-    private val instantiator = getInstantiator(kClass)
+    private val instantiator = getInstantiator(kClass)?.apply { isAccessible = true }
 
     override fun create(): InstanceCreator<T> {
         return KotlinInstanceCreator(kClass, instantiator ?: error("No instantiator found for $kClass"))
