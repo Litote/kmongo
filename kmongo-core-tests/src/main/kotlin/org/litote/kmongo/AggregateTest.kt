@@ -18,16 +18,19 @@ package org.litote.kmongo
 
 import com.mongodb.MongoCommandException
 import com.mongodb.client.MongoCollection
+import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.AggregateTest.Article
 import org.litote.kmongo.MongoOperator.and
+import org.litote.kmongo.MongoOperator.group
 import org.litote.kmongo.MongoOperator.limit
 import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.MongoOperator.project
+import org.litote.kmongo.MongoOperator.push
+import org.litote.kmongo.MongoOperator.sort
 import org.litote.kmongo.model.Friend
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -38,6 +41,13 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
 
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())
     }
+
+    private data class Result(
+        @BsonId val title: String,
+        val averageYear: Double,
+        val count: Int,
+        val friends: List<Friend> = emptyList()
+    )
 
     lateinit var friendCol: MongoCollection<Friend>
 
@@ -130,6 +140,23 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
         assertTrue(l4.all { it._id == null })
         assertTrue(l4.all { it.name != null })
         assertTrue(l4.all { it.address == null })
+    }
+
+    @Test
+    fun `use push in group`() {
+        val r = col.aggregate<Result>(
+            "{$match:{tags:'virus'}}",
+            "{$group:{_id:\"\$title\",friends:{$push:{name:\"\$author\"}}}}",
+            "{$sort:{title:-1}}"
+        )
+            .toList()
+        assertEquals(
+            2, r.size
+        )
+        assertEquals("Max Brooks", r[0].friends[0].name)
+        assertEquals("Kirsty Mckay", r[1].friends[0].name)
+        assertEquals("World War Z", r[0].title)
+        assertEquals("Zombie Panic", r[1].title)
     }
 
 

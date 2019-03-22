@@ -45,7 +45,12 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())
     }
 
-    data class Result(@BsonId val title: String, val averageYear: Double, val count: Int)
+    private data class Result(
+        @BsonId val title: String,
+        val averageYear: Double,
+        val count: Int,
+        val friends: List<Friend> = emptyList()
+    )
 
     lateinit var friendCol: MongoCollection<Friend>
 
@@ -181,5 +186,30 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
         assertTrue(l4.all { it._id == null })
         assertTrue(l4.all { it.name != null })
         assertTrue(l4.all { it.address == null })
+    }
+
+    @Test
+    fun `use push in group`() {
+        val r = col.aggregate<Result>(
+            match(
+                Article::tags contains "virus"
+            ),
+            group(
+                Article::title, Result::friends.push(Friend::name from Article::author)
+            ),
+            sort(
+                ascending(
+                    Result::title
+                )
+            )
+        )
+            .toList()
+        assertEquals(
+            2, r.size
+        )
+        assertEquals("Max Brooks", r[0].friends[0].name)
+        assertEquals("Kirsty Mckay", r[1].friends[0].name)
+        assertEquals("World War Z", r[0].title)
+        assertEquals("Zombie Panic", r[1].title)
     }
 }
