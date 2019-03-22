@@ -331,9 +331,11 @@ It works with shell query format, with [several limitations](mongo-shell-support
 col.aggregate<Article>("[{$match:{tags:'virus'}},{$limit:1}]").toList()
 ```
 
-But this is an area or type-safe style shines:
+But this is an area where type-safe style shines:
 
 ```kotlin
+data class Result(val title:String, val count:Int, val averageYear: Double)
+
 val r = col.aggregate<Result>(
             match(
                 Article::tags contains "virus"
