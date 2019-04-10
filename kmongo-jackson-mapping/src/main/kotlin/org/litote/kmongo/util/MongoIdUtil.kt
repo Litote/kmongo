@@ -28,11 +28,12 @@ import org.litote.kmongo.MongoId
 import org.litote.kmongo.util.MongoIdUtil.IdPropertyWrapper.Companion.NO_ID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
+import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.internal.ReflectProperties.lazySoft
 import kotlin.reflect.jvm.isAccessible
@@ -93,7 +94,7 @@ internal object MongoIdUtil {
 
     fun getAnnotatedMongoIdProperty(type: KClass<*>): KProperty1<*, *>? =
         try {
-            val parameter = type.primaryConstructor?.parameters?.firstOrNull { it.findAnnotation<BsonId>() != null }
+            val parameter = findPrimaryConstructorParameter(type)
             if (parameter != null) {
                 type.memberProperties.firstOrNull { it.name == parameter.name }
             } else {
@@ -103,6 +104,19 @@ internal object MongoIdUtil {
                             || p.findAnnotation<MongoId>() != null
                 }
             }
+        } catch (error: KotlinReflectionInternalError) {
+            //ignore
+            null
+        }
+
+    private fun findPrimaryConstructorParameter(type: KClass<*>): KParameter? =
+        try {
+            type.primaryConstructor?.parameters?.firstOrNull { it.findAnnotation<BsonId>() != null }
+                    ?: type.superclasses
+                        .asSequence()
+                        .map { findPrimaryConstructorParameter(it) }
+                        .filterNotNull()
+                        .firstOrNull()
         } catch (error: KotlinReflectionInternalError) {
             //ignore
             null
@@ -122,7 +136,7 @@ internal object MongoIdUtil {
             is Double -> BsonDouble(idValue)
             is Int -> BsonInt32(idValue)
             is Long -> BsonInt64(idValue)
-        //TODO direct mapping
+            //TODO direct mapping
             else -> KMongoUtil.toBson(KMongoUtil.toExtendedJson(idValue))
         }
     }
