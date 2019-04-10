@@ -528,7 +528,7 @@ infix fun <T> KProperty<T>.geoIntersects(geometry: Bson): Bson = Filters.geoInte
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/near/ $near
  */
-fun <T> KProperty<T>.near(geometry: Point, maxDistance: Double, minDistance: Double): Bson =
+fun <T> KProperty<T>.near(geometry: Point, maxDistance: Double? = null, minDistance: Double? = null): Bson =
     Filters.near(path(), geometry, maxDistance, minDistance)
 
 /**
@@ -540,7 +540,7 @@ fun <T> KProperty<T>.near(geometry: Point, maxDistance: Double, minDistance: Dou
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/near/ $near
  */
-fun <T> KProperty<T>.near(geometry: Bson, maxDistance: Double, minDistance: Double): Bson =
+fun <T> KProperty<T>.near(geometry: Bson, maxDistance: Double? = null, minDistance: Double? = null): Bson =
     Filters.near(path(), geometry, maxDistance, minDistance)
 
 /**
@@ -553,7 +553,7 @@ fun <T> KProperty<T>.near(geometry: Bson, maxDistance: Double, minDistance: Doub
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/near/ $near
  */
-fun <T> KProperty<T>.near(x: Double, y: Double, maxDistance: Double, minDistance: Double): Bson =
+fun <T> KProperty<T>.near(x: Double, y: Double, maxDistance: Double? = null, minDistance: Double? = null): Bson =
     Filters.near(path(), x, y, maxDistance, minDistance)
 
 /**
@@ -566,7 +566,7 @@ fun <T> KProperty<T>.near(x: Double, y: Double, maxDistance: Double, minDistance
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/near/ $near
  */
-fun <T> KProperty<T>.nearSphere(geometry: Bson, maxDistance: Double, minDistance: Double): Bson =
+fun <T> KProperty<T>.nearSphere(geometry: Bson, maxDistance: Double? = null, minDistance: Double? = null): Bson =
     Filters.nearSphere(path(), geometry, maxDistance, minDistance)
 
 /**
@@ -579,7 +579,7 @@ fun <T> KProperty<T>.nearSphere(geometry: Bson, maxDistance: Double, minDistance
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/near/ $near
  */
-fun <T> KProperty<T>.nearSphere(geometry: Point, maxDistance: Double, minDistance: Double): Bson =
+fun <T> KProperty<T>.nearSphere(geometry: Point, maxDistance: Double? = null, minDistance: Double? = null): Bson =
     Filters.nearSphere(path(), geometry, maxDistance, minDistance)
 
 /**
@@ -593,7 +593,7 @@ fun <T> KProperty<T>.nearSphere(geometry: Point, maxDistance: Double, minDistanc
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/near/ $near
  */
-fun <T> KProperty<T>.nearSphere(x: Double, y: Double, maxDistance: Double, minDistance: Double): Bson =
+fun <T> KProperty<T>.nearSphere(x: Double, y: Double, maxDistance: Double? = null, minDistance: Double? = null): Bson =
     Filters.nearSphere(path(), x, y, maxDistance, minDistance)
 
 /**
