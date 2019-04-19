@@ -27,6 +27,7 @@ import com.squareup.kotlinpoet.KModifier.OVERRIDE
 import com.squareup.kotlinpoet.KModifier.PRIVATE
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
@@ -117,7 +118,7 @@ class KMongoAnnotationProcessor : KGenerator() {
 
     private fun collectionSuperclass(element: AnnotatedClass): TypeName {
         val className = generatedClassName(element)
-        val sourceClassName = element.asClassName()
+        val classGenerified = element.generified
         val typeName = ClassName.bestGuess(className)
         val superMirrorClass = element.superclass
         return if (superMirrorClass is DeclaredType && superMirrorClass.toString() != "java.lang.Object") {
@@ -130,7 +131,7 @@ class KMongoAnnotationProcessor : KGenerator() {
             KCollectionPropertyPath::class.asClassName()
                 .parameterizedBy(
                     TypeVariableName("T"),
-                    sourceClassName.copy(nullable = true),
+                    classGenerified.copy(nullable = true),
                     typeName.parameterizedBy(TypeVariableName("T"))
                 )
         }
@@ -139,7 +140,7 @@ class KMongoAnnotationProcessor : KGenerator() {
     private fun collectionClassBuilder(element: AnnotatedClass): TypeSpec.Builder {
         val collectionSuperclass = collectionSuperclass(element)
         val className = generatedClassName(element)
-        val sourceClassName = element.asClassName()
+        val classGenerified = element.generified
         val typeName = ClassName.bestGuess(className)
         val colClass = ClassName.bestGuess("${className}Col")
         return TypeSpec.classBuilder(colClass)
@@ -164,7 +165,7 @@ class KMongoAnnotationProcessor : KGenerator() {
                         KProperty1::class.asClassName().parameterizedBy(
                             TypeVariableName("*"),
                             ClassName("kotlin.collections", "Collection").parameterizedBy(
-                                javaToKotlinType(sourceClassName)
+                                javaToKotlinType(classGenerified)
                             ).copy(nullable = true)
                         )
                     )
@@ -190,7 +191,7 @@ class KMongoAnnotationProcessor : KGenerator() {
 
     private fun mapSuperclass(element: AnnotatedClass): TypeName {
         val className = generatedClassName(element)
-        val sourceClassName = element.asClassName()
+        val classGenerified = element.generified
         val typeName = ClassName.bestGuess(className)
         val superMirrorClass = element.superclass
         return if (superMirrorClass is DeclaredType && superMirrorClass.toString() != "java.lang.Object") {
@@ -206,7 +207,7 @@ class KMongoAnnotationProcessor : KGenerator() {
             KMapPropertyPath::class.asClassName().parameterizedBy(
                 TypeVariableName("T"),
                 TypeVariableName("K"),
-                sourceClassName.copy(nullable = true),
+                classGenerified.copy(nullable = true),
                 typeName.parameterizedBy(TypeVariableName("T"))
             )
         }
@@ -215,7 +216,7 @@ class KMongoAnnotationProcessor : KGenerator() {
     private fun mapClassBuilder(element: AnnotatedClass): TypeSpec.Builder {
         val mapSuperclass = mapSuperclass(element)
         val className = generatedClassName(element)
-        val sourceClassName = element.asClassName()
+        val classGenerified = element.generified
         val typeName = ClassName.bestGuess(className)
         val mapClass = ClassName.bestGuess("${className}Map")
         return TypeSpec.classBuilder(mapClass)
@@ -242,7 +243,7 @@ class KMongoAnnotationProcessor : KGenerator() {
                             TypeVariableName("*"),
                             ClassName("kotlin.collections", "Map").parameterizedBy(
                                 TypeVariableName("K"),
-                                javaToKotlinType(sourceClassName)
+                                javaToKotlinType(classGenerified)
                             ).copy(nullable = true)
                         )
                     )
@@ -268,6 +269,8 @@ class KMongoAnnotationProcessor : KGenerator() {
 
     private fun process(element: AnnotatedClass, dataClasses: AnnotatedClassSet) {
         val sourceClassName = element.asClassName()
+        val classGenerified = element.generified
+
         val className = generatedClassName(element)
         val fileBuilder = FileSpec.builder(element.getPackage(), className)
 
@@ -282,7 +285,7 @@ class KMongoAnnotationProcessor : KGenerator() {
             } else {
                 KPropertyPath::class.asClassName().parameterizedBy(
                     TypeVariableName("T"),
-                    sourceClassName.copy(nullable = true)
+                    classGenerified.copy(nullable = true)
                 )
             }
 
@@ -307,7 +310,7 @@ class KMongoAnnotationProcessor : KGenerator() {
                         "property",
                         KProperty1::class.asClassName().parameterizedBy(
                             TypeVariableName("*"),
-                            sourceClassName.copy(nullable = true)
+                            classGenerified.copy(nullable = true)
                         )
                     )
                     .build()
@@ -571,5 +574,11 @@ class KMongoAnnotationProcessor : KGenerator() {
         }
     }
 
+    private val AnnotatedClass.generified: TypeName
+        get() =
+            if (typeParameters.isEmpty()) asClassName()
+            else asClassName().parameterizedBy(
+                *element.typeParameters.map { STAR }.toTypedArray()
+            )
 
 }
