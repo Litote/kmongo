@@ -369,32 +369,56 @@ class KMongoAnnotationProcessor : KGenerator() {
                 else if (annotatedMap) enclosedValueMapPackage(type)
                 else env.elementUtils.getPackageOf(returnType).qualifiedName.toString()
 
-            fun propertyClass(start: Boolean): TypeName {
+            fun propertyClass(start: Boolean, withGeneric: Boolean = true): TypeName {
                 val sourceClass = if (start) sourceClassName else TypeVariableName("T")
                 return if (annotated) {
                     ClassName(
                         packageOfReturnType,
                         generatedClassProperty(type, annotatedCollection, annotatedMap)
-                    ).parameterizedBy(
-                        *listOfNotNull(sourceClass, mapKeyClass(type, annotatedMap)).toTypedArray()
-                    )
+                    ).run {
+                        if (withGeneric) {
+                            parameterizedBy(
+                                *listOfNotNull(sourceClass, mapKeyClass(type, annotatedMap)).toTypedArray()
+                            )
+                        } else {
+                            this
+                        }
+                    }
                 } else {
                     if (collection) {
-                        KCollectionSimplePropertyPath::class.asClassName().parameterizedBy(
-                            sourceClass,
-                            e.typeArgument()!!.copy(nullable = true)
-                        )
+                        KCollectionSimplePropertyPath::class.asClassName().run {
+                            if (withGeneric) {
+                                parameterizedBy(
+                                    sourceClass,
+                                    e.typeArgument()!!.copy(nullable = true)
+                                )
+                            } else {
+                                this
+                            }
+                        }
                     } else if (map) {
-                        KMapSimplePropertyPath::class.asClassName().parameterizedBy(
-                            sourceClass,
-                            e.typeArgument()!!.copy(nullable = true),
-                            e.typeArgument(1)!!.copy(nullable = true)
-                        )
+                        KMapSimplePropertyPath::class.asClassName().run {
+                            if (withGeneric) {
+                                parameterizedBy(
+                                    sourceClass,
+                                    e.typeArgument()!!.copy(nullable = true),
+                                    e.typeArgument(1)!!.copy(nullable = true)
+                                )
+                            } else {
+                                this
+                            }
+                        }
                     } else {
-                        (if (start) KProperty1::class.asClassName() else KPropertyPath::class.asClassName()).parameterizedBy(
-                            sourceClass,
-                            propertyType.copy(nullable = true)
-                        )
+                        (if (start) KProperty1::class.asClassName() else KPropertyPath::class.asClassName()).run {
+                            if (withGeneric) {
+                                parameterizedBy(
+                                    sourceClass,
+                                    propertyType.copy(nullable = true)
+                                )
+                            } else {
+                                this
+                            }
+                        }
                     }
                 }
             }
@@ -493,7 +517,7 @@ class KMongoAnnotationProcessor : KGenerator() {
                             if (annotated) {
                                 addCode(
                                     "return %T(null,%L)",
-                                    propertyClass(true),
+                                    propertyClass(true, false),
                                     propertyReference(true, propertyDef)
                                 )
                             } else {
@@ -504,9 +528,8 @@ class KMongoAnnotationProcessor : KGenerator() {
                     .build()
             )
 
-            val classPropertyClass: TypeName = propertyClass(false)
             val property = PropertySpec
-                .builder(generatedFieldName(e), classPropertyClass)
+                .builder(generatedFieldName(e), propertyClass(false))
                 .mutable(false)
                 .getter(
                     FunSpec.getterBuilder().apply {
@@ -515,7 +538,7 @@ class KMongoAnnotationProcessor : KGenerator() {
                             if (annotated) {
                                 generatedClassProperty(type, annotatedCollection, annotatedMap)
                             } else {
-                                classPropertyClass
+                                propertyClass(false, false)
                             },
                             if (annotated || collection || map) propertyReference(false) else propertyDef
                         )

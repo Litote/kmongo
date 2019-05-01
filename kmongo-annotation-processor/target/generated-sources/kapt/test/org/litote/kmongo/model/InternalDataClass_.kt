@@ -15,7 +15,7 @@ private val __L: KProperty1<InternalDataClass, Long?>
 internal class InternalDataClass_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*,
         InternalDataClass?>) : KPropertyPath<T, InternalDataClass?>(previous,property) {
     val l: KPropertyPath<T, Long?>
-        get() = KPropertyPath<T, Long?>(this,__L)
+        get() = KPropertyPath(this,__L)
 
     companion object {
         val L: KProperty1<InternalDataClass, Long?>
@@ -26,7 +26,7 @@ internal class InternalDataClass_Col<T>(previous: KPropertyPath<T, *>?, property
         Collection<InternalDataClass>?>) : KCollectionPropertyPath<T, InternalDataClass?,
         InternalDataClass_<T>>(previous,property) {
     val l: KPropertyPath<T, Long?>
-        get() = KPropertyPath<T, Long?>(this,__L)
+        get() = KPropertyPath(this,__L)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): InternalDataClass_<T> =
@@ -36,7 +36,7 @@ internal class InternalDataClass_Map<T, K>(previous: KPropertyPath<T, *>?, prope
         Map<K, InternalDataClass>?>) : KMapPropertyPath<T, K, InternalDataClass?,
         InternalDataClass_<T>>(previous,property) {
     val l: KPropertyPath<T, Long?>
-        get() = KPropertyPath<T, Long?>(this,__L)
+        get() = KPropertyPath(this,__L)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): InternalDataClass_<T> =

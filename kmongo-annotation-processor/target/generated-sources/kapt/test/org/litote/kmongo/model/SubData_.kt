@@ -12,7 +12,7 @@ private val __S: KProperty1<SubData, String?>
 class SubData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, SubData?>) :
         TestData_<T>(previous,property) {
     val s: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__S)
+        get() = KPropertyPath(this,__S)
 
     companion object {
         val S: KProperty1<SubData, String?>
@@ -22,7 +22,7 @@ class SubData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, SubDat
 class SubData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Collection<SubData>?>)
         : TestData_Col<T>(previous,property) {
     val s: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__S)
+        get() = KPropertyPath(this,__S)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): SubData_<T> = SubData_(this,
@@ -31,7 +31,7 @@ class SubData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Col
 class SubData_Map<T, K>(previous: KPropertyPath<T, *>?, property: KProperty1<*, Map<K, SubData>?>) :
         TestData_Map<T, K>(previous,property) {
     val s: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__S)
+        get() = KPropertyPath(this,__S)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): SubData_<T> = SubData_(this,

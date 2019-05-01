@@ -15,7 +15,7 @@ private val __Price: KProperty1<SimpleReferenced2Data, Double?>
 class SimpleReferenced2Data_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*,
         SimpleReferenced2Data?>) : KPropertyPath<T, SimpleReferenced2Data?>(previous,property) {
     val price: KPropertyPath<T, Double?>
-        get() = KPropertyPath<T, Double?>(this,__Price)
+        get() = KPropertyPath(this,__Price)
 
     companion object {
         val Price: KProperty1<SimpleReferenced2Data, Double?>
@@ -26,7 +26,7 @@ class SimpleReferenced2Data_Col<T>(previous: KPropertyPath<T, *>?, property: KPr
         Collection<SimpleReferenced2Data>?>) : KCollectionPropertyPath<T, SimpleReferenced2Data?,
         SimpleReferenced2Data_<T>>(previous,property) {
     val price: KPropertyPath<T, Double?>
-        get() = KPropertyPath<T, Double?>(this,__Price)
+        get() = KPropertyPath(this,__Price)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): SimpleReferenced2Data_<T> =
@@ -36,7 +36,7 @@ class SimpleReferenced2Data_Map<T, K>(previous: KPropertyPath<T, *>?, property: 
         SimpleReferenced2Data>?>) : KMapPropertyPath<T, K, SimpleReferenced2Data?,
         SimpleReferenced2Data_<T>>(previous,property) {
     val price: KPropertyPath<T, Double?>
-        get() = KPropertyPath<T, Double?>(this,__Price)
+        get() = KPropertyPath(this,__Price)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): SimpleReferenced2Data_<T> =

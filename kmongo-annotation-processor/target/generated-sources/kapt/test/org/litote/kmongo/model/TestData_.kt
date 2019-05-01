@@ -52,41 +52,41 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
         get() = SimpleReferencedData_Col(this,TestData::set)
 
     val list: KCollectionSimplePropertyPath<T, List<Boolean>?>
-        get() = KCollectionSimplePropertyPath<T, List<Boolean>?>(this,TestData::list)
+        get() = KCollectionSimplePropertyPath(this,TestData::list)
 
     val name_: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__Name)
+        get() = KPropertyPath(this,__Name)
 
     val date: KPropertyPath<T, Date?>
-        get() = KPropertyPath<T, Date?>(this,__Date)
+        get() = KPropertyPath(this,__Date)
 
     val referenced: SimpleReferencedData_<T>
         get() = SimpleReferencedData_(this,TestData::referenced)
 
     val map: KMapSimplePropertyPath<T, Id<Locale>?, Set<String>?>
-        get() = KMapSimplePropertyPath<T, Id<Locale>?, Set<String>?>(this,TestData::map)
+        get() = KMapSimplePropertyPath(this,TestData::map)
 
     val map2: SimpleReferenced2Data_Map<T, Locale>
         get() = SimpleReferenced2Data_Map(this,TestData::map2)
 
     val nullableFloat: KPropertyPath<T, Float?>
-        get() = KPropertyPath<T, Float?>(this,__NullableFloat)
+        get() = KPropertyPath(this,__NullableFloat)
 
     val nullableBoolean: KPropertyPath<T, Boolean?>
-        get() = KPropertyPath<T, Boolean?>(this,__NullableBoolean)
+        get() = KPropertyPath(this,__NullableBoolean)
 
     val privateData: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__PrivateData)
+        get() = KPropertyPath(this,__PrivateData)
 
     val id: KPropertyPath<T, Id<*>?>
-        get() = KPropertyPath<T, Id<*>?>(this,__Id)
+        get() = KPropertyPath(this,__Id)
 
     val byteArray: KPropertyPath<T, ByteArray?>
-        get() = KPropertyPath<T, ByteArray?>(this,__ByteArray)
+        get() = KPropertyPath(this,__ByteArray)
 
     companion object {
         val Set: SimpleReferencedData_Col<TestData>
-            get() = SimpleReferencedData_Col<TestData>(null,__Set)
+            get() = SimpleReferencedData_Col(null,__Set)
         val List: KCollectionSimplePropertyPath<TestData, List<Boolean>?>
             get() = KCollectionSimplePropertyPath(null, __List)
         val Name: KProperty1<TestData, String?>
@@ -94,11 +94,11 @@ open class TestData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*, 
         val Date: KProperty1<TestData, Date?>
             get() = __Date
         val Referenced: SimpleReferencedData_<TestData>
-            get() = SimpleReferencedData_<TestData>(null,__Referenced)
+            get() = SimpleReferencedData_(null,__Referenced)
         val Map: KMapSimplePropertyPath<TestData, Id<Locale>?, Set<String>?>
             get() = KMapSimplePropertyPath(null, __Map)
         val Map2: SimpleReferenced2Data_Map<TestData, Locale>
-            get() = SimpleReferenced2Data_Map<TestData, Locale>(null,__Map2)
+            get() = SimpleReferenced2Data_Map(null,__Map2)
         val NullableFloat: KProperty1<TestData, Float?>
             get() = __NullableFloat
         val NullableBoolean: KProperty1<TestData, Boolean?>
@@ -118,37 +118,37 @@ open class TestData_Col<T>(previous: KPropertyPath<T, *>?, property: KProperty1<
         get() = SimpleReferencedData_Col(this,TestData::set)
 
     val list: KCollectionSimplePropertyPath<T, List<Boolean>?>
-        get() = KCollectionSimplePropertyPath<T, List<Boolean>?>(this,TestData::list)
+        get() = KCollectionSimplePropertyPath(this,TestData::list)
 
     val name_: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__Name)
+        get() = KPropertyPath(this,__Name)
 
     val date: KPropertyPath<T, Date?>
-        get() = KPropertyPath<T, Date?>(this,__Date)
+        get() = KPropertyPath(this,__Date)
 
     val referenced: SimpleReferencedData_<T>
         get() = SimpleReferencedData_(this,TestData::referenced)
 
     val map: KMapSimplePropertyPath<T, Id<Locale>?, Set<String>?>
-        get() = KMapSimplePropertyPath<T, Id<Locale>?, Set<String>?>(this,TestData::map)
+        get() = KMapSimplePropertyPath(this,TestData::map)
 
     val map2: SimpleReferenced2Data_Map<T, Locale>
         get() = SimpleReferenced2Data_Map(this,TestData::map2)
 
     val nullableFloat: KPropertyPath<T, Float?>
-        get() = KPropertyPath<T, Float?>(this,__NullableFloat)
+        get() = KPropertyPath(this,__NullableFloat)
 
     val nullableBoolean: KPropertyPath<T, Boolean?>
-        get() = KPropertyPath<T, Boolean?>(this,__NullableBoolean)
+        get() = KPropertyPath(this,__NullableBoolean)
 
     val privateData: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__PrivateData)
+        get() = KPropertyPath(this,__PrivateData)
 
     val id: KPropertyPath<T, Id<*>?>
-        get() = KPropertyPath<T, Id<*>?>(this,__Id)
+        get() = KPropertyPath(this,__Id)
 
     val byteArray: KPropertyPath<T, ByteArray?>
-        get() = KPropertyPath<T, ByteArray?>(this,__ByteArray)
+        get() = KPropertyPath(this,__ByteArray)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): TestData_<T> = TestData_(this,
@@ -160,37 +160,37 @@ open class TestData_Map<T, K>(previous: KPropertyPath<T, *>?, property: KPropert
         get() = SimpleReferencedData_Col(this,TestData::set)
 
     val list: KCollectionSimplePropertyPath<T, List<Boolean>?>
-        get() = KCollectionSimplePropertyPath<T, List<Boolean>?>(this,TestData::list)
+        get() = KCollectionSimplePropertyPath(this,TestData::list)
 
     val name_: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__Name)
+        get() = KPropertyPath(this,__Name)
 
     val date: KPropertyPath<T, Date?>
-        get() = KPropertyPath<T, Date?>(this,__Date)
+        get() = KPropertyPath(this,__Date)
 
     val referenced: SimpleReferencedData_<T>
         get() = SimpleReferencedData_(this,TestData::referenced)
 
     val map: KMapSimplePropertyPath<T, Id<Locale>?, Set<String>?>
-        get() = KMapSimplePropertyPath<T, Id<Locale>?, Set<String>?>(this,TestData::map)
+        get() = KMapSimplePropertyPath(this,TestData::map)
 
     val map2: SimpleReferenced2Data_Map<T, Locale>
         get() = SimpleReferenced2Data_Map(this,TestData::map2)
 
     val nullableFloat: KPropertyPath<T, Float?>
-        get() = KPropertyPath<T, Float?>(this,__NullableFloat)
+        get() = KPropertyPath(this,__NullableFloat)
 
     val nullableBoolean: KPropertyPath<T, Boolean?>
-        get() = KPropertyPath<T, Boolean?>(this,__NullableBoolean)
+        get() = KPropertyPath(this,__NullableBoolean)
 
     val privateData: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__PrivateData)
+        get() = KPropertyPath(this,__PrivateData)
 
     val id: KPropertyPath<T, Id<*>?>
-        get() = KPropertyPath<T, Id<*>?>(this,__Id)
+        get() = KPropertyPath(this,__Id)
 
     val byteArray: KPropertyPath<T, ByteArray?>
-        get() = KPropertyPath<T, ByteArray?>(this,__ByteArray)
+        get() = KPropertyPath(this,__ByteArray)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): TestData_<T> = TestData_(this,

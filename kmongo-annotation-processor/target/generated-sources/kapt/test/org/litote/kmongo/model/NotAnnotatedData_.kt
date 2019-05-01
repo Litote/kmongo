@@ -14,7 +14,7 @@ private val __Test: KProperty1<NotAnnotatedData, String?>
 open class NotAnnotatedData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*,
         NotAnnotatedData?>) : KPropertyPath<T, NotAnnotatedData?>(previous,property) {
     val test: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__Test)
+        get() = KPropertyPath(this,__Test)
 
     companion object {
         val Test: KProperty1<NotAnnotatedData, String?>
@@ -25,7 +25,7 @@ open class NotAnnotatedData_Col<T>(previous: KPropertyPath<T, *>?, property: KPr
         Collection<NotAnnotatedData>?>) : KCollectionPropertyPath<T, NotAnnotatedData?,
         NotAnnotatedData_<T>>(previous,property) {
     val test: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__Test)
+        get() = KPropertyPath(this,__Test)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): NotAnnotatedData_<T> =
@@ -35,7 +35,7 @@ open class NotAnnotatedData_Map<T, K>(previous: KPropertyPath<T, *>?, property: 
         NotAnnotatedData>?>) : KMapPropertyPath<T, K, NotAnnotatedData?,
         NotAnnotatedData_<T>>(previous,property) {
     val test: KPropertyPath<T, String?>
-        get() = KPropertyPath<T, String?>(this,__Test)
+        get() = KPropertyPath(this,__Test)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): NotAnnotatedData_<T> =

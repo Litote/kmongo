@@ -32,7 +32,7 @@ private val __Labels: KProperty1<SimpleReferencedData, Map<Locale, List<String>>
 class SimpleReferencedData_<T>(previous: KPropertyPath<T, *>?, property: KProperty1<*,
         SimpleReferencedData?>) : KPropertyPath<T, SimpleReferencedData?>(previous,property) {
     val version: KPropertyPath<T, Int?>
-        get() = KPropertyPath<T, Int?>(this,__Version)
+        get() = KPropertyPath(this,__Version)
 
     val pojo2: SimpleReferenced2Data_<T>
         get() =
@@ -46,17 +46,17 @@ class SimpleReferencedData_<T>(previous: KPropertyPath<T, *>?, property: KProper
                 SubData_(this,org.litote.kreflect.findProperty<SimpleReferencedData,SubData>("subPojo"))
 
     val labels: KMapSimplePropertyPath<T, Locale?, List<String>?>
-        get() = KMapSimplePropertyPath<T, Locale?, List<String>?>(this,SimpleReferencedData::labels)
+        get() = KMapSimplePropertyPath(this,SimpleReferencedData::labels)
 
     companion object {
         val Version: KProperty1<SimpleReferencedData, Int?>
             get() = __Version
         val Pojo2: SimpleReferenced2Data_<SimpleReferencedData>
-            get() = SimpleReferenced2Data_<SimpleReferencedData>(null,__Pojo2)
+            get() = SimpleReferenced2Data_(null,__Pojo2)
         val Pojo: TestData_<SimpleReferencedData>
-            get() = TestData_<SimpleReferencedData>(null,__Pojo)
+            get() = TestData_(null,__Pojo)
         val SubPojo: SubData_<SimpleReferencedData>
-            get() = SubData_<SimpleReferencedData>(null,__SubPojo)
+            get() = SubData_(null,__SubPojo)
         val Labels: KMapSimplePropertyPath<SimpleReferencedData, Locale?, List<String>?>
             get() = KMapSimplePropertyPath(null, __Labels)}
 }
@@ -65,7 +65,7 @@ class SimpleReferencedData_Col<T>(previous: KPropertyPath<T, *>?, property: KPro
         Collection<SimpleReferencedData>?>) : KCollectionPropertyPath<T, SimpleReferencedData?,
         SimpleReferencedData_<T>>(previous,property) {
     val version: KPropertyPath<T, Int?>
-        get() = KPropertyPath<T, Int?>(this,__Version)
+        get() = KPropertyPath(this,__Version)
 
     val pojo2: SimpleReferenced2Data_<T>
         get() =
@@ -79,7 +79,7 @@ class SimpleReferencedData_Col<T>(previous: KPropertyPath<T, *>?, property: KPro
                 SubData_(this,org.litote.kreflect.findProperty<SimpleReferencedData,SubData>("subPojo"))
 
     val labels: KMapSimplePropertyPath<T, Locale?, List<String>?>
-        get() = KMapSimplePropertyPath<T, Locale?, List<String>?>(this,SimpleReferencedData::labels)
+        get() = KMapSimplePropertyPath(this,SimpleReferencedData::labels)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): SimpleReferencedData_<T> =
@@ -89,7 +89,7 @@ class SimpleReferencedData_Map<T, K>(previous: KPropertyPath<T, *>?, property: K
         SimpleReferencedData>?>) : KMapPropertyPath<T, K, SimpleReferencedData?,
         SimpleReferencedData_<T>>(previous,property) {
     val version: KPropertyPath<T, Int?>
-        get() = KPropertyPath<T, Int?>(this,__Version)
+        get() = KPropertyPath(this,__Version)
 
     val pojo2: SimpleReferenced2Data_<T>
         get() =
@@ -103,7 +103,7 @@ class SimpleReferencedData_Map<T, K>(previous: KPropertyPath<T, *>?, property: K
                 SubData_(this,org.litote.kreflect.findProperty<SimpleReferencedData,SubData>("subPojo"))
 
     val labels: KMapSimplePropertyPath<T, Locale?, List<String>?>
-        get() = KMapSimplePropertyPath<T, Locale?, List<String>?>(this,SimpleReferencedData::labels)
+        get() = KMapSimplePropertyPath(this,SimpleReferencedData::labels)
 
     @Suppress("UNCHECKED_CAST")
     override fun memberWithAdditionalPath(additionalPath: String): SimpleReferencedData_<T> =
