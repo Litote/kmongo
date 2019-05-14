@@ -46,13 +46,20 @@ internal class KMongoBsonFactory : BsonFactory() {
 
         override fun writeObjectId(objectId: Any) {
             if (objectId !is ObjectId) {
-                error("$objectId has to be ${ObjectId::class}")
+                //generation with @JsonIdentityInfo - see https://github.com/Litote/kmongo/issues/135
+                if (objectId is String) {
+                    writeFieldName("_id")
+                    writeString(objectId)
+                } else {
+                    error("$objectId has to be ${ObjectId::class}")
+                }
+            } else {
+                _writeArrayFieldNameIfNeeded()
+                _verifyValueWrite("write object id")
+                _buffer.putByte(_typeMarker, BsonConstants.TYPE_OBJECTID)
+                objectId.toByteArray().forEach { _buffer.putByte(it) }
+                flushBuffer()
             }
-            _writeArrayFieldNameIfNeeded()
-            _verifyValueWrite("write object id")
-            _buffer.putByte(_typeMarker, BsonConstants.TYPE_OBJECTID)
-            objectId.toByteArray().forEach { _buffer.putByte(it) }
-            flushBuffer()
         }
 
         fun writeBinary(binary: Binary) {
