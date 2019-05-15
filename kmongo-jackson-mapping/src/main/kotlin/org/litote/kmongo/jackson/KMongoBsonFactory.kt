@@ -62,6 +62,14 @@ internal class KMongoBsonFactory : BsonFactory() {
             }
         }
 
+        override fun writeObjectRef(id: Any?) {
+            if (id is String) {
+                writeString(id)
+            } else {
+                super.writeObjectRef(id)
+            }
+        }
+
         fun writeBinary(binary: Binary) {
             _writeArrayFieldNameIfNeeded()
             _verifyValueWrite("write binary")
