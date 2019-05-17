@@ -33,7 +33,7 @@ operator fun <T0, T1, T2> KProperty1<T0, T1?>.div(p2: KProperty1<T1, T2?>): KPro
  * Returns a collection composed property. For example Friend.addresses / Address.postalCode = "addresses.postalCode".
  */
 @JvmName("divCol")
-operator fun <T0, T1, T2> KProperty1<T0, Collection<T1>?>.div(p2: KProperty1<T1, T2?>): KProperty1<T0, T2?> =
+operator fun <T0, T1, T2> KProperty1<T0, Iterable<T1>?>.div(p2: KProperty1<T1, T2?>): KProperty1<T0, T2?> =
     KPropertyPath(this, p2)
 
 /**
@@ -52,7 +52,7 @@ fun <T> KProperty<T>.path(): String =
 /**
  * Returns a collection property.
  */
-val <T> KProperty1<out Any?, Collection<T>>.colProperty: KCollectionSimplePropertyPath<out Any?, T>
+val <T> KProperty1<out Any?, Iterable<T>>.colProperty: KCollectionSimplePropertyPath<out Any?, T>
     get() = KCollectionSimplePropertyPath(null, this)
 
 

@@ -17,6 +17,7 @@
 package org.litote.kmongo
 
 import org.junit.Test
+import org.litote.kmongo.model.SimpleReferenced2Data
 import org.litote.kmongo.model.SubData2_
 import org.litote.kmongo.model.TestData_
 import org.litote.kmongo.model.other.SimpleReferencedData
@@ -73,7 +74,7 @@ class PathTest {
 
         //check compilation
         if (false)
-            (TestData_.Map2.keyProjection(Locale.ENGLISH) eq SimpleReferencedData()).json
+            (TestData_.Map2.keyProjection(Locale.ENGLISH) eq SimpleReferenced2Data()).json
 
         assertEquals(
             "set.$.labels.zh_CN",

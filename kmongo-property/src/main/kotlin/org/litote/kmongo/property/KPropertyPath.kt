@@ -140,8 +140,8 @@ open class KPropertyPath<T, R>(
  */
 open class KCollectionPropertyPath<T, R, MEMBER : KPropertyPath<T, R?>>(
     previous: KPropertyPath<T, *>?,
-    property: KProperty1<*, Collection<R>?>
-) : KPropertyPath<T, Collection<R>?>(previous, property) {
+    property: KProperty1<*, Iterable<R>?>
+) : KPropertyPath<T, Iterable<R>?>(previous, property) {
 
     /**
      * To be overridden to returns the right type.
@@ -178,7 +178,7 @@ open class KCollectionPropertyPath<T, R, MEMBER : KPropertyPath<T, R?>>(
  */
 class KCollectionSimplePropertyPath<T, R>(
     previous: KPropertyPath<T, *>?,
-    property: KProperty1<*, Collection<R>?>
+    property: KProperty1<*, Iterable<R>?>
 ) : KCollectionPropertyPath<T, R, KPropertyPath<T, R?>>(previous, property)
 
 /**
