@@ -35,7 +35,7 @@ import kotlin.reflect.KProperty
  * @param value     the value
  * @param <T>   the value type
  * @return the filter
- * @mongodb.driveDr.manual reference/operator/query/eq $eq
+ * @mongodb.driver.manual reference/operator/query/eq $eq
  */
 infix fun <@OnlyInputTypes T, V : T> KProperty<T?>.eq(value: V): Bson = Filters.eq(path(), value)
 
