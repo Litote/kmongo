@@ -37,7 +37,7 @@ import kotlin.reflect.KProperty
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/eq $eq
  */
-infix fun <@OnlyInputTypes T, V : T> KProperty<T?>.eq(value: V): Bson = Filters.eq(path(), value)
+infix fun <@OnlyInputTypes T> KProperty<T?>.eq(value: T): Bson = Filters.eq(path(), value)
 
 /**
  * Creates a filter that matches all documents where the value of the property contains the specified value. Note that this doesn't
