@@ -141,7 +141,10 @@ fun <T : Any> MongoIterable<T?>.requireNoNulls(): Iterable<T> =
  * @sample samples.collections.Sequences.Building.sequenceFromCollection
  */
 fun <T> MongoIterable<T>.asSequence(): Sequence<T> {
-    return toList().asSequence()
+    //lazy sequence
+    return object : Sequence<T> {
+        override fun iterator(): Iterator<T> = this@asSequence.toList().asSequence().iterator()
+    }
 }
 
 //common overrides ->
