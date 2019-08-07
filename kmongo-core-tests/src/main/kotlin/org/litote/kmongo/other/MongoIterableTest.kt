@@ -246,14 +246,19 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
 
 
     @Test
-    fun `asSequence closes the mongo cursor`() {
+    fun `asSequence closes the cursor when invoked`() {
         val john = Friend("John", "22 Wall Street Avenue")
         col.insertOne(john)
         val iterable = MongoIterableWrapper(col.find())
+        
         val sequence = iterable.asSequence()
-        assertTrue(iterable.cursor?.closed ?: false)
+        assertFalse(iterable.cursor?.closed ?: false)
 
-        assertEquals(john, sequence.filter { it.name != "Joe" }.last())
+        val sequence2 = sequence.filter { it.name != "Joe" }
+        assertFalse(iterable.cursor?.closed ?: false)
+
+        assertEquals(john, sequence2.last())
+        assertTrue(iterable.cursor?.closed ?: false)
     }
 
     @Test
