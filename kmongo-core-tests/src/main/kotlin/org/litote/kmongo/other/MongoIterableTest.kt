@@ -25,6 +25,7 @@ import com.mongodb.client.MongoIterable
 import com.mongodb.lang.Nullable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
+import org.litote.kmongo.evaluate
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -250,7 +251,7 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
         val john = Friend("John", "22 Wall Street Avenue")
         col.insertOne(john)
         val iterable = MongoIterableWrapper(col.find())
-        
+
         val sequence = iterable.asSequence()
         assertFalse(iterable.cursor?.closed ?: false)
 
@@ -258,6 +259,21 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
         assertFalse(iterable.cursor?.closed ?: false)
 
         assertEquals(john, sequence2.last())
+        assertTrue(iterable.cursor?.closed ?: false)
+    }
+
+    @Test
+    fun `evaluate closes the cursor when invoked`() {
+        val john = Friend("John", "22 Wall Street Avenue")
+        col.insertOne(john)
+        val iterable = MongoIterableWrapper(col.find())
+
+        assertEquals(
+            john,
+            iterable.evaluate {
+                filter { it.name != "Joe" }.last()
+            }
+        )
         assertTrue(iterable.cursor?.closed ?: false)
     }
 

@@ -26,3 +26,44 @@ import com.mongodb.client.MongoIterable
  */
 @Deprecated("use classic toList extension")
 fun <T> MongoIterable<T>.toList(): List<T> = into(mutableListOf<T>())
+
+private val NULL = Any()
+
+private class NullIterator<T>(val iterator: Iterator<T>) : Iterator<T?> by iterator {
+    override fun next(): T? = iterator.next()?.takeUnless { it === NULL }
+}
+
+private class NullHandlerSequence<T>(val sequence: Sequence<T>) : Sequence<T?> {
+
+    override fun iterator(): Iterator<T?> = NullIterator(sequence.iterator())
+}
+
+/**
+ * Evaluates the iterable given the [sequenceChain] of Sequences.
+ *
+ * The mongo cursor is closed before returning the result.
+ *
+ * ```
+ *   col.find().evaluate {
+ *     filter { it.name != "Joe" }.last()
+ *   }
+ * ```
+ */
+fun <T, R> MongoIterable<T>.evaluate(sequenceChain: Sequence<T>.() -> R): R {
+    @Suppress("UNCHECKED_CAST")
+    return iterator().run {
+        use {
+            sequenceChain(
+                NullHandlerSequence(
+                    generateSequence {
+                        if (hasNext()) {
+                            next() ?: NULL
+                        } else {
+                            null
+                        }
+                    }
+                ) as Sequence<T>
+            )
+        }
+    }
+}
