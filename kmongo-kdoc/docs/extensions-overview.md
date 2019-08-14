@@ -425,6 +425,25 @@ KMongo does not fix the "for" issue, but **does solve automatically memory leaks
 
 You have nothing to change in your code - just compile it with the KMongo dependency in the classpath! 
 
+### Use Sequences
+
+Unfortunately, The `MongoIterable.asSequence()` extension loads in memory all the documents returned by the query.
+This is because it's required to close the Mongo cursor in `asSequence()` method, in order to avoid a memory leak!
+
+KMongo provides an [evaluate](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-mongo-iterable/evaluate.html) method that allows to load only the needed rows in memory,
+and also ensures that the cursor is closed:
+
+```kotlin
+val notJoe = col.find().evaluate {
+  //this is a sequence evaluation 
+  //If the first row has a name like "Fred", only one row is loaded in memory!
+  filter { it.name != "Joe" }.first()
+ }    
+                                                                   
+//If col.find() returns 1M of documents, they are all loaded in memory!
+col.find().asSequence().filter { it.name != "Joe" }.first()
+``` 
+
 ## withKMongo
 
 The recommended method, in order to setup KMongo, is to use `KMongo.createClient()`

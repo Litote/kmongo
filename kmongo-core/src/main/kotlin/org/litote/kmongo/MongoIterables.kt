@@ -39,21 +39,24 @@ private class NullHandlerSequence<T>(val sequence: Sequence<T>) : Sequence<T?> {
 }
 
 /**
- * Evaluates the iterable given the [sequenceChain] of Sequences.
+ * Evaluates the current [MongoIterable] given the [expression] of Sequences.
  *
  * The mongo cursor is closed before returning the result.
  *
+ * Sample:
  * ```
  *   col.find().evaluate {
- *     filter { it.name != "Joe" }.last()
+ *      //this is a sequence evaluation
+ *      //If the first row has a name like "Fred", only one row is loaded in memory!
+ *      filter { it.name != "Joe" }.first()
  *   }
  * ```
  */
-fun <T, R> MongoIterable<T>.evaluate(sequenceChain: Sequence<T>.() -> R): R {
+fun <T, R> MongoIterable<T>.evaluate(expression: Sequence<T>.() -> R): R {
     @Suppress("UNCHECKED_CAST")
     return iterator().run {
         use {
-            sequenceChain(
+            expression(
                 NullHandlerSequence(
                     generateSequence {
                         if (hasNext()) {
