@@ -79,6 +79,10 @@ class MappingIterable<U, V>(val mapped: MongoIterable<U>, private val mapper: Fu
         return MongoMappingCursor(mapped.iterator(), mapper)
     }
 
+    override fun cursor(): MongoCursor<V> {
+        return iterator()
+    }
+
     @Nullable
     override fun first(): V? {
         val iterator = iterator()

@@ -111,6 +111,8 @@ private class MongoIndexingIterable<T>(
         return target.apply { addAll(iterable.into(l).mapIndexed { i, v -> IndexedValue(i, v) }) }
     }
 
+    override fun cursor(): MongoCursor<IndexedValue<T>> = iterator()
+
     override fun iterator(): MongoCursor<IndexedValue<T>> = MongoIndexingIterator(iterable.iterator())
 }
 
