@@ -459,6 +459,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${plugin.jar.version}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>kotlin/internal/*</exclude>
+                        </excludes>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
