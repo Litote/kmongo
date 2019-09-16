@@ -32,6 +32,12 @@ class FiltersTest {
     }
 
     @Test
+    fun `eq works with null`() {
+        //check this compile
+        T::s eq null
+    }
+
+    @Test
     fun `in works with a collection property`() {
         //check this compile
         T::s `in` setOf("test")

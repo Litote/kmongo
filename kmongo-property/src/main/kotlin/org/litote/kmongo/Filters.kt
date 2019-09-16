@@ -37,7 +37,7 @@ import kotlin.reflect.KProperty
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/eq $eq
  */
-infix fun <@OnlyInputTypes T> KProperty<T?>.eq(value: T): Bson = Filters.eq(path(), value)
+infix fun <@OnlyInputTypes T> KProperty<T?>.eq(value: T?): Bson = Filters.eq(path(), value)
 
 /**
  * Creates a filter that matches all documents where the value of the property contains the specified value. Note that this doesn't
@@ -53,7 +53,7 @@ infix fun <@OnlyInputTypes T> KProperty<T?>.eq(value: T): Bson = Filters.eq(path
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/eq/#op._S_eq
  */
-infix fun <@OnlyInputTypes T> KProperty<Iterable<T?>?>.contains(value: T): Bson = Filters.eq(path(), value)
+infix fun <@OnlyInputTypes T> KProperty<Iterable<T?>?>.contains(value: T?): Bson = Filters.eq(path(), value)
 
 /**
  * Creates a filter that matches all documents where the value of the field name does not equal the specified value.
@@ -63,7 +63,7 @@ infix fun <@OnlyInputTypes T> KProperty<Iterable<T?>?>.contains(value: T): Bson 
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/ne $ne
  */
-infix fun <@OnlyInputTypes T> KProperty<T?>.ne(value: T): Bson = Filters.ne(path(), value)
+infix fun <@OnlyInputTypes T> KProperty<T?>.ne(value: T?): Bson = Filters.ne(path(), value)
 
 /**
  * Creates a filter that matches all documents where the value of the given property is less than the specified value.
@@ -113,7 +113,7 @@ infix fun <@OnlyInputTypes T> KProperty<T?>.gte(value: T): Bson = Filters.gte(pa
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/in $in
  */
-infix fun <@OnlyInputTypes T> KProperty<T?>.`in`(values: Iterable<T>): Bson = Filters.`in`(path(), values)
+infix fun <@OnlyInputTypes T> KProperty<T?>.`in`(values: Iterable<T?>): Bson = Filters.`in`(path(), values)
 
 /**
  * Creates a filter that matches all documents where the value of a property equals any value in the list of specified values.
@@ -124,7 +124,7 @@ infix fun <@OnlyInputTypes T> KProperty<T?>.`in`(values: Iterable<T>): Bson = Fi
  * @mongodb.driver.manual reference/operator/query/in $in
  */
 @JvmName("inArray")
-infix fun <@OnlyInputTypes T> KProperty<Iterable<T>?>.`in`(values: Iterable<T>): Bson = Filters.`in`(path(), values)
+infix fun <@OnlyInputTypes T> KProperty<Iterable<T>?>.`in`(values: Iterable<T?>): Bson = Filters.`in`(path(), values)
 
 /**
  * Creates a filter that matches all documents where the value of a property does not equal any of the specified values or does not exist.
@@ -134,7 +134,7 @@ infix fun <@OnlyInputTypes T> KProperty<Iterable<T>?>.`in`(values: Iterable<T>):
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/nin $nin
  */
-infix fun <@OnlyInputTypes T> KProperty<T?>.nin(values: Iterable<T>): Bson = Filters.nin(path(), values)
+infix fun <@OnlyInputTypes T> KProperty<T?>.nin(values: Iterable<T?>): Bson = Filters.nin(path(), values)
 
 /**
  * Creates a filter that matches all documents where the value of a property does not equal any of the specified values or does not exist.
@@ -145,7 +145,7 @@ infix fun <@OnlyInputTypes T> KProperty<T?>.nin(values: Iterable<T>): Bson = Fil
  * @mongodb.driver.manual reference/operator/query/nin $nin
  */
 @JvmName("ninArray")
-infix fun <@OnlyInputTypes T> KProperty<Iterable<T>?>.nin(values: Iterable<T>): Bson = Filters.nin(path(), values)
+infix fun <@OnlyInputTypes T> KProperty<Iterable<T>?>.nin(values: Iterable<T?>): Bson = Filters.nin(path(), values)
 
 
 /**

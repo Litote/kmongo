@@ -64,8 +64,10 @@ class PathTest {
             TestData_.Set.posOp.version.name
         )
         //check compilation
-        if (false)
+        if (false) {
             (TestData_.Set.posOp eq SimpleReferencedData()).json
+            TestData_.Date eq null
+        }
 
         assertEquals(
             "map.id",
