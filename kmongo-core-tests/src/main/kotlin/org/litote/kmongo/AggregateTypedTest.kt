@@ -17,6 +17,9 @@
 package org.litote.kmongo
 
 import com.mongodb.client.MongoCollection
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.After
 import org.junit.Before
@@ -33,10 +36,12 @@ import kotlin.test.assertTrue
  */
 class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
 
+    @Serializable
     data class Article(
         val title: String,
         val author: String,
         val tags: List<String>,
+        @ContextualSerialization
         val date: Instant = Instant.now(),
         val count: Int = 1,
         val ok: Boolean = true
@@ -45,7 +50,9 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())
     }
 
+    @Serializable
     private data class Result(
+        @SerialName("_id")
         @BsonId val title: String,
         val averageYear: Double = 0.0,
         val count: Int = 0,

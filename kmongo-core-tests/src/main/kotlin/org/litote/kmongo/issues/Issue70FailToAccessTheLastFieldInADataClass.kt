@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.issues
 
+import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.eq
@@ -29,6 +30,7 @@ import kotlin.test.assertEquals
  */
 class Issue70FailToAccessTheLastFieldInADataClass : AllCategoriesKMongoBaseTest<Account>() {
 
+    @Serializable
     data class Account(
         var email: String,
         var subscriptionEnds: Long,

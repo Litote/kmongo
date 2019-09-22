@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.issues
 
+import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOneById
@@ -25,6 +26,7 @@ enum class EnumWithBooleanProperty(val test: Boolean) {
     A(true), B(false)
 }
 
+@Serializable
 data class ClassWithEnumProperty(val _id: String? = null, val v: EnumWithBooleanProperty = EnumWithBooleanProperty.A)
 
 

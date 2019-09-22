@@ -17,6 +17,8 @@
 package org.litote.kmongo.issues
 
 import com.mongodb.client.model.Filters
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.eq
@@ -30,7 +32,8 @@ import kotlin.test.assertEquals
  */
 class Issue12EqToLocaleQueryCrash : AllCategoriesKMongoBaseTest<ClassWithLocalField>() {
 
-    data class ClassWithLocalField(val locale: Locale)
+    @Serializable
+    data class ClassWithLocalField(@ContextualSerialization val locale: Locale)
 
     @Test
     fun testSerializeAndDeserializeLocale() {

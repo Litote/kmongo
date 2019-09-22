@@ -16,6 +16,8 @@
 
 package org.litote.kmongo.issues
 
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
@@ -30,10 +32,13 @@ import kotlin.test.assertFalse
 class Issue21SupportTransientToNotBeSaved :
     AllCategoriesKMongoBaseTest<Issue21SupportTransientToNotBeSaved.Activity>() {
 
+    @Serializable
     data class Activity(
         var activity: String,
+        @ContextualSerialization
         var reference: Any? = null
     ) {
+        @kotlinx.serialization.Transient
         @Transient
         var transactionId: Int = 0
     }

@@ -16,6 +16,7 @@
 
 package org.litote.kmongo
 
+import kotlinx.serialization.Serializable
 import com.mongodb.client.model.Projections
 import org.bson.types.ObjectId
 import org.junit.Test
@@ -24,9 +25,10 @@ import org.litote.kmongo.MongoOperator.oid
 import java.time.Instant
 import kotlin.test.assertEquals
 
-@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
+@Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
 class JsonExtensionTest : KMongoRootTest() {
 
+    @Serializable
     class DataTest(var a: String)
 
     @Test
@@ -39,7 +41,10 @@ class JsonExtensionTest : KMongoRootTest() {
     fun stringToBson() = assertEquals("\"test'and\\\"fire\"", "test'and\"fire".json)
 
     @Test
-    fun pojoToBson() = assertEquals("{\"first\":\"z\",\"second\":4}", Pair("z", 4).json)
+    fun pairToBson() = assert(
+        "{\"first\":\"z\",\"second\":4}" == Pair("z", 4).json
+                || "{\"first\": \"z\", \"second\": 4}" == Pair("z", 4).json
+    )
 
     @Test
     fun arrayToBson() = assertEquals("[\"z\\\"z\",\"aa\"]", arrayOf("z\"z", "aa").json.replace(" ", ""))

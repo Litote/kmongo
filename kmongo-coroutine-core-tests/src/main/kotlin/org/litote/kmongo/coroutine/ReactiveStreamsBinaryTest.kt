@@ -17,6 +17,8 @@
 package org.litote.kmongo.coroutine
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 import org.bson.types.Binary
 import org.junit.Assert
 import org.junit.Before
@@ -34,7 +36,8 @@ import kotlin.test.assertNull
  */
 class ReactiveStreamsBinaryTest : KMongoReactiveStreamsCoroutineBaseTest<BinaryFriend>() {
 
-    data class BinaryFriend(val _id: Binary, var name: String = "none")
+    @Serializable
+    data class BinaryFriend(@ContextualSerialization val _id: Binary, var name: String = "none")
 
     lateinit var friendId: Binary
 

@@ -16,12 +16,18 @@
 
 package org.litote.kmongo.issues
 
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.Id
+import org.litote.kmongo.JacksonMappingCategory
+import org.litote.kmongo.KMongoBaseTest
 import org.litote.kmongo.MongoOperator.addToSet
 import org.litote.kmongo.MongoOperator.push
+import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.findOneById
 import org.litote.kmongo.issues.Issue48UpdateOperatorInMap.CollectionTest
 import org.litote.kmongo.newId
@@ -32,11 +38,14 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class Issue48UpdateOperatorInMap : AllCategoriesKMongoBaseTest<CollectionTest>() {
+@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
+class Issue48UpdateOperatorInMap : KMongoBaseTest<CollectionTest>() {
 
+    @Serializable
     data class CollectionTest(
         val set: Set<String> = emptySet(),
         val list: List<String> = emptyList(),
+        @ContextualSerialization
         val _id: Id<CollectionTest> = newId()
     )
 

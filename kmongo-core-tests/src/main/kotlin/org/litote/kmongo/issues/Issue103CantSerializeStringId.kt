@@ -16,6 +16,8 @@
 
 package org.litote.kmongo.issues
 
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
@@ -32,8 +34,10 @@ import kotlin.test.assertEquals
  */
 class Issue103CantSerializeStringId : AllCategoriesKMongoBaseTest<Data>() {
 
-    data class Data(val _id: StringId<Data> = newStringId())
-    data class Data2(val _id: WrappedObjectId<Data> = newObjectId())
+    @Serializable
+    data class Data(@ContextualSerialization val _id: StringId<Data> = newStringId())
+    @Serializable
+    data class Data2(@ContextualSerialization val _id: WrappedObjectId<Data> = newObjectId())
 
     @Test
     fun `deserializing directly StringId is ok`() {

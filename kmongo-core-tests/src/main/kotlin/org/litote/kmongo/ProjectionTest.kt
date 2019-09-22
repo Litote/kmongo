@@ -16,6 +16,7 @@
 
 package org.litote.kmongo
 
+import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.litote.kmongo.model.Coordinate
 import org.litote.kmongo.model.Friend
@@ -27,6 +28,7 @@ import kotlin.test.assertEquals
  */
 class ProjectionTest : AllCategoriesKMongoBaseTest<Friend>() {
 
+    @Serializable
     data class FriendWithNameOnly(val name: String)
 
     @Test

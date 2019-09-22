@@ -19,7 +19,10 @@ package org.litote.kmongo.issues
 import com.mongodb.DBRef
 import org.bson.types.ObjectId
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
+import org.litote.kmongo.JacksonMappingCategory
+import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.findOne
 import org.litote.kmongo.getCollection
 import org.litote.kmongo.issues.Issue15SavingListOfBdRefNotWorkingCorrectly.MongoReportDefinition
@@ -29,6 +32,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
+@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
 class Issue15SavingListOfBdRefNotWorkingCorrectly : AllCategoriesKMongoBaseTest<MongoReportDefinition>() {
 
     data class MongoReportDefinition(val _id: ObjectId, val title: String, val columns: List<DBRef>)

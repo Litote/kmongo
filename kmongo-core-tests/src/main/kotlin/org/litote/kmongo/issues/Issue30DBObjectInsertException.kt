@@ -21,7 +21,10 @@ import com.mongodb.DBObject
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
+import org.litote.kmongo.JacksonMappingCategory
+import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.findOneById
 import org.litote.kmongo.json
 import org.litote.kmongo.withDocumentClass
@@ -30,6 +33,7 @@ import kotlin.test.assertEquals
 /**
  *
  */
+@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
 class Issue30DBObjectInsertException : AllCategoriesKMongoBaseTest<Issue30DBObjectInsertException.User>() {
 
     data class User(

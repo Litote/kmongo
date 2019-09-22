@@ -16,6 +16,8 @@
 
 package org.litote.kmongo
 
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -30,18 +32,10 @@ import kotlin.test.assertEquals
  */
 class UsageTypedTest : KMongoBaseTest<Jedi>() {
 
+    @Serializable
     data class Jedi(val name: String, val age: Int, val firstAppearance: StarWarsFilm)
-    data class StarWarsFilm(val name: String, val date: LocalDate)
-
-    data class LightSaber1(val _id: String?)
-    data class LightSaber2(val _id: org.bson.types.ObjectId?)
-    data class LightSaber3(val _id: String)
-    data class LightSaber4(val _id: org.bson.types.ObjectId)
-    data class LightSaber5(var _id: String?)
-    data class LightSaber6(var _id: org.bson.types.ObjectId?)
-
-    class TFighter(val version: String, val pilot: Pilot?)
-    class Pilot()
+    @Serializable
+    data class StarWarsFilm(val name: String, @ContextualSerialization val date: LocalDate)
 
     @Before
     fun setup() {
@@ -49,7 +43,7 @@ class UsageTypedTest : KMongoBaseTest<Jedi>() {
         col.insertOne("{name:'Yoda',age:896,firstAppearance:{name:'The Empire Strikes Back',date:new Date('Sat May 17 1980 00:00:00 CEST')}}")
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
+    @Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
     @Test
     fun firstSample() {
         val yoda = col.findOne(Friend::name regex "Yo.*")

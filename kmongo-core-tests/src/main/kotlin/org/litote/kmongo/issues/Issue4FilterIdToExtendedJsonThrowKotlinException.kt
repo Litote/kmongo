@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.issues
 
+import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.MongoOperator.set
@@ -32,6 +33,7 @@ import kotlin.test.assertEquals
  */
 class Issue4FilterIdToExtendedJsonThrowKotlinException : AllCategoriesKMongoBaseTest<ClassWithValue>() {
 
+    @Serializable
     data class ClassWithValue(val _id: String? = null, val v: String = "a", val e: EnumWithBooleanProperty = A)
 
     enum class EnumWithBooleanProperty(val test: Boolean) {

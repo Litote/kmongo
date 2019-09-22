@@ -16,6 +16,8 @@
 
 package org.litote.kmongo.issues
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.Test
@@ -31,7 +33,8 @@ import kotlin.test.assertNotNull
 class Issue11BsonSerializerCanOnlyBeUsedWithBsonGenerator :
     AllCategoriesKMongoBaseTest<Issue11BsonSerializerCanOnlyBeUsedWithBsonGenerator.ClassWithIntId>() {
 
-    data class ClassWithIntId(@BsonId val id: Int, val title: String?)
+    @Serializable
+    data class ClassWithIntId(@SerialName("_id") @BsonId val id: Int, val title: String?)
 
     @Test
     fun testSerializeAndDeserialize() {

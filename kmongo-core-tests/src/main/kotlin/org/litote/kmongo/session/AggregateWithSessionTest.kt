@@ -18,6 +18,7 @@ package org.litote.kmongo.session
 
 import com.mongodb.client.ClientSession
 import com.mongodb.client.MongoCollection
+import kotlinx.serialization.Serializable
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -30,6 +31,7 @@ import kotlin.test.assertEquals
 
 class AggregateWithSessionTest : AllCategoriesKMongoBaseTest<Article>() {
 
+    @Serializable
     data class Article(val title: String, val author: String, val tags: List<String>) {
 
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())

@@ -48,6 +48,11 @@
             <artifactId>kmongo-shared-tests-java</artifactId>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-runtime</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

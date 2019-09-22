@@ -17,6 +17,8 @@
 package org.litote.kmongo.coroutine.issues
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.Test
 import org.litote.kmongo.coroutine.KMongoReactiveStreamsCoroutineBaseTest
@@ -28,7 +30,8 @@ import kotlin.test.assertEquals
  */
 class Issue118DeserializeNotConstructorParams : KMongoReactiveStreamsCoroutineBaseTest<Document2>() {
 
-    data class Document2(@BsonId val id: Int) {
+    @Serializable
+    data class Document2(@SerialName("_id") @BsonId val id: Int) {
         var field1: String? = null
         var field2: String? = null
     }

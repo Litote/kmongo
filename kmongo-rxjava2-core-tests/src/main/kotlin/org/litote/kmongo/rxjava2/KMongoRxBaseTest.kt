@@ -21,13 +21,14 @@ import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.NativeMappingCategory
+import org.litote.kmongo.SerializationMappingCategory
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 
 /**
  *
  */
-@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
+@Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
 open class KMongoRxBaseTest<T : Any> : KMongoRootTest() {
 
     @Suppress("LeakingThis")

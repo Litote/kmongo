@@ -18,7 +18,10 @@ package org.litote.kmongo.issues
 
 import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.Test
+import org.junit.experimental.categories.Category
+import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoBaseTest
+import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.issues.Issue128BsonIdNotRecognized.Ticket
 import org.litote.kmongo.save
 import java.util.Date
@@ -26,6 +29,7 @@ import java.util.Date
 /**
  *
  */
+@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
 class Issue128BsonIdNotRecognized : KMongoBaseTest<Ticket>() {
 
     abstract class ReportableData(@BsonId val id: Any) {

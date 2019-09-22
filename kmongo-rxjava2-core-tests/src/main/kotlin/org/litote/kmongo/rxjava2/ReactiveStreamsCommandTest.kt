@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.rxjava2
 
+import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.model.Friend
@@ -27,14 +28,17 @@ import kotlin.test.assertTrue
  */
 class ReactiveStreamsCommandTest : KMongoReactiveStreamsRxBaseTest<Friend>() {
 
+    @Serializable
     class LocationResult(val results: List<Location>)
 
+    @Serializable
     class Location(var dis: Double = 0.toDouble(), var obj: NestedLocation? = null) {
 
         val name: String
             get() = obj?.name ?: ""
     }
 
+    @Serializable
     class NestedLocation(var name: String? = null)
 
     @Test

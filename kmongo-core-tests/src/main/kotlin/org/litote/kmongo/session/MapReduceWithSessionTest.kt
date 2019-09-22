@@ -17,6 +17,7 @@
 package org.litote.kmongo.session
 
 import com.mongodb.client.ClientSession
+import kotlinx.serialization.Serializable
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -42,7 +43,8 @@ class MapReduceWithSessionTest : AllCategoriesKMongoBaseTest<Friend>() {
         session.close()
     }
 
-    data class KeyValue(val _id: String, val value: Long)
+    @Serializable
+    data class KeyValue(val _id: String, val value: Double)
 
     @Test
     fun `mapReduce works as expected`() {
@@ -61,7 +63,7 @@ class MapReduceWithSessionTest : AllCategoriesKMongoBaseTest<Friend>() {
                 """
         ).first()
 
-        assertEquals(11L, sumNameLength?.value)
+        assertEquals(11.0, sumNameLength?.value)
     }
 
 }

@@ -16,6 +16,7 @@
 
 package org.litote.kmongo
 
+import kotlinx.serialization.Serializable
 import org.bson.types.ObjectId
 import org.junit.After
 import org.junit.Test
@@ -28,6 +29,7 @@ import kotlin.test.assertNotNull
  */
 class SaveTest : AllCategoriesKMongoBaseTest<Friend>() {
 
+    @Serializable
     data class ClassWithoutId(var name: String)
 
     @After

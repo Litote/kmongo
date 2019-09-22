@@ -17,6 +17,7 @@ package org.litote.kmongo.rxjava2
 
 import com.mongodb.MongoCommandException
 import com.mongodb.async.client.MongoCollection
+import kotlinx.serialization.Serializable
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -29,6 +30,7 @@ import kotlin.test.assertTrue
 
 class AggregateTest : KMongoRxBaseTest<AggregateTest.Article>() {
 
+    @Serializable
     data class Article(val title: String, val author: String, val tags: List<String>) {
 
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())

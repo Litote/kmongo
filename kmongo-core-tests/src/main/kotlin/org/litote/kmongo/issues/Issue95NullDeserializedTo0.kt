@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.issues
 
+import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
@@ -30,6 +31,7 @@ import kotlin.test.assertNull
  */
 class Issue95NullDeserializedTo0 : AllCategoriesKMongoBaseTest<Task>() {
 
+    @Serializable
     data class Task(val int: Int? = null, val double: Double = Double.NaN)
 
     @Test

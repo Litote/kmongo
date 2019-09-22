@@ -38,25 +38,30 @@
         <module>kmongo-annotation-processor</module>
         <module>kmongo-jackson-mapping</module>
         <module>kmongo-native-mapping</module>
+        <module>kmongo-serialization-mapping</module>
         <module>kmongo-flapdoodle</module>
         <module>kmongo-fongo</module>
         <module>kmongo-core</module>
         <module>kmongo-core-tests</module>
         <module>kmongo</module>
         <module>kmongo-native</module>
+        <module>kmongo-serialization</module>
         <module>kmongo-async-shared</module>
         <module>kmongo-async-core</module>
         <module>kmongo-async-core-tests</module>
         <module>kmongo-async</module>
         <module>kmongo-async-native</module>
+        <module>kmongo-async-serialization</module>
         <module>kmongo-coroutine-core</module>
         <module>kmongo-coroutine-core-tests</module>
         <module>kmongo-coroutine</module>
         <module>kmongo-coroutine-native</module>
+        <module>kmongo-coroutine-serialization</module>
         <module>kmongo-rxjava2-core</module>
         <module>kmongo-rxjava2-core-tests</module>
         <module>kmongo-rxjava2</module>
         <module>kmongo-rxjava2-native</module>
+        <module>kmongo-rxjava2-serialization</module>
         <module>kmongo-dokka</module>
     </modules>
 
@@ -74,6 +79,8 @@
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.1.0</jackson-module-loader.version>
         <reactivestreams.version>1.12.0</reactivestreams.version>
+        <kbson.version>0.1.2</kbson.version>
+        <kotlinx-serialization.version>0.13.0</kotlinx-serialization.version>
 
         <!-- annotations processor -->
         <kgenerator.version>0.3.0</kgenerator.version>
@@ -125,6 +132,11 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-reflect</artifactId>
                 <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-serialization-runtime</artifactId>
+                <version>${kotlinx-serialization.version}</version>
             </dependency>
 
             <dependency>
@@ -192,6 +204,11 @@
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-native-mapping</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-serialization-mapping</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -308,6 +325,11 @@
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver-core</artifactId>
+                <version>${mongo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>bson</artifactId>
                 <version>${mongo.version}</version>
             </dependency>
             <dependency>
@@ -434,6 +456,12 @@
                 <artifactId>jmh-core</artifactId>
                 <version>${jmh.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.github.jershell</groupId>
+                <artifactId>kbson</artifactId>
+                <version>${kbson.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -476,7 +504,17 @@
                     <args>
                         <arg>-Xallow-kotlin-package</arg>
                     </args>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
 
                 <executions>
                     <execution>
@@ -628,6 +666,11 @@
             <name>KotlinX</name>
             <url>https://dl.bintray.com/kotlin/kotlinx/</url>
         </repository>
+        <repository>
+            <id>kbson</id>
+            <name>KBson</name>
+            <url>https://dl.bintray.com/jershell/generic</url>
+        </repository>
     </repositories>
 
     <scm>
@@ -729,6 +772,15 @@
                 <dependency>
                     <groupId>org.litote.kmongo</groupId>
                     <artifactId>kmongo-native-mapping</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>ide-serialization</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.litote.kmongo</groupId>
+                    <artifactId>kmongo-serialization-mapping</artifactId>
                 </dependency>
             </dependencies>
         </profile>

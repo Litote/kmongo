@@ -236,7 +236,7 @@ object KMongoUtil {
         }
         val idProperty = ClassMappingType.findIdProperty(value.javaClass.kotlin)
         @Suppress("UNCHECKED_CAST")
-        return if (idProperty == null) null else ClassMappingType.getIdValue<Any, Any>(
+        return if (idProperty == null) null else ClassMappingType.getIdValue(
             idProperty as KProperty1<Any, Any>,
             value
         )

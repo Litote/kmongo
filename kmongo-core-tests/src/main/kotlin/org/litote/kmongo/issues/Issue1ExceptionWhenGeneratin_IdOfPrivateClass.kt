@@ -17,22 +17,20 @@
 package org.litote.kmongo.issues
 
 import com.mongodb.client.MongoCollection
+import kotlinx.serialization.Serializable
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.experimental.categories.Category
 import org.litote.kmongo.KFlapdoodleRule
-import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
-import org.litote.kmongo.NativeMappingCategory
 import kotlin.test.assertNotNull
 
 /**
  * [Exception when generating _id of private class](https://github.com/Litote/kmongo/issues/1)
  */
-@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
 class Issue1ExceptionWhenGeneratin_IdOfPrivateClass : KMongoRootTest() {
 
+    @Serializable
     private data class PrivateClass(val _id: String? = null)
 
     private lateinit var col: MongoCollection<PrivateClass>

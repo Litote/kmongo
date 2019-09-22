@@ -16,6 +16,8 @@
 
 package org.litote.kmongo
 
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.bson.types.Decimal128
 import org.junit.Test
@@ -30,8 +32,8 @@ import kotlin.test.assertTrue
  */
 class BigDecimalTest : AllCategoriesKMongoBaseTest<Article>() {
 
-    data class Article(val title: String, val big: BigDecimal) {
-    }
+    @Serializable
+    data class Article(val title: String, @ContextualSerialization val big: BigDecimal)
 
     @Test
     fun bigDecimalShouldBePersistedAsDecimal128() {

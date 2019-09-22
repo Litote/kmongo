@@ -15,8 +15,10 @@
  */
 package org.litote.kmongo.model
 
+import kotlinx.serialization.Serializable
+
 /**
  *
  */
-data class Coordinate( val lat: Int, val lng : Int) {
-}
+@Serializable
+data class Coordinate(val lat: Int, val lng: Int)

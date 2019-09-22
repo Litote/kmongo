@@ -36,7 +36,7 @@ class ChangeStreamTest : AllCategoriesKMongoBaseTest<Friend>() {
         col.watch().fullDocument(FullDocument.UPDATE_LOOKUP).listen {
             println(it.fullDocument)
             if(it.fullDocument != null) {
-                friends.add(it.fullDocument)
+                friends.add(it.fullDocument!!)
             }
         }
         

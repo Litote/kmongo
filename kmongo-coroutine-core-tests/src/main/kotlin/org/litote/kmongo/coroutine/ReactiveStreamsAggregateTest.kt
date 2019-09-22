@@ -18,6 +18,7 @@ package org.litote.kmongo.coroutine
 
 import com.mongodb.MongoCommandException
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -37,6 +38,7 @@ import kotlin.test.assertTrue
  */
 class ReactiveStreamsAggregateTest : KMongoReactiveStreamsCoroutineBaseTest<Article>() {
 
+    @Serializable
     data class Article(val title: String, val author: String, val tags: List<String>) {
 
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())

@@ -21,7 +21,7 @@ import org.junit.experimental.categories.Category
 /**
  *
  */
-@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
+@Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
 open class AllCategoriesKMongoBaseTest<T : Any> : KMongoBaseTest<T>() {
 
 }

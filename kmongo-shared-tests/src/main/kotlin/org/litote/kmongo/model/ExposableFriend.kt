@@ -16,8 +16,10 @@
 
 package org.litote.kmongo.model
 
+import kotlinx.serialization.Serializable
+
 /**
  *
  */
-data class ExposableFriend(val _id: String, val name: String) {
-}
+@Serializable
+data class ExposableFriend(val _id: String, val name: String)

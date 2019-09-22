@@ -22,6 +22,7 @@ import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.NativeMappingCategory
+import org.litote.kmongo.SerializationMappingCategory
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.reactivestreams.ReactiveStreamsFlapdoodleRule
 import kotlin.reflect.KClass
@@ -29,7 +30,7 @@ import kotlin.reflect.KClass
 /**
  *
  */
-@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
+@Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
 open class KMongoReactiveStreamsRxBaseTest<T : Any> : KMongoRootTest() {
 
     @Suppress("LeakingThis")

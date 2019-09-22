@@ -16,6 +16,9 @@
 
 package org.litote.kmongo
 
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 import org.junit.Test
@@ -27,16 +30,22 @@ import kotlin.test.assertEquals
  */
 class BsonIdTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
 
+    @Serializable
     class StringId(val _id: String? = null)
 
-    class WithMongoId(@BsonId val key: ObjectId? = null)
+    @Serializable
+    class WithMongoId(@SerialName("_id") @ContextualSerialization @BsonId val key: ObjectId? = null)
 
-    class WithMongoStringId(@BsonId val key: String? = null)
+    @Serializable
+    class WithMongoStringId(@SerialName("_id") @BsonId val key: String? = null)
 
+    @Serializable
     class CompositeId(val _id: Key?)
 
-    class CompositeKey(@BsonId val key: Key?)
+    @Serializable
+    class CompositeKey(@SerialName("_id") @BsonId val key: Key?)
 
+    @Serializable
     data class Key(val category: String, val index: Int)
 
     @Test
