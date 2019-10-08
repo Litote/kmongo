@@ -16,16 +16,16 @@
 
 package org.litote.kmongo
 
+import com.mongodb.client.model.Projections
 import org.bson.types.ObjectId
 import org.junit.Test
-import org.junit.experimental.categories.Categories
-import org.junit.experimental.categories.Categories.IncludeCategory
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.MongoOperator.oid
+import java.time.Instant
 import kotlin.test.assertEquals
 
 @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
-class JsonExtensionTest : KMongoRootTest(){
+class JsonExtensionTest : KMongoRootTest() {
 
     class DataTest(var a: String)
 
@@ -42,20 +42,57 @@ class JsonExtensionTest : KMongoRootTest(){
     fun pojoToBson() = assertEquals("{\"first\":\"z\",\"second\":4}", Pair("z", 4).json)
 
     @Test
-    fun arrayToBson() = assertEquals("[\"z\\\"z\",\"aa\"]", arrayOf("z\"z", "aa").json.replace(" ",""))
+    fun arrayToBson() = assertEquals("[\"z\\\"z\",\"aa\"]", arrayOf("z\"z", "aa").json.replace(" ", ""))
 
     @Test
     fun objectIdToBson() {
         val id = ObjectId()
-        assertEquals("{\"$oid\":\"$id\"}", id.json.replace(" ",""))
+        assertEquals("{\"$oid\":\"$id\"}", id.json.replace(" ", ""))
     }
 
     @Test
     fun objectMutation() {
         val data = DataTest("a")
-        assertEquals("{\"a\":\"a\"}", data.json.replace(" ",""))
+        assertEquals("{\"a\":\"a\"}", data.json.replace(" ", ""))
         data.a = "b"
-        assertEquals("{\"a\":\"b\"}", data.json.replace(" ",""))
+        assertEquals("{\"a\":\"b\"}", data.json.replace(" ", ""))
     }
+
+    @Test
+    fun `week aggregate`() {
+        data class Base(val timestamp: Instant)
+        data class Result(val week: Int, val documentCount: Int)
+
+        val pipeline = """
+            {
+                "$ group": {
+                "_id": {"$ week": "$ timestamp"},
+                "documentCount": {"$ sum": 1}
+            }
+            }""".formatJson().replace(" ", "").replace("\n", "")
+
+        val bson =
+            group(
+                Projections.computed("\$week", Base::timestamp.projection),
+                Result::documentCount sum (1)
+            )
+
+        val bson2 =
+            group(
+                week(Base::timestamp),
+                Result::documentCount sum (1)
+            )
+
+        val bson3 =
+            group(
+                MongoOperator.week.op(Base::timestamp),
+                Result::documentCount sum (1)
+            )
+
+        assertEquals(pipeline.replace(" ", ""), bson.json.replace(" ", ""))
+        assertEquals(pipeline.replace(" ", ""), bson2.json.replace(" ", ""))
+        assertEquals(pipeline.replace(" ", ""), bson3.json.replace(" ", ""))
+    }
+
 }
 

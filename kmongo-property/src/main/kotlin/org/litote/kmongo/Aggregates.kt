@@ -414,3 +414,45 @@ fun dayOfWeek(property: KProperty<TemporalAccessor?>): Bson =
  */
 fun year(property: KProperty<TemporalAccessor?>): Bson =
     Projections.computed("\$year", property.projection)
+
+/**
+ * Builds $hour expression for this property .
+ */
+fun hour(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$hour", property.projection)
+
+/**
+ * Builds $millisecond expression for this property .
+ */
+fun millisecond(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$millisecond", property.projection)
+
+/**
+ * Builds $minute expression for this property .
+ */
+fun minute(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$minute", property.projection)
+
+/**
+ * Builds $month expression for this property .
+ */
+fun month(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$month", property.projection)
+
+/**
+ * Builds $second expression for this property .
+ */
+fun second(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$second", property.projection)
+
+/**
+ * Builds $week expression for this property .
+ */
+fun week(property: KProperty<TemporalAccessor?>): Bson =
+    Projections.computed("\$week", property.projection)
+
+/**
+ * Builds the [MongoOperator] expression for the specified property.
+ */
+fun MongoOperator.op(property: KProperty<Any?>): Bson =
+    Projections.computed(toString(), property.projection)
