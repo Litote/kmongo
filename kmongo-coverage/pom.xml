@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-root</artifactId>
-        <version>3.9.2-SNAPSHOT</version>
+        <version>3.11.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>kmongo-coverage</artifactId>
@@ -83,6 +83,22 @@
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-serialization</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-async-serialization</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-coroutine-serialization</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-rxjava2-serialization</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-id</artifactId>
         </dependency>
         <dependency>
@@ -100,6 +116,10 @@
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-native-mapping</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-serialization-mapping</artifactId>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>

@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.coroutine
 
-import kotlinx.coroutines.reactive.consumeEach
+import kotlinx.coroutines.reactive.collect
 import org.reactivestreams.Publisher
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -30,7 +30,7 @@ val <T> Publisher<T>.coroutine: CoroutinePublisher<T> get() = CoroutinePublisher
  */
 suspend fun <T> Publisher<T>.toList(): List<T> {
     val r = ConcurrentLinkedQueue<T>()
-    consumeEach { r.add(it) }
+    collect { r.add(it) }
     return r.toList()
 }
 
@@ -49,6 +49,6 @@ open class CoroutinePublisher<T>(open val publisher: Publisher<T>) {
      * iterates over all elements from the publisher
      */
     suspend fun consumeEach(action: suspend (T) -> kotlin.Unit) {
-        publisher.consumeEach { action(it) }
+        publisher.collect { action(it) }
     }
 }
