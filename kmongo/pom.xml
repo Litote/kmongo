@@ -77,13 +77,13 @@
                 </executions>
                 <configuration>
                     <jdkVersion>8</jdkVersion>
-                    <reportNotDocumented>false</reportNotDocumented>
+                    <reportUndocumented>false</reportUndocumented>
                     <sourceLinks>
                         <link>
-                            <dir>${project.basedir}/../kmongo-core/src/main/kotlin</dir>
+                            <path>${project.basedir}/../kmongo-core/src/main/kotlin</path>
                             <url>https://github.com/Litote/kmongo/blob/master/kmongo-core/src/main/kotlin
                             </url>
-                            <urlSuffix>#L</urlSuffix>
+                            <lineSuffix>#L</lineSuffix>
                         </link>
                     </sourceLinks>
                     <sourceDirectories>

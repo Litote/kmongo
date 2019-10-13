@@ -323,11 +323,6 @@
             </dependency>
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-flapdoodle</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-fongo</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -601,13 +596,13 @@
                 </executions>
                 <configuration>
                     <jdkVersion>8</jdkVersion>
-                    <reportNotDocumented>false</reportNotDocumented>
+                    <reportUndocumented>false</reportUndocumented>
                     <sourceLinks>
                         <link>
-                            <dir>${sourceDirectory}</dir>
+                            <path>${sourceDirectory}</path>
                             <url>https://github.com/Litote/kmongo/blob/master/${project.artifactId}/src/main/kotlin
                             </url>
-                            <urlSuffix>#L</urlSuffix>
+                            <lineSuffix>#L</lineSuffix>
                         </link>
                     </sourceLinks>
                     <externalDocumentationLinks>
