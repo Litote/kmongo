@@ -434,7 +434,15 @@ internal class BsonModule : SimpleModule() {
             return if (jp.currentToken == VALUE_NUMBER_FLOAT) {
                 BigDecimal(jp.doubleValue)
             } else {
-                (jp.embeddedObject as Decimal128).bigDecimalValue()
+                val v = jp.embeddedObject
+                when (v) {
+                    is Int -> BigDecimal(v)
+                    is Long -> BigDecimal(v)
+                    is Float -> BigDecimal(v.toDouble())
+                    is Double -> BigDecimal(v)
+                    is Decimal128 -> v.bigDecimalValue()
+                    else -> throw ClassCastException(v.javaClass.name + " cannot be cast to " + BigDecimal::class.java.name + ": " + v)
+                }
             }
         }
     }
