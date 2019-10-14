@@ -3,6 +3,9 @@
 Bson deserialization is a key factor to measure performance of KMongo,
 as usually you retrieve more data from MongoDB than you send to the db.
 
+> **kotlinx serialization** mapping is not ye benchmarked (as it is currently in alpha mode)
+> A new benchmark will be released in the next version.
+
 ## Complete deserialization
 
 The benchmark sources are available in [github](https://github.com/Litote/kmongo/tree/master/kmongo-benchmark).

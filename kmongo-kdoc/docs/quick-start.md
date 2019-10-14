@@ -12,14 +12,14 @@ If you don't know, start with the sync driver and add this dependency to your pr
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo</artifactId>
-  <version>3.11.0</version>
+  <version>3.11.1</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo:3.11.0'
+compile 'org.litote.kmongo:kmongo:3.11.1'
 ```
 
 And [start coding](#lets-start-coding)
@@ -37,14 +37,14 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-async</artifactId>
-  <version>3.11.0</version>
+  <version>3.11.1</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-async:3.11.0'
+compile 'org.litote.kmongo:kmongo-async:3.11.1'
 ```
 
 #### Kotlin Coroutines
@@ -55,14 +55,14 @@ compile 'org.litote.kmongo:kmongo-async:3.11.0'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-coroutine</artifactId>
-  <version>3.11.0</version>
+  <version>3.11.1</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-coroutine:3.11.0'
+compile 'org.litote.kmongo:kmongo-coroutine:3.11.1'
 ```
 
 #### RxJava2
@@ -73,24 +73,30 @@ compile 'org.litote.kmongo:kmongo-coroutine:3.11.0'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-rxjava2</artifactId>
-  <version>3.11.0</version>
+  <version>3.11.1</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-rxjava2:3.11.0'
+compile 'org.litote.kmongo:kmongo-rxjava2:3.11.1'
 ```
 
 ## Object Mapping Engine
 
 By default, [Jackson engine](https://github.com/FasterXML/jackson) is used.
 But you can use [POJO Codec engine](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/) 
-by adding a ```-native``` suffix to the artifactId.
+by adding a ```-native``` suffix to the artifactId, or
+[Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization)
+by adding a ```-serialization``` suffix to the artifactId.
 
-For example, replace ```kmongo``` by ```kmongo-native```, or ```kmongo-async``` by ```kmongo-async-native```.
+For example, replace ```kmongo``` by ```kmongo-native``` or ```kmongo-serialization``` for the sync driver
+For the coroutine driver, replace ```kmongo-coroutine``` by ```kmongo-coroutine-native```  or ```kmongo-coroutine-serialization``` .
 You can read more about the mapping engine in the [dedicated chapter](object-mapping/index.html#how-to-choose-the-mapping-engine). 
+
+> for **kotlinx.serialization** please add the ```https://dl.bintray.com/jershell/generic``` repository to your configuration.
+
 
 ## Let's Start Coding
 

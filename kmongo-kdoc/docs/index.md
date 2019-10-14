@@ -32,8 +32,9 @@ You can use extensions for reactive streams style, [Kotlin Coroutines](https://k
 ## Built-in Object Mapping
 
 Object oriented programming is usually better - use Objects, not Maps. Powered by the native
-[POJO Codec](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/) or by the
-[Jackson library](https://github.com/FasterXML/jackson).
+[POJO Codec](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/), the
+[Jackson library](https://github.com/FasterXML/jackson) or
+[Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization).
 
 ## Type-safe queries
 

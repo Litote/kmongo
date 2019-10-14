@@ -1,5 +1,3 @@
-# About
- 
 ## Release Notes
  
  Available on [Github](https://github.com/Litote/kmongo/releases).
@@ -18,8 +16,12 @@
  - [Kotlin stdlib](https://kotlinlang.org/api/latest/jvm/stdlib/)
  - [Kotlin reflect lib](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/)
  
- And for the KMongo versions using the Jackson mapping engine:
+For the KMongo versions using the Jackson mapping engine:
  
  - [Jackson](https://github.com/FasterXML/jackson-databind)
  - [Jackson for Kotlin](https://github.com/FasterXML/jackson-module-kotlin)
  - [Bson4Jackson](https://www.michel-kraemer.com/binary-json-with-bson4jackson/)
+ 
+For kotlinx serialization mapping:
+ 
+ - [kbson](https://github.com/jershell/kbson)

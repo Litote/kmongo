@@ -7,6 +7,8 @@ Query results are automatically mapped to objects.
 To manage Mongo ```_id```, a class must have one ```_id``` property
  or a property annotated with the ```@BsonId``` annotation.
  
+> For **kotlinx serialization**, ```@BsonId``` is not supported. Use ```@SerialName("_id")``` on the id property.
+ 
 If there is no such field in your class, an ```ObjectId``` _id is generated on server side.
 
 ### KMongo Id type
@@ -31,6 +33,8 @@ It is easy to transform an ObjectId in Id<> with the *toId()* extension:
 LightSaber(ObjectId("myId").toId())
 ``` 
 
+> For **kotlinx serialization** add ```@ContextualSerialization``` annotation on ```Id``` properties.
+
 #### KMongo Id does not depend of Mongo nor KMongo lib
                      
 This is useful if you need to transfer your data object from a mongo backend 
@@ -44,14 +48,14 @@ You just have to add the ```kmongo-id``` dependency in the frontend to compile.
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-id</artifactId>
-  <version>3.11.0</version>
+  <version>3.11.1</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-id:3.11.0'
+compile 'org.litote.kmongo:kmongo-id:3.11.1'
 ```
 
 #### Id <> Json Jackson serialization
@@ -121,13 +125,23 @@ Started in 2.5.0 (July 2017), the java driver introduces a new [POJO mapping fra
 
 KMongo uses it to provide object mapping for Kotlin. No other dependency than the core java mongo driver is required.
 
-All the common cases are covered. However, there are some limitations. For example, top level POJO cannot contain any type parameters. There are some others as well.
+All the common cases are covered. However, there are some limitations. For example, top level POJO cannot contain any type parameters.
 
-In the end, as the framework is officially supported by the Mongo team, you can expect that it will improve over time. However, you will never get the full control that you can obtain with Jackson.
+### The kotlinx serialization choice
+
+Starting with 3.11.1 version, KMongo also supports [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization) mapping.
+
+The main advantage of this kind of mapping is that **no (slow) reflection** is involved.
+ 
+The kotlinx serialization mapping is currently in alpha mode.
 
 ### Conclusion
 
-We expect that, for most of the projects, the "native" bindings will be perfectly OK. For complex projects, or if you have already Jackson skills, the Jackson object mapping is a really nice choice.
+- We expect that, for most of the projects, the "native" bindings will be perfectly OK. 
+
+- For complex projects, or if you have already Jackson skills, the Jackson object mapping is a really nice choice.
+
+- Kotlin experts will prefer kotlinx serialization, as it should provide the best performance.
 
 Choose your poison! :)
 

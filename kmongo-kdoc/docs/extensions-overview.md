@@ -459,6 +459,10 @@ to Kotlin.
 
 If you use the kmongo-coroutine library, use the ```coroutine``` extension method first to get KMongo extensions. 
 
+## Transactions
+
+Transactions are supported. Use the extension methods with ```ClientSession``` parameter.
+
 ## KDoc
 
 Please consult [KDoc](http://litote.org/kmongo/dokka/kmongo/)
