@@ -6,11 +6,9 @@ import kotlinx.serialization.Serializable
 import org.bson.BsonDocument
 import org.bson.BsonDocumentReader
 import org.bson.BsonDocumentWriter
-import org.bson.Document
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.types.ObjectId
-import org.junit.Ignore
 import org.junit.Test
 import org.litote.kmongo.Id
 import org.litote.kmongo.model.Friend
@@ -25,7 +23,7 @@ class SerializationCodecTest {
     @ImplicitReflectionSerializer
     @Test
     fun `encode and decode Friend`() {
-        val friend = Friend("Joe","22 Wall Street Avenue", _id = ObjectId())
+        val friend = Friend("Joe", "22 Wall Street Avenue", _id = ObjectId())
         val codec = SerializationCodec(Friend::class)
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
@@ -38,7 +36,7 @@ class SerializationCodecTest {
     }
 
     @Serializable
-    data class TestWithId(@ContextualSerialization val id : Id<TestWithId> = newId())
+    data class TestWithId(@ContextualSerialization val id: Id<TestWithId> = newId())
 
     @ImplicitReflectionSerializer
     @Test
@@ -56,9 +54,8 @@ class SerializationCodecTest {
     }
 
     @Serializable
-    data class TestWithSetOfIds(val list : Set<@ContextualSerialization Id<TestWithId>> = setOf(newId()))
+    data class TestWithSetOfIds(val list: Set<@ContextualSerialization Id<TestWithId>> = setOf(newId()))
 
-    @Ignore
     @ImplicitReflectionSerializer
     @Test
     fun `encode and decode list of ids`() {
@@ -75,10 +72,11 @@ class SerializationCodecTest {
     }
 
     @Serializable
-    data class TestWithMapOfIds(val map : Map<@ContextualSerialization Id<TestWithId>, String>
-                                    = mapOf(newId<TestWithId>() to "a") )
+    data class TestWithMapOfIds(
+        val map: Map<@ContextualSerialization Id<TestWithId>, String>
+        = mapOf(newId<TestWithId>() to "a")
+    )
 
-    @Ignore
     @ImplicitReflectionSerializer
     @Test
     fun `encode and decode map of ids`() {
