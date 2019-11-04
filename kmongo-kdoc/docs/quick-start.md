@@ -95,9 +95,6 @@ For example, replace ```kmongo``` by ```kmongo-native``` or ```kmongo-serializat
 For the coroutine driver, replace ```kmongo-coroutine``` by ```kmongo-coroutine-native```  or ```kmongo-coroutine-serialization``` .
 You can read more about the mapping engine in the [dedicated chapter](object-mapping/index.html#how-to-choose-the-mapping-engine). 
 
-> for **kotlinx.serialization** please add the ```https://dl.bintray.com/jershell/generic``` repository to your configuration.
-
-
 ## Let's Start Coding
 
 ### With the sync driver

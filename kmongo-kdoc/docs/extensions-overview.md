@@ -265,6 +265,18 @@ val result: List<String?> = col.projection(Friend::name).toList()
 If you need to retrieve more than three fields - or if you don't use the sync driver - you have two options:
  
 - Use a custom dedicated class with [```FindIterable.projection```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-find-iterable/projection.html) functions.
+
+Coroutine sample:
+
+```kotlin  
+data class FriendWithNameOnly(val name: String)
+
+col.withDocumentClass<FriendWithNameOnly>()
+                .find()
+                .projection(FriendWithNameOnly::name)
+                .toList()
+```
+
 - Use projection with org.bson.Document and use `findValue` extension function:
 
 ```kotlin
@@ -295,7 +307,6 @@ val (name, lat, lng) =
        }
        .first()!!    
 ```
-
 
 ## Map-Reduce
 
