@@ -23,6 +23,7 @@ import org.litote.kmongo.Id
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.newId
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFalse
 
 /**
@@ -151,7 +152,7 @@ class SerializationCodecTest {
     data class IntMessage(val number: Int) : Message
 
     @Serializable
-    data class Container(val m:Message)
+    data class Container(val m: Message)
 
     @ImplicitReflectionSerializer
     @Test
@@ -174,4 +175,72 @@ class SerializationCodecTest {
         assertEquals(c, newC)
     }
 
+    interface Message2
+
+    @Serializable
+    data class StringMessage2(val message: String) : Message2
+
+    @Serializable
+    data class IntMessage2(val number: Int) : Message2
+
+    @ImplicitReflectionSerializer
+    @Test
+    fun `encode and decode directly custom polymorphic serializer`() {
+        registerModule(
+            SerializersModule {
+                polymorphic(Message2::class) {
+                    StringMessage2::class with StringMessage2.serializer()
+                    IntMessage2::class with IntMessage2.serializer()
+                }
+            })
+        val c = StringMessage2("a")
+        val codec = SerializationCodec(Message2::class)
+        val document = BsonDocument()
+        val writer = BsonDocumentWriter(document)
+        codec.encode(writer, c, EncoderContext.builder().build())
+
+        val newC = codec.decode(BsonDocumentReader(document), DecoderContext.builder().build())
+
+        assertEquals(c, newC)
+    }
+
+    @Serializable
+    data class SerializableClass(val s: String)
+
+    data class NotSerializableClass(val s: String)
+
+    @ImplicitReflectionSerializer
+    @Test
+    fun `encoding a not serializable class throws a SerializationException`() {
+        val t = assertFails {
+            val c = NotSerializableClass("a")
+            val codec = SerializationCodec(NotSerializableClass::class)
+            val document = BsonDocument()
+            val writer = BsonDocumentWriter(document)
+            codec.encode(writer, c, EncoderContext.builder().build())
+        }
+        assertEquals(
+            "Can't locate argument-less serializer for class org.litote.kmongo.serialization.SerializationCodecTest\$NotSerializableClass. For generic classes, such as lists, please provide serializer explicitly.",
+            t.message
+        )
+    }
+
+    @ImplicitReflectionSerializer
+    @Test
+    fun `decoding a not serializable class throws a SerializationException`() {
+        val t = assertFails {
+            val c = SerializableClass("a")
+            val codec = SerializationCodec(SerializableClass::class)
+            val document = BsonDocument()
+            val writer = BsonDocumentWriter(document)
+            codec.encode(writer, c, EncoderContext.builder().build())
+
+            val codec2 = SerializationCodec(NotSerializableClass::class)
+            codec2.decode(BsonDocumentReader(document), DecoderContext.builder().build())
+        }
+        assertEquals(
+            "Can't locate argument-less serializer for class org.litote.kmongo.serialization.SerializationCodecTest\$NotSerializableClass. For generic classes, such as lists, please provide serializer explicitly.",
+            t.message
+        )
+    }
 }

@@ -22,6 +22,8 @@ import com.github.jershell.kbson.DateSerializer
 import com.github.jershell.kbson.ObjectIdSerializer
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.internal.PairSerializer
 import kotlinx.serialization.internal.ReferenceArraySerializer
 import kotlinx.serialization.internal.StringSerializer
@@ -100,7 +102,7 @@ internal object KMongoSerializationRepository {
     )
 
     @ImplicitReflectionSerializer
-    private fun getBaseSerializer(obj: Any): KSerializer<*>? {
+    private fun <T : Any> getBaseSerializer(obj: T, kClass: KClass<T> = obj.javaClass.kotlin): KSerializer<*>? {
         @Suppress("UNCHECKED_CAST")
         return when (obj) {
             is KProperty<*> -> KPropertySerializer
@@ -111,19 +113,33 @@ internal object KMongoSerializationRepository {
                 getSerializer(obj.third)
             )
             is Array<*> -> ReferenceArraySerializer(
-                obj.javaClass.kotlin as KClass<Any>,
+                kClass as KClass<Any>,
                 obj.filterNotNull().let {
                     if (it.isEmpty()) StringSerializer else getSerializer(it.first())
                 } as KSerializer<Any>
             )
-            else -> module.getContextual(obj.javaClass.kotlin)
-                    ?: module.getPolymorphic(obj.javaClass.kotlin, obj)
+            else -> module.getContextual(kClass)
+                    ?: module.getPolymorphic(kClass, obj)?.let {
+                        PolymorphicSerializer(kClass)
+                    }
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     @ImplicitReflectionSerializer
-    fun <T : Any> getSerializer(obj: T?): KSerializer<T> =
+    fun <T : Any> getSerializer(kClass: KClass<T>, obj: T?): KSerializer<T> =
+        if (obj == null) {
+            JsonNullSerializer as? KSerializer<T> ?: error("no serializer for null")
+        } else {
+            (serializersMap[kClass]
+                    ?: getBaseSerializer(obj, kClass)
+                    ?: kClass.serializer()) as? KSerializer<T>
+                    ?: error("no serializer for $obj of class $kClass")
+        }
+
+    @Suppress("UNCHECKED_CAST")
+    @ImplicitReflectionSerializer
+    private fun <T : Any> getSerializer(obj: T?): KSerializer<T> =
         if (obj == null) {
             JsonNullSerializer as? KSerializer<T> ?: error("no serializer for null")
         } else {
@@ -138,7 +154,16 @@ internal object KMongoSerializationRepository {
     fun <T : Any> getSerializer(kClass: KClass<T>): KSerializer<T> =
         (serializersMap[kClass]
                 ?: module.getContextual(kClass)
-                ?: kClass.serializer()) as? KSerializer<T>
+                ?: try {
+                    kClass.serializer()
+                } catch (e: SerializationException) {
+                    if (kClass.isAbstract || kClass.isOpen || kClass.isSealed) {
+                        PolymorphicSerializer(kClass)
+                    } else {
+                        throw e
+                    }
+                }
+                ) as? KSerializer<T>
                 ?: error("no serializer for $kClass of class $kClass")
 
     @Volatile

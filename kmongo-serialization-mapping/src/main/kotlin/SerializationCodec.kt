@@ -54,7 +54,7 @@ internal class SerializationCodec<T : Any>(val clazz: KClass<T>) : CollectibleCo
 
     @ImplicitReflectionSerializer
     override fun encode(writer: BsonWriter, value: T, encoderContext: EncoderContext) {
-        val serializer = KMongoSerializationRepository.getSerializer(value)
+        val serializer = KMongoSerializationRepository.getSerializer(clazz, value)
         BsonEncoder(writer, module, Configuration()).encode(serializer, value)
     }
 
