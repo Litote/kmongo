@@ -1,8 +1,17 @@
 package org.litote.kmongo.serialization
 
+import kotlinx.serialization.CompositeDecoder
+import kotlinx.serialization.CompositeEncoder
 import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Decoder
+import kotlinx.serialization.Encoder
 import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
+import kotlinx.serialization.internal.SerialClassDescImpl
+import kotlinx.serialization.internal.StringDescriptor
+import kotlinx.serialization.modules.SerializersModule
 import org.bson.BsonDocument
 import org.bson.BsonDocumentReader
 import org.bson.BsonDocumentWriter
@@ -14,6 +23,7 @@ import org.litote.kmongo.Id
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.newId
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 /**
  *
@@ -29,7 +39,6 @@ class SerializationCodecTest {
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, friend, EncoderContext.builder().build())
 
-        println(document)
         val newFriend = codec.decode(BsonDocumentReader(document), DecoderContext.builder().build())
 
         assertEquals(friend, newFriend)
@@ -47,7 +56,6 @@ class SerializationCodecTest {
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, id, EncoderContext.builder().build())
 
-        println(document)
         val newFriend = codec.decode(BsonDocumentReader(document), DecoderContext.builder().build())
 
         assertEquals(id, newFriend)
@@ -65,7 +73,6 @@ class SerializationCodecTest {
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, idList, EncoderContext.builder().build())
 
-        println(document)
         val newFriend = codec.decode(BsonDocumentReader(document), DecoderContext.builder().build())
 
         assertEquals(idList, newFriend)
@@ -86,9 +93,85 @@ class SerializationCodecTest {
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, idList, EncoderContext.builder().build())
 
-        println(document)
         val newFriend = codec.decode(BsonDocumentReader(document), DecoderContext.builder().build())
 
         assertEquals(idList, newFriend)
     }
+
+    data class Custom(val s: String, val b: Boolean = false)
+
+    @Serializer(forClass = Custom::class)
+    class CustomSerializer : KSerializer<Custom> {
+
+        object CustomClassDesc : SerialClassDescImpl("Custom") {
+            init {
+                addElement("s")
+                pushDescriptor(StringDescriptor)
+            }
+        }
+
+        override fun deserialize(decoder: Decoder): Custom {
+            decoder as CompositeDecoder
+            decoder.beginStructure(CustomClassDesc)
+            val c = Custom(decoder.decodeStringElement(CustomClassDesc, 0))
+            decoder.endStructure(CustomClassDesc)
+            return c
+        }
+
+        override fun serialize(encoder: Encoder, obj: Custom) {
+            encoder as CompositeEncoder
+            encoder.beginStructure(CustomClassDesc)
+            encoder.encodeStringElement(CustomClassDesc, 0, obj.s)
+            encoder.endStructure(CustomClassDesc)
+        }
+    }
+
+    @ImplicitReflectionSerializer
+    @Test
+    fun `encode and decode with custom serializer`() {
+        registerSerializer(CustomSerializer())
+        val c = Custom("a", true)
+        val codec = SerializationCodec(Custom::class)
+        val document = BsonDocument()
+        val writer = BsonDocumentWriter(document)
+        codec.encode(writer, c, EncoderContext.builder().build())
+
+        val newC = codec.decode(BsonDocumentReader(document), DecoderContext.builder().build())
+
+        assertEquals(c.s, newC.s)
+        assertFalse(newC.b)
+    }
+
+    interface Message
+
+    @Serializable
+    data class StringMessage(val message: String) : Message
+
+    @Serializable
+    data class IntMessage(val number: Int) : Message
+
+    @Serializable
+    data class Container(val m:Message)
+
+    @ImplicitReflectionSerializer
+    @Test
+    fun `encode and decode with custom polymorphic serializer`() {
+        registerModule(
+            SerializersModule {
+                polymorphic(Message::class) {
+                    StringMessage::class with StringMessage.serializer()
+                    IntMessage::class with IntMessage.serializer()
+                }
+            })
+        val c = Container(StringMessage("a"))
+        val codec = SerializationCodec(Container::class)
+        val document = BsonDocument()
+        val writer = BsonDocumentWriter(document)
+        codec.encode(writer, c, EncoderContext.builder().build())
+
+        val newC = codec.decode(BsonDocumentReader(document), DecoderContext.builder().build())
+
+        assertEquals(c, newC)
+    }
+
 }

@@ -22,7 +22,6 @@ import com.github.jershell.kbson.Configuration
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.decode
 import kotlinx.serialization.encode
-import kotlinx.serialization.serializer
 import org.bson.BsonDouble
 import org.bson.BsonInt32
 import org.bson.BsonInt64
@@ -61,7 +60,9 @@ internal class SerializationCodec<T : Any>(val clazz: KClass<T>) : CollectibleCo
 
     @ImplicitReflectionSerializer
     override fun decode(reader: BsonReader, decoderContext: DecoderContext): T {
-        return BsonDocumentDecoder(reader, module, Configuration()).decode(clazz.serializer())
+        return BsonDocumentDecoder(reader, module, Configuration()).decode(
+            KMongoSerializationRepository.getSerializer(clazz)
+        )
     }
 
     override fun getDocumentId(document: T): BsonValue {

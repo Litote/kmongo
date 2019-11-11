@@ -49,9 +49,28 @@ import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
+@PublishedApi
+internal val customSerializersMap: MutableMap<KClass<*>, KSerializer<*>> = ConcurrentHashMap()
+private val customModules = CopyOnWriteArraySet<SerialModule>()
+
+/**
+ * Add a custom [SerialModule] to KMongo kotlinx.serialization mapping.
+ */
+fun registerModule(module: SerialModule) {
+    customModules.add(module)
+}
+
+/**
+ * Add a custom serializer to KMongo kotlinx.serialization mapping
+ */
+inline fun <reified T> registerSerializer(serializer: KSerializer<T>) {
+    customSerializersMap[T::class] = serializer
+}
 
 /**
  *
@@ -97,7 +116,8 @@ internal object KMongoSerializationRepository {
                     if (it.isEmpty()) StringSerializer else getSerializer(it.first())
                 } as KSerializer<Any>
             )
-            else -> null
+            else -> module.getContextual(obj.javaClass.kotlin)
+                    ?: module.getPolymorphic(obj.javaClass.kotlin, obj)
         }
     }
 
@@ -107,15 +127,42 @@ internal object KMongoSerializationRepository {
         if (obj == null) {
             JsonNullSerializer as? KSerializer<T> ?: error("no serializer for null")
         } else {
-
-            //TODO don't known yet how to do this without reflection
             (serializersMap[obj.javaClass.kotlin]
                     ?: getBaseSerializer(obj)
                     ?: obj.javaClass.kotlin.serializer()) as? KSerializer<T>
                     ?: error("no serializer for $obj of class ${obj.javaClass.kotlin}")
         }
 
-    val module: SerialModule = SerializersModule {
+    @Suppress("UNCHECKED_CAST")
+    @ImplicitReflectionSerializer
+    fun <T : Any> getSerializer(kClass: KClass<T>): KSerializer<T> =
+        (serializersMap[kClass]
+                ?: module.getContextual(kClass)
+                ?: kClass.serializer()) as? KSerializer<T>
+                ?: error("no serializer for $kClass of class $kClass")
+
+    @Volatile
+    private var baseModule: SerialModule = SerializersModule {
         include(serializersModuleOf(serializersMap))
+        include(serializersModuleOf(customSerializersMap))
+        customModules.forEach { include(it) }
     }
+    @Volatile
+    private var customModulesSize: Int = customModules.size
+    @Volatile
+    private var customSerializersSize: Int = customSerializersMap.size
+
+    val module: SerialModule
+        get() {
+            if (customSerializersSize != customSerializersMap.size || customModulesSize != customModules.size) {
+                customSerializersSize = customSerializersMap.size
+                customModulesSize = customModules.size
+                baseModule = SerializersModule {
+                    include(serializersModuleOf(serializersMap))
+                    include(serializersModuleOf(customSerializersMap))
+                    customModules.forEach { include(it) }
+                }
+            }
+            return baseModule
+        }
 }
