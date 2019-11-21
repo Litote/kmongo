@@ -753,7 +753,11 @@ fun <T> MongoCollection<T>.ensureIndex(
     } catch (e: MongoCommandException) {
         //there is an exception if the parameters of an existing index are changed.
         //then drop the index and create a new one
-        dropIndex(clientSession, keys)
+        try {
+            dropIndex(clientSession, keys)
+        } catch (e2: Exception) {
+            //ignore
+        }
         createIndex(clientSession, keys, indexOptions)
     }
 }

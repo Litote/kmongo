@@ -1258,7 +1258,13 @@ suspend fun <T> MongoCollection<T>.ensureIndex(
     } catch (e: MongoCommandException) {
         //there is an exception if the parameters of an existing index are changed.
         //then drop the index and create a new one
-        singleResult<Void> { dropIndex(keys, it) }
+        singleResult<Void> {
+            try {
+                dropIndex(keys, it)
+            } catch (e2: Exception) {
+                //ignore
+            }
+        }
         singleResult { createIndex(keys, indexOptions, it) }
     }
 

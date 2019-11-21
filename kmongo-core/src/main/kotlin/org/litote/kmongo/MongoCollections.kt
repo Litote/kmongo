@@ -697,7 +697,11 @@ fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions 
     } catch (e: MongoCommandException) {
         //there is an exception if the parameters of an existing index are changed.
         //then drop the index and create a new one
-        dropIndexOfKeys(keys)
+        try {
+            dropIndexOfKeys(keys)
+        } catch (e2: Exception) {
+            //ignore
+        }
         createIndex(keys, indexOptions)
     }
 }
