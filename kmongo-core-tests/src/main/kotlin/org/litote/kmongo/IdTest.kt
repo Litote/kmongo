@@ -18,12 +18,12 @@ package org.litote.kmongo
 
 import com.mongodb.client.MongoCollection
 import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.experimental.categories.Category
 import org.litote.kmongo.IdTest.Article
 import org.litote.kmongo.MongoOperator.oid
 import org.litote.kmongo.id.IdGenerator
@@ -36,7 +36,7 @@ import kotlin.test.assertTrue
 /**
  *
  */
-class IdTest : KMongoBaseTest<Article>() {
+class IdTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Serializable
     data class Article(
@@ -79,7 +79,9 @@ class IdTest : KMongoBaseTest<Article>() {
     data class Shop(
         val name: String,
         @ContextualSerialization
-        @BsonId val id: Id<Shop> = newId()
+        @BsonId
+        @SerialName("_id")
+        val id: Id<Shop> = newId()
     )
 
     @Serializable
@@ -123,7 +125,6 @@ class IdTest : KMongoBaseTest<Article>() {
         IdGenerator.defaultGenerator = ObjectIdGenerator
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
     @Test
     fun extendedJsonShouldBeHandledWell() {
         stringGenerator()
@@ -153,7 +154,6 @@ class IdTest : KMongoBaseTest<Article>() {
         )
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
     @Test
     fun savingAndRetrievingObjectShouldBeOk() {
         stringGenerator()
@@ -171,7 +171,6 @@ class IdTest : KMongoBaseTest<Article>() {
         assertEquals(shop, shopCol.findOneById(shop.id))
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
     @Test
     fun extendedJsonShouldBeHandledWellWithObjectContainingMapWithIds() {
         stringGenerator()
@@ -207,7 +206,6 @@ class IdTest : KMongoBaseTest<Article>() {
         )
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
     @Test
     fun savingAndRetrievingObjectShouldBeOkWithObjectContainingMapWithIds() {
         stringGenerator()
@@ -225,7 +223,6 @@ class IdTest : KMongoBaseTest<Article>() {
         assertEquals(shop, shopCol.findOneById(shop.id))
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
     @Test
     fun longIdTest() {
         val a = Article3(Long.MAX_VALUE, "a")
@@ -233,7 +230,6 @@ class IdTest : KMongoBaseTest<Article>() {
         assertEquals(a, article3Col.findOne("{_id:{${MongoOperator.type}:'long'}}"))
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
     @Test
     fun `query id with dsl is ok`() {
         stringGenerator()
@@ -251,7 +247,6 @@ class IdTest : KMongoBaseTest<Article>() {
         assertEquals(shop, shopCol.findOne(shop::id eq shop.id))
     }
 
-    @Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
     @Test
     fun `class with null id is generated on client side`() {
         val a = ArticleWithNullId(null)

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (C) 2017 Litote
+  ~ Copyright (C) 2017/2019 Litote
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,27 +14,23 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.litote.kmongo</groupId>
-        <artifactId>kmongo-benchmark</artifactId>
+        <artifactId>kmongo-root</artifactId>
         <version>3.11.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>kmongo-benchmark-common</artifactId>
-
-    <name>KMongo JMH benchmark Common classes</name>
+    <artifactId>kmongo-kbson</artifactId>
+    <name>Fork of kbson for KMongo</name>
+    <description>Fork of kbson for KMongo https://github.com/jershell/kbson</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-shared</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-core</artifactId>
+            <artifactId>bson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>

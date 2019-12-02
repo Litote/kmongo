@@ -45,6 +45,7 @@ class SerializationCodecTest {
         assertEquals(friend, newFriend)
     }
 
+
     @Serializable
     data class TestWithId(@ContextualSerialization val id: Id<TestWithId> = newId())
 
@@ -99,10 +100,11 @@ class SerializationCodecTest {
         assertEquals(idList, newFriend)
     }
 
+
     data class Custom(val s: String, val b: Boolean = false)
 
     @Serializer(forClass = Custom::class)
-    class CustomSerializer : KSerializer<Custom> {
+    object CustomSerializer : KSerializer<Custom> {
 
         object CustomClassDesc : SerialClassDescImpl("Custom") {
             init {
@@ -130,7 +132,7 @@ class SerializationCodecTest {
     @ImplicitReflectionSerializer
     @Test
     fun `encode and decode with custom serializer`() {
-        registerSerializer(CustomSerializer())
+        registerSerializer(CustomSerializer)
         val c = Custom("a", true)
         val codec = SerializationCodec(Custom::class)
         val document = BsonDocument()

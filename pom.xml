@@ -38,6 +38,7 @@
         <module>kmongo-annotation-processor</module>
         <module>kmongo-jackson-mapping</module>
         <module>kmongo-native-mapping</module>
+        <module>kmongo-kbson</module>
         <module>kmongo-serialization-mapping</module>
         <module>kmongo-flapdoodle</module>
         <module>kmongo-fongo</module>
@@ -67,9 +68,9 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.3.50</kotlin.version>
+        <kotlin.version>1.3.60</kotlin.version>
         <mongo.version>3.11.1</mongo.version>
-        <mongo.base.version>3.10</mongo.base.version>
+        <mongo.base.version>3.11</mongo.base.version>
         <coroutine.version>1.3.2</coroutine.version>
         <rxjava.version>2.2.14</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
@@ -79,8 +80,7 @@
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.1.0</jackson-module-loader.version>
         <reactivestreams.version>1.12.0</reactivestreams.version>
-        <kbson.version>0.1.5</kbson.version>
-        <kotlinx-serialization.version>0.13.0</kotlinx-serialization.version>
+        <kotlinx-serialization.version>0.14.0</kotlinx-serialization.version>
 
         <!-- annotations processor -->
         <kgenerator.version>0.3.0</kgenerator.version>
@@ -331,6 +331,11 @@
                 <artifactId>kmongo-data</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-kbson</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.mongodb</groupId>
@@ -475,12 +480,6 @@
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-core</artifactId>
                 <version>${jmh.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.jershell</groupId>
-                <artifactId>kbson</artifactId>
-                <version>${kbson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

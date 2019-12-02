@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-root</artifactId>
-        <version>3.9.2-SNAPSHOT</version>
+        <version>3.11.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>kmongo-benchmark</artifactId>
@@ -30,6 +30,7 @@
         <module>common</module>
         <module>jackson</module>
         <module>native</module>
+        <module>serialization</module>
     </modules>
 
     <name>KMongo JMH benchmark</name>

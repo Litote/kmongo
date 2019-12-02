@@ -16,9 +16,8 @@
 
 package org.litote.kmongo.serialization
 
-import com.github.jershell.kbson.BsonDecoder
-import com.github.jershell.kbson.BsonDocumentDecoder
 import com.github.jershell.kbson.BsonEncoder
+import com.github.jershell.kbson.FlexibleDecoder
 import com.github.jershell.kbson.ObjectIdSerializer
 import kotlinx.serialization.Decoder
 import kotlinx.serialization.Encoder
@@ -27,12 +26,15 @@ import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.internal.StringDescriptor
 import kotlinx.serialization.withName
-import org.bson.BsonInvalidOperationException
+import org.bson.AbstractBsonReader.State
 import org.bson.BsonTimestamp
+import org.bson.BsonType
 import org.bson.types.Binary
 import org.bson.types.ObjectId
 import org.litote.kmongo.Id
+import org.litote.kmongo.id.IdGenerator
 import org.litote.kmongo.id.IdTransformer
+import org.litote.kmongo.id.ObjectIdGenerator
 import org.litote.kmongo.projection
 import java.time.Instant
 import java.time.LocalDate
@@ -73,11 +75,14 @@ abstract class TemporalExtendedJsonSerializer<T> : KSerializer<T> {
 
     override fun deserialize(decoder: Decoder): T {
         return when (decoder) {
-            is BsonDocumentDecoder -> {
-                instantiate(decoder.decodeTaggedDateTime())
-            }
-            is BsonDecoder -> {
-                instantiate(decoder.reader.readDateTime())
+            is FlexibleDecoder -> {
+                instantiate(
+                    when (decoder.reader.currentBsonType) {
+                        BsonType.STRING -> decoder.decodeString().toLong()
+                        BsonType.DATE_TIME -> decoder.reader.readDateTime()
+                        else -> throw SerializationException("Unsupported ${decoder.reader.currentBsonType} reading date")
+                    }
+                )
             }
             else -> throw SerializationException("Unknown decoder type")
         }
@@ -177,7 +182,7 @@ object BinarySerializer : KSerializer<Binary> {
 
     override val descriptor: SerialDescriptor = StringDescriptor.withName("BinarySerializer")
     override fun deserialize(decoder: Decoder): Binary =
-        Binary((decoder as BsonDocumentDecoder).decodeByteArray())
+        Binary((decoder as FlexibleDecoder).reader.readBinaryData().data)
 
     override fun serialize(encoder: Encoder, obj: Binary) {
         (encoder as BsonEncoder).encodeByteArray(obj.data)
@@ -213,19 +218,20 @@ internal class IdSerializer<T : Id<*>>(val shouldBeStringId: Boolean) : KSeriali
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(decoder: Decoder): T =
-        if (shouldBeStringId) {
-            try {
-                IdTransformer.wrapId(decoder.decodeString())
-            } catch (e: BsonInvalidOperationException) {
-                IdTransformer.wrapId((decoder as BsonDocumentDecoder).decodeObjectId())
-            }
+        IdTransformer.wrapId(deserializeObjectId(decoder as FlexibleDecoder)) as T
+
+    private fun deserializeObjectId(decoder: FlexibleDecoder): Any {
+        return if (decoder.reader.state == State.NAME) {
+            val keyId = decoder.reader.readName()
+            if (shouldBeStringId || IdGenerator.defaultGenerator != ObjectIdGenerator) keyId else ObjectId(keyId)
         } else {
-            try {
-                IdTransformer.wrapId((decoder as BsonDocumentDecoder).decodeObjectId())
-            } catch (e: BsonInvalidOperationException) {
-                IdTransformer.wrapId(decoder.decodeString())
+            when (decoder.reader.currentBsonType) {
+                BsonType.STRING -> decoder.decodeString()
+                BsonType.OBJECT_ID -> decoder.reader.readObjectId()
+                else -> throw SerializationException("Unsupported ${decoder.reader.currentBsonType} reading object id")
             }
-        } as T
+        }
+    }
 
     override fun serialize(encoder: Encoder, obj: T) {
         IdTransformer.unwrapId(obj).also {

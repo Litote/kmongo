@@ -16,13 +16,19 @@
 
 package org.litote.kmongo
 
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 
 /**
  *
  */
+@Serializable
 data class FriendWithBuddies(
+    @ContextualSerialization
+    @SerialName("_id")
     @BsonId
     val id: ObjectId? = null,
     val name: String? = null,

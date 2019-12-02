@@ -47,8 +47,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.jershell</groupId>
-            <artifactId>kbson</artifactId>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-kbson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>

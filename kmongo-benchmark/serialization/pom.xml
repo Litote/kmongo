@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (C) 2017 Litote
+  ~ Copyright (C) 2017/2019 Litote
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -24,26 +24,18 @@
         <version>3.11.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>kmongo-benchmark-jackson</artifactId>
+    <artifactId>kmongo-benchmark-serialization</artifactId>
 
-    <name>KMongo Jackson JMH benchmark</name>
+    <name>KMongo Kotlin x Serialization JMH benchmark</name>
 
     <dependencies>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo</artifactId>
+            <artifactId>kmongo-serialization</artifactId>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-benchmark-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.litote.jackson</groupId>
-            <artifactId>jackson-data</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.litote.jackson</groupId>
-            <artifactId>jackson-generator</artifactId>
         </dependency>
     </dependencies>
 

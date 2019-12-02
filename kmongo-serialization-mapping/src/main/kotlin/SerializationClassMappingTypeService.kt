@@ -15,8 +15,6 @@
  */
 package org.litote.kmongo.serialization
 
-import com.github.jershell.kbson.BsonEncoder
-import com.github.jershell.kbson.Configuration
 import com.mongodb.MongoClientSettings
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.SerialName
@@ -28,7 +26,6 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
-import org.litote.kmongo.serialization.KMongoSerializationRepository.module
 import org.litote.kmongo.service.ClassMappingTypeService
 import java.io.StringWriter
 import kotlin.reflect.KClass
@@ -51,7 +48,7 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
         val writer = BsonDocumentWriter(doc)
 
         coreCodecRegistry().get(obj.javaClass).encode(writer, obj, EncoderContext.builder().build())
-        
+
         writer.flush()
 
         doc.remove("_id")

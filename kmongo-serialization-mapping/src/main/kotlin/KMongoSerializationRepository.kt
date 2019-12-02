@@ -18,6 +18,7 @@ package org.litote.kmongo.serialization
 
 import com.github.jershell.kbson.BigDecimalSerializer
 import com.github.jershell.kbson.ByteArraySerializer
+import com.github.jershell.kbson.Configuration
 import com.github.jershell.kbson.DateSerializer
 import com.github.jershell.kbson.ObjectIdSerializer
 import kotlinx.serialization.ImplicitReflectionSerializer
@@ -59,12 +60,16 @@ import kotlin.reflect.KProperty
 @PublishedApi
 internal val customSerializersMap: MutableMap<KClass<*>, KSerializer<*>> = ConcurrentHashMap()
 private val customModules = CopyOnWriteArraySet<SerialModule>()
+@Volatile
+@PublishedApi
+internal var checkBaseModule: Boolean = true
 
 /**
  * Add a custom [SerialModule] to KMongo kotlinx.serialization mapping.
  */
 fun registerModule(module: SerialModule) {
     customModules.add(module)
+    checkBaseModule = true
 }
 
 /**
@@ -72,7 +77,14 @@ fun registerModule(module: SerialModule) {
  */
 inline fun <reified T> registerSerializer(serializer: KSerializer<T>) {
     customSerializersMap[T::class] = serializer
+    checkBaseModule = true
 }
+
+/**
+ * The kotlinx serialization default configuration.
+ */
+@Volatile
+var configuration: Configuration = Configuration()
 
 /**
  *
@@ -172,16 +184,11 @@ internal object KMongoSerializationRepository {
         include(serializersModuleOf(customSerializersMap))
         customModules.forEach { include(it) }
     }
-    @Volatile
-    private var customModulesSize: Int = customModules.size
-    @Volatile
-    private var customSerializersSize: Int = customSerializersMap.size
 
     val module: SerialModule
         get() {
-            if (customSerializersSize != customSerializersMap.size || customModulesSize != customModules.size) {
-                customSerializersSize = customSerializersMap.size
-                customModulesSize = customModules.size
+            if (checkBaseModule) {
+                checkBaseModule = false
                 baseModule = SerializersModule {
                     include(serializersModuleOf(serializersMap))
                     include(serializersModuleOf(customSerializersMap))

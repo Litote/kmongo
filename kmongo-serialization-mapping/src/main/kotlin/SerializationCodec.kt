@@ -16,12 +16,13 @@
 
 package org.litote.kmongo.serialization
 
-import com.github.jershell.kbson.BsonDocumentDecoder
 import com.github.jershell.kbson.BsonEncoder
-import com.github.jershell.kbson.Configuration
+import com.github.jershell.kbson.BsonFlexibleDecoder
 import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.decode
 import kotlinx.serialization.encode
+import org.bson.AbstractBsonReader
 import org.bson.BsonDouble
 import org.bson.BsonInt32
 import org.bson.BsonInt64
@@ -49,20 +50,22 @@ internal class SerializationCodec<T : Any>(val clazz: KClass<T>) : CollectibleCo
     private val idProperty: KProperty1<*, *>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
         ClassMappingType.findIdProperty(clazz)
     }
+    @ImplicitReflectionSerializer
+    private val decoderSerializer: KSerializer<T> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        KMongoSerializationRepository.getSerializer(clazz)
+    }
 
     override fun getEncoderClass(): Class<T> = clazz.java
 
     @ImplicitReflectionSerializer
     override fun encode(writer: BsonWriter, value: T, encoderContext: EncoderContext) {
         val serializer = KMongoSerializationRepository.getSerializer(clazz, value)
-        BsonEncoder(writer, module, Configuration()).encode(serializer, value)
+        BsonEncoder(writer, module, configuration).encode(serializer, value)
     }
 
     @ImplicitReflectionSerializer
     override fun decode(reader: BsonReader, decoderContext: DecoderContext): T {
-        return BsonDocumentDecoder(reader, module, Configuration()).decode(
-            KMongoSerializationRepository.getSerializer(clazz)
-        )
+        return BsonFlexibleDecoder(reader as AbstractBsonReader, module, configuration).decode(decoderSerializer)
     }
 
     override fun getDocumentId(document: T): BsonValue {
