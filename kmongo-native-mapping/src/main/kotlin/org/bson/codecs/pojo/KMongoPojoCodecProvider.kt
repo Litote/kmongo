@@ -34,53 +34,58 @@ import kotlin.reflect.KClass
 /**
  *
  */
-internal class KMongoPojoCodecProvider(serialization: PropertySerialization<Any> = PropertyModelSerializationImpl()) : CodecProvider {
+internal class KMongoPojoCodecProvider(serialization: PropertySerialization<Any> = PropertyModelSerializationImpl()) :
+    CodecProvider {
 
     private val pojoCodecProvider =
-            PojoCodecProvider
-                    .builder()
-                    .conventions(
-                            listOf(
-                                    KMongoConvention(serialization),
-                                    Conventions.CLASS_AND_PROPERTY_CONVENTION,
-                                    KMongoAnnotationConvention,
-                                    EmptyObjectConvention())
-                    )
-                    .register(
-                            PairPropertyCodecProvider,
-                            TriplePropertyCodecProvider,
-                            KeyObjectMapPropertyCodecProvider)
-                    .automatic(true)
-                    .build()
+        PojoCodecProvider
+            .builder()
+            .conventions(
+                listOf(
+                    KMongoConvention(serialization),
+                    Conventions.CLASS_AND_PROPERTY_CONVENTION,
+                    KMongoAnnotationConvention,
+                    EmptyObjectConvention()
+                )
+            )
+            .register(
+                PairPropertyCodecProvider,
+                TriplePropertyCodecProvider,
+                KeyObjectMapPropertyCodecProvider
+            )
+            .automatic(true)
+            .build()
 
 
     private val defaultProviders: List<CodecProvider> =
-            listOf(
-                    ValueCodecProvider(),
-                    BsonValueCodecProvider(),
-                    DBRefCodecProvider(),
-                    DocumentCodecProvider(DocumentToDBRefTransformer()),
-                    IterableCodecProvider(DocumentToDBRefTransformer()),
-                    MapCodecProvider(DocumentToDBRefTransformer()),
-                    GeoJsonCodecProvider(),
-                    GridFSFileCodecProvider(),
+        listOf(
+            ValueCodecProvider(),
+            BsonValueCodecProvider(),
+            DBRefCodecProvider(),
+            DocumentCodecProvider(DocumentToDBRefTransformer()),
+            IterableCodecProvider(DocumentToDBRefTransformer()),
+            MapCodecProvider(DocumentToDBRefTransformer()),
+            GeoJsonCodecProvider(),
+            GridFSFileCodecProvider(),
 
-                    JavaTimeCodecProvider,
-                    UtilClassesCodecProvider
-            )
+            JavaTimeCodecProvider,
+            UtilClassesCodecProvider
+        )
 
     val codecRegistry: CodecRegistry =
-            CodecRegistries.fromProviders(
-                    defaultProviders + this
-            )
+        CodecRegistries.fromProviders(
+            defaultProviders + this
+        )
 
     fun getClassModel(type: KClass<*>): ClassModel<*> {
         return (codecRegistry.get(type.java) as PojoCodec<*>).classModel
     }
 
+
     override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? {
-        return if(clazz.isEnum) {
-            null
+        return if (clazz.isEnum) {
+            @Suppress("UPPER_BOUND_VIOLATED", "UNCHECKED_CAST")
+            EnumCodec<Enum<*>>(clazz as Class<Enum<*>>) as Codec<T>
         } else {
             pojoCodecProvider.get(clazz, registry)?.let {
                 KMongoPojoCodec(it as PojoCodec<T>, registry)
