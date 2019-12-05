@@ -17,17 +17,18 @@
 package org.bson.codecs.pojo
 
 import org.bson.codecs.configuration.CodecRegistry
+import kotlin.LazyThreadSafetyMode.PUBLICATION
 
 /**
  *
  */
 internal object KMongoPojoCodecService {
 
-    val codecProvider: KMongoPojoCodecProvider  by lazy { KMongoPojoCodecProvider() }
-    val codecRegistry: CodecRegistry by lazy { codecProvider.codecRegistry }
+    val codecProvider: KMongoPojoCodecProvider by lazy(PUBLICATION) { KMongoPojoCodecProvider() }
+    val codecRegistry: CodecRegistry by lazy(PUBLICATION) { codecProvider.codecRegistry }
 
-    val codecProviderWithNullSerialization: KMongoPojoCodecProvider  by lazy {
+    val codecProviderWithNullSerialization: KMongoPojoCodecProvider by lazy(PUBLICATION) {
         KMongoPojoCodecProvider(PropertySerialization { true })
     }
-    val codecRegistryWithNullSerialization: CodecRegistry by lazy { codecProviderWithNullSerialization.codecRegistry }
+    val codecRegistryWithNullSerialization: CodecRegistry by lazy(PUBLICATION) { codecProviderWithNullSerialization.codecRegistry }
 }

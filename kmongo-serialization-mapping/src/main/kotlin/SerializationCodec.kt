@@ -18,6 +18,7 @@ package org.litote.kmongo.serialization
 
 import com.github.jershell.kbson.BsonEncoder
 import com.github.jershell.kbson.BsonFlexibleDecoder
+import com.github.jershell.kbson.Configuration
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.decode
@@ -45,7 +46,10 @@ import kotlin.reflect.jvm.javaField
 /**
  *
  */
-internal class SerializationCodec<T : Any>(val clazz: KClass<T>) : CollectibleCodec<T> {
+internal class SerializationCodec<T : Any>(
+    private val clazz: KClass<T>,
+    private val configuration: Configuration
+) : CollectibleCodec<T> {
 
     private val idProperty: KProperty1<*, *>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
         ClassMappingType.findIdProperty(clazz)

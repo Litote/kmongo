@@ -86,8 +86,9 @@ open class BsonEncoder(
                 if (desc !is PairClassDesc && desc !is TripleSerializer.TripleDesc) {
                     val elemDesc = desc.getElementDescriptor(index)
                     if (elemDesc.isNullable) {
-                        val ann = desc.getElementAnnotations(index).find { it is NonEncodeNull }
-                        if (ann != null) {
+                        val ann =
+                            configuration.nonEncodeNull || desc.getElementAnnotations(index).any { it is NonEncodeNull }
+                        if (ann) {
                             deferredKeyName = name
                         }
                     }

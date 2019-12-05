@@ -28,6 +28,7 @@ import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
 import org.litote.kmongo.service.ClassMappingTypeService
 import java.io.StringWriter
+import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -42,12 +43,26 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
 
     override fun priority(): Int = 200
 
+    private val codecRegistry: CodecRegistry by lazy(PUBLICATION) {
+        CodecRegistries.fromRegistries(
+            MongoClientSettings.getDefaultCodecRegistry(),
+            SerializationCodecRegistry(configuration)
+        )
+    }
+    private val codecRegistryWithNonEncodeNull: CodecRegistry by lazy(PUBLICATION) {
+        CodecRegistries.fromRegistries(
+            MongoClientSettings.getDefaultCodecRegistry(),
+            SerializationCodecRegistry(configuration.copy(nonEncodeNull = true))
+        )
+    }
+
     @ImplicitReflectionSerializer
     override fun filterIdToBson(obj: Any, filterNullProperties: Boolean): BsonDocument {
         val doc = BsonDocument()
         val writer = BsonDocumentWriter(doc)
 
-        coreCodecRegistry().get(obj.javaClass).encode(writer, obj, EncoderContext.builder().build())
+        (if (filterNullProperties) codecRegistryWithNonEncodeNull else codecRegistry)
+            .get(obj.javaClass).encode(writer, obj, EncoderContext.builder().build())
 
         writer.flush()
 
@@ -93,11 +108,7 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
         }
     }
 
-    override fun coreCodecRegistry(): CodecRegistry =
-        CodecRegistries.fromRegistries(
-            MongoClientSettings.getDefaultCodecRegistry(),
-            SerializationCodecRegistry()
-        )
+    override fun coreCodecRegistry(): CodecRegistry = codecRegistry
 
     override fun <T> calculatePath(property: KProperty<T>): String {
         return property.findAnnotation<SerialName>()?.value ?: property.name

@@ -17,15 +17,13 @@
 package org.litote.kmongo
 
 import org.junit.Test
-import org.junit.experimental.categories.Category
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 
 /**
  *
  */
-@Category(JacksonMappingCategory::class, NativeMappingCategory::class)
-class UpdateWithoutNullPropertiesTest: KMongoBaseTest<Friend>() {
+class UpdateWithoutNullPropertiesTest : AllCategoriesKMongoBaseTest<Friend>() {
 
     @Test
     fun canPartiallyUpdateWithAnOtherDocumentWithSameIdWithoutNullProperties() {

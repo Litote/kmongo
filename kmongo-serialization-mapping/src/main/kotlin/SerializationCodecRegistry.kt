@@ -16,13 +16,14 @@
 
 package org.litote.kmongo.serialization
 
+import com.github.jershell.kbson.Configuration
 import org.bson.codecs.Codec
 import org.bson.codecs.configuration.CodecRegistry
 
 /**
  *
  */
-class SerializationCodecRegistry : CodecRegistry {
+internal class SerializationCodecRegistry(private val configuration:Configuration) : CodecRegistry {
 
-    override fun <T : Any> get(clazz: Class<T>): Codec<T> = SerializationCodec(clazz.kotlin)
+    override fun <T : Any> get(clazz: Class<T>): Codec<T> = SerializationCodec(clazz.kotlin, configuration)
 }

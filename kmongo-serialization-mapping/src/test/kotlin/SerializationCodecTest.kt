@@ -35,7 +35,7 @@ class SerializationCodecTest {
     @Test
     fun `encode and decode Friend`() {
         val friend = Friend("Joe", "22 Wall Street Avenue", _id = ObjectId())
-        val codec = SerializationCodec(Friend::class)
+        val codec = SerializationCodec(Friend::class, configuration)
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, friend, EncoderContext.builder().build())
@@ -53,7 +53,7 @@ class SerializationCodecTest {
     @Test
     fun `encode and decode Ids`() {
         val id = TestWithId()
-        val codec = SerializationCodec(TestWithId::class)
+        val codec = SerializationCodec(TestWithId::class, configuration)
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, id, EncoderContext.builder().build())
@@ -70,7 +70,7 @@ class SerializationCodecTest {
     @Test
     fun `encode and decode list of ids`() {
         val idList = TestWithSetOfIds()
-        val codec = SerializationCodec(TestWithSetOfIds::class)
+        val codec = SerializationCodec(TestWithSetOfIds::class, configuration)
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, idList, EncoderContext.builder().build())
@@ -90,7 +90,7 @@ class SerializationCodecTest {
     @Test
     fun `encode and decode map of ids`() {
         val idList = TestWithMapOfIds()
-        val codec = SerializationCodec(TestWithMapOfIds::class)
+        val codec = SerializationCodec(TestWithMapOfIds::class, configuration)
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, idList, EncoderContext.builder().build())
@@ -134,7 +134,7 @@ class SerializationCodecTest {
     fun `encode and decode with custom serializer`() {
         registerSerializer(CustomSerializer)
         val c = Custom("a", true)
-        val codec = SerializationCodec(Custom::class)
+        val codec = SerializationCodec(Custom::class, configuration)
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, c, EncoderContext.builder().build())
@@ -167,7 +167,7 @@ class SerializationCodecTest {
                 }
             })
         val c = Container(StringMessage("a"))
-        val codec = SerializationCodec(Container::class)
+        val codec = SerializationCodec(Container::class, configuration)
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, c, EncoderContext.builder().build())
@@ -196,7 +196,7 @@ class SerializationCodecTest {
                 }
             })
         val c = StringMessage2("a")
-        val codec = SerializationCodec(Message2::class)
+        val codec = SerializationCodec(Message2::class, configuration)
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, c, EncoderContext.builder().build())
@@ -216,7 +216,7 @@ class SerializationCodecTest {
     fun `encoding a not serializable class throws a SerializationException`() {
         val t = assertFails {
             val c = NotSerializableClass("a")
-            val codec = SerializationCodec(NotSerializableClass::class)
+            val codec = SerializationCodec(NotSerializableClass::class, configuration)
             val document = BsonDocument()
             val writer = BsonDocumentWriter(document)
             codec.encode(writer, c, EncoderContext.builder().build())
@@ -232,12 +232,12 @@ class SerializationCodecTest {
     fun `decoding a not serializable class throws a SerializationException`() {
         val t = assertFails {
             val c = SerializableClass("a")
-            val codec = SerializationCodec(SerializableClass::class)
+            val codec = SerializationCodec(SerializableClass::class, configuration)
             val document = BsonDocument()
             val writer = BsonDocumentWriter(document)
             codec.encode(writer, c, EncoderContext.builder().build())
 
-            val codec2 = SerializationCodec(NotSerializableClass::class)
+            val codec2 = SerializationCodec(NotSerializableClass::class, configuration)
             codec2.decode(BsonDocumentReader(document), DecoderContext.builder().build())
         }
         assertEquals(
