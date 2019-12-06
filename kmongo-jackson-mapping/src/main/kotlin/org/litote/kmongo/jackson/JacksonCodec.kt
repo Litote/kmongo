@@ -53,6 +53,7 @@ import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.number
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.objectId
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.string
 import org.litote.kmongo.json
+import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.MongoIdUtil
 import java.io.IOException
 import java.io.UncheckedIOException
@@ -214,7 +215,7 @@ internal class JacksonCodec<T : Any>(
         if (idProperty == null) {
             throw IllegalStateException("$type has no id field")
         } else {
-            val idValue = MongoIdUtil.getIdBsonValue(idProperty, document)
+            val idValue = KMongoUtil.getIdBsonValue((idProperty)(document))
             return idValue ?: throw IllegalStateException("$type has null id")
         }
     }

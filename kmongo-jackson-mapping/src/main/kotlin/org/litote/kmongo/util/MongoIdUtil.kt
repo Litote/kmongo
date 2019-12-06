@@ -16,14 +16,7 @@
 
 package org.litote.kmongo.util
 
-import org.bson.BsonDouble
-import org.bson.BsonInt32
-import org.bson.BsonInt64
-import org.bson.BsonObjectId
-import org.bson.BsonString
-import org.bson.BsonValue
 import org.bson.codecs.pojo.annotations.BsonId
-import org.bson.types.ObjectId
 import org.litote.kmongo.MongoId
 import org.litote.kmongo.util.MongoIdUtil.IdPropertyWrapper.Companion.NO_ID
 import java.util.concurrent.ConcurrentHashMap
@@ -127,17 +120,4 @@ internal object MongoIdUtil {
         return (idProperty)(instance)
     }
 
-    fun getIdBsonValue(idProperty: KProperty1<*, *>, instance: Any): BsonValue? {
-        val idValue = (idProperty)(instance)
-        return when (idValue) {
-            null -> null
-            is ObjectId -> BsonObjectId(idValue)
-            is String -> BsonString(idValue)
-            is Double -> BsonDouble(idValue)
-            is Int -> BsonInt32(idValue)
-            is Long -> BsonInt64(idValue)
-            //TODO direct mapping
-            else -> KMongoUtil.toBson(KMongoUtil.toExtendedJson(idValue))
-        }
-    }
 }

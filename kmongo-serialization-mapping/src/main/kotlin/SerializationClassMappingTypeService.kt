@@ -32,9 +32,7 @@ import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.jvm.isAccessible
 
 /**
  * kotlinx serialization ClassMapping.
@@ -95,18 +93,11 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
         }
     }
 
-    override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? {
-        //TODO don't known yet how to do this without reflection
-        return type.declaredMemberProperties.find { it.name == "_id" || it.findAnnotation<SerialName>()?.value == "_id" }
-    }
+    @ImplicitReflectionSerializer
+    override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? = idController.findIdProperty(type)
 
-    override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? {
-        //TODO don't known yet how to do this without reflection
-        return idProperty.run {
-            isAccessible = true
-            get(instance)
-        }
-    }
+    override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? =
+        idController.getIdValue(idProperty, instance)
 
     override fun coreCodecRegistry(): CodecRegistry = codecRegistry
 

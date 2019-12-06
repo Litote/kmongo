@@ -16,27 +16,21 @@
 
 package org.bson.codecs.pojo
 
-import org.bson.BsonDouble
-import org.bson.BsonInt32
-import org.bson.BsonInt64
-import org.bson.BsonObjectId
 import org.bson.BsonReader
-import org.bson.BsonString
 import org.bson.BsonValue
 import org.bson.BsonWriter
-import org.bson.codecs.Codec
 import org.bson.codecs.CollectibleCodec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.types.ObjectId
-import org.litote.kmongo.util.KMongoUtil
-import java.util.concurrent.ConcurrentHashMap
+import org.litote.kmongo.util.KMongoUtil.getIdBsonValue
 
 /**
  *
  */
-internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>, registry: CodecRegistry) : PojoCodec<T>(), CollectibleCodec<T> {
+internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>, registry: CodecRegistry) : PojoCodec<T>(),
+    CollectibleCodec<T> {
 
     private val pojoCodec = originalCodec
 
@@ -58,27 +52,15 @@ internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>, registry: CodecRe
 
     private fun retrieveDocumentId(document: T): Any? {
         return pojoCodec.classModel
-                .idPropertyModel
-                ?.propertyAccessor
-                ?.get(document)
+            .idPropertyModel
+            ?.propertyAccessor
+            ?.get(document)
     }
 
     override fun getDocumentId(document: T): BsonValue {
         return retrieveDocumentId(document)
-                ?.let { getIdBsonValue(it) }
+            ?.let { getIdBsonValue(it) }
                 ?: error("unable to retrieve _id for $document")
-    }
-
-    private fun getIdBsonValue(idValue: Any): BsonValue {
-        return when (idValue) {
-            is ObjectId -> BsonObjectId(idValue)
-            is String -> BsonString(idValue)
-            is Double -> BsonDouble(idValue)
-            is Int -> BsonInt32(idValue)
-            is Long -> BsonInt64(idValue)
-        //TODO direct mapping
-            else -> KMongoUtil.toBson(KMongoUtil.toExtendedJson(idValue))
-        }
     }
 
     override fun generateIdIfAbsentFromDocument(document: T): T {

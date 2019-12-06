@@ -29,8 +29,12 @@ import com.mongodb.client.model.WriteModel
 import org.bson.BsonBoolean
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
+import org.bson.BsonDouble
+import org.bson.BsonInt32
+import org.bson.BsonInt64
 import org.bson.BsonObjectId
 import org.bson.BsonString
+import org.bson.BsonValue
 import org.bson.Document
 import org.bson.codecs.BsonArrayCodec
 import org.bson.codecs.DecoderContext
@@ -123,7 +127,7 @@ object KMongoUtil {
             json.map { toBson(it) }
         }
 
-    fun filterIdToBson(obj: Any, filterNullProperties:Boolean = false): BsonDocument =
+    fun filterIdToBson(obj: Any, filterNullProperties: Boolean = false): BsonDocument =
         ClassMappingType.filterIdToBson(obj, filterNullProperties)
 
     fun formatJson(json: String): String {
@@ -257,6 +261,19 @@ object KMongoUtil {
                 value,
                 EncoderContext.builder().build()
             )
+        }
+    }
+
+    fun getIdBsonValue(idValue: Any?): BsonValue? {
+        return when (idValue) {
+            null -> null
+            is ObjectId -> BsonObjectId(idValue)
+            is String -> BsonString(idValue)
+            is Double -> BsonDouble(idValue)
+            is Int -> BsonInt32(idValue)
+            is Long -> BsonInt64(idValue)
+            //TODO direct mapping
+            else -> toBson(toExtendedJson(idValue))
         }
     }
 
