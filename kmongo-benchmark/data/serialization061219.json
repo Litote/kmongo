@@ -1,0 +1,208 @@
+[
+    {
+        "jmhVersion" : "1.22",
+        "benchmark" : "org.litote.serialization.SerializationCodecRegistryBenchmark.driverFriend",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-13.0.1/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "13.0.1",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "13.0.1+9",
+        "warmupIterations" : 3,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 279684.48252372706,
+            "scoreError" : 1378.253148024917,
+            "scoreConfidence" : [
+                278306.22937570215,
+                281062.73567175196
+            ],
+            "scorePercentiles" : {
+                "0.0" : 279151.65769866254,
+                "50.0" : 279671.9327304738,
+                "90.0" : 280138.55633924855,
+                "95.0" : 280138.55633924855,
+                "99.0" : 280138.55633924855,
+                "99.9" : 280138.55633924855,
+                "99.99" : 280138.55633924855,
+                "99.999" : 280138.55633924855,
+                "99.9999" : 280138.55633924855,
+                "100.0" : 280138.55633924855
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    279671.9327304738,
+                    279151.65769866254,
+                    279825.1039070099,
+                    279635.1619432405,
+                    280138.55633924855
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.22",
+        "benchmark" : "org.litote.serialization.SerializationCodecRegistryBenchmark.driverFriendWithBuddies",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-13.0.1/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "13.0.1",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "13.0.1+9",
+        "warmupIterations" : 3,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 257980.5738740983,
+            "scoreError" : 950.1039532839322,
+            "scoreConfidence" : [
+                257030.4699208144,
+                258930.67782738223
+            ],
+            "scorePercentiles" : {
+                "0.0" : 257655.2380592925,
+                "50.0" : 258094.16883548652,
+                "90.0" : 258230.06486519738,
+                "95.0" : 258230.06486519738,
+                "99.0" : 258230.06486519738,
+                "99.9" : 258230.06486519738,
+                "99.99" : 258230.06486519738,
+                "99.999" : 258230.06486519738,
+                "99.9999" : 258230.06486519738,
+                "100.0" : 258230.06486519738
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    258137.50409137103,
+                    257785.8935191441,
+                    258230.06486519738,
+                    257655.2380592925,
+                    258094.16883548652
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.22",
+        "benchmark" : "org.litote.serialization.SerializationCodecRegistryBenchmark.serializationFriend",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-13.0.1/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "13.0.1",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "13.0.1+9",
+        "warmupIterations" : 3,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 1062870.8063174654,
+            "scoreError" : 9525.39997970571,
+            "scoreConfidence" : [
+                1053345.4063377597,
+                1072396.206297171
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1059672.5740911204,
+                "50.0" : 1062413.0923419076,
+                "90.0" : 1065601.0494441555,
+                "95.0" : 1065601.0494441555,
+                "99.0" : 1065601.0494441555,
+                "99.9" : 1065601.0494441555,
+                "99.99" : 1065601.0494441555,
+                "99.999" : 1065601.0494441555,
+                "99.9999" : 1065601.0494441555,
+                "100.0" : 1065601.0494441555
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    1062413.0923419076,
+                    1061579.2058324842,
+                    1065601.0494441555,
+                    1059672.5740911204,
+                    1065088.109877659
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.22",
+        "benchmark" : "org.litote.serialization.SerializationCodecRegistryBenchmark.serializationFriendWithBuddies",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/julien/tool/jdk-13.0.1/bin/java",
+        "jvmArgs" : [
+        ],
+        "jdkVersion" : "13.0.1",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "13.0.1+9",
+        "warmupIterations" : 3,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 263965.4993399106,
+            "scoreError" : 1149.4054517302009,
+            "scoreConfidence" : [
+                262816.0938881804,
+                265114.90479164076
+            ],
+            "scorePercentiles" : {
+                "0.0" : 263672.5814670224,
+                "50.0" : 263944.72372638003,
+                "90.0" : 264318.3525238765,
+                "95.0" : 264318.3525238765,
+                "99.0" : 264318.3525238765,
+                "99.9" : 264318.3525238765,
+                "99.99" : 264318.3525238765,
+                "99.999" : 264318.3525238765,
+                "99.9999" : 264318.3525238765,
+                "100.0" : 264318.3525238765
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    264215.0821646757,
+                    263676.75681759825,
+                    264318.3525238765,
+                    263672.5814670224,
+                    263944.72372638003
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    }
+]
+
+

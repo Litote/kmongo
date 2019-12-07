@@ -3,9 +3,6 @@
 Bson deserialization is a key factor to measure performance of KMongo,
 as usually you retrieve more data from MongoDB than you send to the db.
 
-> **kotlinx serialization** mapping is not ye benchmarked (as it is currently in alpha mode)
-> A new benchmark will be released in the next version.
-
 ## Complete deserialization
 
 The benchmark sources are available in [github](https://github.com/Litote/kmongo/tree/master/kmongo-benchmark).
@@ -14,8 +11,7 @@ We take a Bson representation of this class:
 
 ```kotlin
 data class FriendWithBuddies(
-     @BsonId
-     val id: ObjectId? = null,
+     val _id: ObjectId? = null,
      val name: String? = null,
      val address: String? = null,
      val coordinate: Coordinate? = null,
@@ -29,12 +25,15 @@ And deserialize it using:
 - org.bson.Document (driverFriend)
 - Jackson mapping (jacksonFriend)
 - Native/POJO mapping (nativeFriend)
+- kotlinx.Serialization (serializationFriend)
 
-With [jmh](https://openjdk.java.net/projects/code-tools/jmh/):
+Measured with [jmh](https://openjdk.java.net/projects/code-tools/jmh/):
 
 ![Simple benchmark](assets/images/benchmark1.png)
 
-As you can see, the org.bson.Document mapping (basically a Map) outperforms Jackson & Native mapping.
+As you can see, the org.bson.Document mapping (basically a Map) outperforms 
+Jackson & Native mapping but kotlinx.Serialization is the best - this is expected: 
+no reflection is involved for kotlinx.Serialization.
 
 Note: during this benchmark, we have found a [~15% perf improvement](https://github.com/michel-kraemer/bson4jackson/pull/81)
 for jackson but the fix is not included in the last released version of bson4jackson. However, even with this improvement,
@@ -61,8 +60,7 @@ Now we take the same Bson than before, but we deserialize it in a *partial* obje
 
 ```kotlin
 data class Friend(
-     @BsonId
-     val id: ObjectId? = null,
+     val _id: ObjectId? = null,
      val name: String? = null,
      val address: String? = null,
      val coordinate: Coordinate? = null,
@@ -74,13 +72,15 @@ Here are the results:
 
 ![Friend benchmark](assets/images/benchmark4.png)
 
-Native mapping, even without custom codec, outperforms everything. This is because native mapping **skip** the not mapped bson data,
+kotlinx.Serialization outperforms everything. This is because kotlinx.Serialization mapping 
+(like native mapping that has also a signifiant boost) **skips** the not mapped bson data,
  when `org.bson.Document` & `Bson4Jackson` parse the bson entirely.
 
 ## Conclusion
 
-If performance is critical for your use case, use "native" mapping and write custom Codecs for the most used parts of your project.
-But Jackson does not perform that bad, and is also a valid choice for almost all projects.
+If performance is critical for your use case, use "kotlinx.Serialization" mapping.
+But "Native" and Jackson does not perform that bad, and are also valid choices for almost all projects.
+
  
 
 
