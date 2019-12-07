@@ -53,4 +53,4 @@ You can copy/paste your queries from the Mongo shell in your IDE. Write readable
 
 KMongo uses an open source license gracefully provided by 
 <a href="https://www.yourkit.com/java/profiler/"><img alt="YourKit" src="https://www.yourkit.com/images/yklogo.png" width="92"></a>
-to monitor performances.
+for monitoring and profiling.
