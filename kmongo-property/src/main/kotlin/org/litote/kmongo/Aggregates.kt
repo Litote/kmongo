@@ -394,65 +394,55 @@ fun <BooleanExpression : Any, ThenExpression : Any, ElseExpression : Any> cond(
 /**
  * Builds $dayOfYear expression for this property .
  */
-fun dayOfYear(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$dayOfYear", property.projection)
+fun dayOfYear(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.dayOfYear.from(property)
 
 /**
  * Builds $dayOfMonth expression for this property .
  */
-fun dayOfMonth(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$dayOfMonth", property.projection)
+fun dayOfMonth(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.dayOfMonth.from(property)
 
 /**
  * Builds $dayOfWeek expression for this property .
  */
-fun dayOfWeek(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$dayOfWeek", property.projection)
+fun dayOfWeek(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.dayOfWeek.from(property)
 
 /**
  * Builds $year expression for this property .
  */
-fun year(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$year", property.projection)
+fun year(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.year.from(property)
 
 /**
  * Builds $hour expression for this property .
  */
-fun hour(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$hour", property.projection)
+fun hour(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.hour.from(property)
 
 /**
  * Builds $millisecond expression for this property .
  */
-fun millisecond(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$millisecond", property.projection)
+fun millisecond(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.millisecond.from(property)
 
 /**
  * Builds $minute expression for this property .
  */
-fun minute(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$minute", property.projection)
+fun minute(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.minute.from(property)
 
 /**
  * Builds $month expression for this property .
  */
-fun month(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$month", property.projection)
+fun month(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.month.from(property)
 
 /**
  * Builds $second expression for this property .
  */
-fun second(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$second", property.projection)
+fun second(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.second.from(property)
 
 /**
  * Builds $week expression for this property .
  */
-fun week(property: KProperty<TemporalAccessor?>): Bson =
-    Projections.computed("\$week", property.projection)
+fun week(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.week.from(property)
 
 /**
  * Builds the [MongoOperator] expression for the specified property.
  */
-fun MongoOperator.op(property: KProperty<Any?>): Bson =
-    Projections.computed(toString(), property.projection)
+@Deprecated("use from instead", replaceWith = ReplaceWith("from"))
+fun MongoOperator.op(property: KProperty<Any?>): Bson = from(property)

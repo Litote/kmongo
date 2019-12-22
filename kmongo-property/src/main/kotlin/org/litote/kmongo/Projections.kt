@@ -27,8 +27,7 @@ import kotlin.reflect.KProperty
 val <T> KProperty<T>.projection: String get() = "\$${path()}"
 
 /**
- * Creates a projection of a property whose value is computed from the given expression.  Projection with an expression is only supported
- * using the $project aggregation pipeline stage.
+ * Creates a projection of a property whose value is computed from the given expression.
  *
  * @param expression    the expression
  * @param <T> the expression type
@@ -37,6 +36,18 @@ val <T> KProperty<T>.projection: String get() = "\$${path()}"
  */
 infix fun <T> KProperty<T>.from(expression: T): Bson =
     Projections.computed(path(), expression)
+
+/**
+ * Builds Bson for the [MongoOperator] and the specified expression.
+ */
+infix fun MongoOperator.from(expression: Any): Bson = toString().from(expression)
+
+/**
+ * Builds Bson from this String format and the specified expression.
+ */
+infix fun String.from(expression: Any): Bson =
+    @Suppress("UNCHECKED_CAST")
+    Projections.computed(this, (expression as? KProperty<Any>)?.projection ?: expression)
 
 /**
  * Creates a projection that includes all of the given properties.
