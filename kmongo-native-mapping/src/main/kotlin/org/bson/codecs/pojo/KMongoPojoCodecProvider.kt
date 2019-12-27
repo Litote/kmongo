@@ -88,7 +88,7 @@ internal class KMongoPojoCodecProvider(serialization: PropertySerialization<Any>
             EnumCodec<Enum<*>>(clazz as Class<Enum<*>>) as Codec<T>
         } else {
             pojoCodecProvider.get(clazz, registry)?.let {
-                KMongoPojoCodec(it as PojoCodec<T>, registry)
+                KMongoPojoCodec(it as PojoCodec<T>)
             }
         }
     }

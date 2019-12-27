@@ -44,6 +44,7 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
 import org.bson.types.ObjectId
+import org.litote.kmongo.Id
 import org.litote.kmongo.MongoOperator.addToSet
 import org.litote.kmongo.MongoOperator.bit
 import org.litote.kmongo.MongoOperator.currentDate
@@ -59,12 +60,16 @@ import org.litote.kmongo.MongoOperator.rename
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
 import org.litote.kmongo.MongoOperator.unset
+import org.litote.kmongo.id.IdGenerator
+import org.litote.kmongo.id.StringId
+import org.litote.kmongo.id.WrappedObjectId
 import org.litote.kmongo.service.ClassMappingType
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * Internal utility methods
@@ -87,6 +92,18 @@ object KMongoUtil {
             MongoClientSettings.getDefaultCodecRegistry()
         )
     }
+
+    fun generateNewIdforIdClass(idClass: KClass<out Any>): Any =
+        when {
+            idClass == ObjectId::class -> ObjectId.get()
+            idClass == String::class -> ObjectId.get().toString()
+            idClass == WrappedObjectId::class -> WrappedObjectId<Any>(ObjectId.get())
+            idClass == StringId::class -> StringId<Any>(ObjectId.get().toString())
+            idClass.isSubclassOf(Id::class) -> IdGenerator.defaultGenerator.generateNewId<Any>()
+            else -> {
+                error("generation for id property type not supported : $idClass")
+            }
+        }
 
     fun toBson(json: String): BsonDocument = if (json == EMPTY_JSON) BsonDocument() else BsonDocument.parse(json)
 

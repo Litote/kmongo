@@ -29,6 +29,8 @@ import org.litote.kmongo.MongoOperator.oid
 import org.litote.kmongo.id.IdGenerator
 import org.litote.kmongo.id.ObjectIdGenerator
 import org.litote.kmongo.id.ObjectIdToStringGenerator
+import org.litote.kmongo.id.StringId
+import org.litote.kmongo.id.WrappedObjectId
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -95,6 +97,28 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         val _id: String?,
         val title: String = "test"
     )
+
+    @Serializable
+    data class ArticleWithNullableGenericId(
+        @ContextualSerialization
+        val _id: Id<ArticleWithNullableGenericId>?,
+        val title: String = "test"
+    )
+
+    @Serializable
+    data class ArticleWithNullableStringId(
+        @ContextualSerialization
+        val _id: StringId<ArticleWithNullableStringId>?,
+        val title: String = "test"
+    )
+
+    @Serializable
+    data class ArticleWithNullableWrappedObjectId(
+        @ContextualSerialization
+        val _id: WrappedObjectId<ArticleWithNullableWrappedObjectId>?,
+        val title: String = "test"
+    )
+
 
     lateinit var shopCol: MongoCollection<Shop>
     lateinit var article2Col: MongoCollection<Article2>
@@ -253,5 +277,32 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         articleNullCol.insertOne(a)
         assertNotNull(a._id)
         assertEquals(a, articleNullCol.findOne())
+    }
+
+    @Test
+    fun `class with null generated id is generated on client side`() {
+        val a = ArticleWithNullableGenericId(null)
+        val col = articleNullCol.withDocumentClass<ArticleWithNullableGenericId>()
+        col.insertOne(a)
+        assertNotNull(a._id)
+        assertEquals(a, col.findOne())
+    }
+
+    @Test
+    fun `class with null StringId is generated on client side`() {
+        val a = ArticleWithNullableStringId(null)
+        val col = articleNullCol.withDocumentClass<ArticleWithNullableStringId>()
+        col.insertOne(a)
+        assertNotNull(a._id)
+        assertEquals(a, col.findOne())
+    }
+
+    @Test
+    fun `class with null WrappedObjectId is generated on client side`() {
+        val a = ArticleWithNullableWrappedObjectId(null)
+        val col = articleNullCol.withDocumentClass<ArticleWithNullableWrappedObjectId>()
+        col.insertOne(a)
+        assertNotNull(a._id)
+        assertEquals(a, col.findOne())
     }
 }

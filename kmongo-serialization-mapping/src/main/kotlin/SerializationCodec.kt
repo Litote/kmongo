@@ -83,7 +83,7 @@ internal class SerializationCodec<T : Any>(
             val idValue = ClassMappingType.getIdValue(idProperty as KProperty1<Any, Any>, document)
             if (idValue == null) {
                 @Suppress("UNCHECKED_CAST")
-                idController.setIdValue<T, Any>(idProperty!! as KProperty1<T, Any>, document)
+                idController.setIdValue(idProperty!! as KProperty1<T, Any>, document)
             }
         }
 

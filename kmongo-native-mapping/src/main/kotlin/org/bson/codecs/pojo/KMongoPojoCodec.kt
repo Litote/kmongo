@@ -22,14 +22,13 @@ import org.bson.BsonWriter
 import org.bson.codecs.CollectibleCodec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
-import org.bson.codecs.configuration.CodecRegistry
-import org.bson.types.ObjectId
+import org.litote.kmongo.util.KMongoUtil.generateNewIdforIdClass
 import org.litote.kmongo.util.KMongoUtil.getIdBsonValue
 
 /**
  *
  */
-internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>, registry: CodecRegistry) : PojoCodec<T>(),
+internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>) : PojoCodec<T>(),
     CollectibleCodec<T> {
 
     private val pojoCodec = originalCodec
@@ -70,14 +69,7 @@ internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>, registry: CodecRe
         if (idProperty != null && propertyAccessor != null) {
             val idValue = propertyAccessor.get(document)
             if (idValue == null) {
-                val type = idProperty.typeData.type
-                if (ObjectId::class.java == type) {
-                    setPropertyValue(propertyAccessor, document, ObjectId.get())
-                } else if (String::class.java == type) {
-                    setPropertyValue(propertyAccessor, document, ObjectId.get().toString())
-                } else {
-                    error("generation for id property type not supported : $idProperty")
-                }
+                setPropertyValue(propertyAccessor, document, generateNewIdforIdClass(idProperty.typeData.type.kotlin))
             }
         }
 

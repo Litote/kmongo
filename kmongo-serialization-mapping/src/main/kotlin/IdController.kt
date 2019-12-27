@@ -18,7 +18,7 @@ package org.litote.kmongo.serialization
 
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.SerialName
-import org.bson.types.ObjectId
+import org.litote.kmongo.util.KMongoUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
@@ -67,14 +67,7 @@ object ReflectionIdController : IdController {
 
     override fun <T, R> setIdValue(idProperty: KProperty1<T, R>, instance: T) {
         val javaField = idProperty.javaField!!
-        val type = javaField.type
         javaField.isAccessible = true
-        if (ObjectId::class.java == type) {
-            javaField.set(instance, ObjectId.get())
-        } else if (String::class.java == type) {
-            javaField.set(instance, ObjectId.get().toString())
-        } else {
-            error("generation for id property type not supported : $idProperty")
-        }
+        javaField.set(instance, KMongoUtil.generateNewIdforIdClass(javaField.type.kotlin))
     }
 }

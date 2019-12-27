@@ -40,7 +40,6 @@ import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.io.BasicOutputBuffer
 import org.bson.json.JsonReader
-import org.bson.types.ObjectId
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.StringId
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.`object`
@@ -54,6 +53,7 @@ import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.objectId
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.string
 import org.litote.kmongo.json
 import org.litote.kmongo.util.KMongoUtil
+import org.litote.kmongo.util.KMongoUtil.generateNewIdforIdClass
 import org.litote.kmongo.util.MongoIdUtil
 import java.io.IOException
 import java.io.UncheckedIOException
@@ -230,13 +230,7 @@ internal class JacksonCodec<T : Any>(
                 val javaField = idProperty.javaField!!
                 val type = javaField.type
                 javaField.isAccessible = true
-                if (ObjectId::class.java == type) {
-                    javaField.set(document, ObjectId.get())
-                } else if (String::class.java == type) {
-                    javaField.set(document, ObjectId.get().toString())
-                } else {
-                    error("generation for id property type not supported : $idProperty")
-                }
+                javaField.set(document, generateNewIdforIdClass(type.kotlin))
             }
         }
 
