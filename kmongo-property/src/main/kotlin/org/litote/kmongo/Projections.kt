@@ -24,7 +24,12 @@ import kotlin.reflect.KProperty
 /**
  * The projection of the property.
  */
-val <T> KProperty<T>.projection: String get() = "\$${path()}"
+val <T> KProperty<T>.projection: String get() = path().projection
+
+/**
+ * The projection of the property.
+ */
+val String.projection: String get() = "\$$this"
 
 /**
  * Creates a projection of a property whose value is computed from the given expression.

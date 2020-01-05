@@ -123,6 +123,16 @@ infix fun <@OnlyInputTypes T> KProperty<T?>.`in`(values: Iterable<T?>): Bson = F
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/in $in
  */
+infix fun <T> KProperty<T>.`in`(expression: String): Bson = Filters.`in`(path(), expression)
+
+/**
+ * Creates a filter that matches all documents where the value of a property equals any value in the list of specified values.
+ *
+ * @param values    the list of values
+ * @param <T>   the value type
+ * @return the filter
+ * @mongodb.driver.manual reference/operator/query/in $in
+ */
 @JvmName("inArray")
 infix fun <@OnlyInputTypes T> KProperty<Iterable<T>?>.`in`(values: Iterable<T?>): Bson = Filters.`in`(path(), values)
 

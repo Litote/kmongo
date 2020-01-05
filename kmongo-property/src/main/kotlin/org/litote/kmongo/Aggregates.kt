@@ -27,6 +27,7 @@ import com.mongodb.client.model.GraphLookupOptions
 import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Sorts
 import com.mongodb.client.model.UnwindOptions
+import com.mongodb.client.model.Variable
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.configuration.CodecRegistry
@@ -326,6 +327,17 @@ fun unwind(fieldName: String, unwindOptions: UnwindOptions = UnwindOptions()): B
     Aggregates.unwind(fieldName, unwindOptions)
 
 /**
+ * Creates a $unwind pipeline stage for the specified field name, which must be prefixed by a `'$'` sign.
+ *
+ * @param fieldName     the field name, prefixed by a `'$' sign`
+ * @param unwindOptions options for the unwind pipeline stage
+ * @return the $unwind pipeline stage
+ * @mongodb.driver.manual reference/operator/aggregation/unwind/ $unwind
+ */
+fun <T> KProperty<T>.unwind(unwindOptions: UnwindOptions = UnwindOptions()): Bson =
+    unwind(projection, unwindOptions)
+
+/**
  * Creates a $out pipeline stage for the specified filter
  *
  * @param collectionName the collection name
@@ -446,3 +458,36 @@ fun week(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.week.from
  */
 @Deprecated("use from instead", replaceWith = ReplaceWith("from"))
 fun MongoOperator.op(property: KProperty<Any?>): Bson = from(property)
+
+/**
+ * Creates a $lookup pipeline stage, joining the current collection with the one specified in from using the given pipeline
+ *
+ * @param <TExpression> the Variable value expression type
+ * @param from           the name of the collection in the same database to perform the join with.
+ * @param let            the variables to use in the pipeline field stages.
+ * @param resultProperty the name of the new array field to add to the input documents.
+ * @param pipeline       the pipeline to run on the joined collection.
+ * @return the $lookup pipeline stage
+ * @mongodb.driver.manual reference/operator/aggregation/lookup/ $lookup
+ * @mongodb.server.release 3.6
+ * @since 3.7
+ */
+fun lookup(
+    from: String,
+    let: List<Variable<out Any>>? = null,
+    resultProperty: KProperty<Any?>,
+    vararg pipeline: Bson
+): Bson =
+    @Suppress("UNCHECKED_CAST")
+    Aggregates.lookup<Any>(from, let as List<Variable<Any>>, pipeline.toList(), resultProperty.path())
+
+/**
+ * Defines a [Variable] for the lookup operator.
+ */
+fun KProperty<*>.variableDefinition(name: String = path()): Variable<String> = Variable(name, projection)
+
+/**
+ * Defines a [Variable] projection (ie $$name)
+ */
+val KProperty<*>.variable: String get() = "\$\$${path()}"
+

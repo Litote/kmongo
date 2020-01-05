@@ -17,6 +17,9 @@
 package org.litote.kmongo
 
 import com.mongodb.client.MongoCollection
+import com.mongodb.client.model.Aggregates
+import com.mongodb.client.model.Projections
+import com.mongodb.client.model.Variable
 import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -25,6 +28,11 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.AggregateTypedTest.Article
+import org.litote.kmongo.MongoOperator.`in`
+import org.litote.kmongo.MongoOperator.and
+import org.litote.kmongo.MongoOperator.dateToString
+import org.litote.kmongo.MongoOperator.eq
+import org.litote.kmongo.MongoOperator.gte
 import org.litote.kmongo.model.Friend
 import java.time.Instant
 import java.time.LocalDate
@@ -218,5 +226,126 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
         assertEquals("Kirsty Mckay", r[1].friends[0].name)
         assertEquals("World War Z", r[0].title)
         assertEquals("Zombie Panic", r[1].title)
+    }
+
+    @Serializable
+    data class Answer(val evaluator: String, val alreadyUsed: Boolean, @ContextualSerialization val answerDate: Instant)
+
+    @Serializable
+    data class EvaluationsForms(val questions: List<String>)
+
+    @Serializable
+    data class EvaluationsFormsWithResults(val questions: List<String>, val results: List<EvaluationRequest>)
+
+    @Serializable
+    data class EvaluationsAnswers(val questionId: String, val evaluated: String, val answers: List<Answer>)
+
+    @Serializable
+    data class EvaluationRequest(val userId: String, val evaluationDate: String)
+
+    @Test
+    fun `lookup test`() {
+        val ldapId = "id"
+        val fromDate = Instant.now()
+
+        val bson1 = Aggregates.lookup(
+            "evaluationsAnswers",
+            listOf(
+                Variable("questions", EvaluationsForms::questions)
+            ),
+            listOf(
+                match(
+                    expr(
+                        Projections.computed(
+                            "\$and", listOf(
+                                Projections.computed("\$in", listOf(EvaluationsAnswers::questionId, "\$\$questions")),
+                                Projections.computed("\$eq", listOf(EvaluationsAnswers::evaluated, ldapId))
+                            )
+                        )
+                    )
+                ),
+                unwind("\$answers"),
+                match(
+                    expr(
+                        Projections.computed(
+                            "\$and", listOf(
+                                Projections.computed(
+                                    "\$eq",
+                                    listOf(EvaluationsAnswers::answers.div(Answer::alreadyUsed), false)
+                                ),
+                                Projections.computed(
+                                    "\$gte",
+                                    listOf(EvaluationsAnswers::answers.div(Answer::answerDate), fromDate)
+                                )
+                            )
+                        )
+                    )
+                ),
+                Aggregates.group(
+                    fields(
+                        EvaluationRequest::userId from EvaluationsAnswers::answers.div(Answer::evaluator),
+                        EvaluationRequest::evaluationDate from Projections.computed(
+                            "\$dateToString", fields(
+                                Projections.computed("format", "%Y-%m-%d"),
+                                Projections.computed("date", EvaluationsAnswers::answers.div(Answer::answerDate))
+                            )
+                        )
+                    )
+                ),
+                replaceRoot("_id".projection)
+            ),
+            "results"
+        )
+
+        val bson2 = lookup(
+            "evaluationsAnswers",
+            listOf(EvaluationsForms::questions.variableDefinition()),
+            EvaluationsFormsWithResults::results,
+            match(
+                expr(
+                    and from listOf(
+                        `in` from listOf(EvaluationsAnswers::questionId, EvaluationsForms::questions.variable),
+                        eq from listOf(EvaluationsAnswers::evaluated, ldapId)
+                    )
+                )
+            ),
+            EvaluationsAnswers::answers.unwind(),
+            match(
+                expr(
+                    and from listOf(
+                        eq from listOf(EvaluationsAnswers::answers / Answer::alreadyUsed, false),
+                        gte from listOf(EvaluationsAnswers::answers / Answer::answerDate, fromDate)
+                    )
+                )
+            ),
+            group(
+                fields(
+                    EvaluationRequest::userId from (EvaluationsAnswers::answers / Answer::evaluator),
+                    EvaluationRequest::evaluationDate from (
+                            dateToString from (
+                                    combine(
+                                        "format" from "%Y-%m-%d",
+                                        "date" from (EvaluationsAnswers::answers / Answer::answerDate)
+                                    )
+                                    )
+                            )
+                )
+            ),
+            replaceRoot("_id".projection)
+        )
+
+        assertEquals(bson1.json, bson2.json)
+
+        database.getCollection<EvaluationsAnswers>("evaluationsAnswers").apply {
+            insertOne(EvaluationsAnswers("q1", ldapId, listOf(Answer("userId", false, fromDate.plusSeconds(10)))))
+        }
+        database.getCollection<EvaluationsForms>().apply {
+            insertOne(EvaluationsForms(listOf("q1", "q2")))
+            val result1 = aggregate<EvaluationsFormsWithResults>(bson1)
+            assertEquals(1, result1.toList().size)
+            val result2 = aggregate<EvaluationsFormsWithResults>(bson2)
+            assertEquals(1, result2.toList().size)
+        }
+
     }
 }
