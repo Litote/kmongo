@@ -52,7 +52,7 @@ fun <T> KProperty<T>.path(): String =
 /**
  * Returns a collection property.
  */
-val <T> KProperty1<out Any?, Iterable<T>>.colProperty: KCollectionSimplePropertyPath<out Any?, T>
+val <T> KProperty1<out Any?, Iterable<T>?>.colProperty: KCollectionSimplePropertyPath<out Any?, T>
     get() = KCollectionSimplePropertyPath(null, this)
 
 
