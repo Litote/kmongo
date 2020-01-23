@@ -245,4 +245,28 @@ class SerializationCodecTest {
             t.message
         )
     }
+
+    @Serializable
+    data class ClassWithDelegatedProperty(val lastname: String, val firstname: String) {
+        val fullName: String
+            get() = "${lastname} ${firstname}"
+    }
+
+    @ImplicitReflectionSerializer
+    @Test
+    fun `encoding a class with delegated property does not serialize delegated property`() {
+        val friend = ClassWithDelegatedProperty("Joe", "Hisahi")
+        val codec = SerializationCodec(ClassWithDelegatedProperty::class, configuration)
+        val document = BsonDocument()
+        val writer = BsonDocumentWriter(document)
+        codec.encode(writer, friend, EncoderContext.builder().build())
+
+        assertEquals(BsonDocument.parse("""{"lastname": "Joe", "firstname": "Hisahi"}"""), document)
+
+        val newFriend = codec.decode(BsonDocumentReader(document), DecoderContext.builder().build())
+
+        assertEquals(friend, newFriend)
+
+
+    }
 }
