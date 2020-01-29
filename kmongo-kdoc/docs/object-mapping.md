@@ -119,6 +119,10 @@ Also, if you already use Jackson for json serialization (for rest services for e
 
 However, if you don't use already Jackson, you add a new quite complex library to your dependencies.
 
+#### Register a custom Jackson module
+
+Use [registerBsonModule](http://litote.org/kmongo/dokka/kmongo/org.litote.kmongo.util/-k-mongo-configuration/register-bson-module.html) function.
+
 ### The POJO Codec "native" choice
 
 Started in 2.5.0 (July 2017), the java driver introduces a new [POJO mapping framework](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/).
