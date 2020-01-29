@@ -30,7 +30,7 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canUpdate() {
         val friend = Friend("Paul")
         col.insertOne(friend)
-        col.updateOne(friend::name eq "Paul", set(friend::name, "John"))
+        col.updateOne(friend::name eq "Paul", setValue(friend::name, "John"))
         val r = col.findOne(friend::name eq "John")
         assertEquals("John", r!!.name)
     }
@@ -51,7 +51,7 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canUpdateMulti() {
         col.insertMany(listOf(Friend("John"), Friend("John")))
         col.updateMany(Friend::name eq "John", unset(Friend::name))
-        val c = col.count(Friend::name.exists())
+        val c = col.countDocuments(Friend::name.exists())
         assertEquals(0, c)
     }
 
@@ -59,7 +59,7 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canUpdateByObjectId() {
         val friend = Friend("Paul")
         col.insertOne(friend)
-        col.updateOneById(friend._id!!, set(friend::name, "John"))
+        col.updateOneById(friend._id!!, setValue(friend::name, "John"))
         val r = col.findOne(Friend::name eq "John")
         assertEquals("John", r!!.name)
         assertEquals(friend._id, r._id)
@@ -67,7 +67,7 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
 
     @Test
     fun canUpsert() {
-        col.updateOne(EMPTY_BSON, set(Friend::name, "John"), upsert())
+        col.updateOne(EMPTY_BSON, setValue(Friend::name, "John"), upsert())
         val r = col.findOne(Friend::name eq "John")
         assertEquals("John", r!!.name)
     }

@@ -4,9 +4,6 @@
 
 KMongo provides a type-safe query framework. 
 
-It has currently a **beta** flag. 
-We use it in production, but it is not yet complete.
-
 [Kotlin property references](https://kotlinlang.org/docs/reference/reflection.html#property-references) are used
 to build mongo queries.
  
@@ -48,6 +45,144 @@ class Coordinate(val lat: Int, val lng : Int)
 
 // the generated query is {"coor.lat":{$lt:0}}
 col.findOne(Friend::coor / Coordinate::lat lt 0)
+```                                                
+
+### Samples
+
+#### Queries with and & or
+
+```kotlin
+col.findOne(or(Jedi::name eq "Yoda", Jedi::age gt 25))  
+col.findOne(and(Jedi::name eq "Yoda", Jedi::age gt 25))
+
+//The and is implicit
+col.findOne(Jedi::name eq "Yoda", Jedi::age gt 25)
+```  
+
+#### Update
+
+```kotlin
+//Both are equivalent
+col.updateOne(friend::name eq "Paul", setValue(friend::name, "John"))   
+col.updateOne(friend::name eq "Paul", Friend::name setTo "John")
+
+//Multi fields update 
+col.updateOne(friend::name eq "Paul", set( Friend::name setTo "John", Friend::age setTo 25))
+
+//other operations are supported
+col.updateOne(Friend::name eq "John", pull(Friend::tags, "t2"))
+``` 
+
+#### Aggregation
+
+You can chain aggregation operators:
+
+```kotlin
+data class Article(
+        val title: String,
+        val author: String,
+        val tags: List<String>,
+        val date: Instant = Instant.now(),
+        val count: Int = 1,
+        val ok: Boolean = true
+    )
+
+data class Result(
+        @BsonId val title: String,
+        val averageYear: Double = 0.0,
+        val count: Int = 0,
+        val friends: List<Friend> = emptyList()
+    )
+
+val r = col.aggregate<Result>(
+            match(
+                Article::tags contains "virus"
+            ),
+            group(
+                Article::title, Result::friends.push(Friend::name from Article::author)
+            ),
+            sort(
+                ascending(
+                    Result::title
+                )
+            )
+        )
+```
+
+Other example:
+
+```kotlin
+val result = col.aggregate<Result>(
+            match(
+                Article::tags contains "virus"
+            ),
+            project(
+                Article::title from Article::title,
+                Article::ok from cond(Article::ok, 1, 0),
+                Result::averageYear from year(Article::date)
+            ),
+            group(
+                Article::title,
+                Result::count sum Article::ok,
+                Result::averageYear avg Result::averageYear
+            ),
+            sort(
+                ascending(
+                    Result::title
+                )
+            )
+        )
+```   
+
+Lookup sample:
+
+```kotlin
+data class Answer(val evaluator: String, val alreadyUsed: Boolean, val answerDate: Instant)
+
+data class EvaluationsForms(val questions: List<String>)
+
+data class EvaluationsFormsWithResults(val questions: List<String>, val results: List<EvaluationRequest>)
+
+data class EvaluationsAnswers(val questionId: String, val evaluated: String, val answers: List<Answer>)
+
+data class EvaluationRequest(val userId: String, val evaluationDate: String) 
+
+val bson = lookup(
+            "evaluationsAnswers",
+            listOf(EvaluationsForms::questions.variableDefinition()),
+            EvaluationsFormsWithResults::results,
+            match(
+                expr(
+                    and from listOf(
+                        `in` from listOf(EvaluationsAnswers::questionId, EvaluationsForms::questions.variable),
+                        eq from listOf(EvaluationsAnswers::evaluated, "id")
+                    )
+                )
+            ),
+            EvaluationsAnswers::answers.unwind(),
+            match(
+                expr(
+                    and from listOf(
+                        eq from listOf(EvaluationsAnswers::answers / Answer::alreadyUsed, false),
+                        gte from listOf(EvaluationsAnswers::answers / Answer::answerDate, Instant.now())
+                    )
+                )
+            ),
+            group(
+                fields(
+                    EvaluationRequest::userId from (EvaluationsAnswers::answers / Answer::evaluator),
+                    EvaluationRequest::evaluationDate from (
+                            dateToString from (
+                                    combine(
+                                        "format" from "%Y-%m-%d",
+                                        "date" from (EvaluationsAnswers::answers / Answer::answerDate)
+                                    )
+                                    )
+                            )
+                )
+            ),
+            replaceRoot("_id".projection)
+        )
 ```
 
 ## KMongo Annotation processor

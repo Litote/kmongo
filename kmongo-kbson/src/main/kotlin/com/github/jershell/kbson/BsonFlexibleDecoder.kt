@@ -217,6 +217,7 @@ private class PolymorphismDecoder(
         }
         reader.readName()
         val type = reader.readString()
+        @Suppress("UNCHECKED_CAST")
         val actualSerializer = deserializer.findPolymorphicSerializer(this, type) as KSerializer<T>
         return BsonFlexibleDecoder(reader, context, configuration).decode(actualSerializer)
     }
