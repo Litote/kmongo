@@ -23,6 +23,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 
@@ -55,7 +56,11 @@ object ReflectionIdController : IdController {
 
     @ImplicitReflectionSerializer
     override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? {
-        return type.declaredMemberProperties.find { it.name == "_id" || it.findAnnotation<SerialName>()?.value == "_id" }
+        var property = type.declaredMemberProperties.find { it.name == "_id" || it.findAnnotation<SerialName>()?.value == "_id" }
+        if (property == null) {
+            property = type.memberProperties.find { it.name == "_id" || it.findAnnotation<SerialName>()?.value == "_id" }
+        }
+        return property
     }
 
     override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? {
