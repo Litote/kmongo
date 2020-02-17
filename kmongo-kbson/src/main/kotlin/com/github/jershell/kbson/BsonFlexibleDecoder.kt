@@ -16,18 +16,9 @@
 
 package com.github.jershell.kbson
 
-import kotlinx.serialization.CompositeDecoder
+import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.ElementValueDecoder
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.PolymorphicKind
-import kotlinx.serialization.PolymorphicSerializer
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.StructureKind
-import kotlinx.serialization.decode
 import kotlinx.serialization.modules.SerialModule
 import org.bson.AbstractBsonReader
 import org.bson.AbstractBsonReader.State
@@ -67,7 +58,7 @@ abstract class FlexibleDecoder(
     override fun endStructure(desc: SerialDescriptor) {
         when (desc.kind) {
             is StructureKind.LIST -> reader.readEndArray()
-            is StructureKind.MAP, StructureKind.CLASS -> reader.readEndDocument()
+            is StructureKind.MAP, StructureKind.CLASS, UnionKind.OBJECT -> reader.readEndDocument()
         }
     }
 

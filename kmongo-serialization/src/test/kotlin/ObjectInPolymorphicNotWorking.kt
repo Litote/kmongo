@@ -23,6 +23,13 @@ object ObjectMessage : Message() {
     val message: String = "Message"
 }
 
+@Serializable
+data class ComplexObject(
+    val a: Int,
+    val m: Message,
+    val c: String
+)
+
 class ObjectInPolymorphicNotWorking {
     @Test
     fun `serialize and deserialize object in polymorphic`() {
@@ -30,6 +37,7 @@ class ObjectInPolymorphicNotWorking {
         val writer = BsonDocumentWriter(document)
         val encoder = BsonEncoder(writer, EmptyModule, Configuration())
         Message.serializer().serialize(encoder, ObjectMessage)
+
         val expected = BsonDocument.parse("""{"___type":"ObjectMessage"}""")
         assertEquals(expected, document)
 
@@ -47,6 +55,8 @@ class ObjectInPolymorphicNotWorking {
         val writer = BsonDocumentWriter(document)
         val encoder = BsonEncoder(writer, EmptyModule, Configuration())
         Message.serializer().serialize(encoder, message)
+        writer.flush()
+
         val expected = BsonDocument.parse("""{"___type":"StringMessage", "message":"msg"}""")
         assertEquals(expected, document)
 
@@ -54,5 +64,23 @@ class ObjectInPolymorphicNotWorking {
         val decoder = BsonFlexibleDecoder(reader, EmptyModule, Configuration())
         val parsed = Message.serializer().deserialize(decoder)
         assertEquals(message, parsed)
+    }
+
+    @Test
+    fun `serialize in complex object`(){
+        val complex = ComplexObject(3, ObjectMessage, "msg")
+        val document = BsonDocument()
+        val writer = BsonDocumentWriter(document)
+        val encoder = BsonEncoder(writer, EmptyModule, Configuration())
+        ComplexObject.serializer().serialize(encoder, complex)
+        writer.flush()
+
+        val expected = BsonDocument.parse("""{"a":3,"m":{"___type":"ObjectMessage"},"c":"msg"}""")
+        assertEquals(expected, document)
+
+        val reader = BsonDocumentReader(document)
+        val decoder = BsonFlexibleDecoder(reader, EmptyModule, Configuration())
+        val parsed = ComplexObject.serializer().deserialize(decoder)
+        assertEquals(complex, parsed)
     }
 }

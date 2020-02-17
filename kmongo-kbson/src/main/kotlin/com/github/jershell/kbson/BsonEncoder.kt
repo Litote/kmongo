@@ -81,7 +81,7 @@ open class BsonEncoder(
     override fun endStructure(desc: SerialDescriptor) {
         when (desc.kind) {
             is StructureKind.LIST -> writer.writeEndArray()
-            is StructureKind.MAP, StructureKind.CLASS -> writer.writeEndDocument()
+            is StructureKind.MAP, StructureKind.CLASS, UnionKind.OBJECT -> writer.writeEndDocument()
         }
     }
 
