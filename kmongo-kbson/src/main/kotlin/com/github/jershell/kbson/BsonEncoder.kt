@@ -57,7 +57,14 @@ open class BsonEncoder(
                     writer.writeStartDocument()
                 }
             }
-            UnionKind.OBJECT, is PolymorphicKind -> {
+            UnionKind.OBJECT-> {
+                if(hasBegin){
+                    hasBegin = false
+                } else{
+                    writer.writeStartDocument()
+                }
+            }
+            is PolymorphicKind -> {
                 writer.writeStartDocument()
                 writer.writeName(configuration.classDiscriminator)
                 hasBegin = true
