@@ -27,6 +27,7 @@ import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.StructureKind
+import kotlinx.serialization.UnionKind
 import kotlinx.serialization.decode
 import kotlinx.serialization.modules.SerialModule
 import org.bson.AbstractBsonReader
@@ -67,7 +68,7 @@ abstract class FlexibleDecoder(
     override fun endStructure(desc: SerialDescriptor) {
         when (desc.kind) {
             is StructureKind.LIST -> reader.readEndArray()
-            is StructureKind.MAP, StructureKind.CLASS -> reader.readEndDocument()
+            is StructureKind.MAP, StructureKind.CLASS, UnionKind.OBJECT -> reader.readEndDocument()
         }
     }
 

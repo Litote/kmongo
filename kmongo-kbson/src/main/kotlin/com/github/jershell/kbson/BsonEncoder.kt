@@ -57,7 +57,14 @@ open class BsonEncoder(
                     writer.writeStartDocument()
                 }
             }
-            UnionKind.OBJECT, is PolymorphicKind -> {
+            UnionKind.OBJECT-> {
+                if(hasBegin){
+                    hasBegin = false
+                } else{
+                    writer.writeStartDocument()
+                }
+            }
+            is PolymorphicKind -> {
                 writer.writeStartDocument()
                 writer.writeName(configuration.classDiscriminator)
                 hasBegin = true
@@ -74,7 +81,7 @@ open class BsonEncoder(
     override fun endStructure(desc: SerialDescriptor) {
         when (desc.kind) {
             is StructureKind.LIST -> writer.writeEndArray()
-            is StructureKind.MAP, StructureKind.CLASS -> writer.writeEndDocument()
+            is StructureKind.MAP, StructureKind.CLASS, UnionKind.OBJECT -> writer.writeEndDocument()
         }
     }
 
