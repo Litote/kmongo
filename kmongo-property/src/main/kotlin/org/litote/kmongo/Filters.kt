@@ -399,7 +399,7 @@ fun <@OnlyInputTypes T> KProperty<Iterable<T>?>.all(vararg values: T): Bson = Fi
  * @return the filter
  * @mongodb.driver.manual reference/operator/query/elemMatch $elemMatch
  */
-infix fun <T> KProperty<Iterable<T>>.elemMatch(filter: Bson): Bson = Filters.elemMatch(path(), filter)
+infix fun <T> KProperty<Iterable<T>?>.elemMatch(filter: Bson): Bson = Filters.elemMatch(path(), filter)
 
 /**
  * Creates a filter that matches all documents where the value of a property is an array of the specified size.
