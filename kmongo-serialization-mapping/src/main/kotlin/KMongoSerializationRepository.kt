@@ -87,6 +87,11 @@ inline fun <reified T> registerSerializer(serializer: KSerializer<T>) {
 var configuration: Configuration = Configuration()
 
 /**
+ * The KMongo serialization module.
+ */
+val kmongoSerializationModule: SerialModule get() = KMongoSerializationRepository.module
+
+/**
  *
  */
 internal object KMongoSerializationRepository {
