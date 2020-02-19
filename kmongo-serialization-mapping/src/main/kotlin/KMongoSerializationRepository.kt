@@ -89,7 +89,7 @@ var configuration: Configuration = Configuration()
 /**
  *
  */
-internal object KMongoSerializationRepository {
+object KMongoSerializationRepository {
 
     private val serializersMap: Map<KClass<*>, KSerializer<*>> = mapOf(
         ObjectId::class to ObjectIdSerializer,
@@ -139,7 +139,7 @@ internal object KMongoSerializationRepository {
 
     @Suppress("UNCHECKED_CAST")
     @ImplicitReflectionSerializer
-    fun <T : Any> getSerializer(kClass: KClass<T>, obj: T?): KSerializer<T> =
+    internal fun <T : Any> getSerializer(kClass: KClass<T>, obj: T?): KSerializer<T> =
         if (obj == null) {
             JsonNullSerializer as? KSerializer<T> ?: error("no serializer for null")
         } else {
@@ -163,7 +163,7 @@ internal object KMongoSerializationRepository {
 
     @Suppress("UNCHECKED_CAST")
     @ImplicitReflectionSerializer
-    fun <T : Any> getSerializer(kClass: KClass<T>): KSerializer<T> =
+    internal fun <T : Any> getSerializer(kClass: KClass<T>): KSerializer<T> =
         (serializersMap[kClass]
                 ?: module.getContextual(kClass)
                 ?: try {
