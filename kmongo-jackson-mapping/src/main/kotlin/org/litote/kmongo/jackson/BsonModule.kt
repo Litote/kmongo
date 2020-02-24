@@ -441,7 +441,9 @@ internal class BsonModule : SimpleModule() {
                     is Float -> BigDecimal(v.toDouble())
                     is Double -> BigDecimal(v)
                     is Decimal128 -> v.bigDecimalValue()
-                    else -> throw ClassCastException(v.javaClass.name + " cannot be cast to " + BigDecimal::class.java.name + ": " + v)
+                    is String -> BigDecimal(v)
+                    else -> throw ClassCastException(
+                        v.javaClass.name + " cannot be cast to " + BigDecimal::class.java.name + ": " + v)
                 }
             }
         }
