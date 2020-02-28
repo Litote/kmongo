@@ -72,7 +72,7 @@
         <mongo.version>3.12.1</mongo.version>
         <mongo.base.version>3.10</mongo.base.version>
         <coroutine.version>1.3.3</coroutine.version>
-        <rxjava.version>2.2.17</rxjava.version>
+        <rxjava.version>2.2.18</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
         <jackson.version>2.10.2</jackson.version>
         <jackson-module.version>2.10.2</jackson-module.version>
@@ -93,7 +93,7 @@
         <fongo.version>2.2.0-RC2</fongo.version>
         <sl4j.version>2.0.0-alpha1</sl4j.version>
         <junit.version>4.13</junit.version>
-        <jmh.version>1.22</jmh.version>
+        <jmh.version>1.23</jmh.version>
         <compiler-testing.version>0.18</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
 
@@ -103,7 +103,7 @@
         <plugin.source.version>3.2.1</plugin.source.version>
         <plugin.release.version>3.0.0-M1</plugin.release.version>
         <plugin.jar.version>3.2.0</plugin.jar.version>
-        <plugin.dokka.version>0.10.0</plugin.dokka.version>
+        <plugin.dokka.version>0.10.1</plugin.dokka.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
         <plugin.jacoco.version>0.8.5</plugin.jacoco.version>
