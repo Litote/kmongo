@@ -71,7 +71,36 @@ col.updateOne(friend::name eq "Paul", set( Friend::name setTo "John", Friend::ag
 
 //other operations are supported
 col.updateOne(Friend::name eq "John", pull(Friend::tags, "t2"))
-``` 
+```                                                            
+
+#### Array operators
+
+You can use [positional array operators](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/kotlin.reflect.-k-property1/index.html):
+
+```kotlin        
+
+data class EvaluationAnswer(val answers:List<MyAnswer>)
+data class MyAnswer(val _id:String, val alreadyUsed: Boolean)
+
+//Both are equivalent
+col.updateMany( "{ \"answers._id\": { \$in: answerIds } }, { $set:{ \"answers.\$[].alreadyUsed\": true}}")
+ 
+col.updateMany(
+            (EvaluationAnswer::answers / MyAnswer::_id) `in` answerIds,
+            setValue(EvaluationAnswer::answers.allPosOp / MyAnswer::alreadyUsed, true)
+        )
+
+```    
+
+#### Map operators
+
+```kotlin 
+data class Friend(val localeMap: Map<Locale, Gift>)
+data class Gift(val amount: BigDecimal)
+         
+//returns true
+assertEquals("localeMap.en.amount", (Friend::localeMap.keyProjection(Locale.ENGLISH) / Gift::amount).path())
+```
 
 #### Aggregation
 

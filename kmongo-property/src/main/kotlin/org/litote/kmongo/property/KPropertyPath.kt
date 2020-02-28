@@ -154,21 +154,17 @@ open class KCollectionPropertyPath<T, R, MEMBER : KPropertyPath<T, R?>>(
         ) as MEMBER
 
     /**
-     * The positional array operator (projection or update).
-     * @see https://docs.mongodb.com/manual/reference/operator/projection/positional/
-     * @see https://docs.mongodb.com/manual/reference/operator/update/positional/
+     * [The positional array operator (projection or update) $](https://docs.mongodb.com/manual/reference/operator/update/positional/)
      */
     val posOp: MEMBER get() = memberWithAdditionalPath("\$")
 
     /**
-     * The all positional operator.
-     * @see https://docs.mongodb.com/manual/reference/operator/update/positional-all/
+     * [The all positional operator $[]](https://docs.mongodb.com/manual/reference/operator/update/positional-all/)
      */
     val allPosOp: MEMBER get() = memberWithAdditionalPath("\$[]")
 
     /**
-     * The filtered positional operator.
-     * @see https://docs.mongodb.com/manual/reference/operator/update/positional-filtered/
+     * [The filtered positional operator $[<identifier>]](https://docs.mongodb.com/manual/reference/operator/update/positional-filtered/)
      */
     fun filteredPosOp(identifier: String): MEMBER = memberWithAdditionalPath("\$[$identifier]")
 }
@@ -199,6 +195,10 @@ open class KMapPropertyPath<T, K, R, MEMBER : KPropertyPath<T, R?>>(
             customProperty(this as KPropertyPath<*, T>, additionalPath)
         ) as MEMBER
 
+    /**
+     * Key projection of map.
+     * Sample: `p.keyProjection(Locale.ENGLISH) / Gift::amount`
+     */
     fun keyProjection(key: K): MEMBER = memberWithAdditionalPath(key.toString())
 }
 

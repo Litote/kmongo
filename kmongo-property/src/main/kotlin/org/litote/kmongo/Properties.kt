@@ -61,3 +61,26 @@ val <T> KProperty1<out Any?, Iterable<T>?>.colProperty: KCollectionSimplePropert
  */
 val <K, T> KProperty1<out Any?, Map<out K, T>?>.mapProperty: KMapSimplePropertyPath<out Any?, K, T>
     get() = KMapSimplePropertyPath(null, this)
+
+/**
+ * [The positional array operator $ (projection or update)](https://docs.mongodb.com/manual/reference/operator/update/positional/)
+ */
+val <T> KProperty1<out Any?, Iterable<T>?>.posOp: KPropertyPath<out Any?, T?> get() = colProperty.posOp
+
+/**
+ * [The all positional operator $[]](https://docs.mongodb.com/manual/reference/operator/update/positional-all/)
+ */
+val <T> KProperty1<out Any?, Iterable<T>?>.allPosOp: KPropertyPath<out Any?, T?> get() = colProperty.allPosOp
+
+/**
+ * [The filtered positional operator $[<identifier>]](https://docs.mongodb.com/manual/reference/operator/update/positional-filtered/)
+ */
+fun <T> KProperty1<out Any?, Iterable<T>?>.filteredPosOp(identifier: String): KPropertyPath<out Any?, T?> =
+    colProperty.filteredPosOp(identifier)
+
+/**
+ * Key projection of map.
+ * Sample: `p.keyProjection(Locale.ENGLISH) / Gift::amount`
+ */
+fun <K, T> KProperty1<out Any?, Map<out K, T>?>.keyProjection(key: K): KPropertyPath<out Any?, T?> =
+    mapProperty.keyProjection(key)
