@@ -76,4 +76,13 @@ class Issue147OtherTypeSupportForBigDecimal {
         )
         assertEquals(1.toBigDecimal(), data.d)
     }
+
+    @Test
+    fun testDeserializingString() {
+        val bson = "{d:\"1.134\"}".bson
+        val data = ClassMappingType.coreCodecRegistry().get(Data::class.java).decode(
+            BsonDocumentReader(bson), DecoderContext.builder().build()
+        )
+        assertEquals(1.134.toBigDecimal(), data.d)
+    }
 }
