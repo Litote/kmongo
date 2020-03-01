@@ -22,7 +22,7 @@ import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.SerializationMappingCategory
-import org.litote.kmongo.model.Friend
+import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
 /**
@@ -43,7 +43,7 @@ open class KMongoCoroutineBaseTest<T : Any> : KMongoRootTest() {
     inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection<T>()
 
     @Suppress("UNCHECKED_CAST")
-    open fun getDefaultCollectionClass(): KClass<T>
-            = Friend::class as KClass<T>
+    open fun getDefaultCollectionClass(): KClass<T> =
+        ((this::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<T>).kotlin
 
 }

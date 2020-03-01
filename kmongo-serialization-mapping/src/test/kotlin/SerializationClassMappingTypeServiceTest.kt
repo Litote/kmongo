@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.serialization
 
+import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
 import org.bson.BsonDocument
 import org.bson.BsonDocumentReader
 import org.bson.BsonDocumentWriter
@@ -34,7 +35,8 @@ class SerializationClassMappingTypeServiceTest {
     fun `encode and decode document`() {
         val doc = Document()
         doc["a"] = "b"
-        val codec = SerializationClassMappingTypeService().coreCodecRegistry().get(Document::class.java)
+        val codec =
+            SerializationClassMappingTypeService().codecRegistry(getDefaultCodecRegistry()).get(Document::class.java)
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
         codec.encode(writer, doc, EncoderContext.builder().build())

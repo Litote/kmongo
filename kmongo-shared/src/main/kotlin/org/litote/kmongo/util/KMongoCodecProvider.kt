@@ -20,8 +20,9 @@ import org.bson.codecs.Codec
 import org.bson.codecs.configuration.CodecRegistry
 
 /**
- * Used by [KMongoCodecBase].
+ * Used by [ObjectMappingConfiguration].
  */
+@Deprecated("use add CustomCodec()")
 interface KMongoCodecProvider<T> {
 
     fun codec(codecRegistryProvider: () -> (CodecRegistry)): Codec<T>

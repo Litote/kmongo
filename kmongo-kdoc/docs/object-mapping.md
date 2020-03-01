@@ -105,6 +105,11 @@ whatever is the timezone of the saved date, you will get an UTC date when loadin
 
 So, in this case, the loaded date will not usually be equals to the saved date - the Instant part of the date of course is the same. If you need to check equality, use a method like ```OffsetDateTime#withOffsetSameInstant``` on the loaded date.
 
+## Register a custom mongo Codec
+
+Use  [ObjectMappingConfiguration.addCustomCodec](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo.util/-object-mapping-configuration/index.html) function in order to register a custom codec.
+You have also the option to use [custom Jackson modules](https://litote.org/kmongo/object-mapping/#register-a-custom-jackson-module) or custom [kotlinx.serialization modules](https://litote.org/kmongo/object-mapping/#additional-modules-and-serializers).
+
 ## How to choose the mapping engine
 
 ### The Jackson choice

@@ -16,6 +16,10 @@
 
 package org.litote.kmongo.util
 
+import org.bson.codecs.Codec
+import org.litote.kmongo.service.CustomCodecProvider
+import java.util.concurrent.CopyOnWriteArrayList
+
 /**
  * Default object mapping configuration options.
  * Set values before KMongo initialization.
@@ -32,5 +36,13 @@ object ObjectMappingConfiguration {
     /**
      * Additional generated codecs registered before KMongo main codec.
      */
-    val customCodecProviders: MutableList<KMongoCodecProvider<*>> = mutableListOf()
+    @Deprecated("use add CustomCodec()")
+    val customCodecProviders: MutableList<KMongoCodecProvider<*>> = CopyOnWriteArrayList()
+
+    /**
+     * Adds a custom codec.
+     */
+    fun <T> addCustomCodec(codec: Codec<T>) {
+        CustomCodecProvider.addCustomCodec(codec)
+    }
 }

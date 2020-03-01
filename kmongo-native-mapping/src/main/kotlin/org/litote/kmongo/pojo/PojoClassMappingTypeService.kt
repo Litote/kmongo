@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.pojo
 
-import com.mongodb.MongoClientSettings
+import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.EncoderContext
@@ -33,6 +33,7 @@ import org.litote.kmongo.service.ClassMappingType
 import org.litote.kmongo.service.ClassMappingTypeService
 import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.io.StringWriter
+import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -45,6 +46,20 @@ import kotlin.reflect.jvm.javaGetter
  */
 internal class PojoClassMappingTypeService : ClassMappingTypeService {
 
+    private val internalCodecRegistry: CodecRegistry by lazy(PUBLICATION) {
+        ClassMappingType.codecRegistry(
+            getDefaultCodecRegistry(),
+            codecRegistry
+        )
+    }
+
+    private val internalNullCodecRegistry: CodecRegistry by lazy(PUBLICATION) {
+        ClassMappingType.codecRegistry(
+            getDefaultCodecRegistry(),
+            codecRegistryWithNullSerialization
+        )
+    }
+
     override fun priority(): Int {
         return 0
     }
@@ -52,8 +67,9 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
     override fun filterIdToBson(obj: Any, filterNullProperties: Boolean): BsonDocument {
         val bsonDocument = BsonDocument()
         val bsonWriter = BsonDocumentWriter(bsonDocument)
-        (if (filterNullProperties) codecRegistry else codecRegistryWithNullSerialization)
-            .get(obj.javaClass)
+        val codec = if (filterNullProperties) internalCodecRegistry else internalNullCodecRegistry
+
+        codec.get(obj.javaClass)
             ?.encode(
                 bsonWriter,
                 obj,
@@ -82,7 +98,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
                 //create a fake document to bypass bson writer built-in checks
                 jsonWriter.writeStartDocument()
                 jsonWriter.writeName("tmp")
-                ClassMappingType.codecRegistry(MongoClientSettings.getDefaultCodecRegistry())
+                internalCodecRegistry
                     .get(obj.javaClass)
                     ?.encode(
                         jsonWriter,

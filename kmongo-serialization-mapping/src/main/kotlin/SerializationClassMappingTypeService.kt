@@ -15,13 +15,12 @@
  */
 package org.litote.kmongo.serialization
 
-import com.mongodb.MongoClientSettings
+import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.SerialName
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.EncoderContext
-import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
@@ -41,15 +40,18 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
 
     override fun priority(): Int = 200
 
+    private val coreCodecRegistry: CodecRegistry by lazy(PUBLICATION) {
+        SerializationCodecRegistry(configuration)
+    }
     private val codecRegistry: CodecRegistry by lazy(PUBLICATION) {
-        CodecRegistries.fromRegistries(
-            MongoClientSettings.getDefaultCodecRegistry(),
+        codecRegistry(
+            getDefaultCodecRegistry(),
             SerializationCodecRegistry(configuration)
         )
     }
     private val codecRegistryWithNonEncodeNull: CodecRegistry by lazy(PUBLICATION) {
-        CodecRegistries.fromRegistries(
-            MongoClientSettings.getDefaultCodecRegistry(),
+        codecRegistry(
+            getDefaultCodecRegistry(),
             SerializationCodecRegistry(configuration.copy(nonEncodeNull = true))
         )
     }
@@ -85,7 +87,7 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
             //create a fake document to bypass bson writer built-in checks
             jsonWriter.writeStartDocument()
             jsonWriter.writeName("tmp")
-            coreCodecRegistry().get(obj.javaClass).encode(jsonWriter, obj, EncoderContext.builder().build())
+            codecRegistryWithNonEncodeNull.get(obj.javaClass).encode(jsonWriter, obj, EncoderContext.builder().build())
             jsonWriter.writeEndDocument()
             writer.toString().run {
                 substring("{ \"tmp\":".length, length - "}".length).trim()
@@ -99,7 +101,7 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
     override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? =
         idController.getIdValue(idProperty, instance)
 
-    override fun coreCodecRegistry(): CodecRegistry = codecRegistry
+    override fun coreCodecRegistry(): CodecRegistry = coreCodecRegistry
 
     override fun <T> calculatePath(property: KProperty<T>): String {
         return property.findAnnotation<SerialName>()?.value ?: property.name

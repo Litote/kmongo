@@ -17,9 +17,12 @@
 package org.litote.kmongo.service
 
 import org.bson.BsonDocument
+import org.bson.codecs.Codec
+import org.bson.codecs.configuration.CodecConfigurationException
+import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
-import org.litote.kmongo.util.ObjectMappingConfiguration
+import org.litote.kmongo.util.ObjectMappingConfiguration.customCodecProviders
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -37,6 +40,19 @@ private val kPropertyPathClass =
     } catch (e: Exception) {
         null
     }
+
+internal object CustomCodecProvider : CodecProvider {
+
+    private val customCodecMap = ConcurrentHashMap<Class<*>, Codec<*>>()
+
+    fun <T> addCustomCodec(codec: Codec<T>) {
+        customCodecMap[codec.encoderClass] = codec
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? =
+        customCodecMap[clazz] as? Codec<T>
+}
 
 /**
  *  Provides an object mapping utility using [java.util.ServiceLoader].
@@ -56,19 +72,39 @@ interface ClassMappingTypeService {
 
     fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R?
 
-    fun codecRegistry(codecRegistry: CodecRegistry): CodecRegistry {
+    /**
+     * Returns a codec registry built with [baseCodecRegistry], [customCodecProviders] and [coreCodeRegistry]
+     */
+    fun codecRegistry(
+        baseCodecRegistry: CodecRegistry,
+        coreCodeRegistry: CodecRegistry = coreCodecRegistry()
+    ): CodecRegistry {
         lateinit var codec: CodecRegistry
-        codec = CodecRegistries.fromRegistries(
-            codecRegistry,
-            CodecRegistries.fromCodecs(
-                ObjectMappingConfiguration.customCodecProviders.map { it.codec { codec } }
-            ),
-            coreCodecRegistry()
+        codec = CodecRegistries.fromProviders(
+            providerFromRegistry(baseCodecRegistry),
+            providerFromRegistry(CodecRegistries.fromCodecs(
+                customCodecProviders.map { it.codec { codec } }
+            )),
+            CustomCodecProvider,
+            providerFromRegistry(coreCodeRegistry)
         )
-
         return codec
     }
 
+    private fun providerFromRegistry(innerRegistry: CodecRegistry): CodecProvider {
+        return if (innerRegistry is CodecProvider) {
+            innerRegistry
+        } else {
+            object : CodecProvider {
+                override fun <T> get(clazz: Class<T>, outerRregistry: CodecRegistry): Codec<T>? =
+                    try {
+                        innerRegistry[clazz]
+                    } catch (e: CodecConfigurationException) {
+                        null
+                    }
+            }
+        }
+    }
 
     fun coreCodecRegistry(): CodecRegistry
 
