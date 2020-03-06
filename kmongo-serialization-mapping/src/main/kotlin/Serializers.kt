@@ -19,8 +19,13 @@ package org.litote.kmongo.serialization
 import com.github.jershell.kbson.BsonEncoder
 import com.github.jershell.kbson.FlexibleDecoder
 import com.github.jershell.kbson.ObjectIdSerializer
-import kotlinx.serialization.*
-import kotlinx.serialization.internal.StringDescriptor
+import kotlinx.serialization.Decoder
+import kotlinx.serialization.Encoder
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.PrimitiveDescriptor
+import kotlinx.serialization.PrimitiveKind
+import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.SerializationException
 import org.bson.AbstractBsonReader.State
 import org.bson.BsonTimestamp
 import org.bson.BsonType

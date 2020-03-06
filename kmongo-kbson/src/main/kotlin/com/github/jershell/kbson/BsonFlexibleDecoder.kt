@@ -234,6 +234,7 @@ private class PolymorphismDecoder(
         }
         reader.readName()
         val type = reader.readString()
+
         @Suppress("UNCHECKED_CAST")
         val actualSerializer = deserializer.findPolymorphicSerializer(this, type) as KSerializer<T>
         return BsonFlexibleDecoder(reader, context, configuration).decode(actualSerializer)
@@ -244,7 +245,7 @@ private class PolymorphismDecoder(
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        if(decodeCount < 2)
+        if (decodeCount < 2)
             return decodeCount++
 
         return READ_DONE

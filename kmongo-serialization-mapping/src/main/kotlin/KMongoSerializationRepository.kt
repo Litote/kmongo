@@ -60,6 +60,7 @@ import kotlin.reflect.KProperty
 @PublishedApi
 internal val customSerializersMap: MutableMap<KClass<*>, KSerializer<*>> = ConcurrentHashMap()
 private val customModules = CopyOnWriteArraySet<SerialModule>()
+
 @Volatile
 @PublishedApi
 internal var checkBaseModule: Boolean = true

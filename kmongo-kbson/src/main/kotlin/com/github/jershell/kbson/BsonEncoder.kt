@@ -42,9 +42,13 @@ open class BsonEncoder(
     private var stateMap = StateMap()
     private var deferredKeyName: String? = null
 
-    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = configuration.encodeDefaults
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean =
+        configuration.encodeDefaults
 
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
+    override fun beginStructure(
+        descriptor: SerialDescriptor,
+        vararg typeSerializers: KSerializer<*>
+    ): CompositeEncoder {
         when (descriptor.kind) {
             StructureKind.LIST -> writer.writeStartArray()
             StructureKind.CLASS -> {
@@ -55,9 +59,9 @@ open class BsonEncoder(
                 }
             }
             StructureKind.OBJECT -> {
-                if(hasBegin){
+                if (hasBegin) {
                     hasBegin = false
-                } else{
+                } else {
                     writer.writeStartDocument()
                 }
             }
@@ -105,7 +109,8 @@ open class BsonEncoder(
                 val elemDesc = descriptor.getElementDescriptor(index)
                 if (elemDesc.isNullable) {
                     val ann =
-                        configuration.nonEncodeNull || descriptor.getElementAnnotations(index).any { it is NonEncodeNull }
+                        configuration.nonEncodeNull || descriptor.getElementAnnotations(index)
+                            .any { it is NonEncodeNull }
                     if (ann) {
                         deferredKeyName = name
                     }

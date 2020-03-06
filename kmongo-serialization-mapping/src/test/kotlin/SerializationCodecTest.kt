@@ -16,7 +16,16 @@
 
 package org.litote.kmongo.serialization
 
-import kotlinx.serialization.*
+import kotlinx.serialization.CompositeDecoder
+import kotlinx.serialization.CompositeEncoder
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Decoder
+import kotlinx.serialization.Encoder
+import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
 import org.bson.BsonDocument
@@ -112,7 +121,7 @@ class SerializationCodecTest {
 
     @Serializer(forClass = Custom::class)
     object CustomSerializer : KSerializer<Custom> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("Custom"){
+        override val descriptor: SerialDescriptor = SerialDescriptor("Custom") {
             element("s", String.serializer().descriptor)
         }
 
