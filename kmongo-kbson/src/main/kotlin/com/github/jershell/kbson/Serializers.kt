@@ -16,16 +16,8 @@
 
 package com.github.jershell.kbson
 
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Encoder
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.SerialInfo
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.internal.StringDescriptor
+import kotlinx.serialization.*
 import kotlinx.serialization.modules.serializersModuleOf
-import kotlinx.serialization.withName
 import org.bson.BsonType
 import org.bson.types.Decimal128
 import org.bson.types.ObjectId
@@ -39,11 +31,11 @@ annotation class NonEncodeNull
 
 @Serializer(forClass = Date::class)
 object DateSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = StringDescriptor.withName("DateSerializer")
+    override val descriptor: SerialDescriptor = PrimitiveDescriptor("DateSerializer", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, obj: Date) {
+    override fun serialize(encoder: Encoder, value: Date) {
         encoder as BsonEncoder
-        encoder.encodeDateTime(obj.time)
+        encoder.encodeDateTime(value.time)
     }
 
     override fun deserialize(decoder: Decoder): Date {
@@ -66,11 +58,11 @@ object DateSerializer : KSerializer<Date> {
 @Serializer(forClass = BigDecimal::class)
 object BigDecimalSerializer : KSerializer<BigDecimal> {
     override val descriptor: SerialDescriptor =
-        StringDescriptor.withName("BigDecimalSerializer")
+        PrimitiveDescriptor("BigDecimalSerializer", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, obj: BigDecimal) {
+    override fun serialize(encoder: Encoder, value: BigDecimal) {
         encoder as BsonEncoder
-        encoder.encodeDecimal128(Decimal128(obj))
+        encoder.encodeDecimal128(Decimal128(value))
     }
 
     override fun deserialize(decoder: Decoder): BigDecimal {
@@ -91,11 +83,11 @@ object BigDecimalSerializer : KSerializer<BigDecimal> {
 @Serializer(forClass = ByteArray::class)
 object ByteArraySerializer : KSerializer<ByteArray> {
     override val descriptor: SerialDescriptor =
-        StringDescriptor.withName("ByteArraySerializer")
+        PrimitiveDescriptor("ByteArraySerializer", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, obj: ByteArray) {
+    override fun serialize(encoder: Encoder, value: ByteArray) {
         encoder as BsonEncoder
-        encoder.encodeByteArray(obj)
+        encoder.encodeByteArray(value)
     }
 
     override fun deserialize(decoder: Decoder): ByteArray {
@@ -112,11 +104,11 @@ object ByteArraySerializer : KSerializer<ByteArray> {
 
 @Serializer(forClass = ObjectId::class)
 object ObjectIdSerializer : KSerializer<ObjectId> {
-    override val descriptor: SerialDescriptor = StringDescriptor.withName("ObjectIdSerializer")
+    override val descriptor: SerialDescriptor = PrimitiveDescriptor("ObjectIdSerializer", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, obj: ObjectId) {
+    override fun serialize(encoder: Encoder, value: ObjectId) {
         encoder as BsonEncoder
-        encoder.encodeObjectId(obj)
+        encoder.encodeObjectId(value)
     }
 
     override fun deserialize(decoder: Decoder): ObjectId {

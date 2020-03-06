@@ -17,16 +17,13 @@
 package com.github.jershell.kbson
 
 import kotlinx.serialization.CompositeEncoder
-import kotlinx.serialization.ElementValueEncoder
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicKind
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.StructureKind
-import kotlinx.serialization.UnionKind
-import kotlinx.serialization.internal.PairClassDesc
-import kotlinx.serialization.internal.TripleSerializer
+import kotlinx.serialization.builtins.AbstractEncoder
 import kotlinx.serialization.modules.SerialModule
 import org.bson.BsonBinary
 import org.bson.BsonWriter
@@ -38,17 +35,17 @@ open class BsonEncoder(
     private val writer: BsonWriter,
     override val context: SerialModule,
     private val configuration: Configuration
-) : ElementValueEncoder() {
+) : AbstractEncoder() {
 
     private var state = STATE.VALUE
     private var hasBegin = false // for UnionKind
     private var stateMap = StateMap()
     private var deferredKeyName: String? = null
 
-    override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean = configuration.encodeDefaults
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = configuration.encodeDefaults
 
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
-        when (desc.kind) {
+    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
+        when (descriptor.kind) {
             StructureKind.LIST -> writer.writeStartArray()
             StructureKind.CLASS -> {
                 if (hasBegin) {
@@ -57,7 +54,7 @@ open class BsonEncoder(
                     writer.writeStartDocument()
                 }
             }
-            UnionKind.OBJECT-> {
+            StructureKind.OBJECT -> {
                 if(hasBegin){
                     hasBegin = false
                 } else{
@@ -75,13 +72,13 @@ open class BsonEncoder(
             }
             else -> throw SerializationException("Primitives are not supported at top-level")
         }
-        return super.beginStructure(desc, *typeParams)
+        return super.beginStructure(descriptor, *typeSerializers)
     }
 
-    override fun endStructure(desc: SerialDescriptor) {
-        when (desc.kind) {
+    override fun endStructure(descriptor: SerialDescriptor) {
+        when (descriptor.kind) {
             is StructureKind.LIST -> writer.writeEndArray()
-            is StructureKind.MAP, StructureKind.CLASS, UnionKind.OBJECT -> writer.writeEndDocument()
+            is StructureKind.MAP, StructureKind.CLASS, StructureKind.OBJECT -> writer.writeEndDocument()
         }
     }
 
@@ -100,20 +97,17 @@ open class BsonEncoder(
         }
     }
 
-    override fun encodeElement(desc: SerialDescriptor, index: Int): Boolean {
-        when (desc.kind) {
+    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        when (descriptor.kind) {
             is StructureKind.CLASS -> {
-                val name = desc.getElementName(index)
+                val name = descriptor.getElementName(index)
 
-                // Pair & Triple doesn't have a child description
-                if (desc !is PairClassDesc && desc !is TripleSerializer.TripleDesc) {
-                    val elemDesc = desc.getElementDescriptor(index)
-                    if (elemDesc.isNullable) {
-                        val ann =
-                            configuration.nonEncodeNull || desc.getElementAnnotations(index).any { it is NonEncodeNull }
-                        if (ann) {
-                            deferredKeyName = name
-                        }
+                val elemDesc = descriptor.getElementDescriptor(index)
+                if (elemDesc.isNullable) {
+                    val ann =
+                        configuration.nonEncodeNull || descriptor.getElementAnnotations(index).any { it is NonEncodeNull }
+                    if (ann) {
+                        deferredKeyName = name
                     }
                 }
 
@@ -136,8 +130,8 @@ open class BsonEncoder(
         writer.writeNull()
     }
 
-    override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) {
-        writer.writeString(enumDescription.getElementName(ordinal))
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
+        writer.writeString(enumDescriptor.getElementName(index))
     }
 
     override fun encodeString(value: String) {

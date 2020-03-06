@@ -25,10 +25,10 @@ import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.internal.PairSerializer
-import kotlinx.serialization.internal.ReferenceArraySerializer
-import kotlinx.serialization.internal.StringSerializer
-import kotlinx.serialization.internal.TripleSerializer
+import kotlinx.serialization.builtins.ArraySerializer
+import kotlinx.serialization.builtins.PairSerializer
+import kotlinx.serialization.builtins.TripleSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonNullSerializer
 import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
@@ -129,10 +129,10 @@ internal object KMongoSerializationRepository {
                 getSerializer(obj.second),
                 getSerializer(obj.third)
             )
-            is Array<*> -> ReferenceArraySerializer(
+            is Array<*> -> ArraySerializer(
                 kClass as KClass<Any>,
                 obj.filterNotNull().let {
-                    if (it.isEmpty()) StringSerializer else getSerializer(it.first())
+                    if (it.isEmpty()) String.serializer() else getSerializer(it.first())
                 } as KSerializer<Any>
             )
             else -> module.getContextual(kClass)

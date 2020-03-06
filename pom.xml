@@ -68,7 +68,7 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.3.61</kotlin.version>
+        <kotlin.version>1.3.70</kotlin.version>
         <mongo.version>3.12.1</mongo.version>
         <mongo.base.version>3.10</mongo.base.version>
         <coroutine.version>1.3.3</coroutine.version>
@@ -80,7 +80,7 @@
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.1.0</jackson-module-loader.version>
         <reactivestreams.version>1.13.0</reactivestreams.version>
-        <kotlinx-serialization.version>0.14.0</kotlinx-serialization.version>
+        <kotlinx-serialization.version>0.20.0</kotlinx-serialization.version>
 
         <!-- annotations processor -->
         <kgenerator.version>0.3.0</kgenerator.version>
