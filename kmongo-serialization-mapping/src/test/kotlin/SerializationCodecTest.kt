@@ -16,17 +16,8 @@
 
 package org.litote.kmongo.serialization
 
-import kotlinx.serialization.CompositeDecoder
-import kotlinx.serialization.CompositeEncoder
-import kotlinx.serialization.ContextualSerialization
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Encoder
-import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlinx.serialization.internal.StringDescriptor
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
 import org.bson.BsonDocument
 import org.bson.BsonDocumentReader
@@ -121,27 +112,23 @@ class SerializationCodecTest {
 
     @Serializer(forClass = Custom::class)
     object CustomSerializer : KSerializer<Custom> {
-
-        object CustomClassDesc : SerialClassDescImpl("Custom") {
-            init {
-                addElement("s")
-                pushDescriptor(StringDescriptor)
-            }
+        override val descriptor: SerialDescriptor = SerialDescriptor("Custom"){
+            element("s", String.serializer().descriptor)
         }
 
         override fun deserialize(decoder: Decoder): Custom {
             decoder as CompositeDecoder
-            decoder.beginStructure(CustomClassDesc)
-            val c = Custom(decoder.decodeStringElement(CustomClassDesc, 0))
-            decoder.endStructure(CustomClassDesc)
+            decoder.beginStructure(descriptor)
+            val c = Custom(decoder.decodeStringElement(descriptor, 0))
+            decoder.endStructure(descriptor)
             return c
         }
 
         override fun serialize(encoder: Encoder, obj: Custom) {
             encoder as CompositeEncoder
-            encoder.beginStructure(CustomClassDesc)
-            encoder.encodeStringElement(CustomClassDesc, 0, obj.s)
-            encoder.endStructure(CustomClassDesc)
+            encoder.beginStructure(descriptor)
+            encoder.encodeStringElement(descriptor, 0, obj.s)
+            encoder.endStructure(descriptor)
         }
     }
 
@@ -238,7 +225,7 @@ class SerializationCodecTest {
             codec.encode(writer, c, EncoderContext.builder().build())
         }
         assertEquals(
-            "Can't locate argument-less serializer for class org.litote.kmongo.serialization.SerializationCodecTest\$NotSerializableClass. For generic classes, such as lists, please provide serializer explicitly.",
+            "Can't locate argument-less serializer for class NotSerializableClass. For generic classes, such as lists, please provide serializer explicitly.",
             t.message
         )
     }
@@ -257,7 +244,7 @@ class SerializationCodecTest {
             codec2.decode(BsonDocumentReader(document), DecoderContext.builder().build())
         }
         assertEquals(
-            "Can't locate argument-less serializer for class org.litote.kmongo.serialization.SerializationCodecTest\$NotSerializableClass. For generic classes, such as lists, please provide serializer explicitly.",
+            "Can't locate argument-less serializer for class NotSerializableClass. For generic classes, such as lists, please provide serializer explicitly.",
             t.message
         )
     }
