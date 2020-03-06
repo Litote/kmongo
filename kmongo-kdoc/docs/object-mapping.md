@@ -48,14 +48,14 @@ You just have to add the ```kmongo-id``` dependency in the frontend to compile.
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-id</artifactId>
-  <version>3.12.1</version>
+  <version>3.12.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-id:3.12.1'
+compile 'org.litote.kmongo:kmongo-id:3.12.2'
 ```
 
 #### Id <> Json Jackson serialization
@@ -138,7 +138,7 @@ All the common cases are covered. However, there are some limitations. For examp
 
 ### The kotlinx serialization choice
 
-Starting with 3.12.1 version, KMongo also supports [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization) mapping.
+Starting with 3.12.2 version, KMongo also supports [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization) mapping.
 
 The main advantage of this kind of mapping is that **almost no (slow) reflection** is involved.
 
