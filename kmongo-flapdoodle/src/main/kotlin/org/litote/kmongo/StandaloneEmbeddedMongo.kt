@@ -17,7 +17,6 @@
 package org.litote.kmongo
 
 import com.mongodb.ConnectionString
-import com.mongodb.async.SingleResultCallback
 import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
 import de.flapdoodle.embed.mongo.config.IMongodConfig

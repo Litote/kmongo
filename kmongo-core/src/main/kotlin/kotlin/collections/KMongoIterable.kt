@@ -16,12 +16,12 @@
 
 package kotlin.collections
 
-import com.mongodb.Block
 import com.mongodb.Function
 import com.mongodb.ServerAddress
 import com.mongodb.ServerCursor
 import com.mongodb.client.MongoCursor
 import com.mongodb.client.MongoIterable
+import java.util.function.Consumer
 import kotlin.internal.HidesMembers
 import kotlin.internal.InlineOnly
 import kotlin.internal.NoInfer
@@ -58,7 +58,7 @@ fun <T, R> MongoIterable<T>.useCursor(block: (Iterable<T>) -> R): R {
  */
 @HidesMembers
 inline fun <T> MongoIterable<T>.forEach(crossinline action: (T) -> Unit): Unit =
-    forEach(Block<T> { action.invoke(it) })
+    forEach(Consumer { action.invoke(it) })
 
 /**
  * Returns the first element, or `null` if the collection is empty.
@@ -97,10 +97,10 @@ private class MongoIndexingIterable<T>(
         return iterable.map { mapper.apply(IndexedValue(index++, it)) }
     }
 
-    override fun forEach(block: Block<in IndexedValue<T>>) {
+    override fun forEach(action: Consumer<in IndexedValue<T>>) {
         var index = 0
         iterable.forEach {
-            block.apply(IndexedValue(index++, it))
+            action.accept(IndexedValue(index++, it))
         }
     }
 

@@ -123,8 +123,8 @@ internal class KMongoBsonFactory : BsonFactory() {
             return BsonTimestamp(ts.time, ts.inc)
         }
 
-        private fun convertToNativeObjectId(id: de.undercouch.bson4jackson.types.ObjectId): org.bson.types.ObjectId {
-            return org.bson.types.ObjectId.createFromLegacyFormat(id.time, id.machine, id.inc)
+        private fun convertToNativeObjectId(id: de.undercouch.bson4jackson.types.ObjectId): ObjectId {
+            return createFromLegacyFormat(id.time, id.machine, id.inc)
         }
 
         override fun readObjectId(): de.undercouch.bson4jackson.types.ObjectId {
@@ -165,6 +165,53 @@ internal class KMongoBsonFactory : BsonFactory() {
 
     override fun copy(): BsonFactory {
         return KMongoBsonFactory()
+    }
+
+    companion object {
+
+        private const val OBJECT_ID_LENGTH = 12
+
+        fun createFromLegacyFormat(time: Int, machine: Int, inc: Int): ObjectId {
+            return ObjectId(legacyToBytes(time, machine, inc))
+        }
+
+        private fun legacyToBytes(
+            timestamp: Int,
+            machineAndProcessIdentifier: Int,
+            counter: Int
+        ): ByteArray {
+            val bytes = ByteArray(OBJECT_ID_LENGTH)
+            bytes[0] = int3(timestamp)
+            bytes[1] = int2(timestamp)
+            bytes[2] = int1(timestamp)
+            bytes[3] = int0(timestamp)
+            bytes[4] = int3(machineAndProcessIdentifier)
+            bytes[5] = int2(machineAndProcessIdentifier)
+            bytes[6] = int1(machineAndProcessIdentifier)
+            bytes[7] = int0(machineAndProcessIdentifier)
+            bytes[8] = int3(counter)
+            bytes[9] = int2(counter)
+            bytes[10] = int1(counter)
+            bytes[11] = int0(counter)
+            return bytes
+        }
+
+        private fun int3(x: Int): Byte {
+            return (x shr 24).toByte()
+        }
+
+        private fun int2(x: Int): Byte {
+            return (x shr 16).toByte()
+        }
+
+        private fun int1(x: Int): Byte {
+            return (x shr 8).toByte()
+        }
+
+        private fun int0(x: Int): Byte {
+            return x.toByte()
+        }
+
     }
 }
 

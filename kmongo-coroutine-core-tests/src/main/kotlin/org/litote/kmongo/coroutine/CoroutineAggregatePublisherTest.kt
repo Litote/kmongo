@@ -18,7 +18,6 @@ package org.litote.kmongo.coroutine
 
 import com.mongodb.client.model.Collation
 import com.mongodb.reactivestreams.client.AggregatePublisher
-import com.mongodb.reactivestreams.client.Success.SUCCESS
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -106,7 +105,7 @@ class CoroutineAggregatePublisherTest {
 
     @Test
     fun toCollection() {
-        whenever(publisher.toCollection()).thenReturn(DoSinglePublisher(SUCCESS))
+        whenever(publisher.toCollection()).thenReturn(DoNothingPublisher())
         runBlocking {
             coroutine.toCollection()
         }

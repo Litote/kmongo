@@ -19,9 +19,7 @@ package org.litote.kmongo.coroutine
 import com.mongodb.client.model.Collation
 import com.mongodb.client.model.MapReduceAction
 import com.mongodb.reactivestreams.client.MapReducePublisher
-import com.mongodb.reactivestreams.client.Success
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
 import org.bson.conversions.Bson
 import java.util.concurrent.TimeUnit
 
@@ -190,7 +188,7 @@ class CoroutineMapReducePublisher<T>(override val publisher: MapReducePublisher<
      * @return a single element indicating when the operation has completed
      * @mongodb.driver.manual aggregation/ Aggregation
      */
-    suspend fun toCollection(): Success = publisher.toCollection().awaitSingle()
+    suspend fun toCollection() = publisher.toCollection().awaitFirstOrNull()
 
     /**
      * Sets the collation options

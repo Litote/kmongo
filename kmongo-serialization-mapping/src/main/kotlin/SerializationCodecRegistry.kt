@@ -23,7 +23,9 @@ import org.bson.codecs.configuration.CodecRegistry
 /**
  *
  */
-internal class SerializationCodecRegistry(private val configuration:Configuration) : CodecRegistry {
+internal class SerializationCodecRegistry(private val configuration: Configuration) : CodecRegistry {
 
     override fun <T : Any> get(clazz: Class<T>): Codec<T> = SerializationCodec(clazz.kotlin, configuration)
+
+    override fun <T : Any> get(clazz: Class<T>, codecRegistry: CodecRegistry): Codec<T> = get(clazz)
 }

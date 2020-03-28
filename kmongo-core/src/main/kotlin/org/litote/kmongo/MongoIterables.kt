@@ -18,15 +18,6 @@ package org.litote.kmongo
 
 import com.mongodb.client.MongoIterable
 
-/**
- * Iterates over all the documents, adding each to the given target.
- *
- * @param target   the collection to insert into
- * @param callback a callback that will be passed the target containing all documents
- */
-@Deprecated("use classic toList extension")
-fun <T> MongoIterable<T>.toList(): List<T> = into(mutableListOf<T>())
-
 private val NULL = Any()
 
 private class NullIterator<T>(val iterator: Iterator<T>) : Iterator<T?> by iterator {

@@ -17,7 +17,7 @@
 package org.litote.kmongo.service
 
 import com.mongodb.ConnectionString
-import com.mongodb.MongoClient
+import com.mongodb.client.MongoClient
 import org.litote.kmongo.KMongo
 
 /**

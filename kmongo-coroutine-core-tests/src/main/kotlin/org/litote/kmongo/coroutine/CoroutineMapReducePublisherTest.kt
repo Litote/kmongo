@@ -19,7 +19,6 @@ package org.litote.kmongo.coroutine
 import com.mongodb.client.model.Collation
 import com.mongodb.client.model.MapReduceAction.REPLACE
 import com.mongodb.reactivestreams.client.MapReducePublisher
-import com.mongodb.reactivestreams.client.Success
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -164,7 +163,7 @@ class CoroutineMapReducePublisherTest {
 
     @Test
     fun toCollection() {
-        whenever(publisher.toCollection()).thenReturn(DoSinglePublisher(Success.SUCCESS))
+        whenever(publisher.toCollection()).thenReturn(DoNothingPublisher())
         runBlocking {
             coroutine.toCollection()
         }

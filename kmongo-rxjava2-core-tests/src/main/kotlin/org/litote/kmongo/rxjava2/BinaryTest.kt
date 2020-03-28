@@ -80,7 +80,7 @@ class BinaryTest : KMongoRxBaseTest<BinaryTest.BinaryFriend>() {
         val doc = BinaryFriend(Binary("abcde".toByteArray()))
 
         col.insertOne(doc).blockingAwait()
-        val count = col.count("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}").blockingGet()
+        val count = col.countDocuments("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}").blockingGet()
         val savedDoc = col.findOne("{_id:${doc._id.json}}").blockingGet() ?: throw AssertionError("Must not NUll")
 
         assertEquals(1, count)

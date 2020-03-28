@@ -32,21 +32,21 @@ class CountTest : KMongoRxBaseTest<Friend>() {
     @Test
     fun canCount() {
         col.insertMany(listOf(newFriend(), newFriend())).blockingAwait()
-        val count = col.count().blockingGet()
+        val count = col.countDocuments().blockingGet()
         assertEquals(2, count)
     }
 
     @Test
     fun canCountWithQuery() {
         col.insertMany(listOf(newFriend(), newFriend())).blockingAwait()
-        val count = col.count("{name:{$exists:true}}").blockingGet()
+        val count = col.countDocuments("{name:{$exists:true}}").blockingGet()
         assertEquals(2, count)
     }
 
     @Test
     fun canCountWithParameters() {
         col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue"))).blockingAwait()
-        val count = col.count("{name:'Peter'}}").blockingGet()
+        val count = col.countDocuments("{name:'Peter'}}").blockingGet()
         assertEquals(1, count)
     }
 

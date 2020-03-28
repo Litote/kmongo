@@ -79,7 +79,7 @@ class BinaryTest : AllCategoriesKMongoBaseTest<BinaryFriend>() {
         val doc = BinaryFriend(Binary("abcde".toByteArray()))
 
         col.insertOne(doc)
-        val count = col.count("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}")
+        val count = col.countDocuments("{'_id' : { $binary : 'YWJjZGU=' , $type : '0'}}")
         val r = col.findOne("{_id:${doc._id.json}}")
         assertEquals(1, count)
         assertEquals(doc._id.type, r!!._id.type)

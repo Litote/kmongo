@@ -381,7 +381,7 @@ fun <T> updateMany(filter: Bson, update: Bson, options: UpdateOptions = UpdateOp
 /**
  * Creates an ReplaceOneModel.
  */
-fun <T> replaceOne(filter: Bson, replacement: T, options: UpdateOptions = UpdateOptions()): ReplaceOneModel<T> =
+fun <T> replaceOne(filter: Bson, replacement: T, options: ReplaceOptions = ReplaceOptions()): ReplaceOneModel<T> =
     ReplaceOneModel(filter, replacement, options)
 
 /**

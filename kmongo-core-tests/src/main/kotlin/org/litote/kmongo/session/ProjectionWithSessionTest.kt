@@ -27,7 +27,6 @@ import org.litote.kmongo.eq
 import org.litote.kmongo.insertOne
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.projection
-import org.litote.kmongo.toList
 import kotlin.test.assertEquals
 
 /**

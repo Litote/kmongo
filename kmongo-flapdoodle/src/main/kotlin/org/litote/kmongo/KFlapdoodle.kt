@@ -17,7 +17,7 @@
 package org.litote.kmongo
 
 import com.mongodb.ConnectionString
-import com.mongodb.MongoClient
+import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import org.litote.kmongo.KFlapdoodle.mongoClient
 import org.litote.kmongo.service.MongoClientProvider

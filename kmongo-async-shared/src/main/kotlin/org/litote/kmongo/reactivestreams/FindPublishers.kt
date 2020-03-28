@@ -30,14 +30,6 @@ import kotlin.reflect.KProperty
 fun <T> FindPublisher<T>.filter(filter: String): FindPublisher<T> = filter(KMongoUtil.toBson(filter))
 
 /**
- * Sets the query modifiers to apply to this operation.
- *
- * @param modifiers the query modifiers to apply
- * @return this
- */
-fun <T> FindPublisher<T>.modifiers(modifiers: String): FindPublisher<T> = modifiers(KMongoUtil.toBson(modifiers))
-
-/**
  * Sets a document describing the fields to return for all matching documents.
  *
  * @param projection the project document

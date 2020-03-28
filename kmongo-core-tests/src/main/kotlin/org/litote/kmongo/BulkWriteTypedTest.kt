@@ -44,7 +44,7 @@ class BulkWriteTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
                     replaceOne(
                         ::name eq "Max",
                         Friend("Joe"),
-                        upsert()
+                        replaceUpsert()
                     ),
                     deleteOne(::name eq "Max"),
                     deleteMany(EMPTY_BSON)
@@ -54,7 +54,7 @@ class BulkWriteTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
             assertEquals(3, result.deletedCount)
             assertEquals(2, result.modifiedCount)
             assertEquals(2, result.upserts.size)
-            assertEquals(0, col.count())
+            assertEquals(0, col.countDocuments())
         }
     }
 

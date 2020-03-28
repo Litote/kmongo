@@ -33,21 +33,21 @@ class CountTest : AllCategoriesKMongoBaseTest<Friend>() {
     @Test
     fun canCount() {
         col.insertMany(listOf(newFriend(), newFriend()))
-        val c = col.count()
+        val c = col.countDocuments()
         assertEquals(2, c)
     }
 
     @Test
     fun canCountWithQuery() {
         col.insertMany(listOf(newFriend(), newFriend()))
-        val c = col.count("{name:{$exists:true}}")
+        val c = col.countDocuments("{name:{$exists:true}}")
         assertEquals(2, c)
     }
 
     @Test
     fun canCountWithParameters() {
         col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
-        val c = col.count("{name:'Peter'}")
+        val c = col.countDocuments("{name:'Peter'}")
         assertEquals(1, c)
     }
 

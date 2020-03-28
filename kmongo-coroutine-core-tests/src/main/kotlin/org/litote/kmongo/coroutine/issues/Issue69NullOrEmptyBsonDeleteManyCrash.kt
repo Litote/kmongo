@@ -20,10 +20,7 @@ import kotlinx.coroutines.runBlocking
 import org.bson.conversions.Bson
 import org.junit.Test
 import org.litote.kmongo.EMPTY_BSON
-import org.litote.kmongo.coroutine.KMongoCoroutineBaseTest
-import org.litote.kmongo.coroutine.count
-import org.litote.kmongo.coroutine.deleteMany
-import org.litote.kmongo.coroutine.insertMany
+import org.litote.kmongo.coroutine.KMongoReactiveStreamsCoroutineBaseTest
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.ne
 import kotlin.test.assertEquals
@@ -31,13 +28,13 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class Issue69NullOrEmptyBsonDeleteManyCrash : KMongoCoroutineBaseTest<Friend>() {
+class Issue69NullOrEmptyBsonDeleteManyCrash : KMongoReactiveStreamsCoroutineBaseTest<Friend>() {
 
     @Test
     fun `deleteMany with empty bson does not crash`() = runBlocking {
         col.insertMany(listOf(Friend("John"), Friend("Peter")))
-        col.deleteMany(EMPTY_BSON)
-        val count = col.count()
+        col.deleteMany()
+        val count = col.countDocuments()
         assertEquals(0, count)
     }
 
@@ -45,7 +42,7 @@ class Issue69NullOrEmptyBsonDeleteManyCrash : KMongoCoroutineBaseTest<Friend>() 
     fun `deleteMany with null filter does not crash`() = runBlocking {
         col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteMany(null as Bson?)
-        val count = col.count()
+        val count = col.countDocuments()
         assertEquals(0, count)
     }
 
@@ -53,7 +50,7 @@ class Issue69NullOrEmptyBsonDeleteManyCrash : KMongoCoroutineBaseTest<Friend>() 
     fun `deleteMany with no filter does not crash`() = runBlocking {
         col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteMany()
-        val count = col.count()
+        val count = col.countDocuments()
         assertEquals(0, count)
     }
 
@@ -61,17 +58,17 @@ class Issue69NullOrEmptyBsonDeleteManyCrash : KMongoCoroutineBaseTest<Friend>() 
     fun `deleteMany with list of no filter does not crash`() = runBlocking {
         col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteMany(EMPTY_BSON)
-        var count = col.count()
+        var count = col.countDocuments()
         assertEquals(0, count)
 
         col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteMany(EMPTY_BSON, EMPTY_BSON)
-        count = col.count()
+        count = col.countDocuments()
         assertEquals(0, count)
 
         col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteMany(EMPTY_BSON, EMPTY_BSON, EMPTY_BSON)
-        count = col.count()
+        count = col.countDocuments()
         assertEquals(0, count)
     }
 
@@ -79,7 +76,7 @@ class Issue69NullOrEmptyBsonDeleteManyCrash : KMongoCoroutineBaseTest<Friend>() 
     fun `deleteMany with list of filter and empty filter does not crash`() = runBlocking {
         col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteMany(Friend::name ne "Paul", EMPTY_BSON)
-        val count = col.count()
+        val count = col.countDocuments()
         assertEquals(0, count)
     }
 

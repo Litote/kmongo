@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.litote.kmongo.AggregateTypedTest.Article
 import org.litote.kmongo.MongoOperator.`in`
@@ -118,8 +119,30 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
         assertEquals("World War Z", l.first().title)
     }
 
+    //TODO
+    @Ignore
     @Test
     fun `can aggregate complex queries and deserialize in object`() {
+        val query = listOf(
+            match(
+                Article::tags contains "virus"
+            ),
+            project(
+                Article::title from Article::title,
+                Article::ok from cond(Article::ok, 1, 0),
+                Result::averageYear from year(Article::date)
+            ),
+            group(
+                Article::title,
+                Result::count sum Article::ok,
+                Result::averageYear avg Result::averageYear
+            ),
+            sort(
+                ascending(
+                    Result::title
+                )
+            )
+        )
 
         val r = col.aggregate<Result>(
             match(
@@ -160,6 +183,8 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
         assertEquals(1, l.size)
     }
 
+    //TODO
+    @Ignore
     @Test
     fun shouldPopulateIds() {
         val l0 = friendCol.aggregate<Friend>(

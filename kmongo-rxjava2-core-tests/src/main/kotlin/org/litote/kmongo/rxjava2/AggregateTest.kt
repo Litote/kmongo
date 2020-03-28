@@ -16,7 +16,7 @@
 package org.litote.kmongo.rxjava2
 
 import com.mongodb.MongoCommandException
-import com.mongodb.async.client.MongoCollection
+import com.mongodb.reactivestreams.client.MongoCollection
 import kotlinx.serialization.Serializable
 import org.junit.After
 import org.junit.Before

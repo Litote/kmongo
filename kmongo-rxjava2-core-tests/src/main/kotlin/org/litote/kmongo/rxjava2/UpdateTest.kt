@@ -36,7 +36,7 @@ class UpdateTest : KMongoRxBaseTest<Friend>() {
         col.insertMany(listOf(Friend("John"), Friend("John"))).blockingAwait()
 
         col.updateMany("{name:'John'}", "{$unset:{name:1}}").blockingGet()
-        val count = col.count("{name:{$exists:true}}").blockingGet()
+        val count = col.countDocuments("{name:{$exists:true}}").blockingGet()
         assertEquals(0, count)
     }
 

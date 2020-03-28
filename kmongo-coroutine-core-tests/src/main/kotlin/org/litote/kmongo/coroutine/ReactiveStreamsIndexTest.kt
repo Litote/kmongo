@@ -20,7 +20,6 @@ import com.mongodb.MongoCommandException
 import com.mongodb.client.model.DropIndexOptions
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.reactivestreams.client.MongoCollection
-import com.mongodb.reactivestreams.client.Success.SUCCESS
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -74,7 +73,7 @@ class ReactiveStreamsIndexTest {
                 any<Bson>(),
                 any<DropIndexOptions>()
             )
-        ).thenReturn(DoSinglePublisher(SUCCESS))
+        ).thenReturn(DoNothingPublisher())
 
         runBlocking {
             try {

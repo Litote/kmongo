@@ -45,12 +45,12 @@ class SaveTest : AllCategoriesKMongoBaseTest<Friend>() {
         val id = friend._id
         assertNotNull(id)
         assertEquals("Yoda", col.findOne()!!.name)
-        assertEquals(1, col.count())
+        assertEquals(1, col.countDocuments())
 
         friend.name = "Luke"
         col.save(friend)
 
-        assertEquals(1, col.count())
+        assertEquals(1, col.countDocuments())
         assertEquals("Luke", col.findOne()!!.name)
         assertEquals(id, col.findOne()!!._id)
     }
@@ -63,12 +63,12 @@ class SaveTest : AllCategoriesKMongoBaseTest<Friend>() {
 
         assertEquals(id, col.findOne()!!._id)
         assertEquals("Yoda", col.findOne()!!.name)
-        assertEquals(1, col.count())
+        assertEquals(1, col.countDocuments())
 
         friend.name = "Luke"
         col.save(friend)
 
-        assertEquals(1, col.count())
+        assertEquals(1, col.countDocuments())
         assertEquals("Luke", col.findOne()!!.name)
         assertEquals(id, col.findOne()!!._id)
     }
@@ -79,9 +79,9 @@ class SaveTest : AllCategoriesKMongoBaseTest<Friend>() {
         val colWithoutId = database.getCollection<ClassWithoutId>()
 
         colWithoutId.save(instance)
-        assertEquals(1, colWithoutId.count())
+        assertEquals(1, colWithoutId.countDocuments())
 
         colWithoutId.save(instance)
-        assertEquals(2, colWithoutId.count())
+        assertEquals(2, colWithoutId.countDocuments())
     }
 }

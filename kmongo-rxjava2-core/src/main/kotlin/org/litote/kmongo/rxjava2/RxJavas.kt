@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.rxjava2
 
-import com.mongodb.async.SingleResultCallback
+import com.mongodb.internal.async.SingleResultCallback
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single

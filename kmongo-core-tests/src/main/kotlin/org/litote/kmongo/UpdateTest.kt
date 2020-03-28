@@ -55,7 +55,7 @@ class UpdateTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canUpdateMulti() {
         col.insertMany(listOf(Friend("John"), Friend("John")))
         col.updateMany("{name:'John'}", "{$unset:{name:1}}")
-        val c = col.count("{name:{$exists:true}}")
+        val c = col.countDocuments("{name:{$exists:true}}")
         assertEquals(0, c)
     }
 

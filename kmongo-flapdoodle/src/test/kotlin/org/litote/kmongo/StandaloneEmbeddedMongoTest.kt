@@ -16,7 +16,7 @@
 
 package org.litote.kmongo
 
-import com.mongodb.MongoClient
+import com.mongodb.client.MongoClient
 import com.mongodb.client.model.Filters
 import org.junit.Test
 import org.litote.kmongo.model.Friend

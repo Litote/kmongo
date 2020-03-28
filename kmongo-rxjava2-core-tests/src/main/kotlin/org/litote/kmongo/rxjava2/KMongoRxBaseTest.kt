@@ -15,7 +15,7 @@
  */
 package org.litote.kmongo.rxjava2
 
-import com.mongodb.async.client.MongoCollection
+import com.mongodb.reactivestreams.client.MongoCollection
 import org.junit.Rule
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory

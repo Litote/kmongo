@@ -58,7 +58,7 @@ class BulkWriteTest : AllCategoriesKMongoBaseTest<Friend>() {
         assertEquals(3, result.deletedCount)
         assertEquals(2, result.modifiedCount)
         assertEquals(2, result.upserts.size)
-        assertEquals(0, col.count())
+        assertEquals(0, col.countDocuments())
     }
 
     @Test
@@ -91,6 +91,6 @@ class BulkWriteTest : AllCategoriesKMongoBaseTest<Friend>() {
         assertEquals(3, result.deletedCount)
         assertEquals(2, result.modifiedCount)
         assertEquals(2, result.upserts.size)
-        assertEquals(0, col.count())
+        assertEquals(0, col.countDocuments())
     }
 }

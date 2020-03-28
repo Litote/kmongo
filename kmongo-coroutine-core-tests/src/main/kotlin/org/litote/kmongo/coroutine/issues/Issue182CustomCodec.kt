@@ -28,9 +28,7 @@ import org.junit.experimental.categories.Category
 import org.litote.kmongo.Id
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.NativeMappingCategory
-import org.litote.kmongo.coroutine.KMongoCoroutineBaseTest
-import org.litote.kmongo.coroutine.findOneById
-import org.litote.kmongo.coroutine.insertOne
+import org.litote.kmongo.coroutine.KMongoReactiveStreamsCoroutineBaseTest
 import org.litote.kmongo.coroutine.updateOne
 import org.litote.kmongo.newId
 import org.litote.kmongo.util.ObjectMappingConfiguration
@@ -59,7 +57,7 @@ data class Account(
  *
  */
 @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
-class Issue182CustomCodec : KMongoCoroutineBaseTest<Account>() {
+class Issue182CustomCodec : KMongoReactiveStreamsCoroutineBaseTest<Account>() {
 
     @Test
     fun testCustomCodec() = runBlocking {

@@ -22,6 +22,7 @@ import com.mongodb.client.model.DeleteOneModel
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.InsertOneModel
 import com.mongodb.client.model.ReplaceOneModel
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateManyModel
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
@@ -213,33 +214,33 @@ object KMongoUtil {
             return InsertOneModel(generateIfAbsentAndMayBeMoveId(bson.getDocument("insertOne"), type))
         } else if (bson.containsKey("updateOne")) {
             val updateOne = bson.getDocument("updateOne")
-            return UpdateOneModel<BsonDocument>(
+            return UpdateOneModel(
                 updateOne.getDocument("filter"),
                 updateOne.getDocument("update"),
                 UpdateOptions().upsert(updateOne.getBoolean("upsert", BsonBoolean.FALSE).value)
             )
         } else if (bson.containsKey("updateMany")) {
             val updateMany = bson.getDocument("updateMany")
-            return UpdateManyModel<BsonDocument>(
+            return UpdateManyModel(
                 updateMany.getDocument("filter"),
                 updateMany.getDocument("update"),
                 UpdateOptions().upsert(updateMany.getBoolean("upsert", BsonBoolean.FALSE).value)
             )
         } else if (bson.containsKey("replaceOne")) {
             val replaceOne = bson.getDocument("replaceOne")
-            return ReplaceOneModel<BsonDocument>(
+            return ReplaceOneModel(
                 replaceOne.getDocument("filter"),
                 replaceOne.getDocument("replacement"),
-                UpdateOptions().upsert(replaceOne.getBoolean("upsert", BsonBoolean.FALSE).value)
+                ReplaceOptions().upsert(replaceOne.getBoolean("upsert", BsonBoolean.FALSE).value)
             )
         } else if (bson.containsKey("deleteOne")) {
             val deleteOne = bson.getDocument("deleteOne")
-            return DeleteOneModel<BsonDocument>(
+            return DeleteOneModel(
                 deleteOne.getDocument("filter")
             )
         } else if (bson.containsKey("deleteMany")) {
             val deleteMany = bson.getDocument("deleteMany")
-            return DeleteManyModel<BsonDocument>(
+            return DeleteManyModel(
                 deleteMany.getDocument("filter")
             )
         } else {

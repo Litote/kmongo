@@ -16,7 +16,6 @@
 
 package org.litote.kmongo.other
 
-import com.mongodb.Block
 import com.mongodb.Function
 import com.mongodb.ServerAddress
 import com.mongodb.ServerCursor
@@ -27,6 +26,7 @@ import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.evaluate
 import org.litote.kmongo.model.Friend
+import java.util.function.Consumer
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -91,12 +91,12 @@ class MappingIterable<U, V>(val mapped: MongoIterable<U>, private val mapper: Fu
         } else iterator.next()
     }
 
-    override fun forEach(block: Block<in V>) {
-        mapped.forEach(Block { document -> block.apply(mapper.apply(document)) })
+    override fun forEach(block: Consumer<in V>) {
+        mapped.forEach(Consumer { document -> block.accept(mapper.apply(document)) })
     }
 
     override fun <A : MutableCollection<in V>> into(target: A): A {
-        forEach(Block { v -> target.add(v) })
+        forEach(Consumer { v -> target.add(v) })
         return target
     }
 
@@ -144,11 +144,11 @@ class MongoIterableTest : AllCategoriesKMongoBaseTest<Friend>() {
             }
         }
 
-        override fun forEach(block: Block<in T>) {
+        override fun forEach(action: Consumer<in T>) {
             val cursor = iterator()
             try {
                 while (cursor.hasNext()) {
-                    block.apply(cursor.next())
+                    action.accept(cursor.next())
                 }
             } finally {
                 cursor.close()

@@ -32,16 +32,16 @@ class CountTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
     @Test
     fun canCountWithQueryProperty() {
         col.insertMany(listOf(newFriend(), newFriend()))
-        var c = col.count(Friend::name exists true)
+        var c = col.countDocuments(Friend::name exists true)
         assertEquals(2, c)
-        c = col.count(Friend::name.exists())
+        c = col.countDocuments(Friend::name.exists())
         assertEquals(2, c)
     }
 
     @Test
     fun canCountWithParametersProperty() {
         col.insertMany(listOf(newFriend(), Friend("Peter", "22 Wall Street Avenue")))
-        val c = col.count(Friend::name eq "Peter")
+        val c = col.countDocuments(Friend::name eq "Peter")
         assertEquals(1, c)
     }
 

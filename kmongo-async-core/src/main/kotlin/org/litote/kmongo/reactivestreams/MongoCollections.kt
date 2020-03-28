@@ -29,6 +29,7 @@ import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import com.mongodb.client.result.DeleteResult
+import com.mongodb.client.result.InsertOneResult
 import com.mongodb.client.result.UpdateResult
 import com.mongodb.reactivestreams.client.AggregatePublisher
 import com.mongodb.reactivestreams.client.DistinctPublisher
@@ -36,7 +37,6 @@ import com.mongodb.reactivestreams.client.FindPublisher
 import com.mongodb.reactivestreams.client.ListIndexesPublisher
 import com.mongodb.reactivestreams.client.MapReducePublisher
 import com.mongodb.reactivestreams.client.MongoCollection
-import com.mongodb.reactivestreams.client.Success
 import org.bson.BsonDocument
 import org.bson.conversions.Bson
 import org.litote.kmongo.EMPTY_BSON
@@ -209,7 +209,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.mapReduceWith(
  */
 inline fun <reified T : Any> MongoCollection<T>.insertOne(
     document: String
-): Publisher<Success> = insertOne(document, InsertOneOptions())
+): Publisher<InsertOneResult> = insertOne(document, InsertOneOptions())
 
 /**
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
@@ -220,7 +220,8 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
 inline fun <reified T : Any> MongoCollection<T>.insertOne(
     document: String,
     options: InsertOneOptions
-): Publisher<Success> = withDocumentClass<BsonDocument>().insertOne(KMongoUtil.toBson(document, T::class), options)
+): Publisher<InsertOneResult> =
+    withDocumentClass<BsonDocument>().insertOne(KMongoUtil.toBson(document, T::class), options)
 
 
 /**
@@ -532,7 +533,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIn
 
  * @param keys the keys of the index to remove
  */
-fun <T> MongoCollection<T>.dropIndexOfKeys(keys: String): Publisher<Success> = dropIndex(KMongoUtil.toBson(keys))
+fun <T> MongoCollection<T>.dropIndexOfKeys(keys: String): Publisher<Void> = dropIndex(KMongoUtil.toBson(keys))
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.

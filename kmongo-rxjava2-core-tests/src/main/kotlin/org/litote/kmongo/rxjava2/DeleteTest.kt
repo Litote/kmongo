@@ -40,7 +40,7 @@ class DeleteTest : KMongoRxBaseTest<Friend>() {
     fun canDeleteByObjectId() {
         col.insertOne("{ _id:{$oid:'47cc67093475061e3d95369d'}, name:'John'}").blockingAwait()
         col.deleteOneById(ObjectId("47cc67093475061e3d95369d")).blockingGet()
-        val count = col.count().blockingGet()
+        val count = col.countDocuments().blockingGet()
         assertEquals(0, count)
     }
 
@@ -48,7 +48,7 @@ class DeleteTest : KMongoRxBaseTest<Friend>() {
     fun canRemoveAll() {
         col.insertMany(listOf(Friend("John"), Friend("Peter"))).blockingAwait()
         col.deleteMany("{}").blockingGet()
-        val count = col.count().blockingGet()
+        val count = col.countDocuments().blockingGet()
         assertEquals(0, count)
     }
 }

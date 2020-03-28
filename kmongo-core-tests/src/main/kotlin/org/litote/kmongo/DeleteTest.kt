@@ -40,7 +40,7 @@ class DeleteTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canDeleteByObjectId() {
         col.insertOne("{ _id:{$oid:'47cc67093475061e3d95369d'}, name:'John'}")
         col.deleteOneById(ObjectId("47cc67093475061e3d95369d"))
-        val c = col.count()
+        val c = col.countDocuments()
         assertEquals(0, c)
     }
 
@@ -48,7 +48,7 @@ class DeleteTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canRemoveAll() {
         col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteMany("{}")
-        val c = col.count()
+        val c = col.countDocuments()
         assertEquals(0, c)
     }
 }

@@ -17,10 +17,9 @@
 package org.litote.kmongo.service
 
 import com.mongodb.ConnectionString
-import com.mongodb.MongoClient
-import com.mongodb.MongoClientOptions
 import com.mongodb.MongoClientSettings
-import com.mongodb.MongoClientURI
+import com.mongodb.client.MongoClient
+import com.mongodb.client.MongoClients
 
 /**
  * only used for test
@@ -28,15 +27,16 @@ import com.mongodb.MongoClientURI
 internal class SyncMongoClientProviderService : MongoClientProviderService<MongoClient> {
 
     override fun createMongoClient(connectionString: ConnectionString): MongoClient {
-        return MongoClient(
-            MongoClientURI(
-                connectionString.connectionString,
-                MongoClientOptions.builder().codecRegistry(
+        return MongoClients.create(
+            MongoClientSettings
+                .builder()
+                .applyConnectionString(connectionString)
+                .codecRegistry(
                     ClassMappingType.codecRegistry(
                         MongoClientSettings.getDefaultCodecRegistry()
                     )
                 )
-            )
+                .build()
         )
     }
 }

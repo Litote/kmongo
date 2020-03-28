@@ -23,7 +23,6 @@ import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.deleteOne
 import org.litote.kmongo.model.Friend
-import org.litote.kmongo.toList
 import kotlin.test.assertEquals
 
 /**

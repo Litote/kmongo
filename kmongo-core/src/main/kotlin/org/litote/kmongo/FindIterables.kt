@@ -29,14 +29,6 @@ import kotlin.reflect.KProperty
 fun <T> FindIterable<T>.filter(filter: String): FindIterable<T> = filter(KMongoUtil.toBson(filter))
 
 /**
- * Sets the query modifiers to apply to this operation.
- *
- * @param modifiers the query modifiers to apply
- * @return this
- */
-fun <T> FindIterable<T>.modifiers(modifiers: String): FindIterable<T> = modifiers(KMongoUtil.toBson(modifiers))
-
-/**
  * Sets a document describing the fields to return for all matching documents.
  *
  * @param projection the project document

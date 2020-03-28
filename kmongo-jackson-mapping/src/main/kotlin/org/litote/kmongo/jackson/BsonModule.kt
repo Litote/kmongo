@@ -63,6 +63,7 @@ import org.litote.kmongo.jackson.ExtendedJsonModule.ObjectIdExtendedJsonSerializ
 import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetDateTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.ZonedDateTimeExtendedJsonSerializer
+import org.litote.kmongo.jackson.KMongoBsonFactory.Companion.createFromLegacyFormat
 import org.litote.kmongo.jackson.KMongoBsonFactory.KMongoBsonGenerator
 import org.litote.kmongo.projection
 import java.math.BigDecimal
@@ -87,7 +88,7 @@ internal class BsonModule : SimpleModule() {
         de.undercouch.bson4jackson.types.ObjectId(time, machine, inc) {
 
         override fun toString(): String {
-            return ObjectId.createFromLegacyFormat(time, machine, inc).toString()
+            return createFromLegacyFormat(time, machine, inc).toString()
         }
     }
 
@@ -403,12 +404,12 @@ internal class BsonModule : SimpleModule() {
                 IdTransformer.wrapId(
                     jp.embeddedObject
                             ?: StringDeserializationProblemHandler.handleUnexpectedToken(
-                                ctxt,
-                                String::class.java,
-                                jp.currentToken,
-                                jp,
-                                ""
-                            )
+                                    ctxt,
+                                    String::class.java,
+                                    jp.currentToken,
+                                    jp,
+                                    ""
+                                )
                                 .let {
                                     if (it == NOT_HANDLED) {
                                         error("not valid object found when trying to deserialize Id")
@@ -443,7 +444,8 @@ internal class BsonModule : SimpleModule() {
                     is Decimal128 -> v.bigDecimalValue()
                     is String -> BigDecimal(v)
                     else -> throw ClassCastException(
-                        v.javaClass.name + " cannot be cast to " + BigDecimal::class.java.name + ": " + v)
+                        v.javaClass.name + " cannot be cast to " + BigDecimal::class.java.name + ": " + v
+                    )
                 }
             }
         }

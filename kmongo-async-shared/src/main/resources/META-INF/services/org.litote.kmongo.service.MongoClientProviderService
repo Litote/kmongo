@@ -14,5 +14,4 @@
 # limitations under the License.
 #
 
-org.litote.kmongo.async.service.AsyncMongoClientProviderService
 org.litote.kmongo.reactivestreams.service.ReactiveStreamsMongoClientProviderService
