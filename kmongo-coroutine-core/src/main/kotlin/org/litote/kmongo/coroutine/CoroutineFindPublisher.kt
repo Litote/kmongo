@@ -47,7 +47,7 @@ class CoroutineFindPublisher<T>(override val publisher: FindPublisher<T>) :
     /**
      * Sets the query filter to apply to the query.
      *
-     * @param filter the filter, which may be null.
+     * @param filter the filter.
      * @return this
      * @mongodb.driver.manual reference/method/db.collection.find/ Filter
      */
@@ -56,7 +56,7 @@ class CoroutineFindPublisher<T>(override val publisher: FindPublisher<T>) :
     /**
      * Sets the limit to apply.
      *
-     * @param limit the limit, which may be null
+     * @param limit the limit
      * @return this
      * @mongodb.driver.manual reference/method/cursor.limit/#cursor.limit Limit
      */
@@ -75,7 +75,7 @@ class CoroutineFindPublisher<T>(override val publisher: FindPublisher<T>) :
      * Sets the maximum execution time on the server for this operation.
      *
      * @param maxTime  the max time
-     * @param timeUnit the time unit, which may not be null
+     * @param timeUnit the time unit
      * @return this
      * @mongodb.driver.manual reference/method/cursor.maxTimeMS/#cursor.maxTimeMS Max Time
      */
@@ -106,7 +106,7 @@ class CoroutineFindPublisher<T>(override val publisher: FindPublisher<T>) :
     /**
      * Sets a document describing the fields to return for all matching documents.
      *
-     * @param projection the project document, which may be null.
+     * @param projection the project document.
      * @return this
      * @mongodb.driver.manual reference/method/db.collection.find/ Projection
      */
@@ -115,7 +115,7 @@ class CoroutineFindPublisher<T>(override val publisher: FindPublisher<T>) :
     /**
      * Sets the sort criteria to apply to the query.
      *
-     * @param sort the sort criteria, which may be null.
+     * @param sort the sort criteria.
      * @return this
      * @mongodb.driver.manual reference/method/cursor.sort/ Sort
      */

@@ -71,7 +71,7 @@ class CoroutineMapReducePublisher<T>(override val publisher: MapReducePublisher<
     /**
      * Sets the sort criteria to apply to the query.
      *
-     * @param sort the sort criteria, which may be null.
+     * @param sort the sort criteria
      * @return this
      * @mongodb.driver.manual reference/method/cursor.sort/ Sort
      */
@@ -89,7 +89,7 @@ class CoroutineMapReducePublisher<T>(override val publisher: MapReducePublisher<
     /**
      * Sets the limit to apply.
      *
-     * @param limit the limit, which may be null
+     * @param limit the limit
      * @return this
      * @mongodb.driver.manual reference/method/cursor.limit/#cursor.limit Limit
      */

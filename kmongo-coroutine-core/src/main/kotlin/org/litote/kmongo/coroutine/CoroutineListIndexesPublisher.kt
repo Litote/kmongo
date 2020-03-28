@@ -37,7 +37,7 @@ class CoroutineListIndexesPublisher<T>(override val publisher: ListIndexesPublis
      * Sets the maximum execution time on the server for this operation.
      *
      * @param maxTime  the max time
-     * @param timeUnit the time unit, which may not be null
+     * @param timeUnit the time unit
      * @return this
      * @mongodb.driver.manual reference/operator/meta/maxTimeMS/ Max Time
      */

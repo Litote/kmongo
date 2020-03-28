@@ -37,7 +37,7 @@ class CoroutineListCollectionsPublisher<TResult>(override val publisher: ListCol
     /**
      * Sets the query filter to apply to the query.
      *
-     * @param filter the filter, which may be null.
+     * @param filter the filter
      * @return this
      * @mongodb.driver.manual reference/method/db.collection.find/ Filter
      */
