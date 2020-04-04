@@ -18,6 +18,7 @@ package org.litote.kmongo
 
 import com.mongodb.MongoCommandException
 import com.mongodb.client.MongoCollection
+import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
@@ -26,13 +27,19 @@ import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.AggregateTest.Article
 import org.litote.kmongo.MongoOperator.and
+import org.litote.kmongo.MongoOperator.avg
+import org.litote.kmongo.MongoOperator.cond
 import org.litote.kmongo.MongoOperator.group
 import org.litote.kmongo.MongoOperator.limit
 import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.MongoOperator.project
 import org.litote.kmongo.MongoOperator.push
 import org.litote.kmongo.MongoOperator.sort
+import org.litote.kmongo.MongoOperator.sum
+import org.litote.kmongo.MongoOperator.year
 import org.litote.kmongo.model.Friend
+import java.time.Instant
+import java.time.LocalDate
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -40,7 +47,15 @@ import kotlin.test.fail
 class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Serializable
-    data class Article(val title: String, val author: String, val tags: List<String>) {
+    data class Article(
+        val title: String,
+        val author: String,
+        val tags: List<String>,
+        @ContextualSerialization
+        val date: Instant = Instant.now(),
+        val count: Int = 1,
+        val ok: Boolean = true
+    ) {
 
         constructor(title: String, author: String, vararg tags: String) : this(title, author, tags.asList())
     }
@@ -164,5 +179,46 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
         assertEquals("Zombie Panic", r[1].title)
     }
 
+    @Test
+    fun `can aggregate complex queries and deserialize in object`() {
+        val r = col.aggregate<Result>(
+            """{"$match": {"tags": "virus"}}""",
+            """{"$project": {"title": "$ title", "ok": {"$cond": ["$ ok", 1, 0]}, "averageYear": {"$year": "$ date"}}}""".formatJson(),
+            """{"$group": {"_id": "$ title", "count": {"$sum": "$ ok"}, "averageYear": {"$avg": "$ averageYear"}}}""".formatJson(),
+            """{"$sort": {"_id": 1}}"""
+        )
+            .toList()
+
+        assertEquals(2, r.size)
+        assertEquals(
+            Result("World War Z", LocalDate.now().year.toDouble(), 1),
+            r.first()
+        )
+        assertEquals(
+            Result("Zombie Panic", LocalDate.now().year.toDouble(), 1),
+            r.last()
+        )
+    }
+
+    @Test
+    fun `can aggregate complex queries and deserialize in object2`() {
+        val r = col.aggregate<Result>(
+            """[{"$match": {"tags": "virus"}},
+            {"$project": {"title": "$ title", "ok": {"$cond": ["$ ok", 1, 0]}, "averageYear": {"$year": "$ date"}}},
+            {"$group": {"_id": "$ title", "count": {"$sum": "$ ok"}, "averageYear": {"$avg": "$ averageYear"}}},
+            {"$sort": {"_id": 1}}]""".formatJson()
+        )
+            .toList()
+
+        assertEquals(2, r.size)
+        assertEquals(
+            Result("World War Z", LocalDate.now().year.toDouble(), 1),
+            r.first()
+        )
+        assertEquals(
+            Result("Zombie Panic", LocalDate.now().year.toDouble(), 1),
+            r.last()
+        )
+    }
 
 }

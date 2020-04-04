@@ -43,9 +43,9 @@ col.updateOne("{name:'Paul'}", "{$set:{name:'John'}}")
 - or with typed queries:
 
 ```kotlin
-col.updateOne(Friend::name eq "Paul", set(Friend::name, "John"))
+col.updateOne(Friend::name eq "Paul", setValue(Friend::name, "John"))
 //or with annotation processor ->
-col.updateOne(Name eq "Paul", set(Name, "John"))
+col.updateOne(Name eq "Paul", setValue(Name, "John"))
 
 ```
 

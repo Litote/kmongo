@@ -217,7 +217,7 @@ fun or(filters: Iterable<Bson?>): Bson = combineFilters(Filters::or, filters)
  */
 fun or(vararg filters: Bson?): Bson = or(filters.toList())
 
-private fun combineFilters(combiner: (List<Bson>) -> Bson, filters: Iterable<Bson?>): Bson =
+internal fun combineFilters(combiner: (List<Bson>) -> Bson, filters: Iterable<Bson?>): Bson =
     filters
         .filterNotNull()
         .filterNot { it is Document && it.isEmpty() }

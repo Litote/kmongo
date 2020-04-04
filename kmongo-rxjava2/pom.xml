@@ -91,11 +91,6 @@
                     <sourceDirectories>
                         <dir>${project.basedir}/../kmongo-rxjava2-core/src/main/kotlin</dir>
                     </sourceDirectories>
-                    <externalDocumentationLinks>
-                        <link>
-                            <url>http://mongodb.github.io/mongo-java-driver/${mongo.base.version}/javadoc/</url>
-                        </link>
-                    </externalDocumentationLinks>
                 </configuration>
             </plugin>
         </plugins>
