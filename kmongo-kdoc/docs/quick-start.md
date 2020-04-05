@@ -12,14 +12,14 @@ If you don't know, start with the sync driver and add this dependency to your pr
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo</artifactId>
-  <version>3.12.2</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo:3.12.2'
+compile 'org.litote.kmongo:kmongo:4.0.0'
 ```
 
 And [start coding](#lets-start-coding)
@@ -37,14 +37,14 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-async</artifactId>
-  <version>3.12.2</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-async:3.12.2'
+compile 'org.litote.kmongo:kmongo-async:4.0.0'
 ```
 
 #### Kotlin Coroutines
@@ -55,14 +55,14 @@ compile 'org.litote.kmongo:kmongo-async:3.12.2'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-coroutine</artifactId>
-  <version>3.12.2</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-coroutine:3.12.2'
+compile 'org.litote.kmongo:kmongo-coroutine:4.0.0'
 ```
 
 #### RxJava2
@@ -73,14 +73,14 @@ compile 'org.litote.kmongo:kmongo-coroutine:3.12.2'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-rxjava2</artifactId>
-  <version>3.12.2</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-rxjava2:3.12.2'
+compile 'org.litote.kmongo:kmongo-rxjava2:4.0.0'
 ```
 
 ## Object Mapping Engine
@@ -173,6 +173,5 @@ val yoda : Jedi? = col.findOne(Jedi::name eq "Yoda")
 The KMongo API documentation in KDoc format is available:
 
 - [KMongo](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/index.html)
-- [KMongo async](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo.async/index.html)
 - [KMongo coroutine](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo.coroutine/index.html)
 - [KMongo RXJava2](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo.rxjava2/index.html)
