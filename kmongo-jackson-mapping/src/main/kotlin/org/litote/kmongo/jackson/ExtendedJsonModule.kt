@@ -27,6 +27,7 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.jackson.IdKeySerializer
+import org.litote.kmongo.util.PatternUtil
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -38,6 +39,7 @@ import java.time.ZoneOffset.UTC
 import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
+import java.util.regex.Pattern
 
 internal class ExtendedJsonModule : SimpleModule() {
 
@@ -61,7 +63,11 @@ internal class ExtendedJsonModule : SimpleModule() {
 
     object BsonTimestampExtendedJsonSerializer : JsonSerializer<BsonTimestamp>() {
 
-        override fun serialize(obj: BsonTimestamp, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider) {
+        override fun serialize(
+            obj: BsonTimestamp,
+            jsonGenerator: JsonGenerator,
+            serializerProvider: SerializerProvider
+        ) {
             jsonGenerator.writeStartObject()
             jsonGenerator.writeFieldName("\$timestamp")
             jsonGenerator.writeStartObject()
@@ -103,56 +109,53 @@ internal class ExtendedJsonModule : SimpleModule() {
 
     object DateExtendedJsonSerializer : TemporalExtendedJsonSerializer<Date>() {
 
-        override fun epochMillis(temporal: Date): Long
-                = temporal.time
+        override fun epochMillis(temporal: Date): Long = temporal.time
     }
 
     object CalendarExtendedJsonSerializer : TemporalExtendedJsonSerializer<Calendar>() {
 
-        override fun epochMillis(temporal: Calendar): Long
-                = temporal.timeInMillis
+        override fun epochMillis(temporal: Calendar): Long = temporal.timeInMillis
     }
 
     object InstantExtendedJsonSerializer : TemporalExtendedJsonSerializer<Instant>() {
 
-        override fun epochMillis(temporal: Instant): Long
-                = temporal.toEpochMilli()
+        override fun epochMillis(temporal: Instant): Long = temporal.toEpochMilli()
     }
 
     object ZonedDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<ZonedDateTime>() {
 
-        override fun epochMillis(temporal: ZonedDateTime): Long
-                = InstantExtendedJsonSerializer.epochMillis(temporal.toInstant())
+        override fun epochMillis(temporal: ZonedDateTime): Long =
+            InstantExtendedJsonSerializer.epochMillis(temporal.toInstant())
     }
 
     object OffsetDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<OffsetDateTime>() {
 
-        override fun epochMillis(temporal: OffsetDateTime): Long
-                = InstantExtendedJsonSerializer.epochMillis(temporal.toInstant())
+        override fun epochMillis(temporal: OffsetDateTime): Long =
+            InstantExtendedJsonSerializer.epochMillis(temporal.toInstant())
     }
 
     object LocalDateExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDate>() {
 
-        override fun epochMillis(temporal: LocalDate): Long
-                = ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal.atStartOfDay(UTC))
+        override fun epochMillis(temporal: LocalDate): Long =
+            ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal.atStartOfDay(UTC))
     }
 
     object LocalDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalDateTime>() {
 
-        override fun epochMillis(temporal: LocalDateTime): Long
-                = ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal.atZone(UTC))
+        override fun epochMillis(temporal: LocalDateTime): Long =
+            ZonedDateTimeExtendedJsonSerializer.epochMillis(temporal.atZone(UTC))
     }
 
     object LocalTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<LocalTime>() {
 
-        override fun epochMillis(temporal: LocalTime): Long
-                = LocalDateTimeExtendedJsonSerializer.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
+        override fun epochMillis(temporal: LocalTime): Long =
+            LocalDateTimeExtendedJsonSerializer.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
     }
 
     object OffsetTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<OffsetTime>() {
 
-        override fun epochMillis(temporal: OffsetTime): Long
-                = OffsetDateTimeExtendedJsonSerializer.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
+        override fun epochMillis(temporal: OffsetTime): Long =
+            OffsetDateTimeExtendedJsonSerializer.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
     }
 
     object IdSerializer : JsonSerializer<Id<*>>() {
@@ -168,6 +171,21 @@ internal class ExtendedJsonModule : SimpleModule() {
             generator.writeStartObject()
             generator.writeStringField("\$numberDecimal", bigDecimal.toString())
             generator.writeEndObject()
+        }
+    }
+
+    private object PatternSerializer : JsonSerializer<Pattern>() {
+        override fun serialize(obj: Pattern, gen: JsonGenerator, serializerProvider: SerializerProvider) {
+            gen.writeStartObject()
+            gen.writeStringField("\$regex", obj.pattern())
+            gen.writeStringField("\$options", PatternUtil.getOptionsAsString(obj))
+            gen.writeEndObject()
+        }
+    }
+
+    private object RegexSerializer : JsonSerializer<Regex>() {
+        override fun serialize(obj: Regex, gen: JsonGenerator, serializerProvider: SerializerProvider) {
+            PatternSerializer.serialize(obj.toPattern(), gen, serializerProvider)
         }
     }
 
@@ -197,6 +215,9 @@ internal class ExtendedJsonModule : SimpleModule() {
         addSerializer(LocalDateTime::class.java, LocalDateTimeExtendedJsonSerializer)
         addSerializer(LocalTime::class.java, LocalTimeExtendedJsonSerializer)
         addSerializer(OffsetTime::class.java, OffsetTimeExtendedJsonSerializer)
+
+        addSerializer(Pattern::class.java, PatternSerializer)
+        addSerializer(Regex::class.java, RegexSerializer)
     }
 }
 

@@ -54,6 +54,7 @@ import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
+import java.util.regex.Pattern
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -116,7 +117,9 @@ internal object KMongoSerializationRepository {
         Binary::class to BinarySerializer,
         Id::class to IdSerializer(false),
         StringId::class to IdSerializer(true),
-        WrappedObjectId::class to IdSerializer(false)
+        WrappedObjectId::class to IdSerializer(false),
+        Pattern::class to PatternSerializer,
+        Regex::class to RegexSerializer
     )
 
     @ImplicitReflectionSerializer

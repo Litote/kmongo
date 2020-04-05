@@ -26,6 +26,7 @@ import kotlinx.serialization.PrimitiveDescriptor
 import kotlinx.serialization.PrimitiveKind
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.serializer
 import org.bson.AbstractBsonReader.State
 import org.bson.BsonTimestamp
 import org.bson.BsonType
@@ -36,6 +37,7 @@ import org.litote.kmongo.id.IdGenerator
 import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.ObjectIdGenerator
 import org.litote.kmongo.projection
+import org.litote.kmongo.util.PatternUtil
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -48,6 +50,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import java.util.regex.Pattern
 import kotlin.reflect.KProperty
 
 /**
@@ -243,4 +246,38 @@ internal class IdSerializer<T : Id<*>>(val shouldBeStringId: Boolean) : KSeriali
         }
     }
 
+}
+
+internal object PatternSerializer : KSerializer<Pattern> {
+
+    override val descriptor: SerialDescriptor = SerialDescriptor("PatternSerializer") {
+        element("\$regex", String.serializer().descriptor)
+        element("\$options", String.serializer().descriptor)
+    }
+
+    override fun deserialize(decoder: Decoder): Pattern = error("Pattern deserialization is unsupported")
+
+    override fun serialize(encoder: Encoder, value: Pattern) {
+        val e = encoder.beginStructure(descriptor)
+        e.encodeStringElement(descriptor, 0, value.pattern())
+        e.encodeStringElement(descriptor, 1, PatternUtil.getOptionsAsString(value))
+        e.endStructure(descriptor)
+    }
+}
+
+internal object RegexSerializer : KSerializer<Regex> {
+
+    override val descriptor: SerialDescriptor = SerialDescriptor("RegexSerializer") {
+        element("\$regex", String.serializer().descriptor)
+        element("\$options", String.serializer().descriptor)
+    }
+
+    override fun deserialize(decoder: Decoder): Regex = error("Regex deserialization is unsupported")
+
+    override fun serialize(encoder: Encoder, value: Regex) {
+        val e = encoder.beginStructure(descriptor)
+        e.encodeStringElement(descriptor, 0, value.toPattern().pattern())
+        e.encodeStringElement(descriptor, 1, PatternUtil.getOptionsAsString(value.toPattern()))
+        e.endStructure(descriptor)
+    }
 }

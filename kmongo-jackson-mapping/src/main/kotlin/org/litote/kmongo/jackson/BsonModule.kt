@@ -404,12 +404,12 @@ internal class BsonModule : SimpleModule() {
                 IdTransformer.wrapId(
                     jp.embeddedObject
                             ?: StringDeserializationProblemHandler.handleUnexpectedToken(
-                                    ctxt,
-                                    String::class.java,
-                                    jp.currentToken,
-                                    jp,
-                                    ""
-                                )
+                                ctxt,
+                                String::class.java,
+                                jp.currentToken,
+                                jp,
+                                ""
+                            )
                                 .let {
                                     if (it == NOT_HANDLED) {
                                         error("not valid object found when trying to deserialize Id")
@@ -552,7 +552,7 @@ internal class BsonModule : SimpleModule() {
         addDeserializer(Calendar::class.java, CalendarBsonDeserializer)
         addSerializer(ZoneId::class.java, ZoneIdBsonSerializer)
         addDeserializer(ZoneId::class.java, ZoneIdBsonDeserializer)
-        addDeserializer(Date::class.java, BsonDateDeserializer);
+        addDeserializer(Date::class.java, BsonDateDeserializer)
 
         addSerializer(KProperty::class.java, KPropertySerializer)
     }

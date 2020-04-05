@@ -22,6 +22,7 @@ import org.bson.BsonWriter
 import org.bson.codecs.Codec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
+import org.bson.codecs.PatternCodec
 import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.types.ObjectId
@@ -87,12 +88,28 @@ internal object UtilClassesCodecProvider : CodecProvider {
         }
     }
 
+    private object RegexCodec : Codec<Regex> {
+
+        private val patternCodec = PatternCodec()
+
+        override fun getEncoderClass(): Class<Regex> = Regex::class.java
+
+        override fun encode(writer: BsonWriter, value: Regex, encoderContext: EncoderContext) {
+            patternCodec.encode(writer, value.toPattern(), encoderContext)
+        }
+
+        override fun decode(reader: BsonReader, decoderContext: DecoderContext): Regex {
+            return patternCodec.decode(reader, decoderContext).toRegex()
+        }
+    }
+
     private val codecsMap: Map<Class<*>, Codec<*>> = listOf(LocaleCodec, IdCodec)
         .map { it.encoderClass to it }
         .toMap() +
             mapOf(
                 StringId::class.java to IdCodec,
-                WrappedObjectId::class.java to IdCodec
+                WrappedObjectId::class.java to IdCodec,
+                Regex::class.java to RegexCodec
             )
 
     override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? {
