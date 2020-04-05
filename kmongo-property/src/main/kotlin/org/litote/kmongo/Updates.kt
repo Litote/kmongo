@@ -65,20 +65,7 @@ fun combine(updates: List<Bson>): Bson = Updates.combine(updates)
  * @return the update
  * @mongodb.driver.manual reference/operator/update/set/ $set
  */
-@Deprecated("use setValue")
-fun <@OnlyInputTypes T> set(property: KProperty<T>, value: T): Bson = Updates.set(property.path(), value)
-
-
-/**
- * Creates an update that sets the value of the property to the given value.
- *
- * @param property the property
- * @param value     the value
- * @param <T>   the value type
- * @return the update
- * @mongodb.driver.manual reference/operator/update/set/ $set
- */
-fun <@OnlyInputTypes T> setValue(property: KProperty<T?>, value: T): Bson = Updates.set(property.path(), value)
+fun <@OnlyInputTypes T> setValue(property: KProperty<T?>, value: T?): Bson = Updates.set(property.path(), value)
 
 
 /**
@@ -89,7 +76,7 @@ fun <@OnlyInputTypes T> setValue(property: KProperty<T?>, value: T): Bson = Upda
  * @mongodb.driver.manual reference/operator/update/set/ $set
  */
 fun set(vararg properties: SetTo<*>): Bson =
-    combine(properties.map { set(it.property, it.value) })
+    combine(properties.map { setValue(it.property, it.value) })
 
 /**
  * Creates an update that deletes the property with the given name.

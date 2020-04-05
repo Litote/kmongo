@@ -17,7 +17,6 @@
 package org.litote.kmongo.util
 
 import org.bson.codecs.pojo.annotations.BsonId
-import org.litote.kmongo.MongoId
 import org.litote.kmongo.util.MongoIdUtil.IdPropertyWrapper.Companion.NO_ID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
@@ -94,7 +93,6 @@ internal object MongoIdUtil {
                 type.memberProperties.find { p ->
                     p.javaField?.isAnnotationPresent(BsonId::class.java) == true
                             || p.getter.javaMethod?.isAnnotationPresent(BsonId::class.java) == true
-                            || p.findAnnotation<MongoId>() != null
                 }
             }
         } catch (error: KotlinReflectionInternalError) {

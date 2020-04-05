@@ -18,11 +18,9 @@ package org.litote.kmongo.service
 
 import org.bson.BsonDocument
 import org.bson.codecs.Codec
-import org.bson.codecs.configuration.CodecConfigurationException
 import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
-import org.litote.kmongo.util.ObjectMappingConfiguration.customCodecProviders
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -81,29 +79,11 @@ interface ClassMappingTypeService {
     ): CodecRegistry {
         lateinit var codec: CodecRegistry
         codec = CodecRegistries.fromProviders(
-            providerFromRegistry(baseCodecRegistry),
-            providerFromRegistry(CodecRegistries.fromCodecs(
-                customCodecProviders.map { it.codec { codec } }
-            )),
+            baseCodecRegistry,
             CustomCodecProvider,
-            providerFromRegistry(coreCodeRegistry)
+            coreCodeRegistry
         )
         return codec
-    }
-
-    private fun providerFromRegistry(innerRegistry: CodecRegistry): CodecProvider {
-        return if (innerRegistry is CodecProvider) {
-            innerRegistry
-        } else {
-            object : CodecProvider {
-                override fun <T> get(clazz: Class<T>, outerRregistry: CodecRegistry): Codec<T>? =
-                    try {
-                        innerRegistry[clazz]
-                    } catch (e: CodecConfigurationException) {
-                        null
-                    }
-            }
-        }
     }
 
     fun coreCodecRegistry(): CodecRegistry

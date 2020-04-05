@@ -84,8 +84,8 @@ open class CodecRegistryBenchmark {
     companion object {
 
         init {
-            ObjectMappingConfiguration.customCodecProviders.add(FriendWithBuddiesCodec)
-            ObjectMappingConfiguration.customCodecProviders.add(CoordinateCodec)
+            ObjectMappingConfiguration.addCustomCodec(FriendWithBuddiesCodec.codec { kmongoCodecRegistry })
+            ObjectMappingConfiguration.addCustomCodec(CoordinateCodec.codec { kmongoCodecRegistry })
         }
 
         @JvmStatic

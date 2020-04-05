@@ -455,12 +455,6 @@ fun second(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.second.
 fun week(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.week.from(property)
 
 /**
- * Builds the [MongoOperator] expression for the specified property.
- */
-@Deprecated("use from instead", replaceWith = ReplaceWith("from"))
-fun MongoOperator.op(property: KProperty<Any?>): Bson = from(property)
-
-/**
  * Creates a $lookup pipeline stage, joining the current collection with the one specified in from using the given pipeline
  *
  * @param <TExpression> the Variable value expression type

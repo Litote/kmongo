@@ -33,7 +33,7 @@ class FindOneAndModifyTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
     @Test
     fun canFindAndUpdateOne() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"))
-        col.findOneAndUpdate(Friend::name eq "John", set(Friend::address, "A better place"))
+        col.findOneAndUpdate(Friend::name eq "John", setValue(Friend::address, "A better place"))
         val friend = col.findOne(Friend::name eq "John")
         assertEquals("John", friend!!.name)
         assertEquals("A better place", friend.address)
@@ -42,7 +42,7 @@ class FindOneAndModifyTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
     @Test
     fun canFindAndUpdateWithNullValue() {
         col.insertOne(Friend("John", "22 Wall Street Avenue"))
-        col.findOneAndUpdate(Friend::name eq "John", set(Friend::address, null))
+        col.findOneAndUpdate(Friend::name eq "John", setValue(Friend::address, null))
         val friend = col.findOne(Friend::name eq "John")
         assertEquals("John", friend!!.name)
         assertNull(friend.address)
@@ -52,7 +52,7 @@ class FindOneAndModifyTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canFindAndUpdateWithDocument() {
         val col2 = col.withDocumentClass<Document>()
         col.insertOne(Friend("John", "22 Wall Street Avenue"))
-        col2.findOneAndUpdate(Friend::name eq "John", set(Friend::address, "A better place"))
+        col2.findOneAndUpdate(Friend::name eq "John", setValue(Friend::address, "A better place"))
         val friend = col2.findOne(Friend::name eq "John")
         assertEquals("John", friend!!.get("name"))
         assertEquals("A better place", friend.get("address"))

@@ -33,7 +33,6 @@ import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 import org.litote.jackson.data.JacksonData
 import org.litote.kmongo.util.KMongoCodecBase
-import org.litote.kmongo.util.KMongoCodecProvider
 
 class FriendDeserializer : JsonDeserializer<FriendWithCustomDeserializer>() {
 
@@ -228,8 +227,8 @@ class FriendWithBuddiesCodec(codecRegistryProvider: () -> (CodecRegistry)) :
         return FriendWithCustomCodecWithBuddies(id, name, address, coordinate, gender, buddies ?: emptyList())
     }
 
-    companion object : KMongoCodecProvider<FriendWithCustomCodecWithBuddies> {
-        override fun codec(codecRegistryProvider: () -> (CodecRegistry)): Codec<FriendWithCustomCodecWithBuddies> {
+    companion object  {
+        fun codec(codecRegistryProvider: () -> (CodecRegistry)): Codec<FriendWithCustomCodecWithBuddies> {
             return FriendWithBuddiesCodec(codecRegistryProvider)
         }
     }
@@ -273,8 +272,8 @@ class CoordinateCodec(codecRegistryProvider: () -> (CodecRegistry)) :
         return CoordinateWithCustomCodec(lat!!, lng!!)
     }
 
-    companion object : KMongoCodecProvider<CoordinateWithCustomCodec> {
-        override fun codec(codecRegistryProvider: () -> (CodecRegistry)): Codec<CoordinateWithCustomCodec> {
+    companion object {
+        fun codec(codecRegistryProvider: () -> (CodecRegistry)): Codec<CoordinateWithCustomCodec> {
             return CoordinateCodec(codecRegistryProvider)
         }
     }

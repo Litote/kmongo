@@ -16,8 +16,8 @@
 
 package org.litote.kmongo
 
-import kotlinx.serialization.Serializable
 import com.mongodb.client.model.Projections
+import kotlinx.serialization.Serializable
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -90,7 +90,7 @@ class JsonExtensionTest : KMongoRootTest() {
 
         val bson3 =
             group(
-                MongoOperator.week.op(Base::timestamp),
+                MongoOperator.week from Base::timestamp,
                 Result::documentCount sum (1)
             )
 

@@ -21,7 +21,6 @@ import org.bson.types.ObjectId
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.litote.kmongo.KMongoRootTest
-import org.litote.kmongo.MongoId
 import org.litote.kmongo.issues.Foo
 import kotlin.reflect.full.memberProperties
 
@@ -30,7 +29,7 @@ import kotlin.reflect.full.memberProperties
  */
 class MongoIdUtilTest : KMongoRootTest() {
 
-    class WithMongoId(@MongoId val key: ObjectId? = null)
+    class WithMongoId(@BsonId val key: ObjectId? = null)
 
     @Test
     fun `idProperty extension returns the id property`() {

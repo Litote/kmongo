@@ -34,12 +34,12 @@ class BulkWriteTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
                     insertOne(friend),
                     updateOne(
                         ::name eq "Fred",
-                        set(::address, "221B Baker Street"),
+                        setValue(::address, "221B Baker Street"),
                         upsert()
                     ),
                     updateMany(
                         EMPTY_BSON,
-                        set(::address, "nowhere")
+                        setValue(::address, "nowhere")
                     ),
                     replaceOne(
                         ::name eq "Max",
