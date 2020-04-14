@@ -106,8 +106,12 @@ open class BsonEncoder(
             is StructureKind.CLASS -> {
                 val name = descriptor.getElementName(index)
 
-                val elemDesc = descriptor.getElementDescriptor(index)
-                if (elemDesc.isNullable) {
+                val elemDesc = try {
+                    descriptor.getElementDescriptor(index)
+                } catch (e: IndexOutOfBoundsException) {
+                    null
+                }
+                if (elemDesc?.isNullable != false) {
                     val ann =
                         configuration.nonEncodeNull || descriptor.getElementAnnotations(index)
                             .any { it is NonEncodeNull }
@@ -121,10 +125,6 @@ open class BsonEncoder(
                 }
             }
             is StructureKind.MAP -> {
-//                val mapDesc = desc as LinkedHashMapClassDesc
-//                if (mapDesc.keyDescriptor !is PrimitiveDescriptor) {
-//                    throw SerializationException("map key name is not primitive")
-//                }
                 state = stateMap.next()
             }
         }

@@ -171,8 +171,12 @@ class BsonFlexibleDecoder(
         if (containsNotOptionalNullable!!) {
             for (i in 0 until desc.elementsCount) {
                 if (indexesSet?.get(i) != true
-                    && desc.getElementDescriptor(i).isNullable
                     && !desc.isElementOptional(i)
+                    && try {
+                        desc.getElementDescriptor(i).isNullable
+                    } catch (e: Exception) {
+                        true
+                    }
                 ) {
                     checkNotOptionalNullable = true
                     indexesSet!![i] = true
