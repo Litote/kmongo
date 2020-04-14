@@ -70,9 +70,6 @@ object KMongo {
         MongoClientSettings.builder(settings).codecRegistry(configureRegistry(settings.codecRegistry)).build()
     )
 
-    private fun configureSettings(settings: MongoClientSettings): MongoClientSettings =
-        MongoClientSettings.builder(settings).codecRegistry(configureRegistry(settings.codecRegistry)).build()
-
     internal fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry {
         return ClassMappingType.codecRegistry(codecRegistry)
     }
