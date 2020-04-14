@@ -21,6 +21,8 @@ import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.DateTest.DateValue
+import org.litote.kmongo.MongoOperator.gte
+import org.litote.kmongo.MongoOperator.lt
 import java.time.Instant
 import java.time.Instant.now
 import java.time.LocalDate
@@ -148,6 +150,16 @@ class DateTest : AllCategoriesKMongoBaseTest<DateValue>() {
     @Test
     fun testUTCDateStorageInMongoWithGMTminus1CurrentTimeZone() {
         testUTCDateStorage("GMT-1:00", "23:00:00")
+    }
+
+    @Test
+    fun testDateQuery() {
+        val date = LocalDateTime.now()
+        col.findOne(
+            """{"date":{$gte: ${date.truncatedTo(ChronoUnit.DAYS).json}, $lt: ${date.truncatedTo(ChronoUnit.DAYS).plusDays(
+                1
+            ).json} } }"""
+        )
     }
 
     private fun testUTCDateStorage(timezone: String, timeDate: String) {
