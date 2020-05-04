@@ -136,7 +136,12 @@ open class BsonEncoder(
     }
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
-        writer.writeString(enumDescriptor.getElementName(index))
+        val value = enumDescriptor.getElementName(index)
+        if(state == STATE.NAME) {
+            writer.writeName(value)
+        }   else {
+            writer.writeString(value)
+        }
     }
 
     override fun encodeString(value: String) {
