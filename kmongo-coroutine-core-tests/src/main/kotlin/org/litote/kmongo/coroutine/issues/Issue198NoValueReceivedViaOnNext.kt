@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.coroutine.issues
 
+import com.mongodb.WriteConcern
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.litote.kmongo.coroutine.KMongoReactiveStreamsCoroutineBaseTest
@@ -33,7 +34,8 @@ class Issue198NoValueReceivedViaOnNext : KMongoReactiveStreamsCoroutineBaseTest<
     fun saveTwoObjectsInSameTransaction() {
         runBlocking {
             //if the collection does not pre-exist, the multi-document transaction fails
-            database.createCollection(col.collection.namespace.collectionName)
+            //see also https://docs.mongodb.com/manual/core/transactions-production-consideration/#acquiring-locks
+            database.withWriteConcern(WriteConcern.MAJORITY).createCollection(col.collection.namespace.collectionName)
 
             mongoClient.startSession().use { clientSession ->
                 clientSession.startTransaction()
@@ -50,7 +52,8 @@ class Issue198NoValueReceivedViaOnNext : KMongoReactiveStreamsCoroutineBaseTest<
     fun abortTwoObjectsInSameTransaction() {
         runBlocking {
             //if the collection does not pre-exist, the multi-document transaction fails
-            database.createCollection(col.collection.namespace.collectionName)
+            //see also https://docs.mongodb.com/manual/core/transactions-production-consideration/#acquiring-locks
+            database.withWriteConcern(WriteConcern.MAJORITY).createCollection(col.collection.namespace.collectionName)
 
             mongoClient.startSession().use { clientSession ->
                 clientSession.startTransaction()
