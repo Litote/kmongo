@@ -17,14 +17,18 @@
 package org.litote.kmongo.coroutine
 
 import com.mongodb.reactivestreams.client.ClientSession
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 
 /**
  * Commit a transaction in the context of this session.  A transaction can only be commited if one has first been started.
  */
-suspend fun ClientSession.commitTransactionAndAwait() = commitTransaction().awaitSingle()
+suspend fun ClientSession.commitTransactionAndAwait() {
+    commitTransaction().awaitFirstOrNull()
+}
 
 /**
  * Abort a transaction in the context of this session.  A transaction can only be aborted if one has first been started.
  */
-suspend fun ClientSession.abortTransactionAndAwait() = abortTransaction().awaitSingle()
+suspend fun ClientSession.abortTransactionAndAwait() {
+    abortTransaction().awaitFirstOrNull()
+}
