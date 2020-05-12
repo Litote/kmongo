@@ -150,8 +150,7 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
         return RawBsonDocument(
             if (idProperty == null) {
                 (if (filterNullProperties) KMongoConfiguration.bsonMapperWithoutNullSerialization
-                else KMongoConfiguration.bsonMapper)
-                    .writeValueAsBytes(obj)
+                else KMongoConfiguration.bsonMapper).writeValueAsBytes(obj)
             } else {
                 filterIdWriter(
                     obj,
