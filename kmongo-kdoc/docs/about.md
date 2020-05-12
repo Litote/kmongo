@@ -22,6 +22,7 @@ KMongo introduces also breaking changes on its own:
 - The mongodb-driver-sync is used for synchronous versions, the mongodb-driver-legacy is not used anymore
 - The reactive driver is used for asynchronous versions, as the java async driver is not available anymore
 - All KMongo deprecated methods and classes in 3.12 are removed in 4.0
+- Minimum supported jvm is now 1.8 (was 1.6). You have to set the property *jvmTarget* to 1.8 (or more) in your gradle or maven descriptor
  
 ## KMongo dependencies
  

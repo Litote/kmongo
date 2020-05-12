@@ -20,7 +20,9 @@ If you don't know, start with the sync driver and add this dependency to your pr
 
 ```
 compile 'org.litote.kmongo:kmongo:4.0.0'
-```
+```   
+
+> Starting from 4.0, minimum supported jvm is now 1.8 (was 1.6). You have to set the property *jvmTarget* to 1.8 (or more) in your gradle or maven descriptor
 
 And [start coding](#lets-start-coding)
 
