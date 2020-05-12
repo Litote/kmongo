@@ -34,14 +34,15 @@ class Issue198NoValueReceivedViaOnNext : KMongoReactiveStreamsCoroutineBaseTest<
         runBlocking {
             //if the collection does not pre-exist, the multi-document transaction fails
             database.createCollection(col.collection.namespace.collectionName)
-            
-            val clientSession = mongoClient.startSession()
-            clientSession.startTransaction()
-            col.insertOne(clientSession, Friend("Bob"))
-            col.insertOne(clientSession, Friend("Joe"))
-            clientSession.commitTransactionAndAwait()
-            assertEquals(2, col.countDocuments())
-            col.deleteMany()
+
+            mongoClient.startSession().use { clientSession ->
+                clientSession.startTransaction()
+                col.insertOne(clientSession, Friend("Bob"))
+                col.insertOne(clientSession, Friend("Joe"))
+                clientSession.commitTransactionAndAwait()
+                assertEquals(2, col.countDocuments())
+                col.deleteMany()
+            }
         }
     }
 
@@ -51,13 +52,14 @@ class Issue198NoValueReceivedViaOnNext : KMongoReactiveStreamsCoroutineBaseTest<
             //if the collection does not pre-exist, the multi-document transaction fails
             database.createCollection(col.collection.namespace.collectionName)
 
-            val clientSession = mongoClient.startSession()
-            clientSession.startTransaction()
-            col.insertOne(clientSession, Friend("Bob"))
-            col.insertOne(clientSession, Friend("Joe"))
-            clientSession.abortTransactionAndAwait()
-            assertEquals(0, col.countDocuments())
-            col.deleteMany()
+            mongoClient.startSession().use { clientSession ->
+                clientSession.startTransaction()
+                col.insertOne(clientSession, Friend("Bob"))
+                col.insertOne(clientSession, Friend("Joe"))
+                clientSession.abortTransactionAndAwait()
+                assertEquals(0, col.countDocuments())
+                col.deleteMany()
+            }
         }
     }
 }
