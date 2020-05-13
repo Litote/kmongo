@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Gets coroutine version of [CoroutineFindPublisher].
  */
-val <T> FindPublisher<T>.coroutine: CoroutineFindPublisher<T>
+val <T: Any> FindPublisher<T>.coroutine: CoroutineFindPublisher<T>
     get() = CoroutineFindPublisher(
         this
     )
@@ -34,7 +34,7 @@ val <T> FindPublisher<T>.coroutine: CoroutineFindPublisher<T>
 /**
  * Coroutine wrapper around [CoroutineFindPublisher].
  */
-class CoroutineFindPublisher<T>(override val publisher: FindPublisher<T>) :
+class CoroutineFindPublisher<T: Any>(override val publisher: FindPublisher<T>) :
     CoroutinePublisher<T>(publisher) {
 
     /**
