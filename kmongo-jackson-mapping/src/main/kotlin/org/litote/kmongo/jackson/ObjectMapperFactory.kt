@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.bson.UuidRepresentation
 import org.litote.jackson.registerModulesFromServiceLoader
 
 internal object ObjectMapperFactory {
@@ -39,19 +40,19 @@ internal object ObjectMapperFactory {
             .registerModulesFromServiceLoader()
     }
 
-    fun createBsonObjectMapper(): ObjectMapper {
-        return configureBson(ObjectMapper(KMongoBsonFactory()))
+    fun createBsonObjectMapper(uuidRepresentation: UuidRepresentation? = null): ObjectMapper {
+        return configureBson(ObjectMapper(KMongoBsonFactory()), uuidRepresentation)
     }
 
-    fun createBsonObjectMapperCopy(): ObjectMapper {
-        return configureBson(ObjectMapper())
+    fun createBsonObjectMapperCopy(uuidRepresentation: UuidRepresentation? = null): ObjectMapper {
+        return configureBson(ObjectMapper(), uuidRepresentation)
     }
 
-    private fun configureBson(mapper: ObjectMapper): ObjectMapper {
+    private fun configureBson(mapper: ObjectMapper, uuidRepresentation: UuidRepresentation?): ObjectMapper {
         return mapper.registerModule(de.undercouch.bson4jackson.BsonModule())
             .registerKotlinModule()
             .registerModule(SetMappingModule())
-            .registerModule(BsonModule())
+            .registerModule(BsonModule(uuidRepresentation))
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
             .addHandler(StringDeserializationProblemHandler)
