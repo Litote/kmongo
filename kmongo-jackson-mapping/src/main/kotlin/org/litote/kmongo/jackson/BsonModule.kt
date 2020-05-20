@@ -29,16 +29,22 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler.NOT_HANDLED
+import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.BinaryNode
 import com.fasterxml.jackson.databind.node.POJONode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.databind.node.ValueNode
+import com.fasterxml.jackson.databind.ser.std.UUIDSerializer
 import de.undercouch.bson4jackson.BsonConstants
+import de.undercouch.bson4jackson.BsonGenerator
 import de.undercouch.bson4jackson.BsonParser
 import de.undercouch.bson4jackson.types.Decimal128
+import org.bson.BsonBinarySubType
 import org.bson.BsonTimestamp
+import org.bson.UuidRepresentation
+import org.bson.internal.UuidHelper
 import org.bson.types.Binary
 import org.bson.types.MaxKey
 import org.bson.types.MinKey
@@ -79,10 +85,10 @@ import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
+import java.util.UUID
 import kotlin.reflect.KProperty
 
-
-internal class BsonModule : SimpleModule() {
+internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : SimpleModule() {
 
     class KMongoObjectId(time: Int, machine: Int, inc: Int) :
         de.undercouch.bson4jackson.types.ObjectId(time, machine, inc) {
@@ -502,6 +508,30 @@ internal class BsonModule : SimpleModule() {
         }
     }
 
+    class UuidSerializer(private val uuidRepresentation: UuidRepresentation) : JsonSerializer<UUID>() {
+        private val binaryType = if (uuidRepresentation == UuidRepresentation.STANDARD) BsonBinarySubType.UUID_STANDARD.value else BsonBinarySubType.UUID_LEGACY.value
+
+        override fun serialize(value: UUID, gen: JsonGenerator, serializers: SerializerProvider) {
+            if (gen is BsonGenerator)
+                gen.writeBinary(null, binaryType, UuidHelper.encodeUuidToBinary(value, uuidRepresentation), 0, 16)
+            else
+                UUIDSerializer().serialize(value, gen, serializers)
+        }
+    }
+
+    class UuidDeserializer(private val uuidRepresentation: UuidRepresentation): JsonDeserializer<UUID>() {
+        private val binaryType = if (uuidRepresentation == UuidRepresentation.STANDARD) BsonBinarySubType.UUID_STANDARD.value else BsonBinarySubType.UUID_LEGACY.value
+
+        override fun deserialize(p: JsonParser, ctxt: DeserializationContext): UUID {
+            val bytes = p.embeddedObject as? ByteArray
+            return if (p.currentToken == JsonToken.VALUE_EMBEDDED_OBJECT && bytes != null) {
+                UuidHelper.decodeBinaryToUuid(bytes, binaryType, uuidRepresentation)
+            } else {
+                UUIDDeserializer().deserialize(p, ctxt)
+            }
+        }
+    }
+
     override fun setupModule(context: SetupContext) {
         super.setupModule(context)
 
@@ -555,5 +585,10 @@ internal class BsonModule : SimpleModule() {
         addDeserializer(Date::class.java, BsonDateDeserializer)
 
         addSerializer(KProperty::class.java, KPropertySerializer)
+
+        if(uuidRepresentation != null) {
+            addSerializer(UUID::class.java, UuidSerializer(uuidRepresentation))
+            addDeserializer(UUID::class.java, UuidDeserializer(uuidRepresentation))
+        }
     }
 }
