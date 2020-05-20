@@ -16,6 +16,8 @@
 
 package org.litote.kmongo.coroutine
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.collect
 import org.reactivestreams.Publisher
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -23,7 +25,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 /**
  * Gets coroutine version of [Publisher].
  */
-val <T> Publisher<T>.coroutine: CoroutinePublisher<T> get() = CoroutinePublisher(this)
+val <T: Any> Publisher<T>.coroutine: CoroutinePublisher<T> get() = CoroutinePublisher(this)
 
 /**
  * Provides a list of not null elements from the publisher.
@@ -38,12 +40,17 @@ suspend fun <T> Publisher<T>.toList(): List<T> {
 /**
  * Coroutine wrapper around [Publisher].
  */
-open class CoroutinePublisher<T>(open val publisher: Publisher<T>) {
+open class CoroutinePublisher<T: Any>(open val publisher: Publisher<T>) {
 
     /**
      * Provides a list of not null elements from the publisher.
      */
     suspend fun toList(): List<T> = publisher.toList()
+
+    /**
+     * Provides a flow of not null elements from the publisher.
+     */
+    fun toFlow(): Flow<T> = publisher.asFlow()
 
     /**
      * iterates over all elements from the publisher

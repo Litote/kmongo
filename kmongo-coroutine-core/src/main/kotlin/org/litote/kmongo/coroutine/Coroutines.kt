@@ -27,7 +27,7 @@ import kotlin.coroutines.suspendCoroutine
  * @param callback lambda that will be supplied to wrapped SingleResultCallback<T>
  * @param <T>            the default target type of the collection to return
  */
-suspend inline fun <T> singleResult(crossinline callback: (SingleResultCallback<T>) -> Unit): T? {
+suspend inline fun <T: Any> singleResult(crossinline callback: (SingleResultCallback<T>) -> Unit): T? {
     return suspendCoroutine { continuation ->
         callback(SingleResultCallback { result: T?, throwable: Throwable? ->
             if (throwable != null) {

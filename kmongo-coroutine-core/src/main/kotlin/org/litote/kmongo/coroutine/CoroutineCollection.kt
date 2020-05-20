@@ -247,7 +247,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param <T>   the target type of the iterable.
      * @mongodb.driver.manual reference/command/distinct/ Distinct
      */
-    inline fun <reified T> distinct(
+    inline fun <reified T: Any> distinct(
         fieldName: String,
         filter: Bson = EMPTY_BSON
     ): CoroutineDistinctPublisher<T> =
@@ -265,7 +265,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @mongodb.server.release 3.6
      * @since 1.7
      */
-    inline fun <reified T> distinct(
+    inline fun <reified T: Any> distinct(
         clientSession: ClientSession,
         fieldName: String,
         filter: Bson
@@ -288,7 +288,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param <T> the target document type of the iterable.
      * @mongodb.driver.manual tutorial/query-documents/ Find
      */
-    inline fun <reified T> findAndCast(filter: Bson = EMPTY_BSON): CoroutineFindPublisher<T> =
+    inline fun <reified T: Any> findAndCast(filter: Bson = EMPTY_BSON): CoroutineFindPublisher<T> =
         collection.find(filter, T::class.java).coroutine
 
     /**
@@ -313,7 +313,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @mongodb.server.release 3.6
      * @since 1.7
      */
-    inline fun <reified T> findAndCast(
+    inline fun <reified T: Any> findAndCast(
         clientSession: ClientSession,
         filter: Bson
     ): CoroutineFindPublisher<T> = collection.find(clientSession, filter, T::class.java).coroutine
@@ -326,7 +326,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @return a publisher containing the result of the aggregation operation
      * @mongodb.driver.manual aggregation/ Aggregation
      */
-    inline fun <reified T> aggregate(pipeline: List<Bson>): CoroutineAggregatePublisher<T> =
+    inline fun <reified T: Any> aggregate(pipeline: List<Bson>): CoroutineAggregatePublisher<T> =
         collection.aggregate(pipeline, T::class.java).coroutine
 
     /**
@@ -340,7 +340,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @mongodb.server.release 3.6
      * @since 1.7
      */
-    inline fun <reified T> aggregate(
+    inline fun <reified T: Any> aggregate(
         clientSession: ClientSession,
         pipeline: List<Bson>
     ): CoroutineAggregatePublisher<T> =
@@ -355,7 +355,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @mongodb.driver.manual reference/operator/aggregation/changeStream $changeStream
      * @since 1.6
      */
-    inline fun <reified T> watch(pipeline: List<Bson> = emptyList()): CoroutineChangeStreamPublisher<T> =
+    inline fun <reified T: Any> watch(pipeline: List<Bson> = emptyList()): CoroutineChangeStreamPublisher<T> =
         collection.watch(pipeline, T::class.java).coroutine
 
     /**
@@ -369,7 +369,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @mongodb.server.release 3.6
      * @since 1.7
      */
-    inline fun <reified T> watch(
+    inline fun <reified T: Any> watch(
         clientSession: ClientSession,
         pipeline: List<Bson>
     ): CoroutineChangeStreamPublisher<T> =
@@ -385,7 +385,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @return a publisher containing the result of the map-reduce operation
      * @mongodb.driver.manual reference/command/mapReduce/ map-reduce
      */
-    inline fun <reified T> mapReduce(
+    inline fun <reified T: Any> mapReduce(
         mapFunction: String,
         reduceFunction: String
     ): CoroutineMapReducePublisher<T> = collection.mapReduce(mapFunction, reduceFunction, T::class.java).coroutine
@@ -403,7 +403,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @mongodb.server.release 3.6
      * @since 1.7
      */
-    inline fun <reified T> mapReduce(
+    inline fun <reified T: Any> mapReduce(
         clientSession: ClientSession, mapFunction: String, reduceFunction: String
     ): CoroutineMapReducePublisher<T> =
         collection.mapReduce(clientSession, mapFunction, reduceFunction, T::class.java).coroutine
@@ -837,7 +837,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @return the fluent list indexes interface
      * @mongodb.driver.manual reference/command/listIndexes/ listIndexes
      */
-    inline fun <reified T> listIndexes(): CoroutineListIndexesPublisher<T> =
+    inline fun <reified T: Any> listIndexes(): CoroutineListIndexesPublisher<T> =
         collection.listIndexes(T::class.java).coroutine
 
     /**
@@ -850,7 +850,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @mongodb.server.release 3.6
      * @since 1.7
      */
-    inline fun <reified T> listIndexes(
+    inline fun <reified T: Any> listIndexes(
         clientSession: ClientSession
     ): CoroutineListIndexesPublisher<T> = collection.listIndexes(clientSession, T::class.java).coroutine
 
@@ -1002,7 +1002,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param filter      the query filter
      * @param <Type>   the target type of the iterable
      */
-    inline fun <reified Type> distinct(
+    inline fun <reified Type: Any> distinct(
         fieldName: String,
         filter: String
     ): CoroutineDistinctPublisher<Type> = distinct(fieldName, toBson(filter))
@@ -1014,7 +1014,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param filter      the query filter
      * @param <Type>   the target type of the iterable.
      */
-    inline fun <reified Type> distinct(
+    inline fun <reified Type: Any> distinct(
         field: KProperty1<T, Type>,
         filter: Bson = EMPTY_BSON
     ): CoroutineDistinctPublisher<Type> = distinct(field.path(), filter)

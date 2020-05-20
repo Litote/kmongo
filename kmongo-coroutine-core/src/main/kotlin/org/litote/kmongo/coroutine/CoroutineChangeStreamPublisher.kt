@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Gets coroutine version of [ChangeStreamPublisher].
  */
-val <T> ChangeStreamPublisher<T>.coroutine: CoroutineChangeStreamPublisher<T>
+val <T: Any> ChangeStreamPublisher<T>.coroutine: CoroutineChangeStreamPublisher<T>
     get() = CoroutineChangeStreamPublisher(
         this
     )
@@ -36,7 +36,7 @@ val <T> ChangeStreamPublisher<T>.coroutine: CoroutineChangeStreamPublisher<T>
 /**
  * Coroutine wrapper around [ChangeStreamPublisher].
  */
-class CoroutineChangeStreamPublisher<TResult>(override val publisher: ChangeStreamPublisher<TResult>) :
+class CoroutineChangeStreamPublisher<TResult: Any>(override val publisher: ChangeStreamPublisher<TResult>) :
     CoroutinePublisher<ChangeStreamDocument<TResult>>(publisher) {
 
     /**

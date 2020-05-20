@@ -24,14 +24,14 @@ import java.util.concurrent.TimeUnit
 /**
  * Gets coroutine version of [ListCollectionsPublisher].
  */
-val <T> ListCollectionsPublisher<T>.coroutine: CoroutineListCollectionsPublisher<T>
+val <T: Any> ListCollectionsPublisher<T>.coroutine: CoroutineListCollectionsPublisher<T>
     get() =
         CoroutineListCollectionsPublisher(this)
 
 /**
  * Coroutine wrapper around [ListCollectionsPublisher].
  */
-class CoroutineListCollectionsPublisher<TResult>(override val publisher: ListCollectionsPublisher<TResult>) :
+class CoroutineListCollectionsPublisher<TResult: Any>(override val publisher: ListCollectionsPublisher<TResult>) :
     CoroutinePublisher<TResult>(publisher) {
 
     /**

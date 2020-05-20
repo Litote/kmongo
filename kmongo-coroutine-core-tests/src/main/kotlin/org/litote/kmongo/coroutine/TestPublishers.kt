@@ -18,6 +18,7 @@ package org.litote.kmongo.coroutine
 
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import java.lang.RuntimeException
 
 class DoNothingPublisher<T> : Publisher<T> {
@@ -30,6 +31,13 @@ class DoNothingPublisher<T> : Publisher<T> {
 class DoSinglePublisher<T>(val t: T) : Publisher<T> {
 
     override fun subscribe(s: Subscriber<in T>) {
+        s.onSubscribe(object:Subscription {
+            override fun cancel() {
+            }
+
+            override fun request(n: Long) {
+            }
+        })
         s.onNext(t)
         s.onComplete()
     }

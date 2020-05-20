@@ -94,7 +94,7 @@ class CoroutineClient(val client: MongoClient) : Closeable by client {
      * @since 1.9
      * @mongodb.server.release 4.0
      */
-    inline fun <reified TResult> watch(pipeline: List<Bson> = emptyList()): CoroutineChangeStreamPublisher<TResult> =
+    inline fun <reified TResult: Any> watch(pipeline: List<Bson> = emptyList()): CoroutineChangeStreamPublisher<TResult> =
         client.watch(pipeline, TResult::class.java).coroutine
 
     /**
@@ -108,7 +108,7 @@ class CoroutineClient(val client: MongoClient) : Closeable by client {
      * @mongodb.server.release 4.0
      * @mongodb.driver.dochub core/changestreams Change Streams
      */
-    inline fun <reified TResult> watch(
+    inline fun <reified TResult: Any> watch(
         clientSession: ClientSession,
         pipeline: List<Bson> = emptyList()
     ): CoroutineChangeStreamPublisher<TResult> =
