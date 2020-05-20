@@ -336,7 +336,7 @@ col.mapReduce<KeyValue>(
 
 The [aggregation framework](https://docs.mongodb.com/manual/aggregation/) is supported.
 
-It works with shell query format, with [several limitations](mongo-shell-support/index.html):
+It works with shell query format, with [several limitations](../mongo-shell-support):
 
 ```kotlin
 col.aggregate<Article>("[{$match:{tags:'virus'}},{$limit:1}]").toList()

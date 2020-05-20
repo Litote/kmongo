@@ -12,17 +12,18 @@ If you don't know, start with the sync driver and add this dependency to your pr
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo:4.0.0'
+compile 'org.litote.kmongo:kmongo:4.0.1'
 ```   
 
-> Starting from 4.0, minimum supported jvm is now 1.8 (was 1.6). You have to set the property *jvmTarget* to 1.8 (or more) in your gradle or maven descriptor
+> Starting from 4.0, minimum supported jvm is now 1.8 (was 1.6).
+> You have to set the property **jvmTarget** to 1.8 (or more) in your gradle or maven descriptor
 
 And [start coding](#lets-start-coding)
 
@@ -39,14 +40,14 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-async</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-async:4.0.0'
+compile 'org.litote.kmongo:kmongo-async:4.0.1'
 ```
 
 #### Kotlin Coroutines
@@ -57,14 +58,14 @@ compile 'org.litote.kmongo:kmongo-async:4.0.0'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-coroutine</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-coroutine:4.0.0'
+compile 'org.litote.kmongo:kmongo-coroutine:4.0.1'
 ```
 
 #### RxJava2
@@ -75,14 +76,14 @@ compile 'org.litote.kmongo:kmongo-coroutine:4.0.0'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-rxjava2</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-rxjava2:4.0.0'
+compile 'org.litote.kmongo:kmongo-rxjava2:4.0.1'
 ```
 
 ## Object Mapping Engine
@@ -95,7 +96,7 @@ by adding a ```-serialization``` suffix to the artifactId.
 
 For example, replace ```kmongo``` by ```kmongo-native``` or ```kmongo-serialization``` for the sync driver
 For the coroutine driver, replace ```kmongo-coroutine``` by ```kmongo-coroutine-native```  or ```kmongo-coroutine-serialization``` .
-You can read more about the mapping engine in the [dedicated chapter](object-mapping/index.html#how-to-choose-the-mapping-engine). 
+You can read more about the mapping engine in the [dedicated chapter](../object-mapping#how-to-choose-the-mapping-engine). 
 
 ## Let's Start Coding
 

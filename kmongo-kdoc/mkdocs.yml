@@ -5,7 +5,7 @@ site_url: 'https://litote.org/kmongo/'
 repo_name: 'kmongo'
 repo_url: 'https://github.com/Litote/kmongo'
 edit_uri: ''
-pages:
+nav:
     - Introduction: index.md
     - Quick Start: quick-start.md
     - Extensions Overview: extensions-overview.md
@@ -16,14 +16,11 @@ pages:
     - About: about.md
 theme:
   name: 'material'
+  favicon: 'assets/images/favicon.png'
   logo: 'assets/images/favicon.png'
-  custom_dir: 'theme'
 markdown_extensions:
   - admonition
-  - codehilite(guess_lang=false)
-  - toc(permalink=true)
+  - codehilite
+  - toc:
+      permalink: true
 copyright: 'Copyright &copy; 2016/2020 Litote'
-extra:
-  social:
-    - type: 'github'
-      link: 'https://github.com/Litote/kmongo'
