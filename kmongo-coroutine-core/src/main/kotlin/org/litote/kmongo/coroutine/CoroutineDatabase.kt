@@ -200,7 +200,7 @@ class CoroutineDatabase(val database: MongoDatabase) {
      * @return the fluent list collections interface
      * @mongodb.driver.manual reference/command/listCollections listCollections
      */
-    inline fun <reified TResult> listCollections(): CoroutineListCollectionsPublisher<TResult> =
+    inline fun <reified TResult: Any> listCollections(): CoroutineListCollectionsPublisher<TResult> =
         database.listCollections(TResult::class.java).coroutine
 
     /**
@@ -210,7 +210,7 @@ class CoroutineDatabase(val database: MongoDatabase) {
      * @return the fluent list collections interface
      * @mongodb.driver.manual reference/command/listCollections listCollections
      */
-    inline fun <reified TResult> listCollections(clientSession: ClientSession): CoroutineListCollectionsPublisher<TResult> =
+    inline fun <reified TResult: Any> listCollections(clientSession: ClientSession): CoroutineListCollectionsPublisher<TResult> =
         database.listCollections(clientSession, TResult::class.java).coroutine
 
     /**
@@ -286,7 +286,7 @@ class CoroutineDatabase(val database: MongoDatabase) {
      * @since 1.9
      * @mongodb.server.release 4.0
      */
-    inline fun <reified TResult> watch(pipeline: List<Bson> = emptyList()): CoroutineChangeStreamPublisher<TResult> =
+    inline fun <reified TResult: Any> watch(pipeline: List<Bson> = emptyList()): CoroutineChangeStreamPublisher<TResult> =
         database.watch(pipeline, TResult::class.java).coroutine
 
     /**
@@ -300,7 +300,7 @@ class CoroutineDatabase(val database: MongoDatabase) {
      * @mongodb.server.release 4.0
      * @mongodb.driver.dochub core/changestreams Change Streams
      */
-    inline fun <reified TResult> watch(
+    inline fun <reified TResult: Any> watch(
         clientSession: ClientSession,
         pipeline: List<Bson> = emptyList()
     ): CoroutineChangeStreamPublisher<TResult> =

@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Gets coroutine version of [MapReducePublisher].
  */
-val <T> MapReducePublisher<T>.coroutine: CoroutineMapReducePublisher<T>
+val <T: Any> MapReducePublisher<T>.coroutine: CoroutineMapReducePublisher<T>
     get() = CoroutineMapReducePublisher(
         this
     )
@@ -34,7 +34,7 @@ val <T> MapReducePublisher<T>.coroutine: CoroutineMapReducePublisher<T>
 /**
  * Coroutine wrapper around [MapReducePublisher].
  */
-class CoroutineMapReducePublisher<T>(override val publisher: MapReducePublisher<T>) :
+class CoroutineMapReducePublisher<T: Any>(override val publisher: MapReducePublisher<T>) :
     CoroutinePublisher<T>(publisher) {
 
     /**

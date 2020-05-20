@@ -19,7 +19,6 @@ package org.litote.kmongo.coroutine
 import com.mongodb.client.model.Collation
 import com.mongodb.reactivestreams.client.AggregatePublisher
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
 import org.bson.conversions.Bson
 import java.util.concurrent.TimeUnit
 
@@ -27,7 +26,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Gets coroutine version of [AggregatePublisher].
  */
-val <T> AggregatePublisher<T>.coroutine: CoroutineAggregatePublisher<T>
+val <T: Any> AggregatePublisher<T>.coroutine: CoroutineAggregatePublisher<T>
     get() = CoroutineAggregatePublisher(
         this
     )
@@ -35,7 +34,7 @@ val <T> AggregatePublisher<T>.coroutine: CoroutineAggregatePublisher<T>
 /**
  * Coroutine wrapper around [AggregatePublisher].
  */
-class CoroutineAggregatePublisher<T>(override val publisher: AggregatePublisher<T>) :
+class CoroutineAggregatePublisher<T: Any>(override val publisher: AggregatePublisher<T>) :
     CoroutinePublisher<T>(publisher) {
     /**
      * Enables writing to temporary files. A null value indicates that it's unspecified.
