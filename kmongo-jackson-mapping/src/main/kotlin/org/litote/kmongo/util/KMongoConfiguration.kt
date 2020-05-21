@@ -19,11 +19,28 @@ package org.litote.kmongo.util
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.bson.UuidRepresentation
 import org.bson.codecs.configuration.CodecProvider
 import org.litote.kmongo.jackson.JacksonCodecProvider
 import org.litote.kmongo.jackson.ObjectMapperFactory
 import org.litote.kmongo.jackson.customModuleInitialized
 import kotlin.LazyThreadSafetyMode.PUBLICATION
+
+/**
+ * Configure the jackson mapper engine.
+ *
+ * Call the methods of this object *before* any call to [KMongoConfiguration] methods.
+ */
+object KMongoJacksonFeature {
+
+    /**
+     * Set the [UuidRepresentation] for the serialized version of the UUID class.
+     */
+    fun setUUIDRepresentation(uuidRepresentation: UuidRepresentation?) {
+        KMongoConfiguration.bsonMapper = ObjectMapperFactory.createBsonObjectMapper(uuidRepresentation)
+        KMongoConfiguration.bsonMapperCopy = ObjectMapperFactory.createBsonObjectMapperCopy(uuidRepresentation)
+    }
+}
 
 /**
  * Use this class to customize the default behaviour of KMongo jackson bindings.
@@ -41,7 +58,7 @@ object KMongoConfiguration {
     var bsonMapper: ObjectMapper = ObjectMapperFactory.createBsonObjectMapper()
 
     /**
-     * Basically a copy of [bsonMapper] without [org.litote.bson4jackson.BsonFactory].
+     * Basically a copy of [bsonMapper] without [org.litote.kmongo.jackson.KMongoBsonFactory].
      * Used by [org.litote.kmongo.jackson.JacksonCodec] to resolves specific serialization issues.
      */
     var bsonMapperCopy: ObjectMapper = ObjectMapperFactory.createBsonObjectMapperCopy()
