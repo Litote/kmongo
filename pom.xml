@@ -38,7 +38,6 @@
         <module>kmongo-annotation-processor</module>
         <module>kmongo-jackson-mapping</module>
         <module>kmongo-native-mapping</module>
-        <module>kmongo-kbson</module>
         <module>kmongo-serialization-mapping</module>
         <module>kmongo-flapdoodle</module>
         <module>kmongo-core</module>
@@ -80,6 +79,7 @@
         <jackson-module-loader.version>0.1.0</jackson-module-loader.version>
         <reactivestreams.version>4.0.3</reactivestreams.version>
         <kotlinx-serialization.version>0.20.0</kotlinx-serialization.version>
+        <kbson.version>0.3.0</kbson.version>
 
         <!-- annotations processor -->
         <kgenerator.version>0.3.0</kgenerator.version>
@@ -325,9 +325,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.litote.kmongo</groupId>
-                <artifactId>kmongo-kbson</artifactId>
-                <version>${project.version}</version>
+                <groupId>com.github.jershell</groupId>
+                <artifactId>kbson</artifactId>
+                <version>${kbson.version}</version>
             </dependency>
 
             <dependency>
