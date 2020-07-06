@@ -20,7 +20,7 @@ import com.mongodb.reactivestreams.client.ClientSession
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 
 /**
- * Commit a transaction in the context of this session.  A transaction can only be commited if one has first been started.
+ * Commit a transaction in the context of this session.  A transaction can only be committed if one has first been started.
  */
 suspend fun ClientSession.commitTransactionAndAwait() {
     commitTransaction().awaitFirstOrNull()

@@ -472,7 +472,32 @@ If you use the kmongo-coroutine library, use the ```coroutine``` extension metho
 
 ## Transactions
 
-Transactions are supported. Use the extension methods with ```ClientSession``` parameter.
+Transactions are supported. Remember you have to use the extension methods with ```ClientSession``` parameter.
+
+With sync driver:
+
+```kotlin
+mongoClient.startSession().use { clientSession ->
+                clientSession.startTransaction()
+                col.insertOne(clientSession, Friend("Bob"))    
+                //optional
+                clientSession.commitTransaction()
+            }
+``` 
+
+With coroutines:
+
+```kotlin
+runBlocking {          
+            mongoClient.startSession().use { clientSession ->
+                clientSession.startTransaction()
+                col.insertOne(clientSession, Friend("Bob"))
+                clientSession.commitTransactionAndAwait()
+            }
+        }
+```      
+
+For additional transactions topics, please look at the [dedicated mongo documentation](https://docs.mongodb.com/manual/core/transactions/).
 
 ## KDoc
 
