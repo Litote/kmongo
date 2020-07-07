@@ -84,7 +84,7 @@ internal object MongoIdUtil {
             null
         }
 
-    fun getAnnotatedMongoIdProperty(type: KClass<*>): KProperty1<*, *>? =
+    private fun getAnnotatedMongoIdProperty(type: KClass<*>): KProperty1<*, *>? =
         try {
             val parameter = findPrimaryConstructorParameter(type)
             if (parameter != null) {

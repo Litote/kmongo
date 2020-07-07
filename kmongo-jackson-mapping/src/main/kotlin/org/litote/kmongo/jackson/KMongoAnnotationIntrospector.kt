@@ -30,8 +30,8 @@ internal class KMongoAnnotationIntrospector : NopAnnotationIntrospector() {
 
     companion object {
         val INTROSPECTOR = KMongoAnnotationIntrospector()
-        val ID_PROPERTY_NAME: PropertyName = PropertyName.construct("_id")
-        val IGNORE_UNKNOWN = JsonIgnoreProperties.Value.empty().withIgnoreUnknown()
+        private val ID_PROPERTY_NAME: PropertyName = PropertyName.construct("_id")
+        private val IGNORE_UNKNOWN = JsonIgnoreProperties.Value.empty().withIgnoreUnknown()
     }
 
     override fun findNameForDeserialization(a: Annotated): PropertyName? {
@@ -57,6 +57,6 @@ internal class KMongoAnnotationIntrospector : NopAnnotationIntrospector() {
         if (field !is Field) {
             return false
         }
-        return MongoIdUtil.getAnnotatedMongoIdProperty(field.declaringClass.kotlin)?.name == a.name
+        return MongoIdUtil.findIdProperty(field.declaringClass.kotlin)?.name == a.name
     }
 }
