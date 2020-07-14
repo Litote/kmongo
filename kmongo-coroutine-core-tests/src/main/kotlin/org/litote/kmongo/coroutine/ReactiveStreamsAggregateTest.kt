@@ -26,7 +26,9 @@ import org.litote.kmongo.MongoOperator.and
 import org.litote.kmongo.MongoOperator.limit
 import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.MongoOperator.project
+import org.litote.kmongo.contains
 import org.litote.kmongo.coroutine.ReactiveStreamsAggregateTest.Article
+import org.litote.kmongo.match
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
@@ -72,6 +74,14 @@ class ReactiveStreamsAggregateTest : KMongoReactiveStreamsCoroutineBaseTest<Arti
     }
 
     @Test
+    fun canAggregateBeforeBlocking() =
+        col.aggregate<Article>("{$match:{}}").run {
+            runBlocking {
+                assertEquals(3, toList().size)
+            }
+        }
+
+    @Test
     fun canAggregateWithMultipleDocuments() = runBlocking {
         val data = col.aggregate<Article>("{$match:{tags:'virus'}}").toList()
         assertEquals(2, data.size)
@@ -87,7 +97,7 @@ class ReactiveStreamsAggregateTest : KMongoReactiveStreamsCoroutineBaseTest<Arti
     }
 
     @Test
-    fun canAggregateWithManyMatch() = runBlocking {
+    fun canAggregateWithManyMatches() = runBlocking {
         val data =
             col.aggregate<Article>("{$match:{$and:[{tags:'virus'}, {tags:'pandemic'}]}}")
                 .toList()
@@ -98,9 +108,24 @@ class ReactiveStreamsAggregateTest : KMongoReactiveStreamsCoroutineBaseTest<Arti
     @Test
     fun canAggregateWithManyOperators() = runBlocking {
         val data =
-            col.aggregate<Article>("[{$match:{tags:'virus'}},{$limit:1}]").toList()
+            col.aggregate<Article>(
+                "[{$match:{tags:'virus'}},{$limit:1}]"
+            ).toList()
         assertEquals(1, data.size)
     }
+
+    @Test
+    fun canAggregatePipelineBeforeBlocking() =
+        col.aggregate<Article>(
+            match(
+                Article::tags contains "virus"
+            ),
+            org.litote.kmongo.limit(1)
+        ).run {
+            runBlocking {
+                assertEquals(1, toList().size)
+            }
+        }
 
     @Test
     fun shouldCheckIfCommandHasErrors() {

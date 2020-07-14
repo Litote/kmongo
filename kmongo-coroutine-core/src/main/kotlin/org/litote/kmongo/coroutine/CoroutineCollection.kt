@@ -1925,5 +1925,5 @@ inline fun <reified T : Any> CoroutineCollection<*>.aggregate(vararg pipeline: S
  * @param pipeline    the aggregate pipeline
  * @param <T>   the target document type of the iterable
  */
-suspend inline fun <reified T : Any> CoroutineCollection<*>.aggregate(vararg pipeline: Bson): CoroutineAggregatePublisher<T> =
+inline fun <reified T : Any> CoroutineCollection<*>.aggregate(vararg pipeline: Bson): CoroutineAggregatePublisher<T> =
     aggregate(pipeline.toList())
