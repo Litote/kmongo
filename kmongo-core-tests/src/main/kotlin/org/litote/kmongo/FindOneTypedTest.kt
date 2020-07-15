@@ -60,4 +60,11 @@ class FindOneTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
         assertEquals(john._id, friend!!._id)
     }
 
+    @Test
+    fun canFindOneOnCollectionRegexp() {
+        col.insertOne(Friend("John", "22 Wall Street Avenue", tags = listOf("abc")))
+        val friend = col.findOne(Friend::tags regex "b")
+        assertEquals("John", friend!!.name)
+    }
+
 }

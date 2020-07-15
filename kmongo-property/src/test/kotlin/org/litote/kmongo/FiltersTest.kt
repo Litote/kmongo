@@ -16,14 +16,23 @@
 
 package org.litote.kmongo
 
+import com.mongodb.client.model.Filters
+import org.bson.BsonDocument
+import org.bson.codecs.BsonValueCodecProvider
+import org.bson.codecs.DocumentCodecProvider
+import org.bson.codecs.ValueCodecProvider
+import org.bson.codecs.configuration.CodecRegistries
+import org.bson.conversions.Bson
 import org.junit.Test
+import java.util.Arrays
+import kotlin.test.assertEquals
 
 /**
  *
  */
 class FiltersTest {
 
-    class T(val s: List<String>)
+    class T(val s: List<String>, val string:String)
 
     @Test
     fun `all works with Iterable sub interface`() {
@@ -48,4 +57,42 @@ class FiltersTest {
         //check this compile
         T::s nin setOf("test")
     }
+
+    @Test
+    fun `regex works with a string property`() {
+        val r1 = T::string regex "test"
+        val r2 = T::string regex "test".toRegex().toPattern()
+        val r3 = T::string regex "test".toRegex()
+        val r4 = T::string.regex("test", "")
+
+        assertEquals(r1.document, Filters.regex("string", "test").document)
+        assertEquals(r1.document, r2.document)
+        assertEquals(r1.document, r3.document)
+        assertEquals(r1.document, r4.document)
+
+    }
+
+    @Test
+    fun `regex works with a collection property`() {
+        val r1 = T::s regex "test"
+        val r2 = T::s regex "test".toRegex().toPattern()
+        val r3 = T::s regex "test".toRegex()
+        val r4 = T::s.regex("test", "")
+
+        assertEquals(r1.document, Filters.regex("s", "test").document)
+        assertEquals(r1.document, r2.document)
+        assertEquals(r1.document, r3.document)
+        assertEquals(r1.document, r4.document)
+
+    }
+
+    private val DEFAULT_REGISTRY =
+        CodecRegistries.fromProviders(
+            Arrays.asList(
+                ValueCodecProvider(),
+                BsonValueCodecProvider(),
+                DocumentCodecProvider()
+            )
+        )
+    private val Bson.document:BsonDocument get() = toBsonDocument(BsonDocument::class.java, DEFAULT_REGISTRY)
 }

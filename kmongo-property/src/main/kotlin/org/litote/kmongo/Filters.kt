@@ -342,6 +342,48 @@ fun KProperty<String?>.regex(pattern: String, options: String): Bson = Filters.r
 infix fun KProperty<String?>.regex(regex: Regex): Bson = Filters.regex(path(), regex.toPattern())
 
 /**
+ * Creates a filter that matches all documents where the value of the property matches the given regular expression pattern.
+ *
+ * @param pattern   the pattern
+ * @return the filter
+ * @mongodb.driver.manual reference/operator/query/regex $regex
+ */
+@JvmName("regexIterable")
+infix fun KProperty<Iterable<String?>>.regex(regex: String): Bson = Filters.regex(path(), regex)
+
+/**
+ * Creates a filter that matches all documents where the value of the property matches the given regular expression pattern.
+ *
+ * @param pattern   the pattern
+ * @return the filter
+ * @mongodb.driver.manual reference/operator/query/regex $regex
+ */
+@JvmName("regexIterable")
+infix fun KProperty<Iterable<String?>>.regex(regex: Pattern): Bson = Filters.regex(path(), regex)
+
+/**
+ * Creates a filter that matches all documents where the value of the option matches the given regular expression pattern with the given
+ * options applied.
+ *
+ * @param pattern   the pattern
+ * @param options   the options
+ * @return the filter
+ * @mongodb.driver.manual reference/operator/query/regex $regex
+ */
+@JvmName("regexIterable")
+fun KProperty<Iterable<String?>>.regex(pattern: String, options: String): Bson = Filters.regex(path(), pattern, options)
+
+/**
+ * Creates a filter that matches all documents where the value of the property matches the given regular expression pattern.
+ *
+ * @param regex   the regex
+ * @return the filter
+ * @mongodb.driver.manual reference/operator/query/regex $regex
+ */
+@JvmName("regexIterable")
+infix fun KProperty<Iterable<String?>>.regex(regex: Regex): Bson = Filters.regex(path(), regex.toPattern())
+
+/**
  * Creates a filter that matches all documents matching the given the search term with the given text search options.
  *
  * @param search the search term
