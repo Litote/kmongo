@@ -59,7 +59,7 @@ interface IdGenerator {
     /**
      * Create a new id from its String representation.
      */
-    fun create(s: String) = idClass
+    fun create(s: String): Id<*> = idClass
         .constructors
         .firstOrNull { it.valueParameters.size == 1 && it.valueParameters.first().type.classifier == String::class }
         ?.call(s)

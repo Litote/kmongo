@@ -7,7 +7,9 @@ Query results are automatically mapped to objects.
 To manage Mongo ```_id```, a class must have one ```_id``` property
  or a property annotated with the ```@BsonId``` annotation.
  
-> For **kotlinx serialization**, ```@BsonId``` is not supported. Use ```@SerialName("_id")``` on the id property.
+> For **kotlinx serialization**, ```@BsonId``` is not supported - you can use ```@SerialName("_id")``` as ```@BsonId``` replacement.
+>          
+> For example, ```Data(@ContextualSerialization val _id: Id<Data>)``` and ```Data(@ContextualSerialization @SerialName("_id") val myId: Id<Data>)``` are equivalent.
  
 If there is no such field in your class, an ```ObjectId``` _id is generated on server side.
 
@@ -33,7 +35,7 @@ It is easy to transform an ObjectId in Id<> with the *toId()* extension:
 LightSaber(ObjectId("myId").toId())
 ``` 
 
-> For **kotlinx serialization** add ```@ContextualSerialization``` annotation on ```Id``` properties.
+> For **kotlinx serialization** ```@ContextualSerialization``` is mandatory on the ```Id``` property.
 
 #### KMongo Id does not depend of Mongo nor KMongo lib
                      
@@ -78,6 +80,20 @@ gsonBuilder.registerTypeAdapter(Id::class.java,
 gsonBuilder.registerTypeAdapter(Id::class.java,
         JsonDeserializer<Id<Any>> { id, _, _ -> id.asString.toId() })
 val gson = gsonBuilder.create()
+``` 
+
+#### Id <> Json KotlinX serialization
+
+If you use KotlinX serialization to serialize your objects to json (in order to transfer your data between frontend and backend),
+add the ```kmongo-id-serialization``` dependency and register the ```IdKotlinXSerializationModule``` module:
+
+```kotlin     
+@Serializable
+data class Data(@ContextualSerialization val _id: Id<Data> = newId())
+
+val json = Json(context = IdKotlinXSerializationModule)
+val data = Data()
+val serialized = json.stringify(data)
 ```
 
 ### Other _id types

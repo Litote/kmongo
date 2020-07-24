@@ -71,9 +71,9 @@ abstract class TemporalExtendedJsonSerializer<T> : KSerializer<T> {
 
     abstract fun instantiate(date: Long): T
 
-    override fun serialize(encoder: Encoder, obj: T) {
+    override fun serialize(encoder: Encoder, value: T) {
         encoder as BsonEncoder
-        encoder.encodeDateTime(epochMillis(obj))
+        encoder.encodeDateTime(epochMillis(value))
     }
 
     override fun deserialize(decoder: Decoder): T {
@@ -187,8 +187,8 @@ object BinarySerializer : KSerializer<Binary> {
     override fun deserialize(decoder: Decoder): Binary =
         Binary((decoder as FlexibleDecoder).reader.readBinaryData().data)
 
-    override fun serialize(encoder: Encoder, obj: Binary) {
-        (encoder as BsonEncoder).encodeByteArray(obj.data)
+    override fun serialize(encoder: Encoder, value: Binary) {
+        (encoder as BsonEncoder).encodeByteArray(value.data)
     }
 }
 
@@ -198,8 +198,8 @@ object LocaleSerializer : KSerializer<Locale> {
     override val descriptor: SerialDescriptor = PrimitiveDescriptor("LocaleSerializer", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): Locale = Locale.forLanguageTag(decoder.decodeString())
 
-    override fun serialize(encoder: Encoder, obj: Locale) {
-        encoder.encodeString(obj.toLanguageTag())
+    override fun serialize(encoder: Encoder, value: Locale) {
+        encoder.encodeString(value.toLanguageTag())
     }
 }
 
@@ -209,8 +209,8 @@ object KPropertySerializer : KSerializer<KProperty<*>> {
     override val descriptor: SerialDescriptor = PrimitiveDescriptor("KPropertySerializer", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): KProperty<*> = error("KProperty deserialization is unsupported")
 
-    override fun serialize(encoder: Encoder, obj: KProperty<*>) {
-        encoder.encodeString(obj.projection)
+    override fun serialize(encoder: Encoder, value: KProperty<*>) {
+        encoder.encodeString(value.projection)
     }
 }
 
@@ -236,12 +236,12 @@ internal class IdSerializer<T : Id<*>>(val shouldBeStringId: Boolean) : KSeriali
         }
     }
 
-    override fun serialize(encoder: Encoder, obj: T) {
-        IdTransformer.unwrapId(obj).also {
+    override fun serialize(encoder: Encoder, value: T) {
+        IdTransformer.unwrapId(value).also {
             when (it) {
                 is String -> encoder.encodeString(it)
                 is ObjectId -> ObjectIdSerializer.serialize(encoder, it)
-                else -> error("unsupported id type $obj")
+                else -> error("unsupported id type $value")
             }
         }
     }

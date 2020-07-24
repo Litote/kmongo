@@ -31,6 +31,7 @@
         <module>kmongo-data</module>
         <module>kmongo-id</module>
         <module>kmongo-id-jackson</module>
+        <module>kmongo-id-serialization</module>
         <module>kmongo-shared-tests-java</module>
         <module>kmongo-shared-tests</module>
         <module>kmongo-shared</module>
@@ -216,6 +217,11 @@
             <dependency>
                 <groupId>org.litote.kmongo</groupId>
                 <artifactId>kmongo-core-tests</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.litote.kmongo</groupId>
+                <artifactId>kmongo-id-serialization</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

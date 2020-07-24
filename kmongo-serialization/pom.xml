@@ -42,6 +42,11 @@
             <artifactId>kmongo-core-tests</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-id-serialization</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
