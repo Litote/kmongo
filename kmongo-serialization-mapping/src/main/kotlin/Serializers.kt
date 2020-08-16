@@ -19,14 +19,15 @@ package org.litote.kmongo.serialization
 import com.github.jershell.kbson.BsonEncoder
 import com.github.jershell.kbson.FlexibleDecoder
 import com.github.jershell.kbson.ObjectIdSerializer
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Encoder
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.PrimitiveDescriptor
-import kotlinx.serialization.PrimitiveKind
-import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import org.bson.AbstractBsonReader.State
 import org.bson.BsonTimestamp
 import org.bson.BsonType
@@ -58,7 +59,7 @@ import kotlin.reflect.KProperty
  */
 abstract class TemporalExtendedJsonSerializer<T> : KSerializer<T> {
 
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor(javaClass.simpleName, PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(javaClass.simpleName, PrimitiveKind.STRING)
 
     /**
      * Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT
@@ -183,7 +184,7 @@ object BsonTimestampSerializer : TemporalExtendedJsonSerializer<BsonTimestamp>()
 //@Serializer(forClass = Binary::class)
 object BinarySerializer : KSerializer<Binary> {
 
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("BinarySerializer", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("BinarySerializer", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): Binary =
         Binary((decoder as FlexibleDecoder).reader.readBinaryData().data)
 
@@ -195,7 +196,7 @@ object BinarySerializer : KSerializer<Binary> {
 //@Serializer(forClass = Locale::class)
 object LocaleSerializer : KSerializer<Locale> {
 
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("LocaleSerializer", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LocaleSerializer", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): Locale = Locale.forLanguageTag(decoder.decodeString())
 
     override fun serialize(encoder: Encoder, value: Locale) {
@@ -206,7 +207,7 @@ object LocaleSerializer : KSerializer<Locale> {
 //@Serializer(forClass = KProperty::class)
 object KPropertySerializer : KSerializer<KProperty<*>> {
 
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("KPropertySerializer", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KPropertySerializer", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): KProperty<*> = error("KProperty deserialization is unsupported")
 
     override fun serialize(encoder: Encoder, value: KProperty<*>) {
@@ -217,7 +218,7 @@ object KPropertySerializer : KSerializer<KProperty<*>> {
 //@Serializer(forClass = Id::class)
 internal class IdSerializer<T : Id<*>>(val shouldBeStringId: Boolean) : KSerializer<T> {
 
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("IdSerializer", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("IdSerializer", PrimitiveKind.STRING)
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(decoder: Decoder): T =
@@ -250,7 +251,7 @@ internal class IdSerializer<T : Id<*>>(val shouldBeStringId: Boolean) : KSeriali
 
 internal object PatternSerializer : KSerializer<Pattern> {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor("PatternSerializer") {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("PatternSerializer") {
         element("\$regex", String.serializer().descriptor)
         element("\$options", String.serializer().descriptor)
     }
@@ -267,7 +268,7 @@ internal object PatternSerializer : KSerializer<Pattern> {
 
 internal object RegexSerializer : KSerializer<Regex> {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor("RegexSerializer") {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("RegexSerializer") {
         element("\$regex", String.serializer().descriptor)
         element("\$options", String.serializer().descriptor)
     }

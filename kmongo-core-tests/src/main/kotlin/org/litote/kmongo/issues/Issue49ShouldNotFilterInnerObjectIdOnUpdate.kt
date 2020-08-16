@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.issues
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.types.ObjectId
 import org.junit.Test
@@ -33,10 +33,10 @@ import kotlin.test.assertEquals
 class Issue49ShouldNotFilterInnerObjectIdOnUpdate : AllCategoriesKMongoBaseTest<User>() {
 
     @Serializable
-    data class Planet(@ContextualSerialization val _id: ObjectId, val name: String)
+    data class Planet(@Contextual val _id: ObjectId, val name: String)
 
     @Serializable
-    data class User(@ContextualSerialization val _id: ObjectId, val name: String, val planets: List<Planet>)
+    data class User(@Contextual val _id: ObjectId, val name: String, val planets: List<Planet>)
 
     @Test
     fun updateShouldNotRemoveInnerObjectId() {

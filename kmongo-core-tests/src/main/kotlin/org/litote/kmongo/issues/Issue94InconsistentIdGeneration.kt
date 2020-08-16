@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.issues
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -34,7 +34,7 @@ import kotlin.test.assertTrue
 class Issue94InconsistentIdGeneration : AllCategoriesKMongoBaseTest<Task>() {
 
     @Serializable
-    data class Task(@ContextualSerialization val _id: Id<Task> = newId())
+    data class Task(@Contextual val _id: Id<Task> = newId())
 
     @Test
     fun generateTwoTasks() {

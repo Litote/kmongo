@@ -14,27 +14,11 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
-
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import org.bson.codecs.pojo.annotations.BsonId
-import org.bson.types.ObjectId
-import org.litote.kmongo.id.MongoId
+package org.bson.codecs.pojo;
 
 /**
- *
+ * Copied from mongo driver
  */
-@Serializable
-data class Friend(
-    @Contextual
-    @SerialName("_id")
-    @MongoId
-    @BsonId
-    val id: ObjectId? = null,
-    val name: String? = null,
-    val address: String? = null,
-    val coordinate: Coordinate? = null,
-    val gender: Gender? = null
-) 
+interface Convention2  {
+    void apply(ClassModelBuilder2<?> classModelBuilder);
+}

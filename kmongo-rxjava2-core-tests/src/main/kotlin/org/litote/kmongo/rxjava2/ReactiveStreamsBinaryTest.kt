@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.rxjava2
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.types.Binary
 import org.junit.Assert
@@ -36,7 +36,7 @@ import kotlin.test.assertNull
 class ReactiveStreamsBinaryTest : KMongoReactiveStreamsRxBaseTest<BinaryFriend>() {
 
     @Serializable
-    data class BinaryFriend(@ContextualSerialization val _id: Binary, var name: String = "none")
+    data class BinaryFriend(@Contextual val _id: Binary, var name: String = "none")
 
     lateinit var friendId: Binary
 

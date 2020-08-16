@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.issues
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
@@ -35,7 +35,7 @@ class Issue21SupportTransientToNotBeSaved :
     @Serializable
     data class Activity(
         var activity: String,
-        @ContextualSerialization
+        @Contextual
         var reference: Any? = null
     ) {
         @kotlinx.serialization.Transient

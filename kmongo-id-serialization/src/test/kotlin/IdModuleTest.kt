@@ -1,9 +1,8 @@
-import kotlinx.serialization.ContextualSerialization
-import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.parse
-import kotlinx.serialization.stringify
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.serialization.IdKotlinXSerializationModule
 import org.litote.kmongo.newId
@@ -32,16 +31,15 @@ import kotlin.test.assertEquals
 class IdModuleTest {
 
     @Serializable
-    data class Data(@ContextualSerialization val id: Id<Data> = newId())
+    data class Data(@Contextual val id: Id<Data> = newId())
 
-    @ImplicitReflectionSerializer
     @Test
     fun testSerializationAndDeserialization() {
-        val json = Json(
-            context = IdKotlinXSerializationModule
-        )
+        val json = Json {
+            serializersModule = IdKotlinXSerializationModule
+        }
         val data = Data()
-        val serialized = json.stringify(data)
-        assertEquals(data, json.parse(serialized))
+        val serialized = json.encodeToString(data)
+        assertEquals(data, json.decodeFromString(serialized))
     }
 }

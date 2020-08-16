@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.issues
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
@@ -45,7 +45,7 @@ class Issue48UpdateOperatorInMap : KMongoBaseTest<CollectionTest>() {
     data class CollectionTest(
         val set: Set<String> = emptySet(),
         val list: List<String> = emptyList(),
-        @ContextualSerialization
+        @Contextual
         val _id: Id<CollectionTest> = newId()
     )
 

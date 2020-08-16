@@ -14,27 +14,10 @@
  * limitations under the License.
  */
 
-package org.litote.kmongo
+package org.litote.kmongo.id
 
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import org.bson.codecs.pojo.annotations.BsonId
-import org.bson.types.ObjectId
-import org.litote.kmongo.id.MongoId
+import kotlinx.serialization.SerialInfo
 
-/**
- *
- */
-@Serializable
-data class Friend(
-    @Contextual
-    @SerialName("_id")
-    @MongoId
-    @BsonId
-    val id: ObjectId? = null,
-    val name: String? = null,
-    val address: String? = null,
-    val coordinate: Coordinate? = null,
-    val gender: Gender? = null
-) 
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+annotation class MongoId

@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:ContextualSerialization(LocalDateTime::class, ExternalSerializerTest.Role::class)
+@file:UseContextualSerialization(LocalDateTime::class, ExternalSerializerTest.Role::class)
 
 package org.litote.kmongo.serialization
 
-import kotlinx.serialization.ContextualSerialization
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Encoder
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.PrimitiveDescriptor
-import kotlinx.serialization.PrimitiveKind
-import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.Serializer
+import kotlinx.serialization.UnsafeSerializationApi
+import kotlinx.serialization.UseContextualSerialization
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import org.bson.BsonDocument
 import org.bson.BsonDocumentReader
 import org.bson.BsonDocumentWriter
@@ -66,8 +66,7 @@ class ExternalSerializerTest {
 
     @Serializer(forClass = Role::class)
     object RoleSerializer : KSerializer<Role> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveDescriptor("RoleStringSerializer", PrimitiveKind.STRING)
+        override val descriptor = PrimitiveSerialDescriptor("RoleStringSerializer", PrimitiveKind.STRING)
 
         override fun deserialize(decoder: Decoder): Role =
             decoder.decodeString().toRole()
@@ -84,8 +83,7 @@ class ExternalSerializerTest {
 
     @Serializer(forClass = Role.ADMIN::class)
     object AdminRoleSerializer : KSerializer<Role.ADMIN> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveDescriptor("AdminRoleStringSerializer", PrimitiveKind.STRING)
+        override val descriptor = PrimitiveSerialDescriptor("AdminRoleStringSerializer", PrimitiveKind.STRING)
 
         override fun deserialize(decoder: Decoder): Role.ADMIN =
             Role.ADMIN
@@ -96,8 +94,7 @@ class ExternalSerializerTest {
 
     @Serializer(forClass = Role.USER::class)
     object UserRoleSerializer : KSerializer<Role.USER> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveDescriptor("UserRoleStringSerializer", PrimitiveKind.STRING)
+        override val descriptor = PrimitiveSerialDescriptor("UserRoleStringSerializer", PrimitiveKind.STRING)
 
         override fun deserialize(decoder: Decoder): Role.USER =
             Role.USER
@@ -108,8 +105,7 @@ class ExternalSerializerTest {
 
     @Serializer(forClass = Role.NONE::class)
     object NoneRoleSerializer : KSerializer<Role.NONE> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveDescriptor("NoneRoleStringSerializer", PrimitiveKind.STRING)
+        override val descriptor = PrimitiveSerialDescriptor("NoneRoleStringSerializer", PrimitiveKind.STRING)
 
         override fun deserialize(decoder: Decoder): Role.NONE =
             Role.NONE
@@ -118,7 +114,7 @@ class ExternalSerializerTest {
             encoder.encodeString(value.name)
     }
 
-    @kotlinx.serialization.ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encode and decode User`() {
         registerSerializer(UserSerializer)

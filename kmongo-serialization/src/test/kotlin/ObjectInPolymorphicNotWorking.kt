@@ -18,7 +18,8 @@ import com.github.jershell.kbson.BsonEncoder
 import com.github.jershell.kbson.BsonFlexibleDecoder
 import com.github.jershell.kbson.Configuration
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.EmptyModule
+import kotlinx.serialization.modules.EmptySerializersModule
+import kotlinx.serialization.modules.EmptySerializersModule
 import org.bson.BsonDocument
 import org.bson.BsonDocumentReader
 import org.bson.BsonDocumentWriter
@@ -51,14 +52,14 @@ class ObjectInPolymorphicNotWorking {
     fun `serialize and deserialize object in polymorphic`() {
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
-        val encoder = BsonEncoder(writer, EmptyModule, Configuration())
+        val encoder = BsonEncoder(writer, EmptySerializersModule, Configuration())
         Message.serializer().serialize(encoder, ObjectMessage)
 
         val expected = BsonDocument.parse("""{"___type":"ObjectMessage"}""")
         assertEquals(expected, document)
 
         val reader = BsonDocumentReader(document)
-        val decoder = BsonFlexibleDecoder(reader, EmptyModule, Configuration())
+        val decoder = BsonFlexibleDecoder(reader, EmptySerializersModule, Configuration())
         val parsed = Message.serializer().deserialize(decoder)
         assertEquals(ObjectMessage, parsed)
     }
@@ -69,7 +70,7 @@ class ObjectInPolymorphicNotWorking {
 
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
-        val encoder = BsonEncoder(writer, EmptyModule, Configuration())
+        val encoder = BsonEncoder(writer, EmptySerializersModule, Configuration())
         Message.serializer().serialize(encoder, message)
         writer.flush()
 
@@ -77,7 +78,7 @@ class ObjectInPolymorphicNotWorking {
         assertEquals(expected, document)
 
         val reader = BsonDocumentReader(document)
-        val decoder = BsonFlexibleDecoder(reader, EmptyModule, Configuration())
+        val decoder = BsonFlexibleDecoder(reader, EmptySerializersModule, Configuration())
         val parsed = Message.serializer().deserialize(decoder)
         assertEquals(message, parsed)
     }
@@ -87,7 +88,7 @@ class ObjectInPolymorphicNotWorking {
         val complex = ComplexObject(3, ObjectMessage, "msg")
         val document = BsonDocument()
         val writer = BsonDocumentWriter(document)
-        val encoder = BsonEncoder(writer, EmptyModule, Configuration())
+        val encoder = BsonEncoder(writer, EmptySerializersModule, Configuration())
         ComplexObject.serializer().serialize(encoder, complex)
         writer.flush()
 
@@ -95,7 +96,7 @@ class ObjectInPolymorphicNotWorking {
         assertEquals(expected, document)
 
         val reader = BsonDocumentReader(document)
-        val decoder = BsonFlexibleDecoder(reader, EmptyModule, Configuration())
+        val decoder = BsonFlexibleDecoder(reader, EmptySerializersModule, Configuration())
         val parsed = ComplexObject.serializer().deserialize(decoder)
         assertEquals(complex, parsed)
     }

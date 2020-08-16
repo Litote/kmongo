@@ -19,9 +19,9 @@ package org.bson.codecs.pojo
 /**
  *
  */
-internal class EmptyObjectConvention() : Convention {
+internal class EmptyObjectConvention : Convention2 {
 
-    override fun apply(classModelBuilder: ClassModelBuilder<*>) {
+    override fun apply(classModelBuilder: ClassModelBuilder2<*>) {
         //if there is no property, the pojo model is not usable. This is a mongo driver bug, but until they fix it...
         if (classModelBuilder.propertyModelBuilders.isEmpty()) {
             val name = "toString"
@@ -29,12 +29,12 @@ internal class EmptyObjectConvention() : Convention {
             val propertyMetadata = PropertyMetadata(name, classModelBuilder.type.simpleName, typeData)
 
             classModelBuilder.addProperty(
-                    PropertyModel.builder<String>()
-                            .propertyName(name)
-                            .readName(name)
-                            .typeData(typeData)
-                            .propertySerialization(PropertyModelSerializationImpl())
-                            .propertyAccessor(PropertyAccessorImpl(propertyMetadata))
+                PropertyModel.builder<String>()
+                    .propertyName(name)
+                    .readName(name)
+                    .typeData(typeData)
+                    .propertySerialization(PropertyModelSerializationImpl())
+                    .propertyAccessor(PropertyAccessorImpl(propertyMetadata))
             )
         }
     }

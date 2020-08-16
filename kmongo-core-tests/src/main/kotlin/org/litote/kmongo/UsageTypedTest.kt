@@ -16,7 +16,7 @@
 
 package org.litote.kmongo
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.junit.Before
 import org.junit.Test
@@ -35,7 +35,7 @@ class UsageTypedTest : KMongoBaseTest<Jedi>() {
     @Serializable
     data class Jedi(val name: String, val age: Int, val firstAppearance: StarWarsFilm)
     @Serializable
-    data class StarWarsFilm(val name: String, @ContextualSerialization val date: LocalDate)
+    data class StarWarsFilm(val name: String, @Contextual val date: LocalDate)
 
     @Before
     fun setup() {

@@ -20,7 +20,7 @@ import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Aggregates
 import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Variable
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
@@ -49,7 +49,7 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
         val title: String,
         val author: String,
         val tags: List<String>,
-        @ContextualSerialization
+        @Contextual
         val date: Instant = Instant.now(),
         val count: Int = 1,
         val ok: Boolean = true
@@ -249,7 +249,7 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
     }
 
     @Serializable
-    data class Answer(val evaluator: String, val alreadyUsed: Boolean, @ContextualSerialization val answerDate: Instant)
+    data class Answer(val evaluator: String, val alreadyUsed: Boolean, @Contextual val answerDate: Instant)
 
     @Serializable
     data class EvaluationsForms(val questions: List<String>)

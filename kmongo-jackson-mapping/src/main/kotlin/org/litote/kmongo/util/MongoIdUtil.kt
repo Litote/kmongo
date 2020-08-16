@@ -36,15 +36,16 @@ import kotlin.reflect.jvm.javaMethod
  * Returns the Mongo Id property of the [KClass],
  * or null if no id property is found.
  */
-val KClass<*>.idProperty: KProperty1<*, *>?
-    get() = MongoIdUtil.findIdProperty(this)
+@Suppress("UNCHECKED_CAST")
+val KClass<*>.idProperty: KProperty1<Any, *>?
+    get() = MongoIdUtil.findIdProperty(this) as KProperty1<Any, *>?
 
 /**
  * Returns the Mongo Id value (which can be null),
  * or null if no id property is found.
  */
 val Any?.idValue: Any?
-    get() = this?.javaClass?.kotlin?.idProperty?.let { (it)(this) }
+    get() = this?.javaClass?.kotlin?.idProperty?.get(this)
 
 internal object MongoIdUtil {
 
@@ -113,9 +114,9 @@ internal object MongoIdUtil {
             null
         }
 
-    fun getIdValue(idProperty: KProperty1<*, *>, instance: Any): Any? {
+    fun getIdValue(idProperty: KProperty1<Any, *>, instance: Any): Any? {
         idProperty.isAccessible = true
-        return (idProperty)(instance)
+        return idProperty.get(instance)
     }
 
 }

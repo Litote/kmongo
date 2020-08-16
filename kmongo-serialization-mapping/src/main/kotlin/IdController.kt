@@ -16,13 +16,14 @@
 
 package org.litote.kmongo.serialization
 
-import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.SerialName
+import org.litote.kmongo.id.MongoId
 import org.litote.kmongo.util.KMongoUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
@@ -54,10 +55,9 @@ interface IdController {
  */
 object ReflectionIdController : IdController {
 
-    @ImplicitReflectionSerializer
     override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? {
-        return type.declaredMemberProperties.find { it.name == "_id" || it.findAnnotation<SerialName>()?.value == "_id" }
-                ?: type.memberProperties.find { it.name == "_id" || it.findAnnotation<SerialName>()?.value == "_id" }
+        return type.declaredMemberProperties.find { it.name == "_id" || it.hasAnnotation<MongoId>() }
+                ?: type.memberProperties.find { it.name == "_id" || it.hasAnnotation<MongoId>() }
     }
 
     override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? {

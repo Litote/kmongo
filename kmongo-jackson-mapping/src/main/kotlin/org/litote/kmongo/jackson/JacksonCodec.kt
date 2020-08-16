@@ -65,6 +65,7 @@ import java.time.OffsetDateTime
 import java.time.OffsetTime
 import java.time.ZonedDateTime
 import java.util.Calendar
+import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.javaField
 
 /**
@@ -211,11 +212,12 @@ internal class JacksonCodec<T : Any>(
     }
 
     override fun getDocumentId(document: T): BsonValue {
-        val idProperty = MongoIdUtil.findIdProperty(document.javaClass.kotlin)
+        @Suppress("UNCHECKED_CAST")
+        val idProperty = MongoIdUtil.findIdProperty(document.javaClass.kotlin) as? KProperty1<T, *>?
         if (idProperty == null) {
             throw IllegalStateException("$type has no id field")
         } else {
-            val idValue = KMongoUtil.getIdBsonValue((idProperty)(document))
+            val idValue = KMongoUtil.getIdBsonValue(idProperty.get(document))
             return idValue ?: throw IllegalStateException("$type has null id")
         }
     }
@@ -223,7 +225,8 @@ internal class JacksonCodec<T : Any>(
     override fun documentHasId(document: T): Boolean = MongoIdUtil.findIdProperty(document.javaClass.kotlin) != null
 
     override fun generateIdIfAbsentFromDocument(document: T): T {
-        val idProperty = MongoIdUtil.findIdProperty(document.javaClass.kotlin)
+        @Suppress("UNCHECKED_CAST")
+        val idProperty = MongoIdUtil.findIdProperty(document.javaClass.kotlin) as? KProperty1<Any, *>?
         if (idProperty != null) {
             val idValue = MongoIdUtil.getIdValue(idProperty, document)
             if (idValue == null) {

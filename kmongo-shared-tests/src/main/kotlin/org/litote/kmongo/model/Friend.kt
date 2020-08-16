@@ -15,7 +15,7 @@
  */
 package org.litote.kmongo.model
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.types.ObjectId
 import java.time.Instant
@@ -27,11 +27,11 @@ import java.time.Instant
 data class Friend(
     var name: String?,
     val address: String?,
-    @ContextualSerialization
+    @Contextual
     val _id: ObjectId? = null,
     val coordinate: Coordinate? = null,
     val tags: List<String> = emptyList(),
-    @ContextualSerialization
+    @Contextual
     val creationDate: Instant? = null
 ) {
 

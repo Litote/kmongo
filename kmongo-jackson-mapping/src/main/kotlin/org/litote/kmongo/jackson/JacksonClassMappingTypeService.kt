@@ -194,7 +194,7 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
 
     override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? {
         @Suppress("UNCHECKED_CAST")
-        return MongoIdUtil.getIdValue(idProperty, instance as Any) as R?
+        return MongoIdUtil.getIdValue(idProperty as KProperty1<Any, *>, instance as Any) as R?
     }
 
     override fun coreCodecRegistry(): CodecRegistry {

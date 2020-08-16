@@ -38,12 +38,12 @@ internal class KMongoPojoCodecProvider(serialization: PropertySerialization<Any>
     CodecProvider {
 
     private val pojoCodecProvider =
-        PojoCodecProvider
+        PojoCodecProvider2
             .builder()
             .conventions(
                 listOf(
                     KMongoConvention(serialization),
-                    Conventions.CLASS_AND_PROPERTY_CONVENTION,
+                    ConventionDefaultsImpl2(),
                     KMongoAnnotationConvention,
                     EmptyObjectConvention()
                 )
@@ -85,7 +85,7 @@ internal class KMongoPojoCodecProvider(serialization: PropertySerialization<Any>
     override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? {
         return if (clazz.isEnum) {
             @Suppress("UPPER_BOUND_VIOLATED", "UNCHECKED_CAST")
-            EnumCodec<Enum<*>>(clazz as Class<Enum<*>>) as Codec<T>
+            EnumCodec(clazz as Class<Enum<*>>) as Codec<T>
         } else {
             pojoCodecProvider.get(clazz, registry)?.let {
                 KMongoPojoCodec(it as PojoCodec<T>)

@@ -18,7 +18,7 @@ package org.litote.kmongo
 
 import com.mongodb.MongoCommandException
 import com.mongodb.client.MongoCollection
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
@@ -51,7 +51,7 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
         val title: String,
         val author: String,
         val tags: List<String>,
-        @ContextualSerialization
+        @Contextual
         val date: Instant = Instant.now(),
         val count: Int = 1,
         val ok: Boolean = true

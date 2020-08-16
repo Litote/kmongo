@@ -16,8 +16,6 @@
 package org.litote.kmongo.serialization
 
 import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
-import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.SerialName
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.EncoderContext
@@ -25,13 +23,14 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
+import org.litote.kmongo.id.MongoId
 import org.litote.kmongo.service.ClassMappingTypeService
 import java.io.StringWriter
 import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 
 /**
  * kotlinx serialization ClassMapping.
@@ -56,7 +55,6 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
         )
     }
 
-    @ImplicitReflectionSerializer
     override fun filterIdToBson(obj: Any, filterNullProperties: Boolean): BsonDocument {
         val doc = BsonDocument()
         val writer = BsonDocumentWriter(doc)
@@ -70,7 +68,6 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
         return doc
     }
 
-    @ImplicitReflectionSerializer
     override fun toExtendedJson(obj: Any?): String {
         return if (obj == null) {
             "null"
@@ -95,7 +92,6 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
         }
     }
 
-    @ImplicitReflectionSerializer
     override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? = idController.findIdProperty(type)
 
     override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? =
@@ -104,6 +100,6 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
     override fun coreCodecRegistry(): CodecRegistry = coreCodecRegistry
 
     override fun <T> calculatePath(property: KProperty<T>): String {
-        return property.findAnnotation<SerialName>()?.value ?: property.name
+        return if (property.hasAnnotation<MongoId>()) "_id" else property.name
     }
 }

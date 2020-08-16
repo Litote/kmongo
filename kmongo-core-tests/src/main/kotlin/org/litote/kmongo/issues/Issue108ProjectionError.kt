@@ -16,7 +16,7 @@
 
 package org.litote.kmongo.issues
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
@@ -33,7 +33,7 @@ import kotlin.test.assertEquals
 class Issue108ProjectionError : AllCategoriesKMongoBaseTest<Data>() {
 
     @Serializable
-    data class Data(@ContextualSerialization val _id: Id<Data> = newId(), @ContextualSerialization  val nation: Nation)
+    data class Data(@Contextual val _id: Id<Data> = newId(), @Contextual  val nation: Nation)
     @Serializable
     data class Nation(val name: String)
 

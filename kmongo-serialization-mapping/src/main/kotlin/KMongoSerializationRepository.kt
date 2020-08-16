@@ -21,18 +21,16 @@ import com.github.jershell.kbson.ByteArraySerializer
 import com.github.jershell.kbson.Configuration
 import com.github.jershell.kbson.DateSerializer
 import com.github.jershell.kbson.ObjectIdSerializer
-import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.UnsafeSerializationApi
 import kotlinx.serialization.builtins.ArraySerializer
 import kotlinx.serialization.builtins.PairSerializer
 import kotlinx.serialization.builtins.TripleSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonNullSerializer
-import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.serializersModuleOf
 import kotlinx.serialization.serializer
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
@@ -60,7 +58,7 @@ import kotlin.reflect.KProperty
 
 @PublishedApi
 internal val customSerializersMap: MutableMap<KClass<*>, KSerializer<*>> = ConcurrentHashMap()
-private val customModules = CopyOnWriteArraySet<SerialModule>()
+private val customModules = CopyOnWriteArraySet<SerializersModule>()
 
 @Volatile
 @PublishedApi
@@ -69,7 +67,7 @@ internal var checkBaseModule: Boolean = true
 /**
  * Add a custom [SerialModule] to KMongo kotlinx.serialization mapping.
  */
-fun registerModule(module: SerialModule) {
+fun registerModule(module: SerializersModule) {
     customModules.add(module)
     checkBaseModule = true
 }
@@ -91,7 +89,7 @@ var configuration: Configuration = Configuration()
 /**
  * The KMongo serialization module.
  */
-val kmongoSerializationModule: SerialModule get() = KMongoSerializationRepository.module
+val kmongoSerializationModule: SerializersModule get() = KMongoSerializationRepository.module
 
 /**
  *
@@ -122,7 +120,7 @@ internal object KMongoSerializationRepository {
         Regex::class to RegexSerializer
     )
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     private fun <T : Any> getBaseSerializer(obj: T, kClass: KClass<T> = obj.javaClass.kotlin): KSerializer<*>? {
         @Suppress("UNCHECKED_CAST")
         return when (obj) {
@@ -147,7 +145,7 @@ internal object KMongoSerializationRepository {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     fun <T : Any> getSerializer(kClass: KClass<T>, obj: T?): KSerializer<T> =
         if (obj == null) {
             JsonNullSerializer as? KSerializer<T> ?: error("no serializer for null")
@@ -159,7 +157,7 @@ internal object KMongoSerializationRepository {
         }
 
     @Suppress("UNCHECKED_CAST")
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     private fun <T : Any> getSerializer(obj: T?): KSerializer<T> =
         if (obj == null) {
             JsonNullSerializer as? KSerializer<T> ?: error("no serializer for null")
@@ -171,7 +169,7 @@ internal object KMongoSerializationRepository {
         }
 
     @Suppress("UNCHECKED_CAST")
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     fun <T : Any> getSerializer(kClass: KClass<T>): KSerializer<T> =
         (serializersMap[kClass]
                 ?: module.getContextual(kClass)
@@ -188,21 +186,20 @@ internal object KMongoSerializationRepository {
                 ?: error("no serializer for $kClass of class $kClass")
 
     @Volatile
-    private var baseModule: SerialModule = SerializersModule {
-        include(serializersModuleOf(serializersMap))
-        include(serializersModuleOf(customSerializersMap))
+    private var baseModule: SerializersModule = initBaseModule()
+
+    @Suppress("UNCHECKED_CAST")
+    private fun initBaseModule(): SerializersModule = SerializersModule {
+        serializersMap.forEach { contextual<Any>(it.key as KClass<Any>, it.value as KSerializer<Any>) }
+        customSerializersMap.forEach { contextual<Any>(it.key as KClass<Any>, it.value as KSerializer<Any>) }
         customModules.forEach { include(it) }
     }
 
-    val module: SerialModule
+    val module: SerializersModule
         get() {
             if (checkBaseModule) {
                 checkBaseModule = false
-                baseModule = SerializersModule {
-                    include(serializersModuleOf(serializersMap))
-                    include(serializersModuleOf(customSerializersMap))
-                    customModules.forEach { include(it) }
-                }
+                baseModule = initBaseModule()
             }
             return baseModule
         }

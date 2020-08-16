@@ -15,13 +15,12 @@
  */
 package org.litote.kmongo.id.serialization
 
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Encoder
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.PrimitiveDescriptor
-import kotlinx.serialization.PrimitiveKind
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdGenerator
@@ -32,7 +31,7 @@ import kotlin.reflect.KClass
 /**
  * The Id kotlin.x Serialization module.
  */
-val IdKotlinXSerializationModule: SerialModule by lazy {
+val IdKotlinXSerializationModule: SerializersModule by lazy {
     SerializersModule {
         contextual(Id::class, IdSerializer())
         contextual(StringId::class, IdSerializer())
@@ -48,7 +47,7 @@ val IdKotlinXSerializationModule: SerialModule by lazy {
 
 private class IdSerializer<T : Id<*>> : KSerializer<T> {
 
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("IdSerializer", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("IdSerializer", PrimitiveKind.STRING)
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(decoder: Decoder): T =

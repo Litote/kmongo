@@ -26,9 +26,11 @@ import java.util.ArrayList
 /**
  * Copied from [ConventionAnnotationImpl]
  */
-internal object KMongoAnnotationConvention : Convention {
+internal object KMongoAnnotationConvention : Convention2 {
 
-    override fun apply(classModelBuilder: ClassModelBuilder<*>) {
+    private val defaultConvention = ConventionAnnotationImpl2()
+
+    override fun apply(classModelBuilder: ClassModelBuilder2<*>) {
         val type = classModelBuilder.type
         if (!type.isArray
                 && !type.isEnum
@@ -44,15 +46,15 @@ internal object KMongoAnnotationConvention : Convention {
             }
 
             @Suppress("UNCHECKED_CAST")
-            (classModelBuilder as ClassModelBuilder<Any>).instanceCreatorFactory(KotlinInstanceCreatorFactory(type.kotlin) as InstanceCreatorFactory<Any>)
+            (classModelBuilder as ClassModelBuilder2<Any>).instanceCreatorFactory(KotlinInstanceCreatorFactory(type.kotlin) as InstanceCreatorFactory<Any>)
 
             cleanPropertyBuilders(classModelBuilder)
         } else {
-            Conventions.ANNOTATION_CONVENTION.apply(classModelBuilder)
+            defaultConvention.apply(classModelBuilder)
         }
     }
 
-    private fun processClassAnnotation(classModelBuilder: ClassModelBuilder<*>, annotation: Annotation) {
+    private fun processClassAnnotation(classModelBuilder: ClassModelBuilder2<*>, annotation: Annotation) {
         if (annotation is BsonDiscriminator) {
             val key = annotation.key
             if (key != "") {
@@ -67,7 +69,7 @@ internal object KMongoAnnotationConvention : Convention {
         }
     }
 
-    private fun processPropertyAnnotations(classModelBuilder: ClassModelBuilder<*>,
+    private fun processPropertyAnnotations(classModelBuilder: ClassModelBuilder2<*>,
                                            propertyModelBuilder: PropertyModelBuilder<*>) {
         for (annotation in propertyModelBuilder.readAnnotations) {
             if (annotation is BsonProperty) {
@@ -93,7 +95,7 @@ internal object KMongoAnnotationConvention : Convention {
         }
     }
 
-    private fun cleanPropertyBuilders(classModelBuilder: ClassModelBuilder<*>) {
+    private fun cleanPropertyBuilders(classModelBuilder: ClassModelBuilder2<*>) {
         val propertiesToRemove = ArrayList<String>()
         for (propertyModelBuilder in classModelBuilder.propertyModelBuilders) {
             if (!propertyModelBuilder.isReadable && !propertyModelBuilder.isWritable) {

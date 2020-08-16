@@ -16,7 +16,7 @@
 
 package org.litote.kmongo
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.types.Binary
 import org.junit.Assert.assertArrayEquals
@@ -32,7 +32,7 @@ class BinaryTest : AllCategoriesKMongoBaseTest<BinaryFriend>() {
 
     @Serializable
     data class BinaryFriend(
-        @ContextualSerialization
+        @Contextual
         val _id: Binary,
         var name: String = "none")
 

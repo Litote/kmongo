@@ -16,7 +16,7 @@
 
 package org.litote.kmongo
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.KotlinClassesTest.KotlinClasses
@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 class KotlinClassesTest : AllCategoriesKMongoBaseTest<KotlinClasses>() {
 
     @Serializable
-    data class KotlinClasses(var pair: Pair<String, Int>, var triple: Triple<String, Double, @ContextualSerialization Locale>)
+    data class KotlinClasses(var pair: Pair<String, Int>, var triple: Triple<String, Double, @Contextual Locale>)
 
     @Test
     fun savedAndLoad() {

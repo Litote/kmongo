@@ -17,7 +17,7 @@
 package org.litote.kmongo
 
 import com.mongodb.client.model.Filters.lt
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.types.ObjectId
 import org.junit.Before
@@ -46,20 +46,20 @@ class UsageTest : KMongoBaseTest<Jedi>() {
     @Serializable
     data class Jedi(val name: String, val age: Int, val firstAppearance: StarWarsFilm)
     @Serializable
-    data class StarWarsFilm(val name: String, @ContextualSerialization val date: LocalDate)
+    data class StarWarsFilm(val name: String, @Contextual val date: LocalDate)
 
     @Serializable
     data class LightSaber1(val _id: String?)
     @Serializable
-    data class LightSaber2(@ContextualSerialization val _id: org.bson.types.ObjectId?)
+    data class LightSaber2(@Contextual val _id: org.bson.types.ObjectId?)
     @Serializable
     data class LightSaber3(val _id: String)
     @Serializable
-    data class LightSaber4(@ContextualSerialization val _id: org.bson.types.ObjectId)
+    data class LightSaber4(@Contextual val _id: org.bson.types.ObjectId)
     @Serializable
     data class LightSaber5(var _id: String?)
     @Serializable
-    data class LightSaber6(@ContextualSerialization var _id: org.bson.types.ObjectId?)
+    data class LightSaber6(@Contextual var _id: org.bson.types.ObjectId?)
 
     @Serializable
     class TFighter(val version: String, val pilot: Pilot?)

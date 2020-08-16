@@ -39,7 +39,7 @@ import kotlin.reflect.jvm.javaType
 /**
  *
  */
-internal class KMongoConvention(val serialization: PropertySerialization<Any>) : Convention {
+internal class KMongoConvention(val serialization: PropertySerialization<Any>) : Convention2 {
 
     companion object {
         private val metadataFqName = "kotlin.Metadata"
@@ -93,14 +93,14 @@ internal class KMongoConvention(val serialization: PropertySerialization<Any>) :
 
 
     @Suppress("UNCHECKED_CAST")
-    override fun apply(classModelBuilder: ClassModelBuilder<*>) {
+    override fun apply(classModelBuilder: ClassModelBuilder2<*>) {
         val type = classModelBuilder.type
         if (!type.isArray
                 && !type.isEnum
                 && !type.isAssignableFrom(Collection::class.java)
                 && type.isKotlinClass()) {
             val instanceCreatorFactory = KotlinInstanceCreatorFactory(type.kotlin as KClass<Any>)
-            (classModelBuilder as ClassModelBuilder<Any>).instanceCreatorFactory(instanceCreatorFactory)
+            (classModelBuilder as ClassModelBuilder2<Any>).instanceCreatorFactory(instanceCreatorFactory)
 
             classModelBuilder.type.kotlin.memberProperties.forEach {
                 it.isAccessible = true

@@ -102,7 +102,7 @@ internal object ReplicaSetEmbeddedMongo {
 
         try {
             fun reconfigCallback(first: Boolean = false): (Document?, Throwable?) -> Unit =
-                { result, t ->
+                { _, t ->
                     if (first || t != null) {
                         Thread.sleep(100)
                         commandExecutor.invoke(host, reconfigCommand, reconfigCallback())

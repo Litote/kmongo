@@ -30,7 +30,6 @@ import kotlin.test.assertEquals
  */
 class SerializationClassMappingTypeServiceTest {
 
-    @kotlinx.serialization.ImplicitReflectionSerializer
     @org.junit.Test
     fun `encode and decode document`() {
         val doc = Document()

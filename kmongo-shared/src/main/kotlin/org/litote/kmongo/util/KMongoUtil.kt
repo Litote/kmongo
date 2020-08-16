@@ -270,7 +270,7 @@ object KMongoUtil {
             is Bson -> @Suppress("UNCHECKED_CAST")
             (codecRegistry.get(BsonDocument::class.java) as Encoder<Any>).encode(
                 writer,
-                (value as Bson).toBsonDocument(BsonDocument::class.java, codecRegistry),
+                value.toBsonDocument(BsonDocument::class.java, codecRegistry),
                 EncoderContext.builder().build()
             )
             else -> @Suppress("UNCHECKED_CAST")

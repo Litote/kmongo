@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import kotlinx.serialization.ContextualSerialization
-import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.parse
-import kotlinx.serialization.stringify
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.Id
@@ -35,9 +34,8 @@ import kotlin.test.assertEquals
 class Issue218ModuleId : AllCategoriesKMongoBaseTest<Issue218ModuleId.Data>() {
 
     @Serializable
-    data class Data(@ContextualSerialization val _id: Id<Data> = newId())
+    data class Data(@Contextual val _id: Id<Data> = newId())
 
-    @ImplicitReflectionSerializer
     @Test
     fun canSerializeAndDeserializeInJson() {
         val data = Data()
@@ -45,10 +43,10 @@ class Issue218ModuleId : AllCategoriesKMongoBaseTest<Issue218ModuleId.Data>() {
         val loadedData = col.findOne(data::_id eq data._id)
         assertEquals(data._id, loadedData!!._id)
 
-        val json = Json(
-                context = IdKotlinXSerializationModule
-                )
-        val serialized = json.stringify(data)
-        assertEquals(data, json.parse(serialized))
+        val json = Json {
+            serializersModule = IdKotlinXSerializationModule
+        }
+        val serialized = json.encodeToString(data)
+        assertEquals(data, json.decodeFromString(serialized))
     }
 }

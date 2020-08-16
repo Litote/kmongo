@@ -16,17 +16,17 @@
 
 package org.litote.kmongo.serialization
 
-import kotlinx.serialization.CompositeDecoder
-import kotlinx.serialization.CompositeEncoder
-import kotlinx.serialization.ContextualSerialization
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.Encoder
-import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
+import kotlinx.serialization.UnsafeSerializationApi
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.CompositeEncoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import org.bson.BsonDocument
 import org.bson.BsonDocumentReader
@@ -47,7 +47,7 @@ import kotlin.test.assertFalse
  */
 class SerializationCodecTest {
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encode and decode Friend`() {
         val friend = Friend("Joe", "22 Wall Street Avenue", _id = ObjectId())
@@ -63,9 +63,9 @@ class SerializationCodecTest {
 
 
     @Serializable
-    data class TestWithId(@ContextualSerialization val id: Id<TestWithId> = newId())
+    data class TestWithId(@Contextual val id: Id<TestWithId> = newId())
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encode and decode Ids`() {
         val id = TestWithId()
@@ -80,9 +80,9 @@ class SerializationCodecTest {
     }
 
     @Serializable
-    data class TestWithSetOfIds(val list: Set<@ContextualSerialization Id<TestWithId>> = setOf(newId()))
+    data class TestWithSetOfIds(val list: Set<@Contextual Id<TestWithId>> = setOf(newId()))
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encode and decode list of ids`() {
         val idList = TestWithSetOfIds()
@@ -98,11 +98,11 @@ class SerializationCodecTest {
 
     @Serializable
     data class TestWithMapOfIds(
-        val map: Map<@ContextualSerialization Id<TestWithId>, String>
+        val map: Map<@Contextual Id<TestWithId>, String>
         = mapOf(newId<TestWithId>() to "a")
     )
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encode and decode map of ids`() {
         val idList = TestWithMapOfIds()
@@ -121,7 +121,7 @@ class SerializationCodecTest {
 
     @Serializer(forClass = Custom::class)
     object CustomSerializer : KSerializer<Custom> {
-        override val descriptor: SerialDescriptor = SerialDescriptor("Custom") {
+        override val descriptor = buildClassSerialDescriptor("Custom") {
             element("s", String.serializer().descriptor)
         }
 
@@ -141,7 +141,7 @@ class SerializationCodecTest {
         }
     }
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encode and decode with custom serializer`() {
         registerSerializer(CustomSerializer)
@@ -168,15 +168,13 @@ class SerializationCodecTest {
     @Serializable
     data class Container(val m: Message)
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encode and decode with custom polymorphic serializer`() {
         registerModule(
             SerializersModule {
-                polymorphic(Message::class) {
-                    StringMessage::class with StringMessage.serializer()
-                    IntMessage::class with IntMessage.serializer()
-                }
+                polymorphic(Message::class, StringMessage::class, StringMessage.serializer())
+                polymorphic(Message::class, IntMessage::class, IntMessage.serializer())
             })
         val c = Container(StringMessage("a"))
         val codec = SerializationCodec(Container::class, configuration)
@@ -197,15 +195,13 @@ class SerializationCodecTest {
     @Serializable
     data class IntMessage2(val number: Int) : Message2
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encode and decode directly custom polymorphic serializer`() {
         registerModule(
             SerializersModule {
-                polymorphic(Message2::class) {
-                    StringMessage2::class with StringMessage2.serializer()
-                    IntMessage2::class with IntMessage2.serializer()
-                }
+                polymorphic(Message2::class, StringMessage2::class, StringMessage2.serializer())
+                polymorphic(Message2::class, IntMessage2::class, IntMessage2.serializer())
             })
         val c = StringMessage2("a")
         val codec = SerializationCodec(Message2::class, configuration)
@@ -223,7 +219,7 @@ class SerializationCodecTest {
 
     data class NotSerializableClass(val s: String)
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encoding a not serializable class throws a SerializationException`() {
         val t = assertFails {
@@ -234,12 +230,13 @@ class SerializationCodecTest {
             codec.encode(writer, c, EncoderContext.builder().build())
         }
         assertEquals(
-            "Can't locate argument-less serializer for class NotSerializableClass. For generic classes, such as lists, please provide serializer explicitly.",
+            "Serializer for class 'NotSerializableClass' is not found.\n" +
+                    "Mark the class as @Serializable or provide the serializer explicitly.",
             t.message
         )
     }
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `decoding a not serializable class throws a SerializationException`() {
         val t = assertFails {
@@ -253,7 +250,8 @@ class SerializationCodecTest {
             codec2.decode(BsonDocumentReader(document), DecoderContext.builder().build())
         }
         assertEquals(
-            "Can't locate argument-less serializer for class NotSerializableClass. For generic classes, such as lists, please provide serializer explicitly.",
+            "Serializer for class 'NotSerializableClass' is not found.\n" +
+                    "Mark the class as @Serializable or provide the serializer explicitly.",
             t.message
         )
     }
@@ -264,7 +262,7 @@ class SerializationCodecTest {
             get() = "${lastname} ${firstname}"
     }
 
-    @ImplicitReflectionSerializer
+    @UnsafeSerializationApi
     @Test
     fun `encoding a class with delegated property does not serialize delegated property`() {
         val friend = ClassWithDelegatedProperty("Joe", "Hisahi")

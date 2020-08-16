@@ -9,7 +9,7 @@ To manage Mongo ```_id```, a class must have one ```_id``` property
  
 > For **kotlinx serialization**, ```@BsonId``` is not supported - you can use ```@SerialName("_id")``` as ```@BsonId``` replacement.
 >          
-> For example, ```Data(@ContextualSerialization val _id: Id<Data>)``` and ```Data(@ContextualSerialization @SerialName("_id") val myId: Id<Data>)``` are equivalent.
+> For example, ```Data(@Contextual val _id: Id<Data>)``` and ```Data(@Contextual @SerialName("_id") val myId: Id<Data>)``` are equivalent.
  
 If there is no such field in your class, an ```ObjectId``` _id is generated on server side.
 
@@ -35,7 +35,7 @@ It is easy to transform an ObjectId in Id<> with the *toId()* extension:
 LightSaber(ObjectId("myId").toId())
 ``` 
 
-> For **kotlinx serialization** ```@ContextualSerialization``` is mandatory on the ```Id``` property.
+> For **kotlinx serialization** ```@Contextual``` is mandatory on the ```Id``` property.
 
 #### KMongo Id does not depend of Mongo nor KMongo lib
                      
@@ -50,14 +50,14 @@ You just have to add the ```kmongo-id``` dependency in the frontend to compile.
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-id</artifactId>
-  <version>4.0.3</version>
+  <version>4.1.0</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-id:4.0.3'
+compile 'org.litote.kmongo:kmongo-id:4.1.0'
 ```
 
 #### Id <> Json Jackson serialization
@@ -89,11 +89,11 @@ add the ```kmongo-id-serialization``` dependency and register the ```IdKotlinXSe
 
 ```kotlin     
 @Serializable
-data class Data(@ContextualSerialization val _id: Id<Data> = newId())
+data class Data(@Contextual val _id: Id<Data> = newId())
 
-val json = Json(context = IdKotlinXSerializationModule)
+val json = Json { serializersModule = IdKotlinXSerializationModule }
 val data = Data()
-val serialized = json.stringify(data)
+val json = json.encodeToString(data) 
 ```
 
 ### Other _id types

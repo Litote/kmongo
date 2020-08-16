@@ -16,7 +16,7 @@
 
 package org.litote.kmongo
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
@@ -48,23 +48,23 @@ class DateTest : AllCategoriesKMongoBaseTest<DateValue>() {
 
     @Serializable
     data class DateValue(
-        @ContextualSerialization
+        @Contextual
         val date: Date?,
-        @ContextualSerialization
+        @Contextual
         val calendar: Calendar?,
-        @ContextualSerialization
+        @Contextual
         val localDateTime: LocalDateTime?,
-        @ContextualSerialization
+        @Contextual
         val localDate: LocalDate?,
-        @ContextualSerialization
+        @Contextual
         val localTime: LocalTime?,
-        @ContextualSerialization
+        @Contextual
         var zonedDateTime: ZonedDateTime?,
-        @ContextualSerialization
+        @Contextual
         var offsetDateTime: OffsetDateTime?,
-        @ContextualSerialization
+        @Contextual
         var offsetTime: OffsetTime?,
-        @ContextualSerialization
+        @Contextual
         val instant: Instant?
     ) {
 

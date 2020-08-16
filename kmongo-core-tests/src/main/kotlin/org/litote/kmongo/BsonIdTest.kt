@@ -16,13 +16,14 @@
 
 package org.litote.kmongo
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 import org.junit.Test
+import org.litote.kmongo.id.MongoId
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -39,16 +40,16 @@ class BsonIdTest : AllCategoriesKMongoBaseTest<Friend>() {
     class StringId(val _id: String? = null)
 
     @Serializable
-    class WithMongoId(@SerialName("_id") @BsonId @ContextualSerialization val key: ObjectId? = null)
+    class WithMongoId(@SerialName("_id") @MongoId @BsonId @Contextual val key: ObjectId? = null)
 
     @Serializable
-    class WithMongoStringId(@SerialName("_id") @BsonId val key: String? = null)
+    class WithMongoStringId(@SerialName("_id") @MongoId @BsonId val key: String? = null)
 
     @Serializable
     class CompositeId(val _id: Key?)
 
     @Serializable
-    class CompositeKey(@SerialName("_id") @BsonId val key: Key?)
+    class CompositeKey(@SerialName("_id") @MongoId @BsonId val key: Key?)
 
     @Serializable
     data class Key(val category: String, val index: Int)

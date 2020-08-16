@@ -16,7 +16,7 @@
 
 package org.litote.kmongo
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.bson.BsonTimestamp
 import org.junit.Test
@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 class TimestampTest : AllCategoriesKMongoBaseTest<TimestampValue>() {
 
     @Serializable
-    data class TimestampValue(@ContextualSerialization val date: BsonTimestamp?)
+    data class TimestampValue(@Contextual val date: BsonTimestamp?)
 
     @Test
     fun testInsertAndLoad() {

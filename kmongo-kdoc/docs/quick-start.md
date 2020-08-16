@@ -12,14 +12,14 @@ If you don't know, start with the sync driver and add this dependency to your pr
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo</artifactId>
-  <version>4.0.3</version>
+  <version>4.1.0</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo:4.0.3'
+compile 'org.litote.kmongo:kmongo:4.1.0'
 ```   
 
 > Starting from 4.0, minimum supported jvm is now 1.8 (was 1.6).
@@ -40,14 +40,14 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-async</artifactId>
-  <version>4.0.3</version>
+  <version>4.1.0</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-async:4.0.3'
+compile 'org.litote.kmongo:kmongo-async:4.1.0'
 ```
 
 #### Kotlin Coroutines
@@ -58,14 +58,14 @@ compile 'org.litote.kmongo:kmongo-async:4.0.3'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-coroutine</artifactId>
-  <version>4.0.3</version>
+  <version>4.1.0</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-coroutine:4.0.3'
+compile 'org.litote.kmongo:kmongo-coroutine:4.1.0'
 ```
 
 #### RxJava2
@@ -76,14 +76,14 @@ compile 'org.litote.kmongo:kmongo-coroutine:4.0.3'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-rxjava2</artifactId>
-  <version>4.0.3</version>
+  <version>4.1.0</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-rxjava2:4.0.3'
+compile 'org.litote.kmongo:kmongo-rxjava2:4.1.0'
 ```
 
 ## Object Mapping Engine
@@ -154,8 +154,8 @@ data class Jedi(val name: String, val age: Int, val firstAppearance: StarWarsFil
 @Serializable
 data class StarWarsFilm(
 val name: String,             
-//annotate with @ContextualSerialization the types that have already serializers - look at kotlinx.serialization documentation
-@ContextualSerialization val date: LocalDate
+//annotate with @Contextual the types that have already serializers - look at kotlinx.serialization documentation
+@Contextual val date: LocalDate
 )
 
 val client = KMongo.createClient() //get com.mongodb.MongoClient new instance

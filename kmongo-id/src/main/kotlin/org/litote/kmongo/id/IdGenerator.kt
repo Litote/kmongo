@@ -37,7 +37,7 @@ interface IdGenerator {
         @Volatile
         private var defaultIdGenerator: IdGenerator =
             ServiceLoader.load(IdGeneratorProvider::class.java)
-                .iterator().asSequence().maxBy { it.priority }?.generator
+                .iterator().asSequence().maxByOrNull { it.priority }?.generator
                     ?: UUIDStringIdGenerator
     }
 

@@ -17,7 +17,7 @@
 package org.litote.kmongo
 
 import com.mongodb.client.MongoCollection
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
@@ -27,6 +27,7 @@ import org.junit.Test
 import org.litote.kmongo.IdTest.Article
 import org.litote.kmongo.MongoOperator.oid
 import org.litote.kmongo.id.IdGenerator
+import org.litote.kmongo.id.MongoId
 import org.litote.kmongo.id.ObjectIdGenerator
 import org.litote.kmongo.id.ObjectIdToStringGenerator
 import org.litote.kmongo.id.StringId
@@ -42,12 +43,12 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Serializable
     data class Article(
-        @ContextualSerialization
+        @Contextual
         val _id: Id<Article> = newId(),
         val title: String,
-        @ContextualSerialization
+        @Contextual
         val shopId: Id<Shop>? = null,
-        val articleIds: MutableSet<@ContextualSerialization Id<Article>> = mutableSetOf()
+        val articleIds: MutableSet<@Contextual Id<Article>> = mutableSetOf()
     ) {
 
         constructor(title: String, shopId: Id<Shop>? = null) : this(newId(), title, shopId)
@@ -60,13 +61,13 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Serializable
     data class Article2(
-        @ContextualSerialization
+        @Contextual
         val _id: Id<Article2> = newId(),
         val title: String,
-        @ContextualSerialization
+        @Contextual
         val shopId: Id<Shop>? = null,
-        val articleIds: MutableSet<@ContextualSerialization Id<Article2>> = mutableSetOf(),
-        val mapWithIds: MutableMap<@ContextualSerialization Id<Article2>, Boolean> = mutableMapOf()
+        val articleIds: MutableSet<@Contextual Id<Article2>> = mutableSetOf(),
+        val mapWithIds: MutableMap<@Contextual Id<Article2>, Boolean> = mutableMapOf()
     ) {
 
         constructor(title: String, shopId: Id<Shop>? = null) : this(newId(), title, shopId)
@@ -80,9 +81,10 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
     @Serializable
     data class Shop(
         val name: String,
-        @ContextualSerialization
+        @Contextual
         @BsonId
         @SerialName("_id")
+        @MongoId
         val id: Id<Shop> = newId()
     )
 
@@ -100,21 +102,21 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Serializable
     data class ArticleWithNullableGenericId(
-        @ContextualSerialization
+        @Contextual
         val _id: Id<ArticleWithNullableGenericId>?,
         val title: String = "test"
     )
 
     @Serializable
     data class ArticleWithNullableStringId(
-        @ContextualSerialization
+        @Contextual
         val _id: StringId<ArticleWithNullableStringId>?,
         val title: String = "test"
     )
 
     @Serializable
     data class ArticleWithNullableWrappedObjectId(
-        @ContextualSerialization
+        @Contextual
         val _id: WrappedObjectId<ArticleWithNullableWrappedObjectId>?,
         val title: String = "test"
     )
