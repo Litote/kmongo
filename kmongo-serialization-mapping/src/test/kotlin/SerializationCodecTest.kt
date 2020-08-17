@@ -18,6 +18,7 @@ package org.litote.kmongo.serialization
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.UnsafeSerializationApi
@@ -36,8 +37,10 @@ import org.bson.codecs.EncoderContext
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.Id
+import org.litote.kmongo.id.MongoProperty
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.newId
+import org.litote.kmongo.path
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFalse
@@ -278,5 +281,21 @@ class SerializationCodecTest {
         assertEquals(friend, newFriend)
 
 
+    }
+
+    @Serializable
+    data class TestWithProperty(@SerialName("b") @MongoProperty("b") val a: String)
+
+    @UnsafeSerializationApi
+    @Test
+    fun `encode and decode TestWithProperty`() {
+        val test = TestWithProperty("zz")
+        val codec = SerializationCodec(TestWithProperty::class, configuration)
+        val document = BsonDocument()
+        val writer = BsonDocumentWriter(document)
+        codec.encode(writer, test, EncoderContext.builder().build())
+
+        assertEquals("""{"b": "zz"}""", document.toJson())
+        assertEquals("b", TestWithProperty::a.path())
     }
 }

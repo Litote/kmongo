@@ -24,12 +24,14 @@ import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
 import org.litote.kmongo.id.MongoId
+import org.litote.kmongo.id.MongoProperty
 import org.litote.kmongo.service.ClassMappingTypeService
 import java.io.StringWriter
 import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 
 /**
@@ -99,7 +101,7 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
 
     override fun coreCodecRegistry(): CodecRegistry = coreCodecRegistry
 
-    override fun <T> calculatePath(property: KProperty<T>): String {
-        return if (property.hasAnnotation<MongoId>()) "_id" else property.name
-    }
+    override fun <T> calculatePath(property: KProperty<T>): String =
+        if (property.hasAnnotation<MongoId>()) "_id"
+        else property.findAnnotation<MongoProperty>()?.value ?: property.name
 }

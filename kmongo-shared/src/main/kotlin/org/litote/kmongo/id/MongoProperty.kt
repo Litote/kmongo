@@ -17,7 +17,7 @@
 package org.litote.kmongo.id
 
 /**
- * Annotate mongo identifier property for kotlinx.serialization.
+ * Annotate mongo property name for kotlinx.serialization.
  */
 @Target(AnnotationTarget.PROPERTY)
-annotation class MongoId
+annotation class MongoProperty(val value: String)
