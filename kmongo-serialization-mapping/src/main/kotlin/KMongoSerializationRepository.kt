@@ -21,15 +21,15 @@ import com.github.jershell.kbson.ByteArraySerializer
 import com.github.jershell.kbson.Configuration
 import com.github.jershell.kbson.DateSerializer
 import com.github.jershell.kbson.ObjectIdSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.UnsafeSerializationApi
 import kotlinx.serialization.builtins.ArraySerializer
 import kotlinx.serialization.builtins.PairSerializer
 import kotlinx.serialization.builtins.TripleSerializer
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.JsonNullSerializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 import org.bson.BsonTimestamp
@@ -65,7 +65,7 @@ private val customModules = CopyOnWriteArraySet<SerializersModule>()
 internal var checkBaseModule: Boolean = true
 
 /**
- * Add a custom [SerialModule] to KMongo kotlinx.serialization mapping.
+ * Add a custom [SerializersModule] to KMongo kotlinx.serialization mapping.
  */
 fun registerModule(module: SerializersModule) {
     customModules.add(module)
@@ -87,7 +87,7 @@ inline fun <reified T> registerSerializer(serializer: KSerializer<T>) {
 var configuration: Configuration = Configuration()
 
 /**
- * The KMongo serialization module.
+ * The KMongo [SerializersModule].
  */
 val kmongoSerializationModule: SerializersModule get() = KMongoSerializationRepository.module
 
@@ -120,7 +120,8 @@ internal object KMongoSerializationRepository {
         Regex::class to RegexSerializer
     )
 
-    @UnsafeSerializationApi
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     private fun <T : Any> getBaseSerializer(obj: T, kClass: KClass<T> = obj.javaClass.kotlin): KSerializer<*>? {
         @Suppress("UNCHECKED_CAST")
         return when (obj) {
@@ -144,11 +145,12 @@ internal object KMongoSerializationRepository {
         }
     }
 
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     @Suppress("UNCHECKED_CAST")
-    @UnsafeSerializationApi
     fun <T : Any> getSerializer(kClass: KClass<T>, obj: T?): KSerializer<T> =
         if (obj == null) {
-            JsonNullSerializer as? KSerializer<T> ?: error("no serializer for null")
+            error("no serializer for null")
         } else {
             (serializersMap[kClass]
                     ?: getBaseSerializer(obj, kClass)
@@ -156,11 +158,12 @@ internal object KMongoSerializationRepository {
                     ?: error("no serializer for $obj of class $kClass")
         }
 
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     @Suppress("UNCHECKED_CAST")
-    @UnsafeSerializationApi
     private fun <T : Any> getSerializer(obj: T?): KSerializer<T> =
         if (obj == null) {
-            JsonNullSerializer as? KSerializer<T> ?: error("no serializer for null")
+            error("no serializer for null")
         } else {
             (serializersMap[obj.javaClass.kotlin]
                     ?: getBaseSerializer(obj)
@@ -168,8 +171,9 @@ internal object KMongoSerializationRepository {
                     ?: error("no serializer for $obj of class ${obj.javaClass.kotlin}")
         }
 
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     @Suppress("UNCHECKED_CAST")
-    @UnsafeSerializationApi
     fun <T : Any> getSerializer(kClass: KClass<T>): KSerializer<T> =
         (serializersMap[kClass]
                 ?: module.getContextual(kClass)

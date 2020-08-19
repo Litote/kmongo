@@ -17,11 +17,12 @@
 package org.litote.kmongo.serialization
 
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
-import kotlinx.serialization.UnsafeSerializationApi
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
@@ -50,7 +51,8 @@ import kotlin.test.assertFalse
  */
 class SerializationCodecTest {
 
-    @UnsafeSerializationApi
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     @Test
     fun `encode and decode Friend`() {
         val friend = Friend("Joe", "22 Wall Street Avenue", _id = ObjectId())
@@ -68,8 +70,9 @@ class SerializationCodecTest {
     @Serializable
     data class TestWithId(@Contextual val id: Id<TestWithId> = newId())
 
-    @UnsafeSerializationApi
     @Test
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     fun `encode and decode Ids`() {
         val id = TestWithId()
         val codec = SerializationCodec(TestWithId::class, configuration)
@@ -85,8 +88,9 @@ class SerializationCodecTest {
     @Serializable
     data class TestWithSetOfIds(val list: Set<@Contextual Id<TestWithId>> = setOf(newId()))
 
-    @UnsafeSerializationApi
     @Test
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     fun `encode and decode list of ids`() {
         val idList = TestWithSetOfIds()
         val codec = SerializationCodec(TestWithSetOfIds::class, configuration)
@@ -105,8 +109,9 @@ class SerializationCodecTest {
         = mapOf(newId<TestWithId>() to "a")
     )
 
-    @UnsafeSerializationApi
+    @InternalSerializationApi
     @Test
+    @ExperimentalSerializationApi
     fun `encode and decode map of ids`() {
         val idList = TestWithMapOfIds()
         val codec = SerializationCodec(TestWithMapOfIds::class, configuration)
@@ -122,6 +127,7 @@ class SerializationCodecTest {
 
     data class Custom(val s: String, val b: Boolean = false)
 
+    @ExperimentalSerializationApi
     @Serializer(forClass = Custom::class)
     object CustomSerializer : KSerializer<Custom> {
         override val descriptor = buildClassSerialDescriptor("Custom") {
@@ -136,16 +142,17 @@ class SerializationCodecTest {
             return c
         }
 
-        override fun serialize(encoder: Encoder, obj: Custom) {
+        override fun serialize(encoder: Encoder, value: Custom) {
             encoder as CompositeEncoder
             encoder.beginStructure(descriptor)
-            encoder.encodeStringElement(descriptor, 0, obj.s)
+            encoder.encodeStringElement(descriptor, 0, value.s)
             encoder.endStructure(descriptor)
         }
     }
 
-    @UnsafeSerializationApi
+    @InternalSerializationApi
     @Test
+    @ExperimentalSerializationApi
     fun `encode and decode with custom serializer`() {
         registerSerializer(CustomSerializer)
         val c = Custom("a", true)
@@ -171,8 +178,9 @@ class SerializationCodecTest {
     @Serializable
     data class Container(val m: Message)
 
-    @UnsafeSerializationApi
+    @InternalSerializationApi
     @Test
+    @ExperimentalSerializationApi
     fun `encode and decode with custom polymorphic serializer`() {
         registerModule(
             SerializersModule {
@@ -198,8 +206,9 @@ class SerializationCodecTest {
     @Serializable
     data class IntMessage2(val number: Int) : Message2
 
-    @UnsafeSerializationApi
+    @InternalSerializationApi
     @Test
+    @ExperimentalSerializationApi
     fun `encode and decode directly custom polymorphic serializer`() {
         registerModule(
             SerializersModule {
@@ -222,8 +231,9 @@ class SerializationCodecTest {
 
     data class NotSerializableClass(val s: String)
 
-    @UnsafeSerializationApi
+    @InternalSerializationApi
     @Test
+    @ExperimentalSerializationApi
     fun `encoding a not serializable class throws a SerializationException`() {
         val t = assertFails {
             val c = NotSerializableClass("a")
@@ -239,8 +249,9 @@ class SerializationCodecTest {
         )
     }
 
-    @UnsafeSerializationApi
+    @InternalSerializationApi
     @Test
+    @ExperimentalSerializationApi
     fun `decoding a not serializable class throws a SerializationException`() {
         val t = assertFails {
             val c = SerializableClass("a")
@@ -262,11 +273,12 @@ class SerializationCodecTest {
     @Serializable
     data class ClassWithDelegatedProperty(val lastname: String, val firstname: String) {
         val fullName: String
-            get() = "${lastname} ${firstname}"
+            get() = "$lastname $firstname"
     }
 
-    @UnsafeSerializationApi
+    @InternalSerializationApi
     @Test
+    @ExperimentalSerializationApi
     fun `encoding a class with delegated property does not serialize delegated property`() {
         val friend = ClassWithDelegatedProperty("Joe", "Hisahi")
         val codec = SerializationCodec(ClassWithDelegatedProperty::class, configuration)
@@ -286,8 +298,9 @@ class SerializationCodecTest {
     @Serializable
     data class TestWithProperty(@SerialName("b") @MongoProperty("b") val a: String)
 
-    @UnsafeSerializationApi
+    @InternalSerializationApi
     @Test
+    @ExperimentalSerializationApi
     fun `encode and decode TestWithProperty`() {
         val test = TestWithProperty("zz")
         val codec = SerializationCodec(TestWithProperty::class, configuration)

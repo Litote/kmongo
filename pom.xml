@@ -78,7 +78,7 @@
         <bson4jackson.version>2.11.0</bson4jackson.version>
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.1.0</jackson-module-loader.version>
-        <kotlinx-serialization.version>1.0-M1-1.4.0-rc</kotlinx-serialization.version>
+        <kotlinx-serialization.version>1.0.0-RC</kotlinx-serialization.version>
         <kbson.version>0.4.1-rc</kbson.version>
 
         <!-- annotations processor -->
@@ -133,7 +133,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlinx</groupId>
-                <artifactId>kotlinx-serialization-runtime</artifactId>
+                <artifactId>kotlinx-serialization-core</artifactId>
                 <version>${kotlinx-serialization.version}</version>
             </dependency>
 

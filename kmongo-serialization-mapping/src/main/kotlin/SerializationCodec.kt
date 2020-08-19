@@ -19,8 +19,9 @@ package org.litote.kmongo.serialization
 import com.github.jershell.kbson.BsonEncoder
 import com.github.jershell.kbson.BsonFlexibleDecoder
 import com.github.jershell.kbson.Configuration
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.UnsafeSerializationApi
 import org.bson.AbstractBsonReader
 import org.bson.BsonReader
 import org.bson.BsonValue
@@ -47,20 +48,23 @@ internal class SerializationCodec<T : Any>(
         ClassMappingType.findIdProperty(clazz) as KProperty1<T, *>?
     }
 
-    @UnsafeSerializationApi
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     private val decoderSerializer: KSerializer<T> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         KMongoSerializationRepository.getSerializer(clazz)
     }
 
     override fun getEncoderClass(): Class<T> = clazz.java
 
-    @UnsafeSerializationApi
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     override fun encode(writer: BsonWriter, value: T, encoderContext: EncoderContext) {
         val serializer = KMongoSerializationRepository.getSerializer(clazz, value)
         BsonEncoder(writer, module, configuration).encodeSerializableValue(serializer, value)
     }
 
-    @UnsafeSerializationApi
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
     override fun decode(reader: BsonReader, decoderContext: DecoderContext): T {
         return BsonFlexibleDecoder(reader as AbstractBsonReader, module, configuration).decodeSerializableValue(
             decoderSerializer

@@ -17,9 +17,10 @@
 
 package org.litote.kmongo.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
-import kotlinx.serialization.UnsafeSerializationApi
 import kotlinx.serialization.UseContextualSerialization
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -60,10 +61,12 @@ class ExternalSerializerTest {
         val updatedAt: LocalDateTime
     )
 
+    @ExperimentalSerializationApi
     @Serializer(forClass = User::class)
-    object UserSerializer {}
+    object UserSerializer
 
 
+    @ExperimentalSerializationApi
     @Serializer(forClass = Role::class)
     object RoleSerializer : KSerializer<Role> {
         override val descriptor = PrimitiveSerialDescriptor("RoleStringSerializer", PrimitiveKind.STRING)
@@ -81,6 +84,7 @@ class ExternalSerializerTest {
         }
     }
 
+    @ExperimentalSerializationApi
     @Serializer(forClass = Role.ADMIN::class)
     object AdminRoleSerializer : KSerializer<Role.ADMIN> {
         override val descriptor = PrimitiveSerialDescriptor("AdminRoleStringSerializer", PrimitiveKind.STRING)
@@ -92,6 +96,7 @@ class ExternalSerializerTest {
             encoder.encodeString(value.name)
     }
 
+    @ExperimentalSerializationApi
     @Serializer(forClass = Role.USER::class)
     object UserRoleSerializer : KSerializer<Role.USER> {
         override val descriptor = PrimitiveSerialDescriptor("UserRoleStringSerializer", PrimitiveKind.STRING)
@@ -103,6 +108,7 @@ class ExternalSerializerTest {
             encoder.encodeString(value.name)
     }
 
+    @ExperimentalSerializationApi
     @Serializer(forClass = Role.NONE::class)
     object NoneRoleSerializer : KSerializer<Role.NONE> {
         override val descriptor = PrimitiveSerialDescriptor("NoneRoleStringSerializer", PrimitiveKind.STRING)
@@ -114,7 +120,8 @@ class ExternalSerializerTest {
             encoder.encodeString(value.name)
     }
 
-    @UnsafeSerializationApi
+    @InternalSerializationApi
+    @ExperimentalSerializationApi
     @Test
     fun `encode and decode User`() {
         registerSerializer(UserSerializer)
