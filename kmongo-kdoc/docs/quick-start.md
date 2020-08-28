@@ -22,12 +22,16 @@ If you don't know, start with the sync driver and add this dependency to your pr
 </dependency>
 ```
 
-- or Gradle (Kotlin)
+- or Gradle 
 
+*(Kotlin)* 
 ```kotlin
 implementation("org.litote.kmongo:kmongo:4.1.2")
 ``` 
-
+*(Groovy)* 
+```groovy
+implementation 'org.litote.kmongo:kmongo:4.1.2'
+```   
 
 > Starting from 4.0, minimum supported jvm is now 1.8 (was 1.6).
 > You have to set the property **jvmTarget** to 1.8 (or more) in your gradle or maven descriptor
@@ -53,7 +57,12 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 
 - or Gradle
 
-```
+*(Kotlin)* 
+```kotlin
+implementation("org.litote.kmongo:kmongo-async:4.1.2")
+``` 
+*(Groovy)* 
+```groovy
 implementation 'org.litote.kmongo:kmongo-async:4.1.2'
 ```
 
@@ -71,8 +80,13 @@ implementation 'org.litote.kmongo:kmongo-async:4.1.2'
 
 - or Gradle (Kotlin)
 
-```
+*(Kotlin)* 
+```kotlin
 implementation("org.litote.kmongo:kmongo-coroutine:4.1.2")
+``` 
+*(Groovy)* 
+```groovy
+implementation 'org.litote.kmongo:kmongo-coroutine:4.1.2'
 ```
 
 #### RxJava2
@@ -89,8 +103,13 @@ implementation("org.litote.kmongo:kmongo-coroutine:4.1.2")
 
 - or Gradle
 
-```
+*(Kotlin)* 
+```kotlin
 implementation("org.litote.kmongo:kmongo-rxjava2:4.1.2")
+``` 
+*(Groovy)* 
+```groovy
+implementation 'org.litote.kmongo:kmongo-rxjava2:4.1.2'
 ```
 
 ## Object Mapping Engine
