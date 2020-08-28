@@ -18,21 +18,16 @@ If you don't know, start with the sync driver and add this dependency to your pr
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo</artifactId>
-  <version>4.1.1</version>
+  <version>4.1.2</version>
 </dependency>
 ```
 
 - or Gradle (Kotlin)
 
 ```kotlin
-implementation("org.litote.kmongo:kmongo:4.1.1")
+implementation("org.litote.kmongo:kmongo:4.1.2")
 ``` 
 
-- or Gradle
-
-```groovy
-implementation 'org.litote.kmongo:kmongo:4.1.1'
-```   
 
 > Starting from 4.0, minimum supported jvm is now 1.8 (was 1.6).
 > You have to set the property **jvmTarget** to 1.8 (or more) in your gradle or maven descriptor
@@ -52,20 +47,14 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-async</artifactId>
-  <version>4.1.1</version>
+  <version>4.1.2</version>
 </dependency>
-```
-
-- or Gradle (Kotlin)
-
-```
-implementation("org.litote.kmongo:kmongo-async:4.1.1")
 ```
 
 - or Gradle
 
 ```
-implementation 'org.litote.kmongo:kmongo-async:4.1.1'
+implementation 'org.litote.kmongo:kmongo-async:4.1.2'
 ```
 
 #### Kotlin Coroutines
@@ -76,20 +65,14 @@ implementation 'org.litote.kmongo:kmongo-async:4.1.1'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-coroutine</artifactId>
-  <version>4.1.1</version>
+  <version>4.1.2</version>
 </dependency>
 ```
 
 - or Gradle (Kotlin)
 
 ```
-implementation("org.litote.kmongo:kmongo-coroutine:4.1.1")
-```
-
-- or Gradle
-
-```
-implementation 'org.litote.kmongo:kmongo-coroutine:4.1.1'
+implementation("org.litote.kmongo:kmongo-coroutine:4.1.2")
 ```
 
 #### RxJava2
@@ -100,20 +83,14 @@ implementation 'org.litote.kmongo:kmongo-coroutine:4.1.1'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-rxjava2</artifactId>
-  <version>4.1.1</version>
+  <version>4.1.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-implementation("org.litote.kmongo:kmongo-rxjava2:4.1.1")
-```
-
-- or Gradle
-
-```
-implementation 'org.litote.kmongo:kmongo-rxjava2:4.1.1'
+implementation("org.litote.kmongo:kmongo-rxjava2:4.1.2")
 ```
 
 ## Object Mapping Engine
