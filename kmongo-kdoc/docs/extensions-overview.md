@@ -85,7 +85,7 @@ methods remove automatically the _id of the replacement when using shell query f
 
 ```kotlin
 //ObjectId of friend replacement does not matter 
-col.replaceOne("{name:'Peter'}}", Friend(ObjectId(), "John"))
+col.replaceOne("{name:'Peter'}", Friend(ObjectId(), "John"))
 //explicit id filter ->
 col.replaceOneById(friend._id, Friend(ObjectId(), "John"))
 //implicit id filter ->
