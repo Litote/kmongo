@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-serialization-core</artifactId>
+            <artifactId>kotlinx-serialization-core-jvm</artifactId>
             <scope>provided</scope>
         </dependency>
 

@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-serialization-core</artifactId>
+            <artifactId>kotlinx-serialization-json-jvm</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
