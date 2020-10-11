@@ -42,6 +42,7 @@ import org.litote.kmongo.id.MongoProperty
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.newId
 import org.litote.kmongo.path
+import org.litote.kmongo.serialization.SerializationCodecTest.SealedValue.IntValue
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFalse
@@ -310,5 +311,43 @@ class SerializationCodecTest {
 
         assertEquals("""{"b": "zz"}""", document.toJson())
         assertEquals("b", TestWithProperty::a.path())
+    }
+
+    @Serializable
+    data class SealedContainer(val v:SealedValue)
+
+    @Serializable
+    sealed class SealedValue {
+
+        @Serializable
+        @SerialName("int-value")
+        data class IntValue(val value: Int) : SealedValue()
+    }
+
+    @InternalSerializationApi
+    @Test
+    @ExperimentalSerializationApi
+    fun `encode and decode sealed value`() {
+        val test = IntValue(1)
+        val codec = SerializationCodec(SealedValue::class, configuration)
+        val document = BsonDocument()
+        val writer = BsonDocumentWriter(document)
+        codec.encode(writer, test, EncoderContext.builder().build())
+
+        assertEquals("""{"___type": "int-value", "value": 1}""", document.toJson())
+        assertEquals("value", IntValue::value.path())
+    }
+
+    @InternalSerializationApi
+    @Test
+    @ExperimentalSerializationApi
+    fun `encode and decode sealed container`() {
+        val test = SealedContainer(IntValue(1))
+        val codec = SerializationCodec(SealedContainer::class, configuration)
+        val document = BsonDocument()
+        val writer = BsonDocumentWriter(document)
+        codec.encode(writer, test, EncoderContext.builder().build())
+
+        assertEquals("""{"v": {"___type": "int-value", "value": 1}}""", document.toJson())
     }
 }

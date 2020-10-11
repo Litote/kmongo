@@ -32,6 +32,7 @@ import kotlinx.serialization.builtins.TripleSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
+import kotlinx.serialization.serializerOrNull
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
 import org.bson.types.ObjectId
@@ -55,6 +56,7 @@ import java.util.concurrent.CopyOnWriteArraySet
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.superclasses
 
 @PublishedApi
 internal val customSerializersMap: MutableMap<KClass<*>, KSerializer<*>> = ConcurrentHashMap()
@@ -142,6 +144,7 @@ internal object KMongoSerializationRepository {
                     ?: module.getPolymorphic(kClass, obj)?.let {
                         PolymorphicSerializer(kClass)
                     }
+                    ?: kClass.superclasses.firstOrNull { it.isSealed }?.serializerOrNull()
         }
     }
 
