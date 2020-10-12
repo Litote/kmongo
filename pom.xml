@@ -90,7 +90,7 @@
         <!-- test dependencies -->
         <flapdoodle.version>2.2.0</flapdoodle.version>
         <sl4j.version>2.0.0-alpha1</sl4j.version>
-        <junit.version>4.13</junit.version>
+        <junit.version>4.13.1</junit.version>
         <jmh.version>1.26</jmh.version>
         <compiler-testing.version>0.18</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
