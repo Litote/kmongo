@@ -216,7 +216,7 @@ object KPropertySerializer : KSerializer<KProperty<*>> {
 }
 
 //@Serializer(forClass = Id::class)
-internal class IdSerializer<T : Id<*>>(val shouldBeStringId: Boolean) : KSerializer<T> {
+internal class IdSerializer<T : Id<*>>(private val shouldBeStringId: Boolean) : KSerializer<T> {
 
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("IdSerializer", PrimitiveKind.STRING)
 

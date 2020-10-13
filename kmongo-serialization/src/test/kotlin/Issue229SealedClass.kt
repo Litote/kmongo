@@ -50,4 +50,15 @@ class Issue229SealedClass : AllCategoriesKMongoBaseTest<SealedContainer>() {
         assertEquals(value, col.findOne())
     }
 
+    @Test
+    fun insertAndLoadNotEmbedded() {
+        val value = IntValue(1)
+        col.withDocumentClass<SealedValue>().insertOne(value)
+        val doc = col.withDocumentClass<Document>().findOne()
+        assertEquals("int-value", doc?.getString("___type"))
+        assertEquals(1, doc?.getInteger("value", 0))
+
+        assertEquals(value, col.withDocumentClass<SealedValue>().findOne())
+    }
+
 }

@@ -197,8 +197,8 @@ internal object KMongoSerializationRepository {
 
     @Suppress("UNCHECKED_CAST")
     private fun initBaseModule(): SerializersModule = SerializersModule {
-        serializersMap.forEach { contextual<Any>(it.key as KClass<Any>, it.value as KSerializer<Any>) }
-        customSerializersMap.forEach { contextual<Any>(it.key as KClass<Any>, it.value as KSerializer<Any>) }
+        serializersMap.forEach { contextual(it.key as KClass<Any>, it.value as KSerializer<Any>) }
+        customSerializersMap.forEach { contextual(it.key as KClass<Any>, it.value as KSerializer<Any>) }
         customModules.forEach { include(it) }
     }
 
