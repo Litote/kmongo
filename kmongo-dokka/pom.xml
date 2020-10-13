@@ -51,6 +51,10 @@
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-reactor-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-flapdoodle</artifactId>
         </dependency>
     </dependencies>
@@ -74,6 +78,7 @@
                         <sourceDirs>${project.basedir}/kmongo-async-core/src/main/kotlin</sourceDirs>
                         <sourceDirs>${project.basedir}/kmongo-coroutine-core/src/main/kotlin</sourceDirs>
                         <sourceDirs>${project.basedir}/kmongo-rxjava2-core/src/main/kotlin</sourceDirs>
+                        <sourceDirs>${project.basedir}/kmongo-reactor-core/src/main/kotlin</sourceDirs>
                         <sourceDirs>${project.basedir}/kmongo-property/src/main/kotlin</sourceDirs>
                     </sourceDirs>
                 </configuration>
@@ -160,6 +165,12 @@
                             <lineSuffix>#L</lineSuffix>
                         </link>
                         <link>
+                            <path>${project.basedir}/../kmongo-reactor-core/src/main/kotlin</path>
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-reactor-core/src/main/kotlin
+                            </url>
+                            <lineSuffix>#L</lineSuffix>
+                        </link>
+                        <link>
                             <path>${project.basedir}/../kmongo-property/src/main/kotlin</path>
                             <url>https://github.com/Litote/kmongo/blob/master/kmongo-property/src/main/kotlin
                             </url>
@@ -177,6 +188,7 @@
                         <dir>${project.basedir}/../kmongo-async-core/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-coroutine-core/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-rxjava2-core/src/main/kotlin</dir>
+                        <dir>${project.basedir}/../kmongo-reactor-core/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-property/src/main/kotlin</dir>
                     </sourceDirectories>
                     <perPackageOptions>

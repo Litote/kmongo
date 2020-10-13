@@ -24,7 +24,8 @@ you use transparently [the core MongoDB java driver API](https://docs.mongodb.co
 
 #### With complete reactive streams & async support
 
-You can use extensions for reactive streams style, [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html) or [RxJava2](http://reactivex.io/).
+You can use extensions for reactive streams style, [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html), 
+[Reactor](https://projectreactor.io/) or [RxJava2](http://reactivex.io/).
 
 ### Built-in Object Mapping
 
@@ -47,6 +48,7 @@ You can copy/paste your queries from the Mongo shell in your IDE. Write readable
 
 * [Deny Prasetyo](https://github.com/jasoet)  (kmongo-coroutine)
 * [Dilius](https://github.com/diliuskh) (kmongo-rxjava2)
+* [Jocelyn Ntakpe](https://github.com/jntakpe) (kmongo-reactor)
 * [Denis Kilchichakov](https://github.com/augur) (kmongo-coroutine)
 
 ## Acknowledgment
