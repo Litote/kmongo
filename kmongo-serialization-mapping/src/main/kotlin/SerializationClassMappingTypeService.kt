@@ -16,6 +16,7 @@
 package org.litote.kmongo.serialization
 
 import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
+import kotlinx.serialization.SerialName
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.EncoderContext
@@ -102,6 +103,7 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
     override fun coreCodecRegistry(): CodecRegistry = coreCodecRegistry
 
     override fun <T> calculatePath(property: KProperty<T>): String =
-        if (property.hasAnnotation<MongoId>()) "_id"
-        else property.findAnnotation<MongoProperty>()?.value ?: property.name
+        property.findAnnotation<SerialName>()?.value
+                ?: (if (property.hasAnnotation<MongoId>()) "_id" else property.findAnnotation<MongoProperty>()?.value)
+                ?: property.name
 }

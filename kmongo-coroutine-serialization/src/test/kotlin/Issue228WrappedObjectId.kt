@@ -21,14 +21,13 @@ import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.Id
 import org.litote.kmongo.coroutine.KMongoReactiveStreamsCoroutineBaseTest
-import org.litote.kmongo.id.MongoId
 import org.litote.kmongo.newId
 import kotlin.test.assertEquals
 
 @Serializable
 data class Tag(
     @Contextual
-    @SerialName("_id") @MongoId val id: Id<Tag>? = newId(),
+    @SerialName("_id") val id: Id<Tag>? = newId(),
     val displayName: String,
     val description: String? = null,
     val createdAt: Long = System.currentTimeMillis()

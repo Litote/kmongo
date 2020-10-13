@@ -16,12 +16,14 @@
 
 package org.litote.kmongo.issues
 
+import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
 import kotlin.test.assertEquals
 
-data class FloatContainer(val float: Float = 2.0F, val double: Double = 2.0)
+@Serializable
+data class FloatContainer(val float: Float, val double: Double)
 
 /**
  *

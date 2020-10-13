@@ -297,7 +297,7 @@ class SerializationCodecTest {
     }
 
     @Serializable
-    data class TestWithProperty(@SerialName("b") @MongoProperty("b") val a: String)
+    data class TestWithProperty(@SerialName("b") val a: String)
 
     @InternalSerializationApi
     @Test

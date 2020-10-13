@@ -27,7 +27,6 @@ import org.junit.Test
 import org.litote.kmongo.IdTest.Article
 import org.litote.kmongo.MongoOperator.oid
 import org.litote.kmongo.id.IdGenerator
-import org.litote.kmongo.id.MongoId
 import org.litote.kmongo.id.ObjectIdGenerator
 import org.litote.kmongo.id.ObjectIdToStringGenerator
 import org.litote.kmongo.id.StringId
@@ -84,7 +83,6 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
         @Contextual
         @BsonId
         @SerialName("_id")
-        @MongoId
         val id: Id<Shop> = newId()
     )
 

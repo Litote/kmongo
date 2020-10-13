@@ -56,8 +56,9 @@ interface IdController {
 object ReflectionIdController : IdController {
 
     override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? {
-        return type.declaredMemberProperties.find { it.name == "_id" || it.hasAnnotation<MongoId>() }
-                ?: type.memberProperties.find { it.name == "_id" || it.hasAnnotation<MongoId>() }
+
+        return type.declaredMemberProperties.find { it.name == "_id" || it.findAnnotation<SerialName>()?.value == "_id" || it.hasAnnotation<MongoId>() }
+                ?: type.memberProperties.find { it.name == "_id" || it.findAnnotation<SerialName>()?.value == "_id" || it.hasAnnotation<MongoId>() }
     }
 
     override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? {

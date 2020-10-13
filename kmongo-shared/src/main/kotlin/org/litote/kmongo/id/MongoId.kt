@@ -19,5 +19,6 @@ package org.litote.kmongo.id
 /**
  * Annotate mongo identifier property for kotlinx.serialization.
  */
+@Deprecated("no longer required - use @SerialName(_id)")
 @Target(AnnotationTarget.PROPERTY)
 annotation class MongoId

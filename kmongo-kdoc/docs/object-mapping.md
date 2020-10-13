@@ -7,9 +7,9 @@ Query results are automatically mapped to objects.
 To manage Mongo ```_id```, a class must have one ```_id``` property
 OR a property annotated with the ```@BsonId``` annotation.
  
-> For **kotlinx serialization**, ```@BsonId``` is not supported - you have to use ```@SerialName("_id") @MongoId``` as ```@BsonId``` replacement.
+> For **kotlinx serialization**, ```@BsonId``` is not supported - you have to use ```@SerialName("_id")``` as ```@BsonId``` replacement.
 >          
-> For example, ```Data(@Contextual val _id: Id<Data>)``` and ```Data(@Contextual @SerialName("_id") @MongoId val myId: Id<Data>)``` are equivalent.
+> For example, ```Data(@Contextual val _id: Id<Data>)``` and ```Data(@Contextual @SerialName("_id") val myId: Id<Data>)``` are equivalent.
  
 If there is no such field in your class, an ```ObjectId``` _id is generated on server side.
 
@@ -157,25 +157,6 @@ All the common cases are covered. However, there are some limitations. For examp
 Starting with 3.11.2 version, KMongo also supports [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization) mapping.
 
 The main advantage of this kind of mapping is that **almost no (slow) reflection** is involved.
-
-#### Workaround around typed queries and ```@SerialName```
-
-Starting for kotlin 1.4, if you have a data class with a ```@SerialName``` annotation and it, and if you use typed queries,
- you need to add the ```@MongoProperty``` on the property to query the right field name. 
- 
-```kotlin     
-@Serializable
-data class Data(@SerialName("mongoOtherName") val s: String)
-    
-col.insert(Data("a")) // insert { "mongoOtherName": "a" }
-col.find(Data::s eq "a") // -> generate a query { "s": "a" }  
-
-@Serializable
-data class FixedData(@SerialName("mongoOtherName") @MongoProperty("mongoOtherName") val s: String) 
-
-col.insert(FixedData("a")) // insert { "mongoOtherName": "a" }
-col.find(FixedData::s eq "a") // -> generate a query { "mongoOtherName": "a" } 
-```
 
 #### Additional Modules and Serializers
 

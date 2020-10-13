@@ -30,7 +30,6 @@ import org.litote.kmongo.id.MongoId
 data class Friend(
     @Contextual
     @SerialName("_id")
-    @MongoId
     @BsonId
     val id: ObjectId? = null,
     val name: String? = null,
