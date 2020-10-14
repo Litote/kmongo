@@ -30,7 +30,7 @@ class ReplaceTest : KMongoReactorBaseTest<Friend>() {
         val friend = Friend("Peter", "31 rue des Lilas")
         col.insertOne(friend).blockLast()
         col.replaceOneById(friend._id ?: Any(), Friend("John")).block()
-        val replacedFriend = col.findOne("{name:'John'}}").block() ?: throw AssertionError("Value must not null!")
+        val replacedFriend = col.findOne("{name:'John'}").block() ?: throw AssertionError("Value must not null!")
         assertEquals("John", replacedFriend.name)
     }
 
