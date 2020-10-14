@@ -398,7 +398,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.mapReduceTyped(
  * @param document the document to insert
  * @param options  the options to apply to the operation
  */
-inline fun <reified T : Any> MongoCollection<T>.insertOne(document: T, options: InsertOneOptions = InsertOneOptions()): Mono<Void> {
+inline fun <reified T : Any> MongoCollection<T>.insert(document: T, options: InsertOneOptions = InsertOneOptions()): Mono<Void> {
     return insertOne(document, options)
         .toMono()
         .then()

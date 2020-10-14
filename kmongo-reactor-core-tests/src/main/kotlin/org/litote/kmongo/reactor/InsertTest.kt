@@ -32,7 +32,7 @@ class InsertTest : KMongoReactorBaseTest<Friend>() {
     @Test
     fun canInsertNewDocument() {
         val friend = Friend("Jane", "45 rue de la Paix")
-        col.insertOne(friend).blockLast()
+        col.insert(friend).block()
         val insertedFriend = col.findOne("{name:'Jane'}").block() ?: throw AssertionError("Value must not null!")
         assertEquals("Jane", insertedFriend.name)
     }
@@ -42,7 +42,7 @@ class InsertTest : KMongoReactorBaseTest<Friend>() {
         val existingId = ObjectId()
         col.insertOne(Friend("James", "45 avenue Foch", existingId)).block()!!
         assertFailsWith<MongoWriteException> {
-            col.insertOne(Friend("Martin", "12 avenue Montaigne", existingId)).blockLast()
+            col.insert(Friend("Martin", "12 avenue Montaigne", existingId)).block()
         }
         val insertedFriend = col.findOneById(existingId).block() ?: throw AssertionError("Value must not null!")
         assertEquals("James", insertedFriend.name)
