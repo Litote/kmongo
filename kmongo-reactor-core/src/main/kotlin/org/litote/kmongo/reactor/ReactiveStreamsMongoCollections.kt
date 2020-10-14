@@ -393,6 +393,18 @@ inline fun <reified TResult : Any> MongoCollection<*>.mapReduceTyped(
 }
 
 /**
+ * Inserts the provided object. If the document is missing an identifier, the driver should generate one.
+ *
+ * @param document the document to insert
+ * @param options  the options to apply to the operation
+ */
+inline fun <reified T : Any> MongoCollection<T>.insertOne(document: T, options: InsertOneOptions = InsertOneOptions()): Mono<Void> {
+    return insertOne(document, options)
+        .toMono()
+        .then()
+}
+
+/**
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
  *
  * @param document the document to insert
