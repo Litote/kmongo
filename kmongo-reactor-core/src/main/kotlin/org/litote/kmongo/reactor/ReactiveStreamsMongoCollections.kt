@@ -60,8 +60,9 @@ import kotlin.reflect.KProperty1
  * @param <NewTDocument> the default class to cast any documents returned from the database into.
  * @return a new MongoCollection instance with the different default class
  */
-inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument> =
-    withDocumentClass(NewTDocument::class.java)
+inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument> {
+    return withDocumentClass(NewTDocument::class.java)
+}
 
 /**
  * Counts the number of documents
@@ -84,8 +85,9 @@ fun <T> MongoCollection<T>.countDocuments(clientSession: ClientSession): Mono<Lo
  * @param filter   the query filter
  * @return count of filtered collection
  */
-fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions = CountOptions()): Mono<Long> =
-    countDocuments(toBson(filter), options).toMono()
+fun <T> MongoCollection<T>.countDocuments(filter: String, options: CountOptions = CountOptions()): Mono<Long> {
+    return countDocuments(toBson(filter), options).toMono()
+}
 
 /**
  * Counts the number of documents in the collection according to the given options.
@@ -98,8 +100,9 @@ fun <T> MongoCollection<T>.countDocuments(
     clientSession: ClientSession,
     filter: String,
     options: CountOptions = CountOptions()
-): Mono<Long> =
-    countDocuments(clientSession, toBson(filter), options).toMono()
+): Mono<Long> {
+    return countDocuments(clientSession, toBson(filter), options).toMono()
+}
 
 /**
  * Gets the distinct values of the specified field name.
@@ -223,8 +226,9 @@ fun <T : Any> MongoCollection<T>.find(vararg filters: Bson?): FindPublisher<T> =
  * @param  filters the query filter
  * @return the find iterable interface
  */
-fun <T : Any> MongoCollection<T>.find(clientSession: ClientSession, vararg filters: Bson?): FindPublisher<T> =
-    find(clientSession, and(*filters))
+fun <T : Any> MongoCollection<T>.find(clientSession: ClientSession, vararg filters: Bson?): FindPublisher<T> {
+    return find(clientSession, and(*filters))
+}
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -239,8 +243,9 @@ fun <T : Any> MongoCollection<T>.findOne(filter: String = KMongoUtil.EMPTY_JSON)
  * @param clientSession the client session
  * @param filter the query filter
  */
-fun <T : Any> MongoCollection<T>.findOne(clientSession: ClientSession, filter: String = KMongoUtil.EMPTY_JSON): Mono<T> =
-    find(clientSession, filter).toMono()
+fun <T : Any> MongoCollection<T>.findOne(clientSession: ClientSession, filter: String = KMongoUtil.EMPTY_JSON): Mono<T> {
+    return find(clientSession, filter).toMono()
+}
 
 /**
  * Finds the first document that match the filter in the collection.
@@ -270,8 +275,9 @@ fun <T : Any> MongoCollection<T>.findOne(vararg filters: Bson?): Mono<T> = find(
  * @param clientSession the client session
  * @param filters the query filters
  */
-fun <T : Any> MongoCollection<T>.findOne(clientSession: ClientSession, vararg filters: Bson?): Mono<T> =
-    find(clientSession, *filters).first().toMono()
+fun <T : Any> MongoCollection<T>.findOne(clientSession: ClientSession, vararg filters: Bson?): Mono<T> {
+    return find(clientSession, *filters).first().toMono()
+}
 
 /**
  * Finds the document that match the id parameter.
@@ -392,16 +398,11 @@ inline fun <reified TResult : Any> MongoCollection<*>.mapReduceTyped(
  * @param document the document to insert
  * @param options  the options to apply to the operation
  */
-inline fun <reified T : Any> MongoCollection<T>.insertOne(
-    document: String,
-    options: InsertOneOptions = InsertOneOptions()
-): Mono<Void> =
-    withDocumentClass<BsonDocument>().insertOne(
-        toBson(document, T::class),
-        options
-    )
+inline fun <reified T : Any> MongoCollection<T>.insertOne(document: String, options: InsertOneOptions = InsertOneOptions()): Mono<Void> {
+    return withDocumentClass<BsonDocument>().insertOne(toBson(document, T::class), options)
         .toMono()
         .then()
+}
 
 /**
  * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
@@ -413,14 +414,11 @@ inline fun <reified T : Any> MongoCollection<T>.insertOne(
     clientSession: ClientSession,
     document: String,
     options: InsertOneOptions = InsertOneOptions()
-): Mono<Void> =
-    withDocumentClass<BsonDocument>().insertOne(
-        clientSession,
-        toBson(document, T::class),
-        options
-    )
+): Mono<Void> {
+    return withDocumentClass<BsonDocument>().insertOne(clientSession, toBson(document, T::class), options)
         .toMono()
         .then()
+}
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -441,8 +439,9 @@ fun <T> MongoCollection<T>.deleteOne(filter: String): Mono<DeleteResult> = delet
  *
  * @return the result of the remove one operation
  */
-fun <T> MongoCollection<T>.deleteOne(clientSession: ClientSession, filter: String): Mono<DeleteResult> =
-    deleteOne(clientSession, toBson(filter)).toMono()
+fun <T> MongoCollection<T>.deleteOne(clientSession: ClientSession, filter: String): Mono<DeleteResult> {
+    return deleteOne(clientSession, toBson(filter)).toMono()
+}
 
 /**
  * Removes at most one document from the collection that matches the given filter.  If no documents match, the collection is not
@@ -471,8 +470,9 @@ fun <T> MongoCollection<T>.deleteOne(vararg filters: Bson?): Mono<DeleteResult> 
  * @throws com.mongodb.MongoWriteConcernException
  * @throws com.mongodb.MongoException
  */
-fun <T> MongoCollection<T>.deleteOne(clientSession: ClientSession, vararg filters: Bson?): Mono<DeleteResult> =
-    deleteOne(clientSession, and(*filters)).toMono()
+fun <T> MongoCollection<T>.deleteOne(clientSession: ClientSession, vararg filters: Bson?): Mono<DeleteResult> {
+    return deleteOne(clientSession, and(*filters)).toMono()
+}
 
 /**
  * Removes at most one document from the id parameter.  If no documents match, the collection is not
@@ -489,8 +489,9 @@ fun <T> MongoCollection<T>.deleteOneById(id: Any): Mono<DeleteResult> = deleteOn
  * @param clientSession the client session
  * @param id   the object id
  */
-fun <T> MongoCollection<T>.deleteOneById(clientSession: ClientSession, id: Any): Mono<DeleteResult> =
-    deleteOne(clientSession, idFilterQuery(id)).toMono()
+fun <T> MongoCollection<T>.deleteOneById(clientSession: ClientSession, id: Any): Mono<DeleteResult> {
+    return deleteOne(clientSession, idFilterQuery(id)).toMono()
+}
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -498,10 +499,9 @@ fun <T> MongoCollection<T>.deleteOneById(clientSession: ClientSession, id: Any):
  * @param filter   the query filter to apply the the delete operation
  * @param options  the options to apply to the delete operation
  */
-fun <T> MongoCollection<T>.deleteMany(
-    filter: String,
-    options: DeleteOptions = DeleteOptions()
-): Mono<DeleteResult> = deleteMany(toBson(filter), options).toMono()
+fun <T> MongoCollection<T>.deleteMany(filter: String, options: DeleteOptions = DeleteOptions()): Mono<DeleteResult> {
+    return deleteMany(toBson(filter), options).toMono()
+}
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -514,7 +514,9 @@ fun <T> MongoCollection<T>.deleteMany(
     clientSession: ClientSession,
     filter: String,
     options: DeleteOptions = DeleteOptions()
-): Mono<DeleteResult> = deleteMany(clientSession, toBson(filter), options).toMono()
+): Mono<DeleteResult> {
+    return deleteMany(clientSession, toBson(filter), options).toMono()
+}
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -522,10 +524,9 @@ fun <T> MongoCollection<T>.deleteMany(
  * @param filters   the query filters to apply the the delete operation
  * @param options  the options to apply to the delete operation
  */
-fun <T> MongoCollection<T>.deleteMany(
-    vararg filters: Bson?,
-    options: DeleteOptions = DeleteOptions()
-): Mono<DeleteResult> = deleteMany(and(*filters), options).toMono()
+fun <T> MongoCollection<T>.deleteMany(vararg filters: Bson?, options: DeleteOptions = DeleteOptions()): Mono<DeleteResult> {
+    return deleteMany(and(*filters), options).toMono()
+}
 
 /**
  * Removes all documents from the collection that match the given query filter.  If no documents match, the collection is not modified.
@@ -538,7 +539,9 @@ fun <T> MongoCollection<T>.deleteMany(
     clientSession: ClientSession,
     vararg filters: Bson?,
     options: DeleteOptions = DeleteOptions()
-): Mono<DeleteResult> = deleteMany(clientSession, and(*filters), options).toMono()
+): Mono<DeleteResult> {
+    return deleteMany(clientSession, and(*filters), options).toMono()
+}
 
 /**
  * Save the document.
@@ -550,11 +553,7 @@ fun <T> MongoCollection<T>.deleteMany(
 fun <T : Any> MongoCollection<T>.save(document: T): Mono<Void> {
     val id = KMongoUtil.getIdValue(document)
     return if (id != null) {
-        replaceOneById(
-            id,
-            document,
-            ReplaceOptions().upsert(true)
-        ).then()
+        replaceOneById(id, document, ReplaceOptions().upsert(true)).then()
     } else {
         insertOne(document).toMono().then()
     }
@@ -571,12 +570,7 @@ fun <T : Any> MongoCollection<T>.save(document: T): Mono<Void> {
 fun <T : Any> MongoCollection<T>.save(clientSession: ClientSession, document: T): Mono<Void> {
     val id = KMongoUtil.getIdValue(document)
     return if (id != null) {
-        replaceOneById(
-            clientSession,
-            id,
-            document,
-            ReplaceOptions().upsert(true)
-        ).then()
+        replaceOneById(clientSession, id, document, ReplaceOptions().upsert(true)).then()
     } else {
         insertOne(clientSession, document).toMono().then()
     }
@@ -591,12 +585,9 @@ fun <T : Any> MongoCollection<T>.save(clientSession: ClientSession, document: T)
  *
  * @return the result of the replace one operation
  */
-fun <T : Any> MongoCollection<T>.replaceOneById(
-    id: Any,
-    replacement: T,
-    options: ReplaceOptions = ReplaceOptions()
-): Mono<UpdateResult> =
-    withDocumentClass<BsonDocument>().replaceOne(idFilterQuery(id), filterIdToBson(replacement), options).toMono()
+fun <T : Any> MongoCollection<T>.replaceOneById(id: Any, replacement: T, options: ReplaceOptions = ReplaceOptions()): Mono<UpdateResult> {
+    return withDocumentClass<BsonDocument>().replaceOne(idFilterQuery(id), filterIdToBson(replacement), options).toMono()
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -613,8 +604,9 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
     id: Any,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): Mono<UpdateResult> =
-    withDocumentClass<BsonDocument>().replaceOne(clientSession, idFilterQuery(id), filterIdToBson(replacement), options).toMono()
+): Mono<UpdateResult> {
+    return withDocumentClass<BsonDocument>().replaceOne(clientSession, idFilterQuery(id), filterIdToBson(replacement), options).toMono()
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -622,10 +614,9 @@ fun <T : Any> MongoCollection<T>.replaceOneById(
  * @param replacement the document to replace - must have an non null id
  * @param options     the options to apply to the replace operation
  */
-inline fun <reified T : Any> MongoCollection<T>.replaceOne(
-    replacement: T,
-    options: ReplaceOptions = ReplaceOptions()
-): Mono<UpdateResult> = replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement, options)
+inline fun <reified T : Any> MongoCollection<T>.replaceOne(replacement: T, options: ReplaceOptions = ReplaceOptions()): Mono<UpdateResult> {
+    return replaceOneById(KMongoUtil.extractId(replacement, T::class), replacement, options)
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -638,7 +629,9 @@ inline fun <reified T : Any> MongoCollection<T>.replaceOne(
     clientSession: ClientSession,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): Mono<UpdateResult> = replaceOneById(clientSession, KMongoUtil.extractId(replacement, T::class), replacement, options)
+): Mono<UpdateResult> {
+    return replaceOneById(clientSession, KMongoUtil.extractId(replacement, T::class), replacement, options)
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -653,7 +646,9 @@ fun <T : Any> MongoCollection<T>.replaceOne(
     filter: String,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): Mono<UpdateResult> = replaceOne(toBson(filter), replacement, options).toMono()
+): Mono<UpdateResult> {
+    return replaceOne(toBson(filter), replacement, options).toMono()
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -670,7 +665,9 @@ fun <T : Any> MongoCollection<T>.replaceOne(
     filter: String,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): Mono<UpdateResult> = replaceOne(clientSession, toBson(filter), replacement, options).toMono()
+): Mono<UpdateResult> {
+    return replaceOne(clientSession, toBson(filter), replacement, options).toMono()
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -687,12 +684,10 @@ fun <T : Any> MongoCollection<T>.replaceOneWithoutId(
     filter: Bson,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): Mono<UpdateResult> =
-    withDocumentClass<BsonDocument>().replaceOne(
-        filter,
-        KMongoUtil.filterIdToBson(replacement),
-        options
-    ).toMono()
+): Mono<UpdateResult> {
+    return withDocumentClass<BsonDocument>().replaceOne(filter, filterIdToBson(replacement), options)
+        .toMono()
+}
 
 /**
  * Replace a document in the collection according to the specified arguments.
@@ -711,13 +706,10 @@ fun <T : Any> MongoCollection<T>.replaceOneWithoutId(
     filter: Bson,
     replacement: T,
     options: ReplaceOptions = ReplaceOptions()
-): Mono<UpdateResult> =
-    withDocumentClass<BsonDocument>().replaceOne(
-        clientSession,
-        filter,
-        KMongoUtil.filterIdToBson(replacement),
-        options
-    ).toMono()
+): Mono<UpdateResult> {
+    return withDocumentClass<BsonDocument>().replaceOne(clientSession, filter, filterIdToBson(replacement), options)
+        .toMono()
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -728,11 +720,9 @@ fun <T : Any> MongoCollection<T>.replaceOneWithoutId(
  *
  * @return the result of the update one operation
  */
-fun <T> MongoCollection<T>.updateOne(
-    filter: String,
-    update: String,
-    options: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateOne(toBson(filter), toBson(update), options).toMono()
+fun <T> MongoCollection<T>.updateOne(filter: String, update: String, options: UpdateOptions = UpdateOptions()): Mono<UpdateResult> {
+    return updateOne(toBson(filter), toBson(update), options).toMono()
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -760,11 +750,9 @@ fun <T> MongoCollection<T>.updateOne(
  *
  * @return the result of the update one operation
  */
-fun <T : Any> MongoCollection<T>.updateOne(
-    filter: String,
-    target: T,
-    options: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateOne(toBson(filter), KMongoUtil.toBsonModifier(target), options).toMono()
+fun <T : Any> MongoCollection<T>.updateOne(filter: String, target: T, options: UpdateOptions = UpdateOptions()): Mono<UpdateResult> {
+    return updateOne(toBson(filter), KMongoUtil.toBsonModifier(target), options).toMono()
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -781,7 +769,9 @@ fun <T : Any> MongoCollection<T>.updateOne(
     filter: String,
     target: T,
     options: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateOne(clientSession, toBson(filter), KMongoUtil.toBsonModifier(target), options).toMono()
+): Mono<UpdateResult> {
+    return updateOne(clientSession, toBson(filter), KMongoUtil.toBsonModifier(target), options).toMono()
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -796,7 +786,9 @@ fun <T : Any> MongoCollection<T>.updateOne(
     filter: Bson,
     target: T,
     options: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateOne(filter, KMongoUtil.toBsonModifier(target), options).toMono()
+): Mono<UpdateResult> {
+    return updateOne(filter, KMongoUtil.toBsonModifier(target), options).toMono()
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -813,7 +805,9 @@ fun <T : Any> MongoCollection<T>.updateOne(
     filter: Bson,
     target: T,
     options: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateOne(clientSession, filter, KMongoUtil.toBsonModifier(target), options).toMono()
+): Mono<UpdateResult> {
+    return updateOne(clientSession, filter, KMongoUtil.toBsonModifier(target), options).toMono()
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -823,10 +817,9 @@ fun <T : Any> MongoCollection<T>.updateOne(
  *
  * @return the result of the update one operation
  */
-inline fun <reified T : Any> MongoCollection<T>.updateOne(
-    target: T,
-    options: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateOneById(KMongoUtil.extractId(target, T::class), target, options)
+inline fun <reified T : Any> MongoCollection<T>.updateOne(target: T, options: UpdateOptions = UpdateOptions()): Mono<UpdateResult> {
+    return updateOneById(KMongoUtil.extractId(target, T::class), target, options)
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -841,7 +834,9 @@ inline fun <reified T : Any> MongoCollection<T>.updateOne(
     clientSession: ClientSession,
     target: T,
     options: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateOneById(clientSession, KMongoUtil.extractId(target, T::class), target, options)
+): Mono<UpdateResult> {
+    return updateOneById(clientSession, KMongoUtil.extractId(target, T::class), target, options)
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -856,12 +851,10 @@ fun <T> MongoCollection<T>.updateOneById(
     id: Any,
     update: Any,
     options: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> =
-    updateOne(
-        idFilterQuery(id),
-        KMongoUtil.toBsonModifier(update),
-        options
-    ).toMono()
+): Mono<UpdateResult> {
+    return updateOne(idFilterQuery(id), KMongoUtil.toBsonModifier(update), options)
+        .toMono()
+}
 
 /**
  * Update a single document in the collection according to the specified arguments.
@@ -878,13 +871,10 @@ fun <T> MongoCollection<T>.updateOneById(
     id: Any,
     update: Any,
     options: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> =
-    updateOne(
-        clientSession,
-        idFilterQuery(id),
-        KMongoUtil.toBsonModifier(update),
-        options
-    ).toMono()
+): Mono<UpdateResult> {
+    return updateOne(clientSession, idFilterQuery(id), KMongoUtil.toBsonModifier(update), options)
+        .toMono()
+}
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -899,7 +889,9 @@ fun <T> MongoCollection<T>.updateMany(
     filter: String,
     update: String,
     updateOptions: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateMany(toBson(filter), toBson(update), updateOptions).toMono()
+): Mono<UpdateResult> {
+    return updateMany(toBson(filter), toBson(update), updateOptions).toMono()
+}
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -916,7 +908,9 @@ fun <T> MongoCollection<T>.updateMany(
     filter: String,
     update: String,
     updateOptions: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateMany(clientSession, toBson(filter), toBson(update), updateOptions).toMono()
+): Mono<UpdateResult> {
+    return updateMany(clientSession, toBson(filter), toBson(update), updateOptions).toMono()
+}
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -931,7 +925,9 @@ fun <T> MongoCollection<T>.updateMany(
     filter: Bson,
     vararg updates: SetTo<*>,
     updateOptions: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateMany(filter, set(*updates), updateOptions).toMono()
+): Mono<UpdateResult> {
+    return updateMany(filter, set(*updates), updateOptions).toMono()
+}
 
 /**
  * Update all documents in the collection according to the specified arguments.
@@ -948,7 +944,9 @@ fun <T> MongoCollection<T>.updateMany(
     filter: Bson,
     vararg updates: SetTo<*>,
     updateOptions: UpdateOptions = UpdateOptions()
-): Mono<UpdateResult> = updateMany(clientSession, filter, set(*updates), updateOptions).toMono()
+): Mono<UpdateResult> {
+    return updateMany(clientSession, filter, set(*updates), updateOptions).toMono()
+}
 
 /**
  * Atomically find a document and remove it.
@@ -961,7 +959,9 @@ fun <T> MongoCollection<T>.updateMany(
 fun <T : Any> MongoCollection<T>.findOneAndDelete(
     filter: String,
     options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
-): Mono<T> = findOneAndDelete(toBson(filter), options).toMono()
+): Mono<T> {
+    return findOneAndDelete(toBson(filter), options).toMono()
+}
 
 /**
  * Atomically find a document and remove it.
@@ -976,7 +976,9 @@ fun <T : Any> MongoCollection<T>.findOneAndDelete(
     clientSession: ClientSession,
     filter: String,
     options: FindOneAndDeleteOptions = FindOneAndDeleteOptions()
-): Mono<T> = findOneAndDelete(clientSession, toBson(filter), options).toMono()
+): Mono<T> {
+    return findOneAndDelete(clientSession, toBson(filter), options).toMono()
+}
 
 /**
  * Atomically find a document and replace it.
@@ -993,7 +995,9 @@ fun <T> MongoCollection<T>.findOneAndReplace(
     filter: String,
     replacement: T,
     options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
-): Mono<T> = findOneAndReplace(toBson(filter), replacement, options).toMono()
+): Mono<T> {
+    return findOneAndReplace(toBson(filter), replacement, options).toMono()
+}
 
 /**
  * Atomically find a document and replace it.
@@ -1012,7 +1016,9 @@ fun <T> MongoCollection<T>.findOneAndReplace(
     filter: String,
     replacement: T,
     options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
-): Mono<T> = findOneAndReplace(clientSession, toBson(filter), replacement, options).toMono()
+): Mono<T> {
+    return findOneAndReplace(clientSession, toBson(filter), replacement, options).toMono()
+}
 
 /**
  * Atomically find a document and update it.
@@ -1029,7 +1035,9 @@ fun <T : Any> MongoCollection<T>.findOneAndUpdate(
     filter: String,
     update: String,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
-): Mono<T> = findOneAndUpdate(toBson(filter), toBson(update), options).toMono()
+): Mono<T> {
+    return findOneAndUpdate(toBson(filter), toBson(update), options).toMono()
+}
 
 /**
  * Atomically find a document and update it.
@@ -1048,7 +1056,9 @@ fun <T : Any> MongoCollection<T>.findOneAndUpdate(
     filter: String,
     update: String,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
-): Mono<T> = findOneAndUpdate(clientSession, toBson(filter), toBson(update), options).toMono()
+): Mono<T> {
+    return findOneAndUpdate(clientSession, toBson(filter), toBson(update), options).toMono()
+}
 
 /**
  * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
@@ -1058,8 +1068,9 @@ fun <T : Any> MongoCollection<T>.findOneAndUpdate(
  *
  * @return the index name
  */
-fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions = IndexOptions()): Mono<String> =
-    createIndex(toBson(key), options).toMono()
+fun <T> MongoCollection<T>.createIndex(key: String, options: IndexOptions = IndexOptions()): Mono<String> {
+    return createIndex(toBson(key), options).toMono()
+}
 
 /**
  * Creates an index.  If successful, the callback will be executed with the name of the created index as the result.
@@ -1106,8 +1117,11 @@ fun <T> MongoCollection<T>.ensureIndex(keys: String, indexOptions: IndexOptions 
  *
  * @return the index name
  */
-fun <T> MongoCollection<T>.ensureIndex(clientSession: ClientSession, keys: String, indexOptions: IndexOptions = IndexOptions()):
-        Mono<Void> {
+fun <T> MongoCollection<T>.ensureIndex(
+    clientSession: ClientSession,
+    keys: String,
+    indexOptions: IndexOptions = IndexOptions()
+): Mono<Void> {
     return createIndex(clientSession, keys, indexOptions)
         .onErrorResume {
             dropIndex(keys)
@@ -1178,7 +1192,9 @@ fun <T> MongoCollection<T>.ensureIndex(
 fun <T> MongoCollection<T>.ensureIndex(
     vararg properties: KProperty<*>,
     indexOptions: IndexOptions = IndexOptions()
-): Mono<Void> = ensureIndex(ascending(*properties), indexOptions)
+): Mono<Void> {
+    return ensureIndex(ascending(*properties), indexOptions)
+}
 
 /**
  * Create an index with the given keys and options.
@@ -1194,7 +1210,9 @@ fun <T> MongoCollection<T>.ensureIndex(
     clientSession: ClientSession,
     vararg properties: KProperty<*>,
     indexOptions: IndexOptions = IndexOptions()
-): Mono<Void> = ensureIndex(clientSession, ascending(*properties), indexOptions)
+): Mono<Void> {
+    return ensureIndex(clientSession, ascending(*properties), indexOptions)
+}
 
 /**
  * Create an [IndexOptions.unique] index with the given keys and options.
@@ -1208,7 +1226,9 @@ fun <T> MongoCollection<T>.ensureIndex(
 fun <T> MongoCollection<T>.ensureUniqueIndex(
     vararg properties: KProperty<*>,
     indexOptions: IndexOptions = IndexOptions()
-): Mono<Void> = ensureIndex(ascending(*properties), indexOptions.unique(true))
+): Mono<Void> {
+    return ensureIndex(ascending(*properties), indexOptions.unique(true))
+}
 
 /**
  * Create an [IndexOptions.unique] index with the given keys and options.
@@ -1224,7 +1244,9 @@ fun <T> MongoCollection<T>.ensureUniqueIndex(
     clientSession: ClientSession,
     vararg properties: KProperty<*>,
     indexOptions: IndexOptions = IndexOptions()
-): Mono<Void> = ensureIndex(clientSession, ascending(*properties), indexOptions.unique(true))
+): Mono<Void> {
+    return ensureIndex(clientSession, ascending(*properties), indexOptions.unique(true))
+}
 
 /**
  * Get all the indexes in this collection.
@@ -1233,8 +1255,7 @@ fun <T> MongoCollection<T>.ensureUniqueIndex(
  *
  * @return the list indexes iterable interface
  */
-inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesPublisher<TResult> =
-    listIndexes(TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesPublisher<TResult> = listIndexes(TResult::class.java)
 
 /**
  * Get all the indexes in this collection.
@@ -1244,8 +1265,9 @@ inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIn
  *
  * @return the list indexes iterable interface
  */
-inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(clientSession: ClientSession): ListIndexesPublisher<TResult> =
-    listIndexes(clientSession, TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(clientSession: ClientSession): ListIndexesPublisher<TResult> {
+    return listIndexes(clientSession, TResult::class.java)
+}
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -1258,15 +1280,10 @@ inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(clientSes
 inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
     vararg requests: String,
     options: BulkWriteOptions = BulkWriteOptions()
-): Mono<BulkWriteResult> =
-    withDocumentClass<BsonDocument>().bulkWrite(
-        KMongoUtil.toWriteModel(
-            requests,
-            codecRegistry,
-            T::class
-        ),
-        options
-    ).toMono()
+): Mono<BulkWriteResult> {
+    return withDocumentClass<BsonDocument>().bulkWrite(KMongoUtil.toWriteModel(requests, codecRegistry, T::class), options)
+        .toMono()
+}
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -1281,16 +1298,10 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
     clientSession: ClientSession,
     vararg requests: String,
     options: BulkWriteOptions = BulkWriteOptions()
-): Mono<BulkWriteResult> =
-    withDocumentClass<BsonDocument>().bulkWrite(
-        clientSession,
-        KMongoUtil.toWriteModel(
-            requests,
-            codecRegistry,
-            T::class
-        ),
-        options
-    ).toMono()
+): Mono<BulkWriteResult> {
+    return withDocumentClass<BsonDocument>().bulkWrite(clientSession, KMongoUtil.toWriteModel(requests, codecRegistry, T::class), options)
+        .toMono()
+}
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -1301,7 +1312,9 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
 inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
     vararg requests: WriteModel<T>,
     options: BulkWriteOptions = BulkWriteOptions()
-): Mono<BulkWriteResult> = bulkWrite(requests.toList(), options).toMono()
+): Mono<BulkWriteResult> {
+    return bulkWrite(requests.toList(), options).toMono()
+}
 
 /**
  * Executes a mix of inserts, updates, replaces, and deletes.
@@ -1314,4 +1327,6 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
     clientSession: ClientSession,
     vararg requests: WriteModel<T>,
     options: BulkWriteOptions = BulkWriteOptions()
-): Mono<BulkWriteResult> = bulkWrite(clientSession, requests.toList(), options).toMono()
+): Mono<BulkWriteResult> {
+    return bulkWrite(clientSession, requests.toList(), options).toMono()
+}
