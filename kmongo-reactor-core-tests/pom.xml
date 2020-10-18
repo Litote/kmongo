@@ -15,31 +15,41 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.litote.kmongo</groupId>
-        <artifactId>kmongo-benchmark</artifactId>
+        <artifactId>kmongo-root</artifactId>
         <version>4.1.4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>kmongo-benchmark-common</artifactId>
-
-    <name>KMongo JMH benchmark Common classes</name>
+    <artifactId>kmongo-reactor-core-tests</artifactId>
+    <name>KMongo reactor core tests</name>
+    <description>KMongo reactor client core tests</description>
 
     <dependencies>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-shared</artifactId>
+            <artifactId>kmongo-reactor-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-core</artifactId>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-flapdoodle</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-serialization-core-jvm</artifactId>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-shared-tests</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

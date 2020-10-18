@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (C) 2016/2020 Litote
   ~
@@ -23,15 +24,16 @@
         <version>4.1.4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>kmongo</artifactId>
-    <name>KMongo sync</name>
-    <description>KMongo synchronous client with jackson object mapping</description>
+    <artifactId>kmongo-reactor</artifactId>
+    <name>KMongo reactor</name>
+    <description>KMongo reactor client</description>
 
     <dependencies>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-core</artifactId>
+            <artifactId>kmongo-reactor-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-jackson-mapping</artifactId>
@@ -39,7 +41,7 @@
 
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-core-tests</artifactId>
+            <artifactId>kmongo-reactor-core-tests</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -51,7 +53,7 @@
                 <configuration>
                     <groups>org.litote.kmongo.JacksonMappingCategory</groups>
                     <dependenciesToScan>
-                        <dependency>org.litote.kmongo:kmongo-core-tests</dependency>
+                        <dependency>org.litote.kmongo:kmongo-reactor-core-tests</dependency>
                     </dependenciesToScan>
                     <includes>
                         <include>**/Test*.java</include>
@@ -80,14 +82,14 @@
                     <reportUndocumented>false</reportUndocumented>
                     <sourceLinks>
                         <link>
-                            <path>${project.basedir}/../kmongo-core/src/main/kotlin</path>
-                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-core/src/main/kotlin
+                            <path>${project.basedir}/../kmongo-reactor-core/src/main/kotlin</path>
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-reactor-core/src/main/kotlin
                             </url>
                             <lineSuffix>#L</lineSuffix>
                         </link>
                     </sourceLinks>
                     <sourceDirectories>
-                        <dir>${project.basedir}/../kmongo-core/src/main/kotlin</dir>
+                        <dir>${project.basedir}/../kmongo-reactor-core/src/main/kotlin</dir>
                     </sourceDirectories>
                 </configuration>
             </plugin>

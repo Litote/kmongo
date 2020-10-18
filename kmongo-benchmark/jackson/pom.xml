@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-benchmark</artifactId>
-        <version>4.1.3-SNAPSHOT</version>
+        <version>4.1.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>kmongo-benchmark-jackson</artifactId>

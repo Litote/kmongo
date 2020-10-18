@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-root</artifactId>
-        <version>4.1.1-SNAPSHOT</version>
+        <version>4.1.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>kmongo-coverage</artifactId>
@@ -51,6 +51,10 @@
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-reactor-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo</artifactId>
         </dependency>
         <dependency>
@@ -64,6 +68,10 @@
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-rxjava2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-reactor</artifactId>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
@@ -83,6 +91,10 @@
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-reactor-native</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-serialization</artifactId>
         </dependency>
         <dependency>
@@ -96,6 +108,10 @@
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-rxjava2-serialization</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-reactor-serialization</artifactId>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
