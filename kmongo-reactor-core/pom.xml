@@ -41,6 +41,10 @@
             <groupId>io.projectreactor.kotlin</groupId>
             <artifactId>reactor-kotlin-extensions</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.jntakpe</groupId>
+            <artifactId>mongo-reactor-adapter</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
