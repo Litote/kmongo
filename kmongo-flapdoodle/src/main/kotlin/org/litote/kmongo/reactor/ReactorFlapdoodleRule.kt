@@ -16,9 +16,10 @@
 
 package org.litote.kmongo.reactor
 
-import com.mongodb.reactivestreams.client.MongoClient
-import com.mongodb.reactivestreams.client.MongoCollection
-import com.mongodb.reactivestreams.client.MongoDatabase
+import com.mongodb.reactor.client.ReactorMongoClient
+import com.mongodb.reactor.client.ReactorMongoCollection
+import com.mongodb.reactor.client.ReactorMongoDatabase
+import com.mongodb.reactor.client.toReactor
 import org.bson.types.ObjectId
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -45,18 +46,18 @@ class ReactorFlapdoodleRule<T : Any>(
 
     }
 
-    val mongoClient: MongoClient = KFlapdoodleReactiveStreams.mongoClient
-    val database: MongoDatabase by lazy {
+    val mongoClient: ReactorMongoClient = KFlapdoodleReactiveStreams.mongoClient.toReactor()
+    val database: ReactorMongoDatabase by lazy {
         mongoClient.getDatabase(dbName)
     }
 
-    inline fun <reified T : Any> getCollection(): MongoCollection<T> =
+    inline fun <reified T : Any> getCollection(): ReactorMongoCollection<T> =
         database.getCollection(KMongoUtil.defaultCollectionName(T::class), T::class.java)
 
-    fun <T : Any> getCollection(clazz: KClass<T>): MongoCollection<T> =
+    fun <T : Any> getCollection(clazz: KClass<T>): ReactorMongoCollection<T> =
         database.getCollection(KMongoUtil.defaultCollectionName(clazz), clazz.java)
 
-    fun <T : Any> getCollection(name: String, clazz: KClass<T>): MongoCollection<T> =
+    fun <T : Any> getCollection(name: String, clazz: KClass<T>): ReactorMongoCollection<T> =
         database.getCollection(name, clazz.java)
 
     inline fun <reified T : Any> dropCollection() = dropCollection(KMongoUtil.defaultCollectionName(T::class))
@@ -65,11 +66,11 @@ class ReactorFlapdoodleRule<T : Any>(
 
     fun dropCollection(collectionName: String) = database.getCollection(collectionName).drop()
 
-    fun <T> MongoCollection<T>.drop(): Mono<Void> {
+    fun <T> ReactorMongoCollection<T>.drop(): Mono<Void> {
         return drop().toMono()
     }
 
-    val col: MongoCollection<T> by lazy {
+    val col: ReactorMongoCollection<T> by lazy {
         val name = if (generateRandomCollectionName) {
             ObjectId().toString()
         } else {
