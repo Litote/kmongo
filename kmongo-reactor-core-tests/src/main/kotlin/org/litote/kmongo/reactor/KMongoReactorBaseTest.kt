@@ -15,7 +15,7 @@
  */
 package org.litote.kmongo.reactor
 
-import com.mongodb.reactivestreams.client.MongoCollection
+import com.mongodb.reactor.client.ReactorMongoCollection
 import org.junit.Rule
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
@@ -38,7 +38,7 @@ open class KMongoReactorBaseTest<T : Any> : KMongoRootTest() {
     val col by lazy { rule.col }
     val database by lazy { rule.database }
 
-    inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection<T>()
+    inline fun <reified T : Any> getCollection(): ReactorMongoCollection<T> = rule.getCollection()
 
     @Suppress("UNCHECKED_CAST")
     open fun getDefaultCollectionClass(): KClass<T> = Friend::class as KClass<T>
