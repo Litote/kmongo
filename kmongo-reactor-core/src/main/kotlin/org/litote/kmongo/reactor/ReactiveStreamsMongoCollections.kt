@@ -30,13 +30,15 @@ import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
-import com.mongodb.reactivestreams.client.AggregatePublisher
 import com.mongodb.reactivestreams.client.ClientSession
-import com.mongodb.reactivestreams.client.DistinctPublisher
-import com.mongodb.reactivestreams.client.FindPublisher
-import com.mongodb.reactivestreams.client.ListIndexesPublisher
-import com.mongodb.reactivestreams.client.MapReducePublisher
 import com.mongodb.reactivestreams.client.MongoCollection
+import com.mongodb.reactor.client.AggregateFlux
+import com.mongodb.reactor.client.DistinctFlux
+import com.mongodb.reactor.client.FindFlux
+import com.mongodb.reactor.client.ListIndexesFlux
+import com.mongodb.reactor.client.MapReduceFlux
+import com.mongodb.reactor.client.ReactorMongoCollection
+import com.mongodb.reactor.client.toReactor
 import org.bson.BsonDocument
 import org.bson.conversions.Bson
 import org.litote.kmongo.EMPTY_BSON
@@ -60,24 +62,9 @@ import kotlin.reflect.KProperty1
  * @param <NewTDocument> the default class to cast any documents returned from the database into.
  * @return a new MongoCollection instance with the different default class
  */
-inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): MongoCollection<NewTDocument> {
-    return withDocumentClass(NewTDocument::class.java)
+inline fun <reified NewTDocument : Any> MongoCollection<*>.withDocumentClass(): ReactorMongoCollection<NewTDocument> {
+    return toReactor().withDocumentClass(NewTDocument::class.java)
 }
-
-/**
- * Counts the number of documents
- *
- * @return count of all collection
- */
-fun <T> MongoCollection<T>.countDocuments(): Mono<Long> = countDocuments().toMono()
-
-/**
- * Counts the number of documents
- *
- * @param clientSession the client session
- * @return count of all collection
- */
-fun <T> MongoCollection<T>.countDocuments(clientSession: ClientSession): Mono<Long> = countDocuments(clientSession).toMono()
 
 /**
  * Counts the number of documents in the collection according to the given options.
@@ -111,7 +98,7 @@ fun <T> MongoCollection<T>.countDocuments(
  * @param <TResult>   the target type of the iterable
  * @return an iterable of distinct values
  */
-inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctPublisher<TResult> {
+inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String): DistinctFlux<TResult> {
     return distinct(fieldName, KMongoUtil.EMPTY_JSON)
 }
 
@@ -126,7 +113,7 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(fieldName: String
 inline fun <reified TResult : Any> MongoCollection<*>.distinct(
     clientSession: ClientSession,
     fieldName: String
-): DistinctPublisher<TResult> {
+): DistinctFlux<TResult> {
     return distinct(clientSession, fieldName, KMongoUtil.EMPTY_JSON)
 }
 
@@ -141,8 +128,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(
 inline fun <reified TResult : Any> MongoCollection<*>.distinct(
     fieldName: String,
     filter: String
-): DistinctPublisher<TResult> {
-    return distinct(fieldName, toBson(filter), TResult::class.java)
+): DistinctFlux<TResult> {
+    return toReactor().distinct(fieldName, toBson(filter), TResult::class.java)
 }
 
 /**
@@ -158,8 +145,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(
     clientSession: ClientSession,
     fieldName: String,
     filter: String
-): DistinctPublisher<TResult> {
-    return distinct(clientSession, fieldName, toBson(filter), TResult::class.java)
+): DistinctFlux<TResult> {
+    return toReactor().distinct(clientSession, fieldName, toBson(filter), TResult::class.java)
 }
 
 /**
@@ -173,8 +160,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.distinct(
 inline fun <reified T : Any, reified TResult : Any> MongoCollection<*>.distinct(
     field: KProperty1<T, TResult>,
     filter: Bson = EMPTY_BSON
-): DistinctPublisher<TResult> {
-    return distinct(field.path(), filter, TResult::class.java)
+): DistinctFlux<TResult> {
+    return toReactor().distinct(field.path(), filter, TResult::class.java)
 }
 
 /**
@@ -190,8 +177,8 @@ inline fun <reified T : Any, reified TResult : Any> MongoCollection<*>.distinct(
     clientSession: ClientSession,
     field: KProperty1<T, TResult>,
     filter: Bson = EMPTY_BSON
-): DistinctPublisher<TResult> {
-    return distinct(clientSession, field.path(), filter, TResult::class.java)
+): DistinctFlux<TResult> {
+    return toReactor().distinct(clientSession, field.path(), filter, TResult::class.java)
 }
 
 /**
@@ -200,7 +187,7 @@ inline fun <reified T : Any, reified TResult : Any> MongoCollection<*>.distinct(
  * @param  filter the query filter
  * @return the find iterable interface
  */
-fun <T : Any> MongoCollection<T>.find(filter: String): FindPublisher<T> = find(toBson(filter))
+fun <T : Any> MongoCollection<T>.find(filter: String): FindFlux<T> = toReactor().find(toBson(filter))
 
 /**
  * Finds all documents that match the filter in the collection.
@@ -209,7 +196,9 @@ fun <T : Any> MongoCollection<T>.find(filter: String): FindPublisher<T> = find(t
  * @param  filter the query filter
  * @return the find iterable interface
  */
-fun <T : Any> MongoCollection<T>.find(clientSession: ClientSession, filter: String): FindPublisher<T> = find(clientSession, toBson(filter))
+fun <T : Any> MongoCollection<T>.find(clientSession: ClientSession, filter: String): FindFlux<T> {
+    return toReactor().find(clientSession, toBson(filter))
+}
 
 /**
  * Finds all documents that match the filters in the collection.
@@ -217,7 +206,7 @@ fun <T : Any> MongoCollection<T>.find(clientSession: ClientSession, filter: Stri
  * @param  filters the query filter
  * @return the find iterable interface
  */
-fun <T : Any> MongoCollection<T>.find(vararg filters: Bson?): FindPublisher<T> = find(and(*filters))
+fun <T : Any> MongoCollection<T>.find(vararg filters: Bson?): FindFlux<T> = toReactor().find(and(*filters))
 
 /**
  * Finds all documents that match the filters in the collection.
@@ -226,8 +215,8 @@ fun <T : Any> MongoCollection<T>.find(vararg filters: Bson?): FindPublisher<T> =
  * @param  filters the query filter
  * @return the find iterable interface
  */
-fun <T : Any> MongoCollection<T>.find(clientSession: ClientSession, vararg filters: Bson?): FindPublisher<T> {
-    return find(clientSession, and(*filters))
+fun <T : Any> MongoCollection<T>.find(clientSession: ClientSession, vararg filters: Bson?): FindFlux<T> {
+    return toReactor().find(clientSession, and(*filters))
 }
 
 /**
@@ -307,8 +296,8 @@ fun <T : Any> MongoCollection<T>.findOneById(clientSession: ClientSession, id: A
  * @param <TResult>   the target document type of the iterable
  * @return an iterable containing the result of the aggregation operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregatePublisher<TResult> {
-    return aggregate(KMongoUtil.toBsonList(pipeline, codecRegistry), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: String): AggregateFlux<TResult> {
+    return toReactor().aggregate(KMongoUtil.toBsonList(pipeline, codecRegistry), TResult::class.java)
 }
 
 /**
@@ -324,8 +313,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
 inline fun <reified TResult : Any> MongoCollection<*>.aggregate(
     clientSession: ClientSession,
     vararg pipeline: String
-): AggregatePublisher<TResult> {
-    return aggregate(clientSession, KMongoUtil.toBsonList(pipeline, codecRegistry), TResult::class.java)
+): AggregateFlux<TResult> {
+    return toReactor().aggregate(clientSession, KMongoUtil.toBsonList(pipeline, codecRegistry), TResult::class.java)
 }
 
 /**
@@ -337,8 +326,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(
  * @param <TResult>   the target document type of the iterable
  * @return an iterable containing the result of the aggregation operation
  */
-inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregatePublisher<TResult> {
-    return aggregate(pipeline.toList(), TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline: Bson): AggregateFlux<TResult> {
+    return toReactor().aggregate(pipeline.toList(), TResult::class.java)
 }
 
 /**
@@ -354,8 +343,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(vararg pipeline:
 inline fun <reified TResult : Any> MongoCollection<*>.aggregate(
     clientSession: ClientSession,
     vararg pipeline: Bson
-): AggregatePublisher<TResult> {
-    return aggregate(clientSession, pipeline.toList(), TResult::class.java)
+): AggregateFlux<TResult> {
+    return toReactor().aggregate(clientSession, pipeline.toList(), TResult::class.java)
 }
 
 /**
@@ -370,8 +359,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.aggregate(
 inline fun <reified TResult : Any> MongoCollection<*>.mapReduceTyped(
     mapFunction: String,
     reduceFunction: String
-): MapReducePublisher<TResult> {
-    return mapReduce(mapFunction, reduceFunction, TResult::class.java)
+): MapReduceFlux<TResult> {
+    return toReactor().mapReduce(mapFunction, reduceFunction, TResult::class.java)
 }
 
 /**
@@ -388,8 +377,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.mapReduceTyped(
     clientSession: ClientSession,
     mapFunction: String,
     reduceFunction: String
-): MapReducePublisher<TResult> {
-    return mapReduce(clientSession, mapFunction, reduceFunction, TResult::class.java)
+): MapReduceFlux<TResult> {
+    return toReactor().mapReduce(clientSession, mapFunction, reduceFunction, TResult::class.java)
 }
 
 /**
@@ -1267,7 +1256,9 @@ fun <T> MongoCollection<T>.ensureUniqueIndex(
  *
  * @return the list indexes iterable interface
  */
-inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesPublisher<TResult> = listIndexes(TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIndexesFlux<TResult> {
+    return toReactor().listIndexes(TResult::class.java)
+}
 
 /**
  * Get all the indexes in this collection.
@@ -1277,8 +1268,8 @@ inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(): ListIn
  *
  * @return the list indexes iterable interface
  */
-inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(clientSession: ClientSession): ListIndexesPublisher<TResult> {
-    return listIndexes(clientSession, TResult::class.java)
+inline fun <reified TResult : Any> MongoCollection<*>.listTypedIndexes(clientSession: ClientSession): ListIndexesFlux<TResult> {
+    return toReactor().listIndexes(clientSession, TResult::class.java)
 }
 
 /**
