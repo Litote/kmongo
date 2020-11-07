@@ -18,7 +18,7 @@ If you don't know, start with the sync driver and add this dependency to your pr
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo</artifactId>
-  <version>4.1.3</version>
+  <version>4.2.0</version>
 </dependency>
 ```
 
@@ -26,11 +26,11 @@ If you don't know, start with the sync driver and add this dependency to your pr
 
 *(Kotlin)* 
 ```kotlin
-implementation("org.litote.kmongo:kmongo:4.1.3")
+implementation("org.litote.kmongo:kmongo:4.2.0")
 ``` 
 *(Groovy)* 
 ```groovy
-implementation 'org.litote.kmongo:kmongo:4.1.3'
+implementation 'org.litote.kmongo:kmongo:4.2.0'
 ```   
 
 > Starting from 4.0, minimum supported jvm is now 1.8 (was 1.6).
@@ -51,7 +51,7 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-async</artifactId>
-  <version>4.1.3</version>
+  <version>4.2.0</version>
 </dependency>
 ```
 
@@ -59,11 +59,11 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 
 *(Kotlin)* 
 ```kotlin
-implementation("org.litote.kmongo:kmongo-async:4.1.3")
+implementation("org.litote.kmongo:kmongo-async:4.2.0")
 ``` 
 *(Groovy)* 
 ```groovy
-implementation 'org.litote.kmongo:kmongo-async:4.1.3'
+implementation 'org.litote.kmongo:kmongo-async:4.2.0'
 ```
 
 #### Kotlin Coroutines
@@ -74,7 +74,7 @@ implementation 'org.litote.kmongo:kmongo-async:4.1.3'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-coroutine</artifactId>
-  <version>4.1.3</version>
+  <version>4.2.0</version>
 </dependency>
 ```
 
@@ -82,11 +82,32 @@ implementation 'org.litote.kmongo:kmongo-async:4.1.3'
 
 *(Kotlin)* 
 ```kotlin
-implementation("org.litote.kmongo:kmongo-coroutine:4.1.3")
+implementation("org.litote.kmongo:kmongo-coroutine:4.2.0")
 ``` 
 *(Groovy)* 
 ```groovy
-implementation 'org.litote.kmongo:kmongo-coroutine:4.1.3'
+implementation 'org.litote.kmongo:kmongo-coroutine:4.2.0'
+```
+
+#### Reactor
+
+```xml
+<dependency>
+  <groupId>org.litote.kmongo</groupId>
+  <artifactId>kmongo-reactor</artifactId>
+  <version>4.2.0</version>
+</dependency>
+```
+
+- or Gradle
+
+*(Kotlin)* 
+```kotlin
+implementation("org.litote.kmongo:kmongo-reactor:4.2.0")
+``` 
+*(Groovy)* 
+```groovy
+implementation 'org.litote.kmongo:kmongo-reactor:4.2.0'
 ```
 
 #### RxJava2
@@ -97,7 +118,7 @@ implementation 'org.litote.kmongo:kmongo-coroutine:4.1.3'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-rxjava2</artifactId>
-  <version>4.1.3</version>
+  <version>4.2.0</version>
 </dependency>
 ```
 
@@ -105,17 +126,17 @@ implementation 'org.litote.kmongo:kmongo-coroutine:4.1.3'
 
 *(Kotlin)* 
 ```kotlin
-implementation("org.litote.kmongo:kmongo-rxjava2:4.1.3")
+implementation("org.litote.kmongo:kmongo-rxjava2:4.2.0")
 ``` 
 *(Groovy)* 
 ```groovy
-implementation 'org.litote.kmongo:kmongo-rxjava2:4.1.3'
+implementation 'org.litote.kmongo:kmongo-rxjava2:4.2.0'
 ```
 
 ## Object Mapping Engine
 
 By default, [Jackson engine](https://github.com/FasterXML/jackson) is used.
-But you can use [POJO Codec engine](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/) 
+You can use [POJO Codec engine](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/) 
 by adding a ```-native``` suffix to the artifactId, or
 [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization)
 by adding a ```-serialization``` suffix to the artifactId.

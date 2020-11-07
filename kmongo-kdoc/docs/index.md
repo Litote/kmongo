@@ -27,7 +27,10 @@ you use transparently [the core MongoDB java driver API](https://docs.mongodb.co
 
 ### With complete reactive streams & async support
 
-You can use extensions for reactive streams style, [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html) or [RxJava2](http://reactivex.io/).
+You can use extensions for reactive streams style, 
+[Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html),
+[Reactor](https://projectreactor.io/)
+ or [RxJava2](http://reactivex.io/).
 
 ## Built-in Object Mapping
 

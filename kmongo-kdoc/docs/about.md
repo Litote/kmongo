@@ -39,3 +39,7 @@ For the KMongo versions using the Jackson mapping engine:
 For kotlinx serialization mapping:
  
  - [kbson](https://github.com/jershell/kbson)
+ 
+For reactor:
+
+- [mongo-reactor-adapter](https://github.com/jntakpe/mongo-reactor-adapter)

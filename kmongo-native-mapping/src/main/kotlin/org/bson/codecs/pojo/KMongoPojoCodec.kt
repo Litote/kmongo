@@ -92,6 +92,9 @@ internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>) : PojoCodec<T>(),
 
     override fun documentHasId(document: T): Boolean {
         return retrieveDocumentId(document) != null
-
     }
+
+    override fun getDiscriminatorLookup(): DiscriminatorLookup = pojoCodec.discriminatorLookup
+
+
 }

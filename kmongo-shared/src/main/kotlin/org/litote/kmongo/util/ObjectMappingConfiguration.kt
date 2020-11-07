@@ -27,7 +27,7 @@ object ObjectMappingConfiguration {
 
     /**
      * Are null value serialized? Default to false.
-     * Does not work for now for Jackson mapping (null are always serialized)
+     * Does not work for now for Jackson mapping or kotlinx.serialization (null are always serialized)
      */
     @Volatile
     var serializeNull: Boolean = false
