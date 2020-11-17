@@ -23,6 +23,8 @@ import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.MongoOperator.setOnInsert
+import org.litote.kmongo.MongoOperator.inc
+import org.litote.kmongo.model.Coordinate
 import org.litote.kmongo.model.ExposableFriend
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
@@ -49,6 +51,15 @@ class FindOneAndModifyTest : AllCategoriesKMongoBaseTest<Friend>() {
         val friend = col.findOne("{name:'John'}")
         assertEquals("John", friend!!.name)
         assertNull(friend.address)
+    }
+
+    @Test
+    fun canFindAndIncrement() {
+        col.insertOne(Friend("John", coordinate = Coordinate(1,1)))
+        col.findOneAndUpdate("{name:'John'}", "{$inc: {'coordinate.lat': 1}}")
+        val friend = col.findOne("{name:'John'}")
+        assertEquals("John", friend!!.name)
+        assertEquals(2, friend.coordinate?.lat)
     }
 
     @Test
