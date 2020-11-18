@@ -16,7 +16,6 @@
 
 package org.litote.kmongo.pojo
 
-import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.EncoderContext
@@ -33,7 +32,6 @@ import org.litote.kmongo.service.ClassMappingType
 import org.litote.kmongo.service.ClassMappingTypeService
 import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.io.StringWriter
-import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -46,19 +44,12 @@ import kotlin.reflect.jvm.javaGetter
  */
 internal class PojoClassMappingTypeService : ClassMappingTypeService {
 
-    private val internalCodecRegistry: CodecRegistry by lazy(PUBLICATION) {
-        ClassMappingType.codecRegistry(
-            getDefaultCodecRegistry(),
-            codecRegistry
-        )
-    }
+    @Volatile
+    private lateinit var internalCodecRegistry: CodecRegistry
 
-    private val internalNullCodecRegistry: CodecRegistry by lazy(PUBLICATION) {
-        ClassMappingType.codecRegistry(
-            getDefaultCodecRegistry(),
-            codecRegistryWithNullSerialization
-        )
-    }
+
+    @Volatile
+    private lateinit var internalNullCodecRegistry: CodecRegistry
 
     override fun priority(): Int {
         return 0
@@ -127,7 +118,15 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
         return idProperty.get(instance)
     }
 
-    override fun coreCodecRegistry(): CodecRegistry {
+    override fun coreCodecRegistry(baseCodecRegistry: CodecRegistry): CodecRegistry {
+        internalCodecRegistry = ClassMappingType.codecRegistry(
+            baseCodecRegistry,
+            codecRegistry
+        )
+        internalNullCodecRegistry = ClassMappingType.codecRegistry(
+            baseCodecRegistry,
+            codecRegistryWithNullSerialization
+        )
         return if (ObjectMappingConfiguration.serializeNull) {
             codecRegistryWithNullSerialization
         } else {

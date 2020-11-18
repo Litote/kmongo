@@ -23,6 +23,7 @@ import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import org.bson.codecs.configuration.CodecRegistry
+import org.bson.internal.CodecRegistryHelper
 import org.litote.kmongo.service.ClassMappingType
 
 /**
@@ -51,7 +52,6 @@ object KMongo {
 
      * @param connectionString the connection uri
      * @return the mongo client
-     * @throws MongoException if there is a failure
      */
     fun createClient(connectionString: ConnectionString): MongoClient =
         createClient(
@@ -64,13 +64,17 @@ object KMongo {
 
      * @param settings the settings
      * @return the mongo client
-     * @throws MongoException if there is a failure
      */
     fun createClient(settings: MongoClientSettings): MongoClient = MongoClients.create(
-        MongoClientSettings.builder(settings).codecRegistry(configureRegistry(settings.codecRegistry)).build()
+        MongoClientSettings.builder(settings).codecRegistry(
+            configureRegistry(
+                CodecRegistryHelper.createRegistry(
+                    settings.codecRegistry, settings.uuidRepresentation
+                )
+            )
+        ).build()
     )
 
-    internal fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry {
-        return ClassMappingType.codecRegistry(codecRegistry)
-    }
+    internal fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry =
+        ClassMappingType.codecRegistry(codecRegistry)
 }

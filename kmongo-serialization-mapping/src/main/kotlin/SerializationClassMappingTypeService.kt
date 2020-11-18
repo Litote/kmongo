@@ -15,7 +15,6 @@
  */
 package org.litote.kmongo.serialization
 
-import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
 import kotlinx.serialization.SerialName
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
@@ -45,18 +44,12 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
     private val coreCodecRegistry: CodecRegistry by lazy(PUBLICATION) {
         SerializationCodecRegistry(configuration)
     }
-    private val codecRegistry: CodecRegistry by lazy(PUBLICATION) {
-        codecRegistry(
-            getDefaultCodecRegistry(),
-            SerializationCodecRegistry(configuration)
-        )
-    }
-    private val codecRegistryWithNonEncodeNull: CodecRegistry by lazy(PUBLICATION) {
-        codecRegistry(
-            getDefaultCodecRegistry(),
-            SerializationCodecRegistry(configuration.copy(nonEncodeNull = true))
-        )
-    }
+
+    @Volatile
+    private lateinit var codecRegistry: CodecRegistry
+
+    @Volatile
+    private lateinit var codecRegistryWithNonEncodeNull: CodecRegistry
 
     override fun filterIdToBson(obj: Any, filterNullProperties: Boolean): BsonDocument {
         val doc = BsonDocument()
@@ -100,7 +93,18 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
     override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? =
         idController.getIdValue(idProperty, instance)
 
-    override fun coreCodecRegistry(): CodecRegistry = coreCodecRegistry
+    override fun coreCodecRegistry(baseCodecRegistry: CodecRegistry): CodecRegistry {
+        codecRegistry = codecRegistry(
+            baseCodecRegistry,
+            SerializationCodecRegistry(configuration)
+        )
+        codecRegistryWithNonEncodeNull =
+            codecRegistry(
+                baseCodecRegistry,
+                SerializationCodecRegistry(configuration.copy(nonEncodeNull = true))
+            )
+        return coreCodecRegistry
+    }
 
     override fun <T> calculatePath(property: KProperty<T>): String =
         property.findAnnotation<SerialName>()?.value

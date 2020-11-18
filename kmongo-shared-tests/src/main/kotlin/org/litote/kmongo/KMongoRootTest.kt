@@ -19,6 +19,4 @@ package org.litote.kmongo
 /**
  *
  */
-abstract class KMongoRootTest {
-
-}
+abstract class KMongoRootTest

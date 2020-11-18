@@ -46,7 +46,7 @@ object ClassMappingType : ClassMappingTypeService {
         error("unsupported")
     }
 
-    override fun coreCodecRegistry(): CodecRegistry {
+    override fun coreCodecRegistry(baseCodecRegistry: CodecRegistry): CodecRegistry {
         error("unsupported")
     }
 

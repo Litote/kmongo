@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.service
 
+import com.mongodb.MongoClientSettings
 import org.bson.BsonDocument
 import org.bson.codecs.Codec
 import org.bson.codecs.configuration.CodecProvider
@@ -71,22 +72,18 @@ interface ClassMappingTypeService {
     fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R?
 
     /**
-     * Returns a codec registry built with [baseCodecRegistry], [customCodecProviders] and [coreCodeRegistry]
+     * Returns a codec registry built with [baseCodecRegistry], and [coreCodeRegistry].
      */
     fun codecRegistry(
         baseCodecRegistry: CodecRegistry,
-        coreCodeRegistry: CodecRegistry = coreCodecRegistry()
-    ): CodecRegistry {
-        lateinit var codec: CodecRegistry
-        codec = CodecRegistries.fromProviders(
-            baseCodecRegistry,
-            CustomCodecProvider,
-            coreCodeRegistry
-        )
-        return codec
-    }
+        coreCodeRegistry: CodecRegistry = coreCodecRegistry(baseCodecRegistry)
+    ): CodecRegistry = CodecRegistries.fromProviders(
+        baseCodecRegistry,
+        CustomCodecProvider,
+        coreCodeRegistry
+    )
 
-    fun coreCodecRegistry(): CodecRegistry
+    fun coreCodecRegistry(baseCodecRegistry: CodecRegistry = MongoClientSettings.getDefaultCodecRegistry()): CodecRegistry
 
     fun <T> getPath(property: KProperty<T>): String {
         //sanity check

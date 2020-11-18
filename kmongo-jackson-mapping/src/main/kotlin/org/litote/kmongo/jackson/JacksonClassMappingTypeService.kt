@@ -197,7 +197,7 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
         return MongoIdUtil.getIdValue(idProperty as KProperty1<Any, *>, instance as Any) as R?
     }
 
-    override fun coreCodecRegistry(): CodecRegistry {
+    override fun coreCodecRegistry(baseCodecRegistry: CodecRegistry): CodecRegistry {
         if (!customModuleInitialized) {
             customModuleInitialized = true
             registerBsonModule(CustomJacksonModule)
