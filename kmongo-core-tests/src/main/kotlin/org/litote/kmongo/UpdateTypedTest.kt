@@ -16,6 +16,8 @@
 
 package org.litote.kmongo
 
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.model.FriendContainer
@@ -107,7 +109,35 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun `pullByFilter with sub path works as expected`() {
         val col = col.withDocumentClass<FriendContainer>()
         col.insertOne(FriendContainer(Friend("John", "123 Wall Street", tags = listOf("t1", "t2"))))
-        col.updateOne(FriendContainer::friend / Friend::name eq "John", pullByFilter(FriendContainer::friend / Friend::tags `in` "t2"))
+        col.updateOne(
+            FriendContainer::friend / Friend::name eq "John",
+            pullByFilter(FriendContainer::friend / Friend::tags `in` "t2")
+        )
         assertEquals(listOf("t1"), col.findOne(FriendContainer::friend / Friend::name eq "John")?.friend?.tags)
     }
+
+    @Serializable
+    data class DataTest(
+        @Contextual
+        val _id : Id<DataTest> = newId(),
+        val alertList: List<Alert>
+    )
+
+    @Serializable
+    data class Alert(
+        val authorId: String
+    )
+
+    @Test
+    fun `pullByFilter with sub path works as expected for sub array`() {
+        val col = col.withDocumentClass<DataTest>()
+        val data = DataTest(alertList = listOf(Alert("1")))
+        col.insertOne(data)
+        col.updateOne(
+            DataTest::_id eq data._id,
+            pullByFilter(DataTest::alertList, Alert::authorId eq "1")
+        )
+        assertEquals(emptyList(), col.findOne(DataTest::_id eq data._id)?.alertList)
+    }
+
 }
