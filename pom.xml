@@ -72,13 +72,13 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.4.10</kotlin.version>
+        <kotlin.version>1.4.20</kotlin.version>
         <mongo.version>4.2.0-beta1</mongo.version>
         <mongo.base.version>4.1</mongo.base.version>
         <coroutine.version>1.4.1</coroutine.version>
         <rxjava.version>2.2.20</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
-        <reactor.version>2020.0.0</reactor.version>
+        <reactor.version>2020.0.1</reactor.version>
         <mongo.reactor.adapter.version>0.1.4</mongo.reactor.adapter.version>
         <jackson.version>2.11.3</jackson.version>
         <jackson-module.version>2.11.3</jackson-module.version>

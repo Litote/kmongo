@@ -18,6 +18,7 @@ package org.litote.kmongo
 
 import org.junit.Test
 import org.litote.kmongo.model.Friend
+import org.litote.kmongo.model.FriendContainer
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -100,5 +101,13 @@ class UpdateTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
         col.insertOne(Friend("John", "123 Wall Street", tags = listOf("t1", "t2")))
         col.updateOne(Friend::name eq "John", pull(Friend::tags, "t2"))
         assertEquals(listOf("t1"), col.findOne(Friend::name eq "John")?.tags)
+    }
+
+    @Test
+    fun `pullByFilter with sub path works as expected`() {
+        val col = col.withDocumentClass<FriendContainer>()
+        col.insertOne(FriendContainer(Friend("John", "123 Wall Street", tags = listOf("t1", "t2"))))
+        col.updateOne(FriendContainer::friend / Friend::name eq "John", pullByFilter(FriendContainer::friend / Friend::tags `in` "t2"))
+        assertEquals(listOf("t1"), col.findOne(FriendContainer::friend / Friend::name eq "John")?.friend?.tags)
     }
 }
