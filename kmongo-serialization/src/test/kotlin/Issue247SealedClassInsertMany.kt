@@ -16,32 +16,34 @@
 package org.litote.kmongo.issues
 
 import kotlinx.serialization.Serializable
-import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
-import org.litote.kmongo.findOne
-import org.litote.kmongo.withDocumentClass
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @Serializable
-data class ClassWithDelegatedProperty(val lastname: String, val firstname: String) {
-    val fullName: String
-        get() = "${lastname} ${firstname}"
-}
+sealed class SealedClass
 
-/**
- *
- */
-class Issue167TransientNotWorking : AllCategoriesKMongoBaseTest<ClassWithDelegatedProperty>() {
+@Serializable
+data class A(val s: String = "s") : SealedClass()
+
+@Serializable
+data class B(val i: Int = 1) : SealedClass()
+
+class Issue247SealedClassInsertMany : AllCategoriesKMongoBaseTest<SealedClass>() {
 
     @Test
-    fun canFindOne() {
-        col.insertOne(ClassWithDelegatedProperty("John", "Doe"))
-        val doc = col.withDocumentClass<Document>().findOne()
-        assertEquals("John", doc?.getString("lastname"))
-        assertEquals("Doe", doc?.getString("firstname"))
-        assertNull(doc?.getString("fullName"))
+    fun `test insert and load`() {
+        col.insertOne(A())
+        col.insertOne(B())
+        assertTrue(col.find().toList().contains(A()))
+        assertTrue(col.find().toList().contains(B()))
+    }
+
+    @Test
+    fun `test insert many and load`() {
+        col.insertMany(listOf(A(), B()))
+        assertTrue(col.find().toList().contains(A()))
+        assertTrue(col.find().toList().contains(B()))
     }
 
 }
