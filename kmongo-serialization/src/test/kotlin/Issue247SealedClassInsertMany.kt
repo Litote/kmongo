@@ -18,16 +18,29 @@ package org.litote.kmongo.issues
 import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
+import org.litote.kmongo.issues.SealedClass.SecondLevelSealedClass.A
+import org.litote.kmongo.issues.SealedClass.SecondLevelSealedClass.B
 import kotlin.test.assertTrue
 
 @Serializable
-sealed class SealedClass
+sealed class SealedClass {
 
-@Serializable
-data class A(val s: String = "s") : SealedClass()
+    @Serializable
+    sealed class SecondLevelSealedClass : SealedClass() {
 
-@Serializable
-data class B(val i: Int = 1) : SealedClass()
+        @Serializable
+        data class A(val s: String = "s") : SecondLevelSealedClass()
+
+        @Serializable
+        data class B(val i: Int = 1) : SecondLevelSealedClass()
+
+    }
+
+    @Serializable
+    data class C(val c: String = "s") : SealedClass()
+
+
+}
 
 class Issue247SealedClassInsertMany : AllCategoriesKMongoBaseTest<SealedClass>() {
 
