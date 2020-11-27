@@ -50,14 +50,14 @@ You just have to add the ```kmongo-id``` dependency in the frontend to compile.
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-id</artifactId>
-  <version>4.2.1</version>
+  <version>4.2.2</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-id:4.2.1'
+compile 'org.litote.kmongo:kmongo-id:4.2.2'
 ```
 
 #### Id <> Json Jackson serialization
@@ -146,7 +146,7 @@ Use [registerBsonModule](http://litote.org/kmongo/dokka/kmongo/org.litote.kmongo
 
 ### The POJO Codec "native" choice
 
-Started in 2.5.0 (July 2017), the java driver introduces a new [POJO mapping framework](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/).
+Started in 3.5.0 (July 2017), the java driver introduces a new [POJO mapping framework](https://mongodb.github.io/mongo-java-driver/3.5/bson/pojos/).
 
 KMongo uses it to provide object mapping for Kotlin. No other dependency than the core java mongo driver is required.
 
