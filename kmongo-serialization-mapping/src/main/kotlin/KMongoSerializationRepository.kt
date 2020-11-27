@@ -26,6 +26,7 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.builtins.ArraySerializer
 import kotlinx.serialization.builtins.PairSerializer
 import kotlinx.serialization.builtins.TripleSerializer
@@ -124,7 +125,10 @@ internal object KMongoSerializationRepository {
 
     @ExperimentalSerializationApi
     @InternalSerializationApi
-    private fun <T : Any> getBaseSerializer(obj: T, kClass: KClass<T> = obj.javaClass.kotlin): KSerializer<*>? {
+    private fun <T : Any> getBaseSerializer(
+        obj: T,
+        kClass: KClass<T> = obj.javaClass.kotlin
+    ): SerializationStrategy<*>? {
         @Suppress("UNCHECKED_CAST")
         return when (obj) {
             is KProperty<*> -> KPropertySerializer
@@ -141,12 +145,28 @@ internal object KMongoSerializationRepository {
                 } as KSerializer<Any>
             )
             else -> module.getContextual(kClass)
-                    ?: module.getPolymorphic(kClass, obj)?.let {
-                        PolymorphicSerializer(kClass)
+                    ?: findPolymorphic(kClass, obj)?.let {
+                        PolymorphicSerializer(it)
                     }
-                    ?: kClass.superclasses.firstOrNull { it.isSealed }?.serializerOrNull()
+                    ?: findSealed(kClass)?.serializerOrNull()
         }
     }
+
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Any> findPolymorphic(kClass: KClass<*>, obj: T): KClass<*>? =
+        module.getPolymorphic(kClass as KClass<T>, obj)
+            ?.let { kClass }
+                ?: kClass.superclasses.asSequence().map { findPolymorphic(it, obj) }.filterNotNull().firstOrNull()
+
+    @ExperimentalSerializationApi
+    @InternalSerializationApi
+    @Suppress("UNCHECKED_CAST")
+    private fun findSealed(kClass: KClass<*>): KClass<*>? =
+        kClass.takeIf { it.isSealed }
+                ?: kClass.superclasses.asSequence().map { findSealed(it) }.filterNotNull().firstOrNull()
+
 
     @ExperimentalSerializationApi
     @InternalSerializationApi
