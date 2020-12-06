@@ -30,6 +30,7 @@ class NullPropertyTest : AllCategoriesKMongoBaseTest<Test1>() {
 
     data class Test1(@JsonInclude(NON_NULL) val nullableProperty: String? = null)
 
+
     @Test
     fun testFindAndUpdate() {
         col.insertOne(Test1())

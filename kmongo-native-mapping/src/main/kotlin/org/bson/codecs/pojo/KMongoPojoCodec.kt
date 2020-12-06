@@ -22,7 +22,7 @@ import org.bson.BsonWriter
 import org.bson.codecs.CollectibleCodec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
-import org.litote.kmongo.util.KMongoUtil.generateNewIdforIdClass
+import org.litote.kmongo.util.KMongoUtil.generateNewIdForIdClass
 import org.litote.kmongo.util.KMongoUtil.getIdBsonValue
 
 /**
@@ -69,7 +69,7 @@ internal class KMongoPojoCodec<T>(originalCodec: PojoCodec<T>) : PojoCodec<T>(),
         if (idProperty != null && propertyAccessor != null) {
             val idValue = propertyAccessor.get(document)
             if (idValue == null) {
-                setPropertyValue(propertyAccessor, document, generateNewIdforIdClass(idProperty.typeData.type.kotlin))
+                setPropertyValue(propertyAccessor, document, generateNewIdForIdClass(idProperty.typeData.type.kotlin))
             }
         }
 

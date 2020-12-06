@@ -17,6 +17,10 @@
 package org.litote.kmongo.util
 
 import org.bson.codecs.Codec
+import org.litote.kmongo.Id
+import org.litote.kmongo.id.IdGenerator
+import org.litote.kmongo.id.ObjectIdGenerator
+import org.litote.kmongo.id.ObjectIdToStringGenerator
 import org.litote.kmongo.service.CustomCodecProvider
 
 /**
@@ -37,5 +41,19 @@ object ObjectMappingConfiguration {
      */
     fun <T> addCustomCodec(codec: Codec<T>) {
         CustomCodecProvider.addCustomCodec(codec)
+    }
+
+    /**
+     * Generates [Id] (using [newId()]) as String.
+     */
+    fun generateIdsAsStrings() {
+        IdGenerator.defaultGenerator = ObjectIdToStringGenerator
+    }
+
+    /**
+     * Generates [Id] (using [newId()]) as ObjectId (default behaviour).
+     */
+    fun generateIdsAsObjectIds() {
+        IdGenerator.defaultGenerator = ObjectIdGenerator
     }
 }

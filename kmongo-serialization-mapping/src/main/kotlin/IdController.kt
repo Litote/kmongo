@@ -71,6 +71,6 @@ object ReflectionIdController : IdController {
     override fun <T, R> setIdValue(idProperty: KProperty1<T, R>, instance: T) {
         val javaField = idProperty.javaField!!
         javaField.isAccessible = true
-        javaField.set(instance, KMongoUtil.generateNewIdforIdClass(javaField.type.kotlin))
+        javaField.set(instance, KMongoUtil.generateNewIdForIdClass(javaField.type.kotlin))
     }
 }

@@ -86,7 +86,7 @@
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.1.0</jackson-module-loader.version>
         <kotlinx-serialization.version>1.0.1</kotlinx-serialization.version>
-        <kbson.version>0.4.3</kbson.version>
+        <kbson.version>0.4.4</kbson.version>
 
         <!-- annotations processor -->
         <kgenerator.version>0.3.0</kgenerator.version>

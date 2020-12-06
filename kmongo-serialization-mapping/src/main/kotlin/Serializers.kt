@@ -225,14 +225,18 @@ internal class IdSerializer<T : Id<*>>(private val shouldBeStringId: Boolean) : 
         IdTransformer.wrapId(deserializeObjectId(decoder as FlexibleDecoder)) as T
 
     private fun deserializeObjectId(decoder: FlexibleDecoder): Any {
-        return if (decoder.reader.state == State.NAME) {
+        val alreadyRead = decoder.alreadyReadId
+        return if (alreadyRead != null) {
+            decoder.alreadyReadId = null
+            alreadyRead
+        } else if (decoder.reader.state == State.NAME) {
             val keyId = decoder.reader.readName()
             if (shouldBeStringId || IdGenerator.defaultGenerator != ObjectIdGenerator) keyId else ObjectId(keyId)
         } else {
             when (decoder.reader.currentBsonType) {
                 BsonType.STRING -> decoder.decodeString()
                 BsonType.OBJECT_ID -> decoder.reader.readObjectId()
-                else -> throw SerializationException("Unsupported ${decoder.reader.currentBsonType} reading object id")
+                else -> throw SerializationException("Unsupported ${decoder.reader.currentBsonType} when reading _id")
             }
         }
     }

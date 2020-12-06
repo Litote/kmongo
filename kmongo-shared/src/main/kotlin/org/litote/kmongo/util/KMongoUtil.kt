@@ -94,7 +94,7 @@ object KMongoUtil {
         )
     }
 
-    fun generateNewIdforIdClass(idClass: KClass<out Any>): Any =
+    fun generateNewIdForIdClass(idClass: KClass<out Any>): Any =
         when {
             idClass == ObjectId::class -> ObjectId.get()
             idClass == String::class -> ObjectId.get().toString()

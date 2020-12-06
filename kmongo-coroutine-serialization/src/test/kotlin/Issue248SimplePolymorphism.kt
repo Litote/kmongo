@@ -23,20 +23,17 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.coroutine.KMongoReactiveStreamsCoroutineBaseTest
 import org.litote.kmongo.serialization.registerModule
 import kotlin.test.assertEquals
 
-abstract class SchedulerJob2 {
-
-}
+interface SchedulerJob2
 
 @Serializable
 data class UnmuteSchedulerJob2(
-    val guildId: String = "id",
-) : SchedulerJob2()
+    val guildId: String
+) : SchedulerJob2
 
 /**
  *
@@ -54,9 +51,8 @@ class Issue248SimplePolymorphism : KMongoReactiveStreamsCoroutineBaseTest<Schedu
                 }
             }
         )
-        val job = UnmuteSchedulerJob2()
+        val job = UnmuteSchedulerJob2("id")
         col.insertOne(job)
-        println(col.withDocumentClass<Document>().findOne())
         assertEquals(job, col.findOne())
     }
 }

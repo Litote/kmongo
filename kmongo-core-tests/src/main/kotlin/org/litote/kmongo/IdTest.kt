@@ -26,11 +26,9 @@ import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.IdTest.Article
 import org.litote.kmongo.MongoOperator.oid
-import org.litote.kmongo.id.IdGenerator
-import org.litote.kmongo.id.ObjectIdGenerator
-import org.litote.kmongo.id.ObjectIdToStringGenerator
 import org.litote.kmongo.id.StringId
 import org.litote.kmongo.id.WrappedObjectId
+import org.litote.kmongo.util.ObjectMappingConfiguration
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -142,11 +140,11 @@ class IdTest : AllCategoriesKMongoBaseTest<Article>() {
     }
 
     private fun stringGenerator() {
-        IdGenerator.defaultGenerator = ObjectIdToStringGenerator
+        ObjectMappingConfiguration.generateIdsAsStrings()
     }
 
     private fun objectIdGenerator() {
-        IdGenerator.defaultGenerator = ObjectIdGenerator
+        ObjectMappingConfiguration.generateIdsAsObjectIds()
     }
 
     @Test

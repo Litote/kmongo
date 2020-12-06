@@ -53,7 +53,7 @@ import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.objectId
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.string
 import org.litote.kmongo.json
 import org.litote.kmongo.util.KMongoUtil
-import org.litote.kmongo.util.KMongoUtil.generateNewIdforIdClass
+import org.litote.kmongo.util.KMongoUtil.generateNewIdForIdClass
 import org.litote.kmongo.util.MongoIdUtil
 import java.io.IOException
 import java.io.UncheckedIOException
@@ -233,7 +233,7 @@ internal class JacksonCodec<T : Any>(
                 val javaField = idProperty.javaField!!
                 val type = javaField.type
                 javaField.isAccessible = true
-                javaField.set(document, generateNewIdforIdClass(type.kotlin))
+                javaField.set(document, generateNewIdForIdClass(type.kotlin))
             }
         }
 

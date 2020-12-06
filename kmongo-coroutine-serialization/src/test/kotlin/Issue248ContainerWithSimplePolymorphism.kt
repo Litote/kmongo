@@ -23,7 +23,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.coroutine.KMongoReactiveStreamsCoroutineBaseTest
 import org.litote.kmongo.serialization.registerModule
@@ -57,7 +56,6 @@ class Issue248ContainerWithSimplePolymorphism : KMongoReactiveStreamsCoroutineBa
         )
         val job = Container(UnmuteSchedulerJob3())
         col.insertOne(job)
-        println(col.withDocumentClass<Document>().findOne())
         assertEquals(job, col.findOne())
     }
 }
