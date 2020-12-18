@@ -277,7 +277,10 @@ Now you can write:
 ```kotlin
 import Friend_.Coor
 
+@Data
 class Friend(val coor: Coordinate?)
+
+@Data
 class Coordinate(val lat: Int, val lng : Int)
 
 val col : Collection<Friend>
