@@ -45,7 +45,29 @@ class Coordinate(val lat: Int, val lng : Int)
 
 // the generated query is {"coor.lat":{$lt:0}}
 col.findOne(Friend::coor / Coordinate::lat lt 0)
-```                                                
+``` 
+
+### Debugging Typed queries
+
+You can use the .json extension to print the json version of the query.
+
+For example:
+
+```kotlin
+println(
+    setValue(
+        (Project::reports.filteredPosOp("report") / ProjectReport::points)
+        .filteredPosOp("point") / ProjectReportPoint::published,
+        now
+    ).json
+)
+```
+
+print
+```
+{"$set": {"reports.$[report].points.$[point].published": {"$date": "2020-12-06T20:36:21.576Z"}}}
+```
+
 
 ### Samples
 

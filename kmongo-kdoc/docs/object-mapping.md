@@ -50,14 +50,14 @@ You just have to add the ```kmongo-id``` dependency in the frontend to compile.
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-id</artifactId>
-  <version>4.2.2</version>
+  <version>4.2.3</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-id:4.2.2'
+compile 'org.litote.kmongo:kmongo-id:4.2.3'
 ```
 
 #### Id <> Json Jackson serialization
@@ -94,6 +94,14 @@ data class Data(@Contextual val _id: Id<Data> = newId())
 val json = Json { serializersModule = IdKotlinXSerializationModule }
 val data = Data()
 val json = json.encodeToString(data) 
+```
+
+### Gets an Id from an ObjectId
+
+Just use the .toId() extension:
+
+```kotlin 
+val id: Id<A> = ObjectId().toId()
 ```
 
 ### Other _id types

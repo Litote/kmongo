@@ -1,11 +1,5 @@
 # Quick Start
 
-## Kotlin 1.4 support
-
-The 4.1.1 version is the first version compatible with kotlin 1.4. 
-
-If you stay with kotlin 1.3.72, please use KMongo 4.1.0 version.
-
 ## Choose the java driver
 
 Do you need to use the sync or the async driver?
@@ -18,7 +12,7 @@ If you don't know, start with the sync driver and add this dependency to your pr
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo</artifactId>
-  <version>4.2.2</version>
+  <version>4.2.3</version>
 </dependency>
 ```
 
@@ -26,11 +20,11 @@ If you don't know, start with the sync driver and add this dependency to your pr
 
 *(Kotlin)* 
 ```kotlin
-implementation("org.litote.kmongo:kmongo:4.2.2")
+implementation("org.litote.kmongo:kmongo:4.2.3")
 ``` 
 *(Groovy)* 
 ```groovy
-implementation 'org.litote.kmongo:kmongo:4.2.2'
+implementation 'org.litote.kmongo:kmongo:4.2.3'
 ```   
 
 > Starting from 4.0, minimum supported jvm is now 1.8 (was 1.6).
@@ -51,7 +45,7 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-async</artifactId>
-  <version>4.2.2</version>
+  <version>4.2.3</version>
 </dependency>
 ```
 
@@ -59,11 +53,11 @@ For the asynchronous driver, reactive streams style, [Kotlin Coroutines](https:/
 
 *(Kotlin)* 
 ```kotlin
-implementation("org.litote.kmongo:kmongo-async:4.2.2")
+implementation("org.litote.kmongo:kmongo-async:4.2.3")
 ``` 
 *(Groovy)* 
 ```groovy
-implementation 'org.litote.kmongo:kmongo-async:4.2.2'
+implementation 'org.litote.kmongo:kmongo-async:4.2.3'
 ```
 
 #### Kotlin Coroutines
@@ -74,7 +68,7 @@ implementation 'org.litote.kmongo:kmongo-async:4.2.2'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-coroutine</artifactId>
-  <version>4.2.2</version>
+  <version>4.2.3</version>
 </dependency>
 ```
 
@@ -82,11 +76,11 @@ implementation 'org.litote.kmongo:kmongo-async:4.2.2'
 
 *(Kotlin)* 
 ```kotlin
-implementation("org.litote.kmongo:kmongo-coroutine:4.2.2")
+implementation("org.litote.kmongo:kmongo-coroutine:4.2.3")
 ``` 
 *(Groovy)* 
 ```groovy
-implementation 'org.litote.kmongo:kmongo-coroutine:4.2.2'
+implementation 'org.litote.kmongo:kmongo-coroutine:4.2.3'
 ```
 
 #### Reactor
@@ -95,7 +89,7 @@ implementation 'org.litote.kmongo:kmongo-coroutine:4.2.2'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-reactor</artifactId>
-  <version>4.2.2</version>
+  <version>4.2.3</version>
 </dependency>
 ```
 
@@ -103,11 +97,11 @@ implementation 'org.litote.kmongo:kmongo-coroutine:4.2.2'
 
 *(Kotlin)* 
 ```kotlin
-implementation("org.litote.kmongo:kmongo-reactor:4.2.2")
+implementation("org.litote.kmongo:kmongo-reactor:4.2.3")
 ``` 
 *(Groovy)* 
 ```groovy
-implementation 'org.litote.kmongo:kmongo-reactor:4.2.2'
+implementation 'org.litote.kmongo:kmongo-reactor:4.2.3'
 ```
 
 #### RxJava2
@@ -118,7 +112,7 @@ implementation 'org.litote.kmongo:kmongo-reactor:4.2.2'
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-rxjava2</artifactId>
-  <version>4.2.2</version>
+  <version>4.2.3</version>
 </dependency>
 ```
 
@@ -126,11 +120,11 @@ implementation 'org.litote.kmongo:kmongo-reactor:4.2.2'
 
 *(Kotlin)* 
 ```kotlin
-implementation("org.litote.kmongo:kmongo-rxjava2:4.2.2")
+implementation("org.litote.kmongo:kmongo-rxjava2:4.2.3")
 ``` 
 *(Groovy)* 
 ```groovy
-implementation 'org.litote.kmongo:kmongo-rxjava2:4.2.2'
+implementation 'org.litote.kmongo:kmongo-rxjava2:4.2.3'
 ```
 
 ## Object Mapping Engine
