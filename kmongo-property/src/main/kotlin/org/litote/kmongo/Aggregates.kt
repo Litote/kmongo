@@ -474,7 +474,7 @@ fun lookup(
     vararg pipeline: Bson
 ): Bson =
     @Suppress("UNCHECKED_CAST")
-    Aggregates.lookup<Any>(from, let as List<Variable<Any>>, pipeline.toList(), resultProperty.path())
+    Aggregates.lookup(from, let as? List<Variable<Any>>, pipeline.toList(), resultProperty.path())
 
 /**
  * Defines a [Variable] for the lookup operator.
