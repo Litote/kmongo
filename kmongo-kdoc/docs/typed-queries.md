@@ -236,6 +236,23 @@ val bson = lookup(
         )
 ```
 
+#### expr & equals
+
+```kotlin
+match(
+    expr(
+        "eq".projection from listOf( 
+            (HistoryEventWrapper<HistoricVariableInstance>::event / HistoricVariableInstance::processInstanceId).projection,
+            HistoricProcessInstance::processInstanceId.variable
+        )
+    )
+)
+```
+
+generates 
+
+```{"$match": {"$expr": {"$eq": ["$event.processInstanceId", "$$processInstanceId"]}}}```  
+
 ## KMongo Annotation processor
 
 Specifying the property references can be cumbersome, especially for nested properties.

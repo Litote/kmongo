@@ -20,29 +20,39 @@ import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
-import org.litote.kmongo.MongoOperator.lookup
+import org.litote.kmongo.MongoOperator.expr
+import org.litote.kmongo.MongoOperator.match
 import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.SerializationMappingCategory
+import org.litote.kmongo.div
+import org.litote.kmongo.expr
+import org.litote.kmongo.from
 import org.litote.kmongo.json
-import org.litote.kmongo.lookup
+import org.litote.kmongo.match
+import org.litote.kmongo.projection
+import org.litote.kmongo.variable
 import kotlin.test.assertEquals
 
-private data class Instance(val p1: String, val p2: String)
+data class HistoryEventWrapper(val event: HistoricVariableInstance)
+data class HistoricVariableInstance(val processInstanceId: String)
+data class HistoricProcessInstance(val processInstanceId: String)
 
 /**
  *
  */
 @Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
-class Issue254PathCaching : KMongoRootTest() {
+class Issue255LookupWithNestedObjects : KMongoRootTest() {
 
     @Test
     fun `test json generation lookup`() {
-        val json1 = lookup("myColl", resultProperty = Instance::p1).json
-
-        assertEquals("""{"$lookup": {"from": "myColl", "pipeline": [], "as": "p1"}}""", json1)
-
-        val json2 = lookup("myColl", resultProperty = Instance::p2).json
-
-        assertEquals("""{"$lookup": {"from": "myColl", "pipeline": [], "as": "p2"}}""", json2)
+        assertEquals(
+            """{"$match": {"$expr": {"${'$'}event.processInstanceId": "${'$'}${'$'}processInstanceId"}}}""",
+            match(
+                expr(
+                    (HistoryEventWrapper::event / HistoricVariableInstance::processInstanceId).projection
+                            from HistoricProcessInstance::processInstanceId.variable
+                )
+            ).json
+        )
     }
 }
