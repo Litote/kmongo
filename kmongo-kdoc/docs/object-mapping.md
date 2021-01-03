@@ -36,6 +36,9 @@ LightSaber(ObjectId("myId").toId())
 ``` 
 
 > For **kotlinx serialization** ```@Contextual``` is mandatory on the ```Id``` property.
+> If you want to reference a list of ids, you need to annotate the list argument:
+> 
+> ```val refs: List<@Contextual Id<Data>>```
 
 #### KMongo Id does not depend of Mongo nor KMongo lib
                      
