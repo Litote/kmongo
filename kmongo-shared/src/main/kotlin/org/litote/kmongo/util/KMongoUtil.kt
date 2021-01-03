@@ -17,6 +17,7 @@
 package org.litote.kmongo.util
 
 import com.mongodb.MongoClientSettings
+import com.mongodb.client.model.BsonField
 import com.mongodb.client.model.DeleteManyModel
 import com.mongodb.client.model.DeleteOneModel
 import com.mongodb.client.model.Filters
@@ -49,6 +50,7 @@ import org.litote.kmongo.Id
 import org.litote.kmongo.MongoOperator.addToSet
 import org.litote.kmongo.MongoOperator.bit
 import org.litote.kmongo.MongoOperator.currentDate
+import org.litote.kmongo.MongoOperator.group
 import org.litote.kmongo.MongoOperator.inc
 import org.litote.kmongo.MongoOperator.max
 import org.litote.kmongo.MongoOperator.min
@@ -171,6 +173,7 @@ object KMongoUtil {
     fun toBsonModifier(obj: Any, updateOnlyNotNullProperties: Boolean = false): Bson =
         when (obj) {
             is Bson -> obj
+            is BsonField -> error("BsonField must be used only for $group operations")
             is String -> toBson(obj)
             else -> setModifier(obj, updateOnlyNotNullProperties)
         }
