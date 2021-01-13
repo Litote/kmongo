@@ -22,6 +22,7 @@ import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.deleteOne
+import org.litote.kmongo.deleteOneById
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
 
@@ -46,6 +47,16 @@ class DeleteWithSessionTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canDeleteASpecificDocument() {
         col.insertMany(session, listOf(Friend("John"), Friend("Peter")))
         col.deleteOne(session, "{name:'John'}")
+        val list = col.find(session).toList()
+        assertEquals(1, list.size)
+        assertEquals("Peter", list.first().name)
+    }
+
+    @Test
+    fun canDeleteByIdASpecificDocument() {
+        val john = Friend("John")
+        col.insertMany(session, listOf(john, Friend("Peter")))
+        col.deleteOneById(session, john._id!!)
         val list = col.find(session).toList()
         assertEquals(1, list.size)
         assertEquals("Peter", list.first().name)

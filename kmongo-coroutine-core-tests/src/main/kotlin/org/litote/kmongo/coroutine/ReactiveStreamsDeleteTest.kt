@@ -57,6 +57,16 @@ class ReactiveStreamsDeleteTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
     }
 
     @Test
+    fun canDeleteWithSessionByObjectId() = runBlocking {
+        mongoClient.startSession().use {
+            col.insertOne(it, "{ _id:{${MongoOperator.oid}:'47cc67093475061e3d95369d'}, name:'John'}")
+            col.deleteOneById(it, ObjectId("47cc67093475061e3d95369d"))
+            val count = col.countDocuments(it)
+            assertEquals(0, count)
+        }
+    }
+
+    @Test
     fun canRemoveAll() = runBlocking {
         col.insertMany(listOf(Friend("John"), Friend("Peter")))
         col.deleteMany("{}")
