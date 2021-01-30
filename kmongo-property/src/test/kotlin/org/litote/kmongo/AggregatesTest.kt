@@ -49,4 +49,10 @@ class AggregatesTest {
             )
         )
     }
+
+    @Test
+    fun testVariable() {
+        assertEquals("\$\$s", AggregateData::s.variable)
+        assertEquals("\$\$s", "s".variable)
+    }
 }

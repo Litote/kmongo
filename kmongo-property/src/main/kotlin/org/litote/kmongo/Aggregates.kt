@@ -484,5 +484,10 @@ fun KProperty<*>.variableDefinition(name: String = path()): Variable<String> = V
 /**
  * Defines a [Variable] projection (ie $$name)
  */
-val KProperty<*>.variable: String get() = "\$\$${path()}"
+val KProperty<*>.variable: String get() = path().variable
+
+/**
+ * Defines a [Variable] projection (ie $$"myString"")
+ */
+val String.variable: String get() = "\$\$$this"
 
