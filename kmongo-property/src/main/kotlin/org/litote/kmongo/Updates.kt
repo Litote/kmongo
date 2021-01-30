@@ -29,6 +29,8 @@ import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.Updates
 import org.bson.conversions.Bson
+import org.litote.kmongo.util.KMongoUtil
+import org.litote.kmongo.util.ObjectMappingConfiguration
 import kotlin.internal.OnlyInputTypes
 import kotlin.reflect.KProperty
 
@@ -102,10 +104,24 @@ fun <@OnlyInputTypes T> setOnInsert(property: KProperty<T?>, value: T): Bson =
     Updates.setOnInsert(property.path(), value)
 
 /**
+ * Creates an update that sets the the collection to the given value, but only if the update is an upsert that
+ * results in an insert of a document.
+ *
+ * @param value the value to insert
+ * @return the update
+ * @mongodb.driver.manual reference/operator/update/setOnInsert/ $setOnInsert
+ * @see UpdateOptions#upsert(boolean)
+ */
+fun setValueOnInsert(
+    value: Any
+): Bson =
+    Updates.setOnInsert(KMongoUtil.filterIdToBson(value, !ObjectMappingConfiguration.serializeNull))
+
+/**
  * Creates an update that renames a field.
  *
  * @param property    the property
- * @param newFieldName the new property
+ * @param newProperty the new property
  * @return the update
  * @mongodb.driver.manual reference/operator/update/rename/ $rename
  */

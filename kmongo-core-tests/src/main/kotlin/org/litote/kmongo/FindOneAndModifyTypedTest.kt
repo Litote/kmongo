@@ -90,4 +90,16 @@ class FindOneAndModifyTypedTest : AllCategoriesKMongoBaseTest<Friend>() {
 
         assertEquals(expected, r)
     }
+
+    @Test
+    fun canUseSetValueOnInsert() {
+        val expected = ExposableFriend(ObjectId().toString(), "John")
+        val r = col.withDocumentClass<ExposableFriend>().findOneAndUpdate(
+            ExposableFriend::_id eq expected._id,
+            setValueOnInsert(expected),
+            findOneAndUpdateUpsert().returnDocument(ReturnDocument.AFTER)
+        )
+
+        assertEquals(expected, r)
+    }
 }
