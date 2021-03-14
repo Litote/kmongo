@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 
 internal class ReactiveStreamsTestContext {
 
-    val lock = CountDownLatch(1)
+    private val lock = CountDownLatch(1)
     @Volatile
     var error: Throwable? = null
 

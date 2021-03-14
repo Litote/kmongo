@@ -43,5 +43,7 @@ abstract class KMongoBaseTest<T : Any> : KMongoRootTest() {
 
     @Suppress("UNCHECKED_CAST")
     fun getDefaultCollectionClass(): KClass<T> =
-        ((this::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<T>).kotlin
+        (this::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[0].let {
+            (it as? Class<T>)?.kotlin ?: ((it as ParameterizedType).rawType.javaClass as Class<T>).kotlin
+        }
 }

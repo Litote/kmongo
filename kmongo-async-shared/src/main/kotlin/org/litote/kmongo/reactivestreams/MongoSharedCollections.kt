@@ -18,6 +18,7 @@ package org.litote.kmongo.reactivestreams
 
 import com.mongodb.client.model.changestream.ChangeStreamDocument
 import com.mongodb.client.model.changestream.FullDocument
+import com.mongodb.client.model.changestream.OperationType
 import com.mongodb.reactivestreams.client.ChangeStreamPublisher
 import com.mongodb.reactivestreams.client.MongoCollection
 import org.reactivestreams.Subscriber
@@ -154,11 +155,15 @@ private class WatchSubscriber<T>(
 
     override fun onNext(t: ChangeStreamDocument<T>) {
         listener(t)
+        if (t.operationType == OperationType.INVALIDATE) {
+            onComplete()
+        }
     }
 
     override fun onError(t: Throwable) {
         errorListener(t)
         onComplete()
     }
+
 
 }

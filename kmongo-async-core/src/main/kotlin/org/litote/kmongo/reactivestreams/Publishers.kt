@@ -21,6 +21,29 @@ import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import java.util.concurrent.ConcurrentLinkedQueue
 
+
+/**
+ * Listen one element from the publisher.
+ */
+fun <T> Publisher<T>.waitSingle(listener: (T?, Throwable?) -> Unit): Unit =
+    subscribe(object : Subscriber<T> {
+        override fun onComplete() {
+            //do nothing
+        }
+
+        override fun onSubscribe(s: Subscription) {
+            s.request(1)
+        }
+
+        override fun onNext(t: T?) {
+            listener(t, null)
+        }
+
+        override fun onError(t: Throwable) {
+            listener(null, t)
+        }
+    })
+
 /**
  * Listen each element from the publisher.
  */

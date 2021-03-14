@@ -34,6 +34,9 @@ class WatchTest : KMongoReactiveStreamsBaseTest<Watch>() {
     @Test
     fun `check invalidate event does not close watchIndefinitely`() {
         val friend = Watch("Paul")
+        val counter0 = CountDownLatch(1)
+        col.insertOne(friend).forEach { _, _ ->  counter0.countDown() }
+        counter0.await()
         val dropped = AtomicBoolean()
         val counter1 = CountDownLatch(1)
         val counter2 = CountDownLatch(1)
@@ -48,17 +51,21 @@ class WatchTest : KMongoReactiveStreamsBaseTest<Watch>() {
                     schedule(
                         {
                             if (!dropped.get()) {
+                                println("insert first")
                                 col.insertOne(friend).forEach { _, _ ->
+                                    println("await1")
                                     counter1.await()
-                                    dropped.set(true)
-                                    col.drop().forEach { _, _ ->
+                                    asyncTest {
+                                        dropped.set(true)
+                                        println("drop")
+                                        col.drop().waitSingle {  _, _ ->
+
+                                        }
                                     }
                                 }
                             } else {
+                                println("insert second")
                                 col.insertOne(friend).forEach { _, _ ->
-                                    asyncTest {
-                                        counter2.await()
-                                    }
                                 }
                             }
                         },
@@ -67,11 +74,22 @@ class WatchTest : KMongoReactiveStreamsBaseTest<Watch>() {
                     )
                 }
             }) {
-            println(it)
+            println("event:$it")
             if (it.operationType == OperationType.INSERT) {
-                counter1.countDown()
-                counter2.countDown()
+                println("listen insert")
+                if(counter1.count != 0L) {
+                    counter1.countDown()
+                } else {
+                    counter2.countDown()
+                }
             }
+        }
+
+        asyncTest {
+            counter1.await()
+            println("pass 1")
+            counter2.await()
+            println("pass 2")
         }
     }
 }
