@@ -78,7 +78,7 @@
         <coroutine.version>1.4.3</coroutine.version>
         <rxjava.version>2.2.21</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
-        <reactor.version>2020.0.4</reactor.version>
+        <reactor.version>2020.0.5</reactor.version>
         <mongo.reactor.adapter.version>0.2.0</mongo.reactor.adapter.version>
         <jackson.version>2.12.2</jackson.version>
         <jackson-module.version>2.12.2</jackson-module.version>
