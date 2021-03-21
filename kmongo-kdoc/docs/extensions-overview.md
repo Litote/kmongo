@@ -252,7 +252,7 @@ col.distinct(Friend::address)
 ### projection
 
 You can use [```MongoCollection.projection```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-mongo-collection/projection.html)
-extension functions in order to retrieve only one, two or three fields. This is a "kmongo sync driver only feature" for now:
+extension functions in order to retrieve only one, two or three fields:
 
 ```kotlin
 col.bulkWrite(
@@ -262,7 +262,7 @@ col.bulkWrite(
 val result: List<String?> = col.projection(Friend::name).toList()
 ```
 
-If you need to retrieve more than three fields - or if you don't use the sync driver - you have two options:
+If you need to retrieve more than three fields - you have two options:
  
 - Use a custom dedicated class with [```FindIterable.projection```](https://litote.org/kmongo/dokka/kmongo/org.litote.kmongo/com.mongodb.client.-find-iterable/projection.html) functions.
 
