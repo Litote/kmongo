@@ -58,7 +58,7 @@ class WatchTest : KMongoReactiveStreamsBaseTest<Watch>() {
                                     asyncTest {
                                         dropped.set(true)
                                         println("drop")
-                                        col.drop().waitSingle {  _, _ ->
+                                        col.drop().listenSingle { _, _ ->
 
                                         }
                                     }

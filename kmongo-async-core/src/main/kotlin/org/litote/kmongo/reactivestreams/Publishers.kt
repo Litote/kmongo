@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 /**
  * Listen one element from the publisher.
  */
-fun <T> Publisher<T>.waitSingle(listener: (T?, Throwable?) -> Unit): Unit =
+fun <T> Publisher<T>.listenSingle(listener: (T?, Throwable?) -> Unit): Unit =
     subscribe(object : Subscriber<T> {
         override fun onComplete() {
             //do nothing
@@ -91,3 +91,4 @@ fun <T> Publisher<T>.listenList(listener: (List<T>?, Throwable?) -> Unit) {
         }
     })
 }
+

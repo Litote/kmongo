@@ -42,10 +42,20 @@ import org.bson.conversions.Bson
 import org.litote.kmongo.EMPTY_BSON
 import org.litote.kmongo.SetTo
 import org.litote.kmongo.and
+import org.litote.kmongo.excludeId
+import org.litote.kmongo.fields
+import org.litote.kmongo.include
 import org.litote.kmongo.path
 import org.litote.kmongo.set
 import org.litote.kmongo.util.KMongoUtil
+import org.litote.kmongo.util.PairProjection
+import org.litote.kmongo.util.SingleProjection
+import org.litote.kmongo.util.TripleProjection
+import org.litote.kmongo.util.pairProjectionCodecRegistry
+import org.litote.kmongo.util.singleProjectionCodecRegistry
+import org.litote.kmongo.util.tripleProjectionCodecRegistry
 import org.reactivestreams.Publisher
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
 /**
@@ -574,3 +584,86 @@ inline fun <reified T : Any> MongoCollection<T>.bulkWrite(
     options: BulkWriteOptions = BulkWriteOptions()
 ): Publisher<BulkWriteResult> = bulkWrite(requests.toList(), options)
 
+/**
+ * Returns the specified field for all matching documents.
+ *
+ * @param property the property to return
+ * @param query the optional find query
+ * @param options the optional [FindPublisher] modifiers
+ * @return a property value FindPublisher
+ */
+inline fun <T, reified F> MongoCollection<T>.projection(
+    property: KProperty<F>,
+    query: Bson = EMPTY_BSON,
+    options: (FindPublisher<SingleProjection<F>>) -> FindPublisher<SingleProjection<F>> = { it }
+): FindPublisher<F> =
+    withDocumentClass<SingleProjection<F>>()
+        .withCodecRegistry(singleProjectionCodecRegistry(property.path(), F::class, codecRegistry))
+        .find(query)
+        .let { options(it) }
+        .projection(fields(excludeId(), include(property)))
+        .map { it?.field }
+
+/**
+ * Returns the specified two fields for all matching documents.
+ *
+ * @param property1 the first property to return
+ * @param property2 the second property to return
+ * @param query the optional find query
+ * @param options the optional [FindPublisher] modifiers
+ * @return a pair of property values FindPublisher
+ */
+inline fun <T, reified F1, reified F2> MongoCollection<T>.projection(
+    property1: KProperty<F1>,
+    property2: KProperty<F2>,
+    query: Bson = EMPTY_BSON,
+    options: (FindPublisher<PairProjection<F1, F2>>) -> FindPublisher<PairProjection<F1, F2>> = { it }
+): FindPublisher<Pair<F1?, F2?>> =
+    withDocumentClass<PairProjection<F1, F2>>()
+        .withCodecRegistry(
+            pairProjectionCodecRegistry(
+                property1.path(),
+                F1::class,
+                property2.path(),
+                F2::class,
+                codecRegistry
+            )
+        )
+        .find(query)
+        .let { options(it) }
+        .projection(fields(excludeId(), include(property1), include(property2)))
+        .map { it?.field1 to it?.field2 }
+
+/**
+ * Returns the specified three fields for all matching documents.
+ *
+ * @param property1 the first property to return
+ * @param property2 the second property to return
+ * @param property3 the third property to return
+ * @param query the optional find query
+ * @param options the optional [FindPublisher] modifiers
+ * @return a triple of property values FindPublisher
+ */
+inline fun <T, reified F1, reified F2, reified F3> MongoCollection<T>.projection(
+    property1: KProperty<F1>,
+    property2: KProperty<F2>,
+    property3: KProperty<F3>,
+    query: Bson = EMPTY_BSON,
+    options: (FindPublisher<TripleProjection<F1, F2, F3>>) -> FindPublisher<TripleProjection<F1, F2, F3>> = { it }
+): FindPublisher<Triple<F1?, F2?, F3?>> =
+    withDocumentClass<TripleProjection<F1, F2, F3>>()
+        .withCodecRegistry(
+            tripleProjectionCodecRegistry(
+                property1.path(),
+                F1::class,
+                property2.path(),
+                F2::class,
+                property3.path(),
+                F3::class,
+                codecRegistry
+            )
+        )
+        .find(query)
+        .let { options(it) }
+        .projection(fields(excludeId(), include(property1), include(property2), include(property3)))
+        .map { Triple(it?.field1, it?.field2, it?.field3) }

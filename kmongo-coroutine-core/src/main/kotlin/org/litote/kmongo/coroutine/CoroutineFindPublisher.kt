@@ -21,12 +21,16 @@ import com.mongodb.client.model.Collation
 import com.mongodb.reactivestreams.client.FindPublisher
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.bson.conversions.Bson
+import org.litote.kmongo.ascending
+import org.litote.kmongo.descending
+import org.litote.kmongo.include
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KProperty
 
 /**
  * Gets coroutine version of [CoroutineFindPublisher].
  */
-val <T: Any> FindPublisher<T>.coroutine: CoroutineFindPublisher<T>
+val <T : Any> FindPublisher<T>.coroutine: CoroutineFindPublisher<T>
     get() = CoroutineFindPublisher(
         this
     )
@@ -34,7 +38,7 @@ val <T: Any> FindPublisher<T>.coroutine: CoroutineFindPublisher<T>
 /**
  * Coroutine wrapper around [CoroutineFindPublisher].
  */
-class CoroutineFindPublisher<T: Any>(override val publisher: FindPublisher<T>) :
+class CoroutineFindPublisher<T : Any>(override val publisher: FindPublisher<T>) :
     CoroutinePublisher<T>(publisher) {
 
     /**
@@ -111,6 +115,14 @@ class CoroutineFindPublisher<T: Any>(override val publisher: FindPublisher<T>) :
      * @mongodb.driver.manual reference/method/db.collection.find/ Projection
      */
     fun projection(projection: Bson): CoroutineFindPublisher<T> = publisher.projection(projection).coroutine
+
+    /**
+     * Sets a document describing the fields to return for all matching documents.
+     *
+     * @param projections the properties of the returned fields
+     * @return this
+     */
+    fun projection(vararg projections: KProperty<*>): CoroutineFindPublisher<T> = projection(include(*projections))
 
     /**
      * Sets the sort criteria to apply to the query.
@@ -239,5 +251,21 @@ class CoroutineFindPublisher<T: Any>(override val publisher: FindPublisher<T>) :
      * @mongodb.driver.manual reference/method/cursor.batchSize/#cursor.batchSize Batch Size
      */
     fun batchSize(batchSize: Int): CoroutineFindPublisher<T> = publisher.batchSize(batchSize).coroutine
+
+    /**
+     * Sets the sort criteria with specified ascending properties to apply to the query.
+     *
+     * @param properties the properties
+     * @return this
+     */
+    fun ascendingSort(vararg properties: KProperty<*>): CoroutineFindPublisher<T> = sort(ascending(*properties))
+
+    /**
+     * Sets the sort criteria with specified descending properties to apply to the query.
+     *
+     * @param properties the properties
+     * @return this
+     */
+    fun descendingSort(vararg properties: KProperty<*>): CoroutineFindPublisher<T> = sort(descending(*properties))
 
 }

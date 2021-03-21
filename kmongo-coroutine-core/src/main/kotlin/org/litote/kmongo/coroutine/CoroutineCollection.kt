@@ -54,7 +54,11 @@ import org.litote.kmongo.EMPTY_BSON
 import org.litote.kmongo.SetTo
 import org.litote.kmongo.and
 import org.litote.kmongo.ascending
+import org.litote.kmongo.excludeId
+import org.litote.kmongo.fields
+import org.litote.kmongo.include
 import org.litote.kmongo.path
+import org.litote.kmongo.reactivestreams.map
 import org.litote.kmongo.set
 import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.EMPTY_JSON
@@ -63,7 +67,13 @@ import org.litote.kmongo.util.KMongoUtil.idFilterQuery
 import org.litote.kmongo.util.KMongoUtil.setModifier
 import org.litote.kmongo.util.KMongoUtil.toBson
 import org.litote.kmongo.util.KMongoUtil.toBsonModifier
+import org.litote.kmongo.util.PairProjection
+import org.litote.kmongo.util.SingleProjection
+import org.litote.kmongo.util.TripleProjection
 import org.litote.kmongo.util.UpdateConfiguration
+import org.litote.kmongo.util.pairProjectionCodecRegistry
+import org.litote.kmongo.util.singleProjectionCodecRegistry
+import org.litote.kmongo.util.tripleProjectionCodecRegistry
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -1860,7 +1870,7 @@ suspend inline fun <reified T : Any> CoroutineCollection<T>.updateOne(
     target: T,
     options: UpdateOptions = UpdateOptions(),
     updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
-): UpdateResult? {
+): UpdateResult {
     return updateOneById(
         clientSession,
         extractId(target, T::class),
@@ -1937,3 +1947,96 @@ inline fun <reified T : Any> CoroutineCollection<*>.aggregate(vararg pipeline: S
  */
 inline fun <reified T : Any> CoroutineCollection<*>.aggregate(vararg pipeline: Bson): CoroutineAggregatePublisher<T> =
     aggregate(pipeline.toList())
+
+/**
+ * Returns the specified field for all matching documents.
+ *
+ * @param property the property to return
+ * @param query the optional find query
+ * @param options the optional [CoroutineFindPublisher] modifiers
+ * @return a property value CoroutineFindPublisher
+ */
+inline fun <reified F : Any> CoroutineCollection<*>.projection(
+    property: KProperty<F?>,
+    query: Bson = EMPTY_BSON,
+    options: (CoroutineFindPublisher<SingleProjection<F>>) -> CoroutineFindPublisher<SingleProjection<F>> = { it }
+): CoroutineFindPublisher<F> =
+    CoroutineFindPublisher(
+        withDocumentClass<SingleProjection<F>>()
+            .withCodecRegistry(singleProjectionCodecRegistry(property.path(), F::class, codecRegistry))
+            .find(query)
+            .let { options(it) }
+            .projection(fields(excludeId(), include(property)))
+            .publisher
+            .map { it?.field }
+    )
+
+/**
+ * Returns the specified two fields for all matching documents.
+ *
+ * @param property1 the first property to return
+ * @param property2 the second property to return
+ * @param query the optional find query
+ * @param options the optional [CoroutineFindPublisher] modifiers
+ * @return a pair of property values CoroutineFindPublisher
+ */
+inline fun <reified F1 : Any, reified F2 : Any> CoroutineCollection<*>.projection(
+    property1: KProperty<F1?>,
+    property2: KProperty<F2?>,
+    query: Bson = EMPTY_BSON,
+    options: (CoroutineFindPublisher<PairProjection<F1, F2>>) -> CoroutineFindPublisher<PairProjection<F1, F2>> = { it }
+): CoroutineFindPublisher<Pair<F1?, F2?>> =
+    CoroutineFindPublisher(
+        withDocumentClass<PairProjection<F1, F2>>()
+            .withCodecRegistry(
+                pairProjectionCodecRegistry(
+                    property1.path(),
+                    F1::class,
+                    property2.path(),
+                    F2::class,
+                    codecRegistry
+                )
+            )
+            .find(query)
+            .let { options(it) }
+            .projection(fields(excludeId(), include(property1), include(property2)))
+            .publisher
+            .map { it?.field1 to it?.field2 }
+    )
+
+/**
+ * Returns the specified three fields for all matching documents.
+ *
+ * @param property1 the first property to return
+ * @param property2 the second property to return
+ * @param property3 the third property to return
+ * @param query the optional find query
+ * @param options the optional [CoroutineFindPublisher] modifiers
+ * @return a triple of property values CoroutineFindPublisher
+ */
+inline fun <reified F1 : Any, reified F2 : Any, reified F3 : Any> CoroutineCollection<*>.projection(
+    property1: KProperty<F1?>,
+    property2: KProperty<F2?>,
+    property3: KProperty<F3?>,
+    query: Bson = EMPTY_BSON,
+    options: (CoroutineFindPublisher<TripleProjection<F1, F2, F3>>) -> CoroutineFindPublisher<TripleProjection<F1, F2, F3>> = { it }
+): CoroutineFindPublisher<Triple<F1?, F2?, F3?>> =
+    CoroutineFindPublisher(
+        withDocumentClass<TripleProjection<F1, F2, F3>>()
+            .withCodecRegistry(
+                tripleProjectionCodecRegistry(
+                    property1.path(),
+                    F1::class,
+                    property2.path(),
+                    F2::class,
+                    property3.path(),
+                    F3::class,
+                    codecRegistry
+                )
+            )
+            .find(query)
+            .let { options(it) }
+            .projection(fields(excludeId(), include(property1), include(property2), include(property3)))
+            .publisher
+            .map { Triple(it?.field1, it?.field2, it?.field3) }
+    )
