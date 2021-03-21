@@ -86,6 +86,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
 import java.util.UUID
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : SimpleModule() {
@@ -394,36 +395,36 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
         }
     }
 
-    private object IdBsonDeserializer : AbstractIdBsonDeserializer<Id<*>>()
+    private object IdBsonDeserializer : AbstractIdBsonDeserializer<Id<*>>(Id::class)
 
-    private object StringIdBsonDeserializer : AbstractIdBsonDeserializer<StringId<*>>()
+    private object StringIdBsonDeserializer : AbstractIdBsonDeserializer<StringId<*>>(String::class)
 
-    private object WrappedObjectIdBsonDeserializer : AbstractIdBsonDeserializer<WrappedObjectId<*>>()
+    private object WrappedObjectIdBsonDeserializer : AbstractIdBsonDeserializer<WrappedObjectId<*>>(Id::class)
 
-    private abstract class AbstractIdBsonDeserializer<T : Id<*>> : JsonDeserializer<T>() {
+    private abstract class AbstractIdBsonDeserializer<T : Id<*>>(val targetClass: KClass<out Any>) : JsonDeserializer<T>() {
 
         @Suppress("UNCHECKED_CAST")
         override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): T {
             return if (jp.currentToken == VALUE_STRING) {
                 IdTransformer.wrapId(jp.valueAsString) as T
             } else {
-                IdTransformer.wrapId(
-                    jp.embeddedObject
-                            ?: StringDeserializationProblemHandler.handleUnexpectedToken(
-                                ctxt,
-                                String::class.java,
-                                jp.currentToken,
-                                jp,
-                                ""
-                            )
-                                .let {
-                                    if (it == NOT_HANDLED) {
-                                        error("not valid object found when trying to deserialize Id")
-                                    } else {
-                                        it
-                                    }
-                                }
-                ) as T
+                (jp.embeddedObject?.let { IdTransformer.wrapId(it) }
+                    ?: StringDeserializationProblemHandler.handleUnexpectedToken(
+                        ctxt,
+                        targetClass.java,
+                        jp.currentToken,
+                        jp,
+                        ""
+                    )
+                        .let {
+                            if (it == NOT_HANDLED) {
+                                error("not valid object found when trying to deserialize Id")
+                            } else {
+                                it
+                            }
+                        }
+                        )
+                        as T
             }
         }
     }
@@ -509,7 +510,8 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
     }
 
     class UuidSerializer(private val uuidRepresentation: UuidRepresentation) : JsonSerializer<UUID>() {
-        private val binaryType = if (uuidRepresentation == UuidRepresentation.STANDARD) BsonBinarySubType.UUID_STANDARD.value else BsonBinarySubType.UUID_LEGACY.value
+        private val binaryType =
+            if (uuidRepresentation == UuidRepresentation.STANDARD) BsonBinarySubType.UUID_STANDARD.value else BsonBinarySubType.UUID_LEGACY.value
 
         override fun serialize(value: UUID, gen: JsonGenerator, serializers: SerializerProvider) {
             if (gen is BsonGenerator)
@@ -519,8 +521,9 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
         }
     }
 
-    class UuidDeserializer(private val uuidRepresentation: UuidRepresentation): JsonDeserializer<UUID>() {
-        private val binaryType = if (uuidRepresentation == UuidRepresentation.STANDARD) BsonBinarySubType.UUID_STANDARD.value else BsonBinarySubType.UUID_LEGACY.value
+    class UuidDeserializer(private val uuidRepresentation: UuidRepresentation) : JsonDeserializer<UUID>() {
+        private val binaryType =
+            if (uuidRepresentation == UuidRepresentation.STANDARD) BsonBinarySubType.UUID_STANDARD.value else BsonBinarySubType.UUID_LEGACY.value
 
         override fun deserialize(p: JsonParser, ctxt: DeserializationContext): UUID {
             val bytes = p.embeddedObject as? ByteArray
@@ -586,7 +589,7 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
 
         addSerializer(KProperty::class.java, KPropertySerializer)
 
-        if(uuidRepresentation != null) {
+        if (uuidRepresentation != null) {
             addSerializer(UUID::class.java, UuidSerializer(uuidRepresentation))
             addDeserializer(UUID::class.java, UuidDeserializer(uuidRepresentation))
         }

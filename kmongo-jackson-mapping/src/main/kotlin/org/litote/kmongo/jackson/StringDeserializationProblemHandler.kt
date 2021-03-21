@@ -20,7 +20,9 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler
+import org.litote.kmongo.Id
 import org.litote.kmongo.MongoOperator.oid
+import org.litote.kmongo.id.WrappedObjectId
 
 /**
  *
@@ -34,17 +36,28 @@ internal object StringDeserializationProblemHandler : DeserializationProblemHand
         p: JsonParser,
         failureMsg: String?
     ): Any {
-        //handle ObjectId -> String mapping
-        if (targetType == String::class.java && t == JsonToken.START_OBJECT) {
+        if (t == JsonToken.START_OBJECT) {
             val fieldName = p.nextFieldName()
             if (fieldName == "$oid") {
-                return p.nextTextValue()
-                    .also {
-                        while(p.currentToken != JsonToken.END_OBJECT) {
-                            p.nextToken()
+                //handle ObjectId -> String mapping
+                if (targetType == String::class.java) {
+                    return p.nextTextValue()
+                        .also {
+                            while (p.currentToken != JsonToken.END_OBJECT) {
+                                p.nextToken()
+                            }
                         }
-                    }
 
+                }
+                //handle ObjectId -> Id mapping
+                else if (targetType == Id::class.java) {
+                    return WrappedObjectId<Any>(p.nextTextValue())
+                        .also {
+                            while (p.currentToken != JsonToken.END_OBJECT) {
+                                p.nextToken()
+                            }
+                        }
+                }
             }
         }
         return super.handleUnexpectedToken(ctxt, targetType, t, p, failureMsg)
