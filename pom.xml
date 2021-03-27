@@ -89,7 +89,7 @@
         <kbson.version>0.4.4</kbson.version>
 
         <!-- annotations processor -->
-        <kgenerator.version>0.3.0</kgenerator.version>
+        <kgenerator.version>0.4.0</kgenerator.version>
         <kjackson-data.version>0.1.0</kjackson-data.version>
         <kjackson-generator.version>0.3.1</kjackson-generator.version>
         <kotlinx.metadata>0.2.0</kotlinx.metadata>
