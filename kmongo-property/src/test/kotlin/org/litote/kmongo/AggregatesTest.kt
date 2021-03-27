@@ -19,6 +19,7 @@ package org.litote.kmongo
 import org.bson.BsonDocument
 import org.bson.codecs.BsonValueCodecProvider
 import org.bson.codecs.DocumentCodecProvider
+import org.bson.codecs.IterableCodecProvider
 import org.bson.codecs.ValueCodecProvider
 import org.bson.codecs.configuration.CodecRegistries
 import org.litote.kmongo.MongoOperator.lookup
@@ -30,7 +31,26 @@ import kotlin.test.assertEquals
  */
 class AggregatesTest {
 
-    class AggregateData(val s: String)
+    class AggregateData(val s: String, val qty: Int)
+
+    @Test
+    fun testGte() {
+        val bson = project(MongoOperator.gte from listOf(AggregateData::qty.projection, 250))
+        assertEquals(
+            BsonDocument.parse("""{"${MongoOperator.project}": {"${MongoOperator.gte}": ["${'$'}qty", 250]}}"""),
+            bson.toBsonDocument(
+                BsonDocument::class.java,
+                CodecRegistries.fromProviders(
+                    listOf(
+                        ValueCodecProvider(),
+                        BsonValueCodecProvider(),
+                        DocumentCodecProvider() ,
+                        IterableCodecProvider()
+                    )
+                )
+            )
+        )
+    }
 
     @Test
     fun testLookup() {

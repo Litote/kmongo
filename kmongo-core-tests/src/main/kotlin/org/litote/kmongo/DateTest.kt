@@ -154,12 +154,24 @@ class DateTest : AllCategoriesKMongoBaseTest<DateValue>() {
 
     @Test
     fun testDateQuery() {
-        val date = LocalDateTime.now()
-        col.findOne(
+        val value = DateValue()
+        col.insertOne(value)
+        val date = value.localDateTime!!
+        val one = col.findOne(
             """{"date":{$gte: ${date.truncatedTo(ChronoUnit.DAYS).json}, $lt: ${date.truncatedTo(ChronoUnit.DAYS).plusDays(
                 1
             ).json} } }"""
         )
+        assertNotNull(one)
+    }
+
+    @Test
+    fun testTypedDateQueryQuery() {
+        val value = DateValue()
+        col.insertOne(value)
+        val date = value.instant!!
+        val one = col.findOne(DateValue::instant gte date)
+        assertNotNull(one)
     }
 
     private fun testUTCDateStorage(timezone: String, timeDate: String) {
