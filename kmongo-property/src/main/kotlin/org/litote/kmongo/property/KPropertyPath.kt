@@ -37,13 +37,14 @@ open class KPropertyPath<T, R>(
     @Suppress("UNCHECKED_CAST")
     internal constructor(previous: KProperty1<*, Any?>, property: KProperty1<*, R?>) :
             this(
-                if (property is KPropertyPath<*, *>)
-                    property as KPropertyPath<T, *>?
-                else
+                if (previous is KPropertyPath<*, *>) {
+                    previous as KPropertyPath<T, *>?
+                } else {
                     KPropertyPath<T, Any?>(
                         null as (KPropertyPath<T, *>?),
                         previous
-                    ),
+                    )
+                },
                 property
             )
 

@@ -82,5 +82,6 @@ fun <T> KProperty1<out Any?, Iterable<T>?>.filteredPosOp(identifier: String): KP
  * Key projection of map.
  * Sample: `p.keyProjection(Locale.ENGLISH) / Gift::amount`
  */
-fun <K, T> KProperty1<out Any?, Map<out K, T>?>.keyProjection(key: K): KPropertyPath<out Any?, T?> =
-    mapProperty.keyProjection(key)
+@Suppress("UNCHECKED_CAST")
+fun <K, T> KProperty1<out Any?, Map<out K, T>?>.keyProjection(key: K): KPropertyPath<Any?, T?> =
+    mapProperty.keyProjection(key) as KPropertyPath<Any?, T?>

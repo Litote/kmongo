@@ -32,7 +32,7 @@ import kotlin.test.assertEquals
  */
 class FiltersTest {
 
-    class T(val s: List<String>, val string:String)
+    class T(val s: List<String>, val string: String)
 
     @Test
     fun `all works with Iterable sub interface`() {
@@ -86,6 +86,17 @@ class FiltersTest {
 
     }
 
+    data class Map1(val p1: Map<String, Map2>)
+    data class Map2(val p2: Map<String, String>)
+
+    @Test
+    fun `multiple key projection`() {
+        val m1 = Map1::p1.keyProjection("a")
+        val m2 = Map2::p2.keyProjection("b")
+        val doc = m1 / m2
+        assertEquals("p1.a.p2.b", doc.path())
+    }
+
     private val DEFAULT_REGISTRY =
         CodecRegistries.fromProviders(
             Arrays.asList(
@@ -94,5 +105,5 @@ class FiltersTest {
                 DocumentCodecProvider()
             )
         )
-    private val Bson.document:BsonDocument get() = toBsonDocument(BsonDocument::class.java, DEFAULT_REGISTRY)
+    private val Bson.document: BsonDocument get() = toBsonDocument(BsonDocument::class.java, DEFAULT_REGISTRY)
 }
