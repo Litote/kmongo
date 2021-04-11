@@ -72,8 +72,8 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.4.31</kotlin.version>
-        <mongo.version>4.2.2</mongo.version>
+        <kotlin.version>1.4.32</kotlin.version>
+        <mongo.version>4.2.3</mongo.version>
         <mongo.base.version>4.2</mongo.base.version>
         <coroutine.version>1.4.3</coroutine.version>
         <rxjava.version>2.2.21</rxjava.version>
@@ -98,7 +98,7 @@
         <flapdoodle.version>2.2.0</flapdoodle.version>
         <sl4j.version>2.0.0-alpha1</sl4j.version>
         <junit.version>4.13.2</junit.version>
-        <jmh.version>1.28</jmh.version>
+        <jmh.version>1.29</jmh.version>
         <compiler-testing.version>0.19</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
 
