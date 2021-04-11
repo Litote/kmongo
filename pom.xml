@@ -699,11 +699,6 @@
 
     <repositories>
         <repository>
-            <id>jcenter</id>
-            <name>JCenter</name>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-        <repository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
             <releases>
@@ -712,11 +707,6 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository>
-        <repository>
-            <id>kotlinx</id>
-            <name>KotlinX</name>
-            <url>https://dl.bintray.com/kotlin/kotlinx/</url>
         </repository>
     </repositories>
 
