@@ -30,7 +30,8 @@ import kotlin.test.assertEquals
 @Serializable
 data class Guild(
     val guildID: String,
-    val generators: List<Generator> = emptyList()
+    val generators: List<Generator> = emptyList(),
+    val prefix: String = "<>",
 )
 
 @Serializable
@@ -56,5 +57,20 @@ class Issue272FindOneAndUpdate : AllCategoriesKMongoBaseTest<Guild>() {
             FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
         )
         assertEquals(Guild(guildID, listOf(Generator(true))), d2)
+    }
+
+    @Test
+    fun `test insert and load2`() {
+        val guildID = "715868269692583979"
+        val route = "prefix"
+        val value = "!"
+        val d = Guild(guildID)
+        col.insertOne(d)
+        val d2 = col.findOneAndUpdate(
+            "{ guildID: ${guildID.json} }",
+            "{ $set: { \"$route\": ${value.json} } }",
+            FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+        )
+        assertEquals(Guild(guildID, prefix = "!"), d2)
     }
 }
