@@ -17,14 +17,7 @@
 package org.litote.kmongo
 
 import com.mongodb.client.model.Filters
-import org.bson.BsonDocument
-import org.bson.codecs.BsonValueCodecProvider
-import org.bson.codecs.DocumentCodecProvider
-import org.bson.codecs.ValueCodecProvider
-import org.bson.codecs.configuration.CodecRegistries
-import org.bson.conversions.Bson
 import org.junit.Test
-import java.util.Arrays
 import kotlin.test.assertEquals
 
 /**
@@ -97,13 +90,4 @@ class FiltersTest {
         assertEquals("p1.a.p2.b", doc.path())
     }
 
-    private val DEFAULT_REGISTRY =
-        CodecRegistries.fromProviders(
-            Arrays.asList(
-                ValueCodecProvider(),
-                BsonValueCodecProvider(),
-                DocumentCodecProvider()
-            )
-        )
-    private val Bson.document: BsonDocument get() = toBsonDocument(BsonDocument::class.java, DEFAULT_REGISTRY)
 }

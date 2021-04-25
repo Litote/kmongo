@@ -36,9 +36,9 @@ class MockedClassMappingTypeService : ClassMappingTypeService {
 
     override fun toExtendedJson(obj: Any?): String = error("not implemented")
 
-    override fun findIdProperty(type: KClass<*>): KProperty1<*, *>? = error("not implemented")
+    override fun findIdProperty(type: KClass<*>): KProperty1<*, *> = error("not implemented")
 
-    override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R? = error("not implemented")
+    override fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R = error("not implemented")
 
     override fun coreCodecRegistry(baseCodecRegistry: CodecRegistry): CodecRegistry = error("not implemented")
 

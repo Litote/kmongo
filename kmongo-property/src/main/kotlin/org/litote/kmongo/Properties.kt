@@ -26,21 +26,21 @@ import kotlin.reflect.KProperty1
 /**
  * Returns a composed property. For example Friend.address / Address.postalCode = "address.postalCode".
  */
-operator fun <T0, T1, T2> KProperty1<T0, T1?>.div(p2: KProperty1<T1, T2?>): KProperty1<T0, T2?> =
+operator fun <T0, T1, T2> KProperty1<T0, T1?>.div(p2: KProperty1<out T1, T2?>): KProperty1<T0, T2?> =
     KPropertyPath(this, p2)
 
 /**
  * Returns a collection composed property. For example Friend.addresses / Address.postalCode = "addresses.postalCode".
  */
 @JvmName("divCol")
-operator fun <T0, T1, T2> KProperty1<T0, Iterable<T1>?>.div(p2: KProperty1<T1, T2?>): KProperty1<T0, T2?> =
+operator fun <T0, T1, T2> KProperty1<T0, Iterable<T1>?>.div(p2: KProperty1<out T1, T2?>): KProperty1<T0, T2?> =
     KPropertyPath(this, p2)
 
 /**
  * Returns a map composed property. For example Friend.addresses / Address.postalCode = "addresses.postalCode".
  */
 @JvmName("divMap")
-operator fun <T0, K, T1, T2> KProperty1<T0, Map<out K, T1>?>.div(p2: KProperty1<T1, T2?>): KProperty1<T0, T2?> =
+operator fun <T0, K, T1, T2> KProperty1<T0, Map<out K, T1>?>.div(p2: KProperty1<out T1, T2?>): KProperty1<T0, T2?> =
     KPropertyPath(this, p2)
 
 /**
