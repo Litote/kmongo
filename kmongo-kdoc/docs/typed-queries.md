@@ -112,7 +112,15 @@ col.updateMany(
             setValue(EvaluationAnswer::answers.allPosOp / MyAnswer::alreadyUsed, true)
         )
 
-```    
+```  
+
+Cheat Sheet:
+
+```
+$               = posOp
+$[]             = allPosOp
+$[<identifier>] = filteredPosOp 
+```
 
 #### Map operators
 

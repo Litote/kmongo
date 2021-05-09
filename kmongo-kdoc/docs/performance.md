@@ -35,10 +35,6 @@ As you can see, the org.bson.Document mapping (basically a Map) outperforms
 Jackson & Native mapping but kotlinx.Serialization is the best - this is expected: 
 no reflection is involved for kotlinx.Serialization.
 
-Note: during this benchmark, we have found a [~15% perf improvement](https://github.com/michel-kraemer/bson4jackson/pull/81)
-for jackson but the fix is not included in the last released version of bson4jackson. However, even with this improvement,
-the ranking stays the same.
-
 Is it possible to improve Jackson & native mapping performance? Of course! You can write a custom Jackson deserializer
 or a custom codec for the `FriendWithBuddies` class. Then you avoid reflection in both case, and you speed up your deserialization.
 
