@@ -878,7 +878,7 @@ inline fun <T> MongoIterable<T>.forEachIndexed(crossinline action: (index: Int, 
  */
 @SinceKotlin("1.1")
 fun MongoIterable<Double>.max(): Double? {
-    return useCursor { it.max() }
+    return useCursor { it.maxOrNull() }
 }
 
 /**
@@ -888,28 +888,28 @@ fun MongoIterable<Double>.max(): Double? {
  */
 @SinceKotlin("1.1")
 fun MongoIterable<Float>.max(): Float? {
-    return useCursor { it.max() }
+    return useCursor { it.maxOrNull() }
 }
 
 /**
  * Returns the largest element or `null` if there are no elements.
  */
 fun <T : Comparable<T>> MongoIterable<T>.max(): T? {
-    return useCursor { it.max() }
+    return useCursor { it.maxOrNull() }
 }
 
 /**
  * Returns the first element yielding the largest value of the given function or `null` if there are no elements.
  */
 inline fun <T, R : Comparable<R>> MongoIterable<T>.maxBy(crossinline selector: (T) -> R): T? {
-    return useCursor { it.maxBy(selector) }
+    return useCursor { it.maxByOrNull(selector) }
 }
 
 /**
  * Returns the first element having the largest value according to the provided [comparator] or `null` if there are no elements.
  */
 fun <T> MongoIterable<T>.maxWith(comparator: Comparator<in T>): T? {
-    return useCursor { it.maxWith(comparator) }
+    return useCursor { it.maxWithOrNull(comparator) }
 }
 
 /**
@@ -919,7 +919,7 @@ fun <T> MongoIterable<T>.maxWith(comparator: Comparator<in T>): T? {
  */
 @SinceKotlin("1.1")
 fun MongoIterable<Double>.min(): Double? {
-    return useCursor { it.min() }
+    return useCursor { it.minOrNull() }
 }
 
 /**
@@ -929,28 +929,110 @@ fun MongoIterable<Double>.min(): Double? {
  */
 @SinceKotlin("1.1")
 fun MongoIterable<Float>.min(): Float? {
-    return useCursor { it.min() }
+    return useCursor { it.minOrNull() }
 }
 
 /**
  * Returns the smallest element or `null` if there are no elements.
  */
 fun <T : Comparable<T>> MongoIterable<T>.min(): T? {
-    return useCursor { it.min() }
+    return useCursor { it.minOrNull() }
 }
 
 /**
  * Returns the first element yielding the smallest value of the given function or `null` if there are no elements.
  */
 inline fun <T, R : Comparable<R>> MongoIterable<T>.minBy(crossinline selector: (T) -> R): T? {
-    return useCursor { it.minBy(selector) }
+    return useCursor { it.minByOrNull(selector) }
 }
 
 /**
  * Returns the first element having the smallest value according to the provided [comparator] or `null` if there are no elements.
  */
 fun <T> MongoIterable<T>.minWith(comparator: Comparator<in T>): T? {
-    return useCursor { it.minWith(comparator) }
+    return useCursor { it.minWithOrNull(comparator) }
+}
+
+/**
+ * Returns the largest element or `null` if there are no elements.
+ *
+ * If any of elements is `NaN` returns `NaN`.
+ */
+@SinceKotlin("1.4")
+fun MongoIterable<Double>.maxOrNull(): Double? {
+    return useCursor { it.maxOrNull() }
+}
+
+/**
+ * Returns the largest element or `null` if there are no elements.
+ *
+ * If any of elements is `NaN` returns `NaN`.
+ */
+@SinceKotlin("1.4")
+fun MongoIterable<Float>.maxOrNull(): Float? {
+    return useCursor { it.maxOrNull() }
+}
+
+/**
+ * Returns the largest element or `null` if there are no elements.
+ */
+fun <T : Comparable<T>> MongoIterable<T>.maxOrNull(): T? {
+    return useCursor { it.maxOrNull() }
+}
+
+/**
+ * Returns the first element yielding the largest value of the given function or `null` if there are no elements.
+ */
+inline fun <T, R : Comparable<R>> MongoIterable<T>.maxByOrNull(crossinline selector: (T) -> R): T? {
+    return useCursor { it.maxByOrNull(selector) }
+}
+
+/**
+ * Returns the first element having the largest value according to the provided [comparator] or `null` if there are no elements.
+ */
+fun <T> MongoIterable<T>.maxWithOrNull(comparator: Comparator<in T>): T? {
+    return useCursor { it.maxWithOrNull(comparator) }
+}
+
+/**
+ * Returns the smallest element or `null` if there are no elements.
+ *
+ * If any of elements is `NaN` returns `NaN`.
+ */
+@SinceKotlin("1.4")
+fun MongoIterable<Double>.minOrNull(): Double? {
+    return useCursor { it.minOrNull() }
+}
+
+/**
+ * Returns the smallest element or `null` if there are no elements.
+ *
+ * If any of elements is `NaN` returns `NaN`.
+ */
+@SinceKotlin("1.4")
+fun MongoIterable<Float>.minOrNull(): Float? {
+    return useCursor { it.minOrNull() }
+}
+
+/**
+ * Returns the smallest element or `null` if there are no elements.
+ */
+fun <T : Comparable<T>> MongoIterable<T>.minOrNull(): T? {
+    return useCursor { it.minOrNull() }
+}
+
+/**
+ * Returns the first element yielding the smallest value of the given function or `null` if there are no elements.
+ */
+inline fun <T, R : Comparable<R>> MongoIterable<T>.minByOrNull(crossinline selector: (T) -> R): T? {
+    return useCursor { it.minByOrNull(selector) }
+}
+
+/**
+ * Returns the first element having the smallest value according to the provided [comparator] or `null` if there are no elements.
+ */
+fun <T> MongoIterable<T>.minWithOrNull(comparator: Comparator<in T>): T? {
+    return useCursor { it.minWithOrNull(comparator) }
 }
 
 /**
