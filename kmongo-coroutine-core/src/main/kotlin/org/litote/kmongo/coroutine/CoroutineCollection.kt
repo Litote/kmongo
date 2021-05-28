@@ -707,7 +707,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         filter: Bson,
         replacement: T,
         options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
-    ): T = collection.findOneAndReplace(filter, replacement, options).awaitSingle()
+    ): T? = collection.findOneAndReplace(filter, replacement, options).awaitFirstOrNull()
 
     /**
      * Atomically find a document and replace it.
