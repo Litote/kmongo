@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-root</artifactId>
-        <version>4.2.8-SNAPSHOT</version>
+        <version>4.2.8</version>
     </parent>
 
     <artifactId>kmongo-flapdoodle</artifactId>
