@@ -53,14 +53,14 @@ You just have to add the ```kmongo-id``` dependency in the frontend to compile.
 <dependency>
   <groupId>org.litote.kmongo</groupId>
   <artifactId>kmongo-id</artifactId>
-  <version>4.2.7</version>
+  <version>4.2.8</version>
 </dependency>
 ```
 
 - or Gradle
 
 ```
-compile 'org.litote.kmongo:kmongo-id:4.2.7'
+compile 'org.litote.kmongo:kmongo-id:4.2.8'
 ```
 
 #### Id <> Json Jackson serialization
