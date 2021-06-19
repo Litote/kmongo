@@ -72,20 +72,20 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.5.0</kotlin.version>
+        <kotlin.version>1.5.10</kotlin.version>
         <mongo.version>4.2.3</mongo.version>
         <mongo.base.version>4.2</mongo.base.version>
-        <coroutine.version>1.5.0-RC</coroutine.version>
+        <coroutine.version>1.5.0</coroutine.version>
         <rxjava.version>2.2.21</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
-        <reactor.version>2020.0.6</reactor.version>
+        <reactor.version>2020.0.7</reactor.version>
         <mongo.reactor.adapter.version>0.2.0</mongo.reactor.adapter.version>
         <jackson.version>2.12.3</jackson.version>
         <jackson-module.version>2.12.3</jackson-module.version>
         <bson4jackson.version>2.12.0</bson4jackson.version>
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.4.0</jackson-module-loader.version>
-        <kotlinx-serialization.version>1.2.0</kotlinx-serialization.version>
+        <kotlinx-serialization.version>1.2.1</kotlinx-serialization.version>
         <kbson.version>0.4.4</kbson.version>
 
         <!-- annotations processor -->
@@ -98,7 +98,7 @@
         <flapdoodle.version>2.2.0</flapdoodle.version>
         <sl4j.version>2.0.0-alpha1</sl4j.version>
         <junit.version>4.13.2</junit.version>
-        <jmh.version>1.30</jmh.version>
+        <jmh.version>1.32</jmh.version>
         <compiler-testing.version>0.19</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
 
