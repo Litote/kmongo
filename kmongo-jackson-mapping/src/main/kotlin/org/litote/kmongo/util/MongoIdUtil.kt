@@ -79,7 +79,7 @@ internal object MongoIdUtil {
 
     private fun getIdProperty(type: KClass<*>): KProperty1<*, *>? =
         try {
-            type.memberProperties.find { "_id" == it.name }
+            type.memberProperties.find { "_id" == it.name || "id" == it.name }
         } catch (error: KotlinReflectionInternalError) {
             //ignore
             null

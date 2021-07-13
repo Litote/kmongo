@@ -72,5 +72,11 @@ class MongoIdUtilTest : KMongoRootTest() {
         assertEquals(Foo::class.memberProperties.first { it.name == "id" }, Foo::class.idProperty)
     }
 
+    data class TestObjWithId(val id : String?)
+
+    @Test
+    fun extractIdWithoutUnderscore() {
+        assertEquals("id", KMongoUtil.extractId(TestObjWithId("id"), TestObjWithId::class))
+    }
 
 }
