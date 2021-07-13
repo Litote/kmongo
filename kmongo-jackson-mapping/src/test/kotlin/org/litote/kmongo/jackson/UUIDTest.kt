@@ -63,7 +63,7 @@ class UUIDTest
         val bytes = mapper.writeValueAsBytes(testObject)
 
         // Check the type of the binary representation of the UUID
-        assertEquals(if(uuidRepresentation == UuidRepresentation.STANDARD) 4 else 3, bytes[12].toInt())
+        assertEquals(if(uuidRepresentation == UuidRepresentation.STANDARD) 4 else 3, bytes[13].toInt())
 
         val decodedObject: TestingObject = mapper.readValue(bytes)
 
