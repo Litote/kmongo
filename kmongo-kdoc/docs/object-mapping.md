@@ -2,6 +2,9 @@
 
 Query results are automatically mapped to objects.
 
+Look at the [Quick Start related paragraph](https://litote.org/kmongo/quick-start/#object-mapping-engine)
+in order to know how to select the object mapping engine.
+
 ## Set your _id
 
 To manage Mongo ```_id```, a class must have one ```_id``` property
