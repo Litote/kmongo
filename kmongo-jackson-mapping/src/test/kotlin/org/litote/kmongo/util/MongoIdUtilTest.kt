@@ -68,6 +68,13 @@ class MongoIdUtilTest : KMongoRootTest() {
     }
 
     @Test
+    fun extractIdIfIdNotEnabled() {
+        System.setProperty("kmongo.id.enabled", "false")
+        val id = ObjectId()
+        assertEquals(id, KMongoUtil.extractId(Obj(id), Obj::class))
+    }
+
+    @Test
     fun `id property is detected even for java classes`() {
         assertEquals(Foo::class.memberProperties.first { it.name == "id" }, Foo::class.idProperty)
     }
@@ -76,7 +83,10 @@ class MongoIdUtilTest : KMongoRootTest() {
 
     @Test
     fun extractIdWithoutUnderscore() {
+        System.setProperty("kmongo.id.enabled", "true")
         assertEquals("id", KMongoUtil.extractId(TestObjWithId("id"), TestObjWithId::class))
+        System.setProperty("kmongo.id.enabled", "false")
     }
+
 
 }

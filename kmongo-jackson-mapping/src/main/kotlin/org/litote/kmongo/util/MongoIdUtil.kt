@@ -66,20 +66,21 @@ internal object MongoIdUtil {
     }
 
     private val propertyIdCache: MutableMap<KClass<*>, IdPropertyWrapper>
-            by lazySoft { ConcurrentHashMap<KClass<*>, IdPropertyWrapper>() }
+        by lazySoft { ConcurrentHashMap<KClass<*>, IdPropertyWrapper>() }
 
     fun findIdProperty(type: KClass<*>): KProperty1<*, *>? =
         propertyIdCache.getOrPut(type) {
             (getAnnotatedMongoIdProperty(type)
-                    ?: getIdProperty(type))
+                ?: getIdProperty(type))
                 ?.let { IdPropertyWrapper.IdProperty(it) }
-                    ?: NO_ID
+                ?: NO_ID
 
         }.property
 
     private fun getIdProperty(type: KClass<*>): KProperty1<*, *>? =
         try {
-            type.memberProperties.find { "_id" == it.name || "id" == it.name }
+            val idEnabled = System.getProperty("kmongo.id.enabled").toBoolean()
+            type.memberProperties.find { "_id" == it.name || (idEnabled && "id" == it.name) }
         } catch (error: KotlinReflectionInternalError) {
             //ignore
             null
@@ -93,7 +94,7 @@ internal object MongoIdUtil {
             } else {
                 type.memberProperties.find { p ->
                     p.javaField?.isAnnotationPresent(BsonId::class.java) == true
-                            || p.getter.javaMethod?.isAnnotationPresent(BsonId::class.java) == true
+                        || p.getter.javaMethod?.isAnnotationPresent(BsonId::class.java) == true
                 }
             }
         } catch (error: KotlinReflectionInternalError) {
@@ -104,11 +105,11 @@ internal object MongoIdUtil {
     private fun findPrimaryConstructorParameter(type: KClass<*>): KParameter? =
         try {
             type.primaryConstructor?.parameters?.firstOrNull { it.findAnnotation<BsonId>() != null }
-                    ?: type.superclasses
-                        .asSequence()
-                        .map { findPrimaryConstructorParameter(it) }
-                        .filterNotNull()
-                        .firstOrNull()
+                ?: type.superclasses
+                    .asSequence()
+                    .map { findPrimaryConstructorParameter(it) }
+                    .filterNotNull()
+                    .firstOrNull()
         } catch (error: KotlinReflectionInternalError) {
             //ignore
             null
@@ -118,5 +119,4 @@ internal object MongoIdUtil {
         idProperty.isAccessible = true
         return idProperty.get(instance)
     }
-
 }
