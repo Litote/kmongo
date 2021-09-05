@@ -79,7 +79,7 @@
         <rxjava.version>2.2.21</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
         <reactor.version>2020.0.9</reactor.version>
-        <mongo.reactor.adapter.version>0.2.1</mongo.reactor.adapter.version>
+        <mongo.reactor.adapter.version>0.3.0</mongo.reactor.adapter.version>
         <jackson.version>2.12.4</jackson.version>
         <jackson-module.version>2.12.4</jackson-module.version>
         <bson4jackson.version>2.12.0</bson4jackson.version>
@@ -688,7 +688,7 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <repositories>
         <repository>
             <id>ossrh</id>
