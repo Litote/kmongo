@@ -32,6 +32,7 @@ import kotlinx.serialization.builtins.PairSerializer
 import kotlinx.serialization.builtins.TripleSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.overwriteWith
 import kotlinx.serialization.serializer
 import kotlinx.serialization.serializerOrNull
 import org.bson.BsonTimestamp
@@ -52,6 +53,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.regex.Pattern
@@ -120,7 +122,8 @@ internal object KMongoSerializationRepository {
         StringId::class to IdSerializer(true),
         WrappedObjectId::class to IdSerializer(false),
         Pattern::class to PatternSerializer,
-        Regex::class to RegexSerializer
+        Regex::class to RegexSerializer,
+        UUID::class to UUIDSerializer
     )
 
     @ExperimentalSerializationApi
@@ -145,10 +148,10 @@ internal object KMongoSerializationRepository {
                 } as KSerializer<Any>
             )
             else -> module.getContextual(kClass)
-                    ?: findPolymorphic(kClass, obj)?.let {
-                        PolymorphicSerializer(it)
-                    }
-                    ?: findSealed(kClass)?.serializerOrNull()
+                ?: findPolymorphic(kClass, obj)?.let {
+                    PolymorphicSerializer(it)
+                }
+                ?: findSealed(kClass)?.serializerOrNull()
         }
     }
 
@@ -158,14 +161,14 @@ internal object KMongoSerializationRepository {
     private fun <T : Any> findPolymorphic(kClass: KClass<*>, obj: T): KClass<*>? =
         module.getPolymorphic(kClass as KClass<T>, obj)
             ?.let { kClass }
-                ?: kClass.superclasses.asSequence().map { findPolymorphic(it, obj) }.filterNotNull().firstOrNull()
+            ?: kClass.superclasses.asSequence().map { findPolymorphic(it, obj) }.filterNotNull().firstOrNull()
 
     @ExperimentalSerializationApi
     @InternalSerializationApi
     @Suppress("UNCHECKED_CAST")
     private fun findSealed(kClass: KClass<*>): KClass<*>? =
         kClass.takeIf { it.isSealed }
-                ?: kClass.superclasses.asSequence().map { findSealed(it) }.filterNotNull().firstOrNull()
+            ?: kClass.superclasses.asSequence().map { findSealed(it) }.filterNotNull().firstOrNull()
 
 
     @ExperimentalSerializationApi
@@ -176,9 +179,9 @@ internal object KMongoSerializationRepository {
             error("no serializer for null")
         } else {
             (serializersMap[kClass]
-                    ?: getBaseSerializer(obj, kClass)
-                    ?: kClass.serializer()) as? KSerializer<T>
-                    ?: error("no serializer for $obj of class $kClass")
+                ?: getBaseSerializer(obj, kClass)
+                ?: kClass.serializer()) as? KSerializer<T>
+                ?: error("no serializer for $obj of class $kClass")
         }
 
     @ExperimentalSerializationApi
@@ -189,9 +192,9 @@ internal object KMongoSerializationRepository {
             error("no serializer for null")
         } else {
             (serializersMap[obj.javaClass.kotlin]
-                    ?: getBaseSerializer(obj)
-                    ?: obj.javaClass.kotlin.serializer()) as? KSerializer<T>
-                    ?: error("no serializer for $obj of class ${obj.javaClass.kotlin}")
+                ?: getBaseSerializer(obj)
+                ?: obj.javaClass.kotlin.serializer()) as? KSerializer<T>
+                ?: error("no serializer for $obj of class ${obj.javaClass.kotlin}")
         }
 
     @ExperimentalSerializationApi
@@ -199,28 +202,33 @@ internal object KMongoSerializationRepository {
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getSerializer(kClass: KClass<T>): KSerializer<T> =
         (serializersMap[kClass]
-                ?: module.getContextual(kClass)
-                ?: try {
-                    kClass.serializer()
-                } catch (e: SerializationException) {
-                    if (kClass.isAbstract || kClass.isOpen || kClass.isSealed) {
-                        PolymorphicSerializer(kClass)
-                    } else {
-                        throw e
-                    }
+            ?: module.getContextual(kClass)
+            ?: try {
+                kClass.serializer()
+            } catch (e: SerializationException) {
+                if (kClass.isAbstract || kClass.isOpen || kClass.isSealed) {
+                    PolymorphicSerializer(kClass)
+                } else {
+                    throw e
                 }
+            }
                 ) as? KSerializer<T>
-                ?: error("no serializer for $kClass of class $kClass")
+            ?: error("no serializer for $kClass of class $kClass")
 
     @Volatile
     private var baseModule: SerializersModule = initBaseModule()
 
     @Suppress("UNCHECKED_CAST")
-    private fun initBaseModule(): SerializersModule = SerializersModule {
-        serializersMap.forEach { contextual(it.key as KClass<Any>, it.value as KSerializer<Any>) }
-        customSerializersMap.forEach { contextual(it.key as KClass<Any>, it.value as KSerializer<Any>) }
-        customModules.forEach { include(it) }
-    }
+    private fun initBaseModule(): SerializersModule =
+        SerializersModule {
+            serializersMap.forEach { contextual(it.key as KClass<Any>, it.value as KSerializer<Any>) }
+        }
+            .overwriteWith(
+                SerializersModule {
+                    customSerializersMap.forEach { contextual(it.key as KClass<Any>, it.value as KSerializer<Any>) }
+                    customModules.forEach { include(it) }
+                }
+            )
 
     val module: SerializersModule
         get() {

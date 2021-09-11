@@ -19,23 +19,22 @@ package org.litote.kmongo.issues
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoCollection
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import org.bson.UuidRepresentation
 import org.junit.Test
-import org.junit.experimental.categories.Category
 import org.litote.kmongo.KFlapdoodle
 import org.litote.kmongo.KMongo
 import org.litote.kmongo.KMongoRootTest
-import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.findOne
 import org.litote.kmongo.getCollection
 import org.litote.kmongo.save
 import java.util.UUID
 import kotlin.test.assertEquals
 
-data class UUIDContainer(val _id: UUID)
+@Serializable
+data class UUIDContainer(val _id: @Contextual UUID)
 
-
-@Category(NativeMappingCategory::class)
 class Issue245UuidRepresentation : KMongoRootTest() {
 
     @Test

@@ -17,6 +17,7 @@
 package org.litote.kmongo.serialization
 
 import com.github.jershell.kbson.BsonEncoder
+import com.github.jershell.kbson.BsonFlexibleDecoder
 import com.github.jershell.kbson.FlexibleDecoder
 import com.github.jershell.kbson.ObjectIdSerializer
 import kotlinx.serialization.KSerializer
@@ -51,6 +52,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import java.util.UUID
 import java.util.regex.Pattern
 import kotlin.reflect.KProperty
 
@@ -284,5 +286,16 @@ internal object RegexSerializer : KSerializer<Regex> {
         e.encodeStringElement(descriptor, 0, value.toPattern().pattern())
         e.encodeStringElement(descriptor, 1, PatternUtil.getOptionsAsString(value.toPattern()))
         e.endStructure(descriptor)
+    }
+}
+
+internal object UUIDSerializer : KSerializer<UUID> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("UuidSerializer")
+
+    override fun deserialize(decoder: Decoder): UUID =
+        (decoder as BsonFlexibleDecoder).reader.readBinaryData().asUuid()
+
+    override fun serialize(encoder: Encoder, value: UUID) {
+        (encoder as BsonEncoder).encodeUUID(value)
     }
 }

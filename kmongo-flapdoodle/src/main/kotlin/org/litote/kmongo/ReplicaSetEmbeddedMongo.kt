@@ -121,7 +121,7 @@ internal object ReplicaSetEmbeddedMongo {
 
         return mongodProcesses.run {
             ConnectionString(
-                "mongodb://${first().host},${get(1).host},${get(2).host}/?replicaSet=kmongo"
+                "mongodb://${first().host},${get(1).host},${get(2).host}/?replicaSet=kmongo&uuidRepresentation=standard"
             )
         }
     }
