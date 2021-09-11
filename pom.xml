@@ -72,16 +72,16 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.5.10</kotlin.version>
-        <mongo.version>4.3.0</mongo.version>
-        <mongo.base.version>4.2</mongo.base.version>
-        <coroutine.version>1.5.1</coroutine.version>
+        <kotlin.version>1.5.30</kotlin.version>
+        <mongo.version>4.3.2</mongo.version>
+        <mongo.base.version>4.3</mongo.base.version>
+        <coroutine.version>1.5.2</coroutine.version>
         <rxjava.version>2.2.21</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
-        <reactor.version>2020.0.9</reactor.version>
+        <reactor.version>2020.0.10</reactor.version>
         <mongo.reactor.adapter.version>0.3.0</mongo.reactor.adapter.version>
-        <jackson.version>2.12.4</jackson.version>
-        <jackson-module.version>2.12.4</jackson-module.version>
+        <jackson.version>2.12.5</jackson.version>
+        <jackson-module.version>2.12.5</jackson-module.version>
         <bson4jackson.version>2.12.0</bson4jackson.version>
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.4.0</jackson-module-loader.version>
@@ -96,9 +96,9 @@
 
         <!-- test dependencies -->
         <flapdoodle.version>2.2.0</flapdoodle.version>
-        <sl4j.version>2.0.0-alpha2</sl4j.version>
+        <sl4j.version>2.0.0-alpha5</sl4j.version>
         <junit.version>4.13.2</junit.version>
-        <jmh.version>1.32</jmh.version>
+        <jmh.version>1.33</jmh.version>
         <compiler-testing.version>0.19</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
 
