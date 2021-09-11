@@ -77,9 +77,11 @@ internal object MongoIdUtil {
 
         }.property
 
+    //internal var for tests
+    internal var idEnabled = System.getProperty("kmongo.id.property.support.enabled").toBoolean()
+
     private fun getIdProperty(type: KClass<*>): KProperty1<*, *>? =
         try {
-            val idEnabled = System.getProperty("kmongo.id.enabled").toBoolean()
             type.memberProperties.find { "_id" == it.name || (idEnabled && "id" == it.name) }
         } catch (error: KotlinReflectionInternalError) {
             //ignore

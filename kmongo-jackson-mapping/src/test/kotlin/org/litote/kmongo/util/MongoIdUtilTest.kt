@@ -69,7 +69,7 @@ class MongoIdUtilTest : KMongoRootTest() {
 
     @Test
     fun extractIdIfIdNotEnabled() {
-        System.setProperty("kmongo.id.enabled", "false")
+        MongoIdUtil.idEnabled = false
         val id = ObjectId()
         assertEquals(id, KMongoUtil.extractId(Obj(id), Obj::class))
     }
@@ -83,9 +83,9 @@ class MongoIdUtilTest : KMongoRootTest() {
 
     @Test
     fun extractIdWithoutUnderscore() {
-        System.setProperty("kmongo.id.enabled", "true")
+        MongoIdUtil.idEnabled = true
         assertEquals("id", KMongoUtil.extractId(TestObjWithId("id"), TestObjWithId::class))
-        System.setProperty("kmongo.id.enabled", "false")
+        MongoIdUtil.idEnabled = false
     }
 
 
