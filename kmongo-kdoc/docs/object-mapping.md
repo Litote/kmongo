@@ -195,3 +195,15 @@ dependency!
 Choose your poison! :)
 
 See also [Performance section](../performance).
+
+## Explicitly defining the ClassMappingTypeService
+
+If you get an error stating "Service ClassMappingTypeService not found", you are probably using KMongo in an environment where your application is loaded at runtime (e.g. Minecraft plugins).
+
+To fix this error, you can set the `org.litote.mongo.mapping.service` property to the qualified class name of the service for the object mapping engine you are using. For kotlinx.serialization this would be the following:
+
+```kotlin
+System.setProperty("org.litote.mongo.mapping.service", SerializationClassMappingTypeService::class.qualifiedName!!)
+```
+
+For the class for other mappings than in the example above, see which class inherits from `ClassMappingTypeService` in your module.
