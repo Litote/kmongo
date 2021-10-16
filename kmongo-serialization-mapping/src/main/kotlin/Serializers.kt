@@ -53,6 +53,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import kotlin.reflect.KProperty
 
@@ -86,6 +87,11 @@ abstract class TemporalExtendedJsonSerializer<T> : KSerializer<T> {
                     when (decoder.reader.currentBsonType) {
                         BsonType.STRING -> decoder.decodeString().toLong()
                         BsonType.DATE_TIME -> decoder.reader.readDateTime()
+                        BsonType.INT32 -> decoder.decodeInt().toLong()
+                        BsonType.INT64 -> decoder.decodeLong()
+                        BsonType.DOUBLE -> decoder.decodeDouble().toLong()
+                        BsonType.DECIMAL128 -> decoder.reader.readDecimal128().toLong()
+                        BsonType.TIMESTAMP -> TimeUnit.SECONDS.toMillis(decoder.reader.readTimestamp().time.toLong())
                         else -> throw SerializationException("Unsupported ${decoder.reader.currentBsonType} reading date")
                     }
                 )
