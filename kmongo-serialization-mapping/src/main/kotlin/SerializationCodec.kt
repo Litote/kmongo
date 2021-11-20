@@ -38,6 +38,7 @@ import kotlin.reflect.KProperty1
 /**
  *
  */
+@OptIn(InternalSerializationApi::class)
 internal class SerializationCodec<T : Any>(
     private val clazz: KClass<T>,
     private val configuration: Configuration
@@ -56,15 +57,11 @@ internal class SerializationCodec<T : Any>(
 
     override fun getEncoderClass(): Class<T> = clazz.java
 
-    @ExperimentalSerializationApi
-    @InternalSerializationApi
     override fun encode(writer: BsonWriter, value: T, encoderContext: EncoderContext) {
         val serializer = KMongoSerializationRepository.getSerializer(clazz, value)
         BsonEncoder(writer, module, configuration).encodeSerializableValue(serializer, value)
     }
 
-    @ExperimentalSerializationApi
-    @InternalSerializationApi
     override fun decode(reader: BsonReader, decoderContext: DecoderContext): T {
         return BsonFlexibleDecoder(reader as AbstractBsonReader, module, configuration).decodeSerializableValue(
             decoderSerializer

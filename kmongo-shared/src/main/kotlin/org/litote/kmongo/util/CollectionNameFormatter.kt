@@ -41,18 +41,19 @@ object CollectionNameFormatter {
     fun useCamelCaseCollectionNameBuilder(fromClass: (KClass<*>) -> String = { it.simpleName!! }) {
         defaultCollectionNameBuilder = {
             fromClass
-                    .invoke(it)
-                    .toCharArray()
-                    .run {
-                        foldIndexed(StringBuilder()) { i, s, c ->
-                            s.append(
-                                    if (c.isUpperCase() && (i == 0 || this[i - 1].isUpperCase())) {
-                                        c.toLowerCase()
-                                    } else {
-                                        c
-                                    })
-                        }.toString()
-                    }
+                .invoke(it)
+                .toCharArray()
+                .run {
+                    foldIndexed(StringBuilder()) { i, s, c ->
+                        s.append(
+                            if (c.isUpperCase() && (i == 0 || this[i - 1].isUpperCase())) {
+                                c.lowercaseChar()
+                            } else {
+                                c
+                            }
+                        )
+                    }.toString()
+                }
         }
     }
 
@@ -64,20 +65,20 @@ object CollectionNameFormatter {
     fun useSnakeCaseCollectionNameBuilder(fromClass: (KClass<*>) -> String = { it.simpleName!! }) {
         defaultCollectionNameBuilder = {
             fromClass
-                    .invoke(it)
-                    .toCharArray()
-                    .run {
-                        foldIndexed(StringBuilder()) { i, s, c ->
-                            if (c.isUpperCase()) {
-                                if (i != 0 && this[i - 1].isLowerCase()) {
-                                    s.append('_')
-                                }
-                                s.append(c.toLowerCase())
-                            } else {
-                                s.append(c)
+                .invoke(it)
+                .toCharArray()
+                .run {
+                    foldIndexed(StringBuilder()) { i, s, c ->
+                        if (c.isUpperCase()) {
+                            if (i != 0 && this[i - 1].isLowerCase()) {
+                                s.append('_')
                             }
-                        }.toString()
-                    }
+                            s.append(c.lowercaseChar())
+                        } else {
+                            s.append(c)
+                        }
+                    }.toString()
+                }
         }
     }
 
@@ -87,6 +88,6 @@ object CollectionNameFormatter {
      * @param fromClass optional custom [KClass] -> [String] transformer (default is [KClass.simpleName])
      */
     fun useLowerCaseCollectionNameBuilder(fromClass: (KClass<*>) -> String = { it.simpleName!! }) {
-        defaultCollectionNameBuilder = { fromClass.invoke(it).toLowerCase() }
+        defaultCollectionNameBuilder = { fromClass.invoke(it).lowercase() }
     }
 }

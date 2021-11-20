@@ -79,6 +79,7 @@ private class MongoIndexingIterator<T>(val iterator: MongoCursor<T>) : MongoCurs
     override fun close() = iterator.close()
     override fun getServerCursor(): ServerCursor? = iterator.serverCursor
     override fun getServerAddress(): ServerAddress = iterator.serverAddress
+    override fun available(): Int = iterator.available()
 }
 
 /**

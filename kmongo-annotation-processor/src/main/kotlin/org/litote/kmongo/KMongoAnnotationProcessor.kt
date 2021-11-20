@@ -584,7 +584,8 @@ class KMongoAnnotationProcessor : KGenerator() {
     }
 
     private fun generatedCompanionFieldName(element: Element): String {
-        return element.simpleName.toString().capitalize()
+        return element.simpleName.toString()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
     }
 
     private fun generatedFieldName(element: Element): String {

@@ -69,7 +69,7 @@ class BsonIdTest : AllCategoriesKMongoBaseTest<Friend>() {
         val stringIdCol = col.withDocumentClass<StringId>()
         stringIdCol.insertOne(stringId)
         assertNotNull(stringId._id)
-        assertEquals(stringId._id, stringIdCol.findOneById(stringId._id!!)!!._id)
+        assertEquals(stringId._id, stringIdCol.findOneById(stringId._id)!!._id)
     }
 
     @Test
@@ -79,7 +79,7 @@ class BsonIdTest : AllCategoriesKMongoBaseTest<Friend>() {
         val withMongoIdCol = col.withDocumentClass<WithMongoId>()
         withMongoIdCol.insertOne(withMongoId)
         assertNotNull(withMongoId.key)
-        assertEquals(withMongoId.key, withMongoIdCol.findOneById(withMongoId.key!!)!!.key)
+        assertEquals(withMongoId.key, withMongoIdCol.findOneById(withMongoId.key)!!.key)
         assertFalse(col.withDocumentClass<Document>().findOneById(withMongoId.key)!!.containsKey("key"))
     }
 

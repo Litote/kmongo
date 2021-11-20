@@ -69,6 +69,8 @@ internal class MongoMappingCursor<T, U>(val proxied: MongoCursor<T>, val mapper:
     override fun getServerAddress(): ServerAddress {
         return proxied.serverAddress
     }
+
+    override fun available(): Int = proxied.available()
 }
 
 

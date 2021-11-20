@@ -64,7 +64,7 @@ inline fun <T> singleResult(crossinline callback: (SingleResultCallback<T>) -> U
  */
 inline fun completableResult(crossinline callback: (SingleResultCallback<Void>) -> Unit): Completable {
     return Completable.create { emitter ->
-        callback(SingleResultCallback { result: Void?, throwable: Throwable? ->
+        callback(SingleResultCallback { _: Void?, throwable: Throwable? ->
             when {
                 throwable != null -> emitter.onError(throwable)
                 else -> emitter.onComplete()

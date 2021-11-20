@@ -192,7 +192,7 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
             val tree = jp.codec.readTree<TreeNode>(jp)
             if (tree.isObject) {
                 val binary = Base64Variants.MIME_NO_LINEFEEDS.decode((tree.get("\$binary") as ValueNode).asText())
-                val type = Integer.valueOf((tree.get("\$type") as ValueNode).asText().toLowerCase(), 16)!!.toByte()
+                val type = Integer.valueOf((tree.get("\$type") as ValueNode).asText().lowercase(), 16).toByte()
                 return Binary(type, binary)
             } else if (tree is POJONode) {
                 return tree.pojo as Binary

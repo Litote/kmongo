@@ -55,20 +55,20 @@ class KMongoConfigurationTest {
         KMongoConfiguration.resetConfiguration()
 
         KMongoConfiguration.registerBsonModule(Module1())
-        var codecProvider = KMongoConfiguration.jacksonCodecProvider as JacksonCodecProvider
+        var codecProvider = KMongoConfiguration.jacksonCodecProvider
         assert(containsModule(codecProvider.bsonObjectMapper, Module1::class))
         assert(containsModule(codecProvider.notBsonObjectMapper, Module1::class))
 
         KMongoConfiguration.resetConfiguration()
 
-        codecProvider = KMongoConfiguration.jacksonCodecProvider as JacksonCodecProvider
+        codecProvider = KMongoConfiguration.jacksonCodecProvider
         assertFalse(containsModule(codecProvider.bsonObjectMapper, Module1::class))
         assertFalse(containsModule(codecProvider.notBsonObjectMapper, Module1::class))
 
         KMongoConfiguration.resetConfiguration()
 
         KMongoConfiguration.registerBsonModule(Module2())
-        codecProvider = KMongoConfiguration.jacksonCodecProvider as JacksonCodecProvider
+        codecProvider = KMongoConfiguration.jacksonCodecProvider
         assertFalse(containsModule(codecProvider.bsonObjectMapper, Module1::class))
         assertFalse(containsModule(codecProvider.notBsonObjectMapper, Module1::class))
         assert(containsModule(codecProvider.bsonObjectMapper, Module2::class))

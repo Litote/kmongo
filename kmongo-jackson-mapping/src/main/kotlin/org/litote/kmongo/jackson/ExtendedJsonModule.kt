@@ -56,7 +56,7 @@ internal class ExtendedJsonModule : SimpleModule() {
         override fun serialize(obj: Binary, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider) {
             jsonGenerator.writeStartObject()
             jsonGenerator.writeBinaryField("\$binary", obj.data)
-            jsonGenerator.writeStringField("\$type", Integer.toHexString(obj.type.toInt()).toUpperCase())
+            jsonGenerator.writeStringField("\$type", Integer.toHexString(obj.type.toInt()).uppercase())
             jsonGenerator.writeEndObject()
         }
     }
