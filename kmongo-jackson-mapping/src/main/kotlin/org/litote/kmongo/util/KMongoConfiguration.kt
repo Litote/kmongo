@@ -16,14 +16,13 @@
 
 package org.litote.kmongo.util
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.bson.UuidRepresentation
-import org.bson.codecs.configuration.CodecProvider
 import org.litote.kmongo.jackson.JacksonCodecProvider
 import org.litote.kmongo.jackson.ObjectMapperFactory
-import org.litote.kmongo.jackson.customModuleInitialized
 import kotlin.LazyThreadSafetyMode.PUBLICATION
 
 /**
@@ -64,15 +63,11 @@ object KMongoConfiguration {
     var bsonMapperCopy: ObjectMapper = ObjectMapperFactory.createBsonObjectMapperCopy()
 
     @Volatile
-    private var currentJacksonCodecProvider: CodecProvider? = null
+    private var currentJacksonCodecProvider: JacksonCodecProvider? = null
 
-    internal val jacksonCodecProvider: CodecProvider
-        get() {
-            if (currentJacksonCodecProvider == null) {
-                currentJacksonCodecProvider = JacksonCodecProvider(bsonMapper, bsonMapperCopy)
-            }
-            return currentJacksonCodecProvider!!
-        }
+    internal val jacksonCodecProvider: JacksonCodecProvider
+        get() = currentJacksonCodecProvider ?:
+        (JacksonCodecProvider(bsonMapper, bsonMapperCopy).apply { currentJacksonCodecProvider = this })
 
     @Volatile
     private var currentFilterIdBsonMapper: ObjectMapper? = null
@@ -92,6 +87,15 @@ object KMongoConfiguration {
     internal val currentFilterIdBsonMapperWithoutNullSerialization: ObjectMapper by lazy(PUBLICATION) {
         filterIdBsonMapper.copy().setSerializationInclusion(NON_NULL);
     }
+
+    internal val bsonMapperWithNullSerialization: ObjectMapper by lazy(PUBLICATION) {
+        bsonMapper.copy().setSerializationInclusion(ALWAYS);
+    }
+
+    internal val currentFilterIdBsonMapperWithNullSerialization: ObjectMapper by lazy(PUBLICATION) {
+        filterIdBsonMapper.copy().setSerializationInclusion(ALWAYS);
+    }
+
 
     /**
      * Register a jackson [Module] for the two bson mappers, [bsonMapper] and [bsonMapperCopy].
@@ -151,9 +155,11 @@ object KMongoConfiguration {
         extendedJsonMapper = ObjectMapperFactory.createExtendedJsonObjectMapper()
         bsonMapper = ObjectMapperFactory.createBsonObjectMapper()
         bsonMapperCopy = ObjectMapperFactory.createBsonObjectMapperCopy()
-        currentJacksonCodecProvider = null
+        jacksonCodecProvider.apply {
+            bsonObjectMapper = bsonMapper
+            notBsonObjectMapper = bsonMapperCopy
+        }
         currentFilterIdBsonMapper = null
-        customModuleInitialized = false
     }
 
 }

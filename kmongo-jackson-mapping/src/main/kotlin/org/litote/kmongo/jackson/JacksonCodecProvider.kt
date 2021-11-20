@@ -21,8 +21,8 @@ import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistry
 
 internal class JacksonCodecProvider(
-        val bsonObjectMapper: ObjectMapper,
-        val notBsonObjectMapper: ObjectMapper) : CodecProvider {
+        var bsonObjectMapper: ObjectMapper,
+        var notBsonObjectMapper: ObjectMapper) : CodecProvider {
 
     override fun <T : Any> get(type: Class<T>, registry: CodecRegistry): Codec<T> {
         return JacksonCodec(bsonObjectMapper, notBsonObjectMapper, registry, type)

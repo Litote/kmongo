@@ -41,6 +41,7 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.StringId
 import org.litote.kmongo.id.WrappedObjectId
+import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -89,7 +90,7 @@ inline fun <reified T> registerSerializer(serializer: KSerializer<T>) {
  * The kotlinx serialization default configuration.
  */
 @Volatile
-var configuration: Configuration = Configuration()
+var configuration: Configuration = Configuration(nonEncodeNull = !ObjectMappingConfiguration.serializeNull)
 
 /**
  * The KMongo [SerializersModule].

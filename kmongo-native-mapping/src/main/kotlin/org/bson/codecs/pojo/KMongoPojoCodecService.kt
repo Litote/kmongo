@@ -16,7 +16,9 @@
 
 package org.bson.codecs.pojo
 
+import org.bson.codecs.Codec
 import org.bson.codecs.configuration.CodecRegistry
+import org.litote.kmongo.util.ObjectMappingConfiguration
 import kotlin.LazyThreadSafetyMode.PUBLICATION
 
 /**
@@ -28,7 +30,20 @@ internal object KMongoPojoCodecService {
     val codecRegistry: CodecRegistry by lazy(PUBLICATION) { codecProvider.codecRegistry }
 
     val codecProviderWithNullSerialization: KMongoPojoCodecProvider by lazy(PUBLICATION) {
-        KMongoPojoCodecProvider(PropertySerialization { true })
+        KMongoPojoCodecProvider { true }
     }
     val codecRegistryWithNullSerialization: CodecRegistry by lazy(PUBLICATION) { codecProviderWithNullSerialization.codecRegistry }
+
+    val realCodecRegistry: CodecRegistry = object : CodecRegistry {
+        override fun <T : Any?> get(clazz: Class<T>): Codec<T>? =
+            if (ObjectMappingConfiguration.serializeNull)
+                codecRegistryWithNullSerialization.get(clazz)
+            else codecRegistry.get(clazz)
+
+
+        override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? =
+            if (ObjectMappingConfiguration.serializeNull)
+                codecRegistryWithNullSerialization.get(clazz, registry)
+            else codecRegistry.get(clazz, registry)
+    }
 }

@@ -104,7 +104,7 @@ fun <@OnlyInputTypes T> setOnInsert(property: KProperty<T?>, value: T): Bson =
     Updates.setOnInsert(property.path(), value)
 
 /**
- * Creates an update that sets the the collection to the given value, but only if the update is an upsert that
+ * Creates an update that sets the collection to the given value, but only if the update is an upsert that
  * results in an insert of a document.
  *
  * @param value the value to insert

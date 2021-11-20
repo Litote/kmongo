@@ -21,6 +21,7 @@ import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdGenerator
 import org.litote.kmongo.id.ObjectIdGenerator
 import org.litote.kmongo.id.ObjectIdToStringGenerator
+import org.litote.kmongo.service.ClassMappingType
 import org.litote.kmongo.service.CustomCodecProvider
 
 /**
@@ -30,11 +31,12 @@ import org.litote.kmongo.service.CustomCodecProvider
 object ObjectMappingConfiguration {
 
     /**
-     * Are null value serialized? Default to false.
-     * Does not work for now for Jackson mapping or kotlinx.serialization (null are always serialized)
+     * Are null value serialized?
+     * Default to true for jackson & kotlinx.serialization.
+     * Default to false for native driver (for backward compatibility).
      */
     @Volatile
-    var serializeNull: Boolean = false
+    var serializeNull: Boolean = ClassMappingType.defaultNullSerialization
 
     /**
      * Adds a custom codec.

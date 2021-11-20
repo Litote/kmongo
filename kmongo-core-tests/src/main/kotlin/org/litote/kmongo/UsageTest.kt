@@ -148,5 +148,15 @@ class UsageTest : KMongoBaseTest<Jedi>() {
         assertEquals("v1", doc!!.get("version"))
         assertFalse(doc.containsKey("pilot"))
     }
+
+    @Category(SerializationMappingCategory::class)
+    @Test
+    fun testInsertNullFieldForKotlinxSerializationMapping() {
+        database.getCollection<TFighter>().insertOne(TFighter("v1", null))
+        val doc = database.getCollection("tfighter").findOne()
+
+        assertEquals("v1", doc!!.get("version"))
+        assertTrue(doc.containsKey("pilot"))
+    }
 }
 

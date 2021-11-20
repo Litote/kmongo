@@ -88,4 +88,10 @@ class KPropertyPathTest {
         assertEquals("localeMap.en.amount", (p.keyProjection(Locale.ENGLISH) / Gift::amount).path())
     }
 
+    @Test
+    fun `test array index property`() {
+        val p = Friend::allGifts.colProperty
+        assertEquals("allGifts.1.amount", (p.memberWithAdditionalPath("1") / Gift::amount).path())
+    }
+
 }

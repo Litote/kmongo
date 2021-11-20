@@ -27,23 +27,25 @@ import org.litote.kmongo.service.MongoClientProvider
  */
 object KFlapdoodle {
 
-    val mongoClient: MongoClient by lazy {
-        MongoClientProvider.createMongoClient(connectionString)
-    }
+    val mongoClient: MongoClient by lazy { newMongoClient() }
 
-    val connectionString : ConnectionString =  EmbeddedMongo.connectionString { host, command, callback ->
-        try {
-            callback(
-                MongoClientProvider
-                    .createMongoClient<MongoClient>(ConnectionString("mongodb://$host"))
-                    .getDatabase("admin")
-                    .runCommand(command),
-                null
-            )
-        } catch (e: Exception) {
-            callback(null, e)
+    val connectionString: ConnectionString by lazy {
+        EmbeddedMongo.connectionString { host, command, callback ->
+            try {
+                callback(
+                    MongoClientProvider
+                        .createMongoClient<MongoClient>(ConnectionString("mongodb://$host"))
+                        .getDatabase("admin")
+                        .runCommand(command),
+                    null
+                )
+            } catch (e: Exception) {
+                callback(null, e)
+            }
         }
     }
+
+    fun newMongoClient(): MongoClient = MongoClientProvider.createMongoClient(connectionString)
 
     fun getDatabase(dbName: String = "test"): MongoDatabase = mongoClient.getDatabase(dbName)
 

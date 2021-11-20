@@ -18,6 +18,7 @@ package org.litote.kmongo.serialization
 import kotlinx.serialization.SerialName
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
+import org.bson.codecs.Codec
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.json.JsonMode
@@ -26,8 +27,8 @@ import org.bson.json.JsonWriterSettings
 import org.litote.kmongo.id.MongoId
 import org.litote.kmongo.id.MongoProperty
 import org.litote.kmongo.service.ClassMappingTypeService
+import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.io.StringWriter
-import kotlin.LazyThreadSafetyMode.PUBLICATION
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -41,21 +42,17 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
 
     override fun priority(): Int = 200
 
-    private val coreCodecRegistry: CodecRegistry by lazy(PUBLICATION) {
-        SerializationCodecRegistry(configuration)
-    }
-
-    @Volatile
-    private lateinit var codecRegistry: CodecRegistry
-
     @Volatile
     private lateinit var codecRegistryWithNonEncodeNull: CodecRegistry
+
+    @Volatile
+    private lateinit var codecRegistryWithEncodeNull: CodecRegistry
 
     override fun filterIdToBson(obj: Any, filterNullProperties: Boolean): BsonDocument {
         val doc = BsonDocument()
         val writer = BsonDocumentWriter(doc)
 
-        (if (filterNullProperties) codecRegistryWithNonEncodeNull else codecRegistry)
+        (if (filterNullProperties) codecRegistryWithNonEncodeNull else codecRegistryWithEncodeNull)
             .get(obj.javaClass).encode(writer, obj, EncoderContext.builder().build())
 
         writer.flush()
@@ -94,20 +91,32 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
         idController.getIdValue(idProperty, instance)
 
     override fun coreCodecRegistry(baseCodecRegistry: CodecRegistry): CodecRegistry {
-        codecRegistry = codecRegistry(
-            baseCodecRegistry,
-            SerializationCodecRegistry(configuration)
-        )
+
         codecRegistryWithNonEncodeNull =
             codecRegistry(
                 baseCodecRegistry,
                 SerializationCodecRegistry(configuration.copy(nonEncodeNull = true))
             )
-        return coreCodecRegistry
+        codecRegistryWithEncodeNull = codecRegistry(
+            baseCodecRegistry,
+            SerializationCodecRegistry(configuration.copy(nonEncodeNull = false))
+        )
+        return object : CodecRegistry {
+            override fun <T : Any?> get(clazz: Class<T>): Codec<T>? =
+                if (ObjectMappingConfiguration.serializeNull)
+                    codecRegistryWithEncodeNull.get(clazz)
+                else codecRegistryWithNonEncodeNull.get(clazz)
+
+
+            override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? =
+                if (ObjectMappingConfiguration.serializeNull)
+                    codecRegistryWithEncodeNull.get(clazz, registry)
+                else codecRegistryWithNonEncodeNull.get(clazz, registry)
+        }
     }
 
     override fun <T> calculatePath(property: KProperty<T>): String =
         property.findAnnotation<SerialName>()?.value
-                ?: (if (property.hasAnnotation<MongoId>()) "_id" else property.findAnnotation<MongoProperty>()?.value)
-                ?: property.name
+            ?: (if (property.hasAnnotation<MongoId>()) "_id" else property.findAnnotation<MongoProperty>()?.value)
+            ?: property.name
 }

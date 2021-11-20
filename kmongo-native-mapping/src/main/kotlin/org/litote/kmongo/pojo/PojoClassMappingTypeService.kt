@@ -24,6 +24,7 @@ import org.bson.codecs.pojo.KMongoConvention
 import org.bson.codecs.pojo.KMongoPojoCodecService
 import org.bson.codecs.pojo.KMongoPojoCodecService.codecRegistry
 import org.bson.codecs.pojo.KMongoPojoCodecService.codecRegistryWithNullSerialization
+import org.bson.codecs.pojo.KMongoPojoCodecService.realCodecRegistry
 import org.bson.codecs.pojo.annotations.BsonProperty
 import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
@@ -47,9 +48,10 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
     @Volatile
     private lateinit var internalCodecRegistry: CodecRegistry
 
-
     @Volatile
     private lateinit var internalNullCodecRegistry: CodecRegistry
+
+    override val defaultNullSerialization: Boolean = false
 
     override fun priority(): Int {
         return 0
@@ -127,11 +129,7 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
             baseCodecRegistry,
             codecRegistryWithNullSerialization
         )
-        return if (ObjectMappingConfiguration.serializeNull) {
-            codecRegistryWithNullSerialization
-        } else {
-            codecRegistry
-        }
+        return realCodecRegistry
     }
 
     override fun <T> calculatePath(property: KProperty<T>): String {

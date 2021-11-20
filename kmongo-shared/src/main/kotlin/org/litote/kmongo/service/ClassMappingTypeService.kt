@@ -103,4 +103,8 @@ interface ClassMappingTypeService {
     }
 
     fun <T> calculatePath(property: KProperty<T>): String
+
+    val defaultNullSerialization: Boolean get() = true
+
+    fun resetConfiguration() {}
 }
