@@ -16,7 +16,9 @@
 
 package org.litote.kmongo
 
+import com.mongodb.client.model.Projections
 import org.bson.codecs.pojo.annotations.BsonId
+import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.MongoOperator.date
 import org.litote.kmongo.MongoOperator.set
@@ -56,5 +58,15 @@ class MappingTest {
         )
 
 
+    }
+
+    class User(val improvementPlan:ImprovementPlan)
+    class ImprovementPlan(val viewersList: List<ViewerImprovementPlan>)
+    class ViewerImprovementPlan(val jauthId:ObjectId)
+
+    @Test
+    fun `complex query`() {
+        val bson = User::improvementPlan.div(ImprovementPlan::viewersList) from(Projections.computed("\$not", Projections.computed("\$elemMatch", ViewerImprovementPlan::jauthId eq ObjectId("5e4e90f54b69960012f6e01d"))))
+        println(bson.json)
     }
 }
