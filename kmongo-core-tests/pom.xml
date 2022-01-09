@@ -50,6 +50,11 @@
             <artifactId>kotlin-test-junit</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

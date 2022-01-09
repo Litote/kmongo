@@ -47,10 +47,6 @@
             <artifactId>kotlin-test-junit</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -96,6 +92,11 @@
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-jackson-mapping</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
