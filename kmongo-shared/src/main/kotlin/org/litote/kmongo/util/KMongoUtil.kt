@@ -147,7 +147,7 @@ object KMongoUtil {
             json.map { toBson(it) }
         }
 
-    fun filterIdToBson(obj: Any, filterNullProperties: Boolean = false): BsonDocument =
+    fun filterIdToBson(obj: Any, filterNullProperties: Boolean = !ObjectMappingConfiguration.serializeNull): BsonDocument =
         ClassMappingType.filterIdToBson(obj, filterNullProperties)
 
     fun formatJson(json: String): String {

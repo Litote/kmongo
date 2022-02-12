@@ -72,6 +72,23 @@ class PersistingNotNullTest : KMongoBaseTest<NullableFriend>() {
         assertFalse(doc.containsKey("address"))
     }
 
+    @Category(JacksonMappingCategory::class)
+    @Test
+    fun testSaveNullFieldForJacksonMapping() {
+        val document = NullableFriend("Joe")
+        col.save(document)
+        val doc = database.getCollection("nullableFriend").findOne()!!
+
+        assertTrue(doc.containsKey("name"))
+        assertFalse(doc.containsKey("address"))
+
+        col.save(document)
+        val doc2 = database.getCollection("nullableFriend").findOne()!!
+
+        assertTrue(doc2.containsKey("name"))
+        assertFalse(doc2.containsKey("address"))
+    }
+
     @Category(NativeMappingCategory::class)
     @Test
     fun testInsertNullFieldForNativeMapping() {
@@ -82,6 +99,23 @@ class PersistingNotNullTest : KMongoBaseTest<NullableFriend>() {
         assertTrue(doc.containsKey("address"))
     }
 
+    @Category(NativeMappingCategory::class)
+    @Test
+    fun testSaveNullFieldForNativeMapping() {
+        val document = NullableFriend("Joe")
+        col.save(document)
+        val doc = database.getCollection("nullableFriend").findOne()!!
+
+        assertTrue(doc.containsKey("name"))
+        assertTrue(doc.containsKey("address"))
+
+        col.save(document)
+        val doc2 = database.getCollection("nullableFriend").findOne()!!
+
+        assertTrue(doc2.containsKey("name"))
+        assertTrue(doc2.containsKey("address"))
+    }
+
     @Category(SerializationMappingCategory::class)
     @Test
     fun testInsertNullFieldForKotlinxSerializationMapping() {
@@ -90,5 +124,22 @@ class PersistingNotNullTest : KMongoBaseTest<NullableFriend>() {
 
         assertTrue(doc.containsKey("name"))
         assertFalse(doc.containsKey("address"))
+    }
+
+    @Category(SerializationMappingCategory::class)
+    @Test
+    fun testSaveNullFieldForKotlinxSerializationMapping() {
+        val document = NullableFriend("Joe")
+        col.save(document)
+        val doc = database.getCollection("nullableFriend").findOne()!!
+
+        assertTrue(doc.containsKey("name"))
+        assertFalse(doc.containsKey("address"))
+
+        col.save(document)
+        val doc2 = database.getCollection("nullableFriend").findOne()!!
+
+        assertTrue(doc2.containsKey("name"))
+        assertFalse(doc2.containsKey("address"))
     }
 }

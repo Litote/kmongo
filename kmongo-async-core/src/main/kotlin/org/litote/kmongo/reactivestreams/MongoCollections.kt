@@ -51,6 +51,7 @@ import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.PairProjection
 import org.litote.kmongo.util.SingleProjection
 import org.litote.kmongo.util.TripleProjection
+import org.litote.kmongo.util.UpdateConfiguration
 import org.litote.kmongo.util.pairProjectionCodecRegistry
 import org.litote.kmongo.util.singleProjectionCodecRegistry
 import org.litote.kmongo.util.tripleProjectionCodecRegistry
@@ -403,12 +404,14 @@ fun <T> MongoCollection<T>.updateOne(
  * @param filter   a document describing the query filter
  * @param update   the update object
  * @param options  the options to apply to the update operation
+ * @param updateOnlyNotNullProperties if true do not change null properties
  */
 fun <T> MongoCollection<T>.updateOne(
     filter: String,
     update: Any,
-    options: UpdateOptions = UpdateOptions()
-): Publisher<UpdateResult> = updateOne(KMongoUtil.toBson(filter), KMongoUtil.setModifier(update), options)
+    options: UpdateOptions = UpdateOptions(),
+    updateOnlyNotNullProperties: Boolean = UpdateConfiguration.updateOnlyNotNullProperties
+): Publisher<UpdateResult> = updateOne(KMongoUtil.toBson(filter), KMongoUtil.setModifier(update, updateOnlyNotNullProperties), options)
 
 /**
  * Update a single document in the collection according to the specified arguments.

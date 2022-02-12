@@ -17,9 +17,13 @@
 package org.litote.kmongo.coroutine
 
 import kotlinx.coroutines.runBlocking
+import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.model.Friend
+import org.litote.kmongo.util.ObjectMappingConfiguration
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /**
  *
@@ -41,6 +45,22 @@ class ReactiveStreamsInsertTest : KMongoReactiveStreamsCoroutineBaseTest<Friend>
         mongoClient.startSession().use {
             col.insertOne(it, newFriend())
             assertEquals(1, col.countDocuments(it))
+        }
+    }
+
+    @Test
+    fun `can insert one in ClientSession and persists null`() = runBlocking {
+        mongoClient.startSession().use {
+            col.insertOne(it, newFriend())
+            assertEquals(1, col.countDocuments(it))
+            val doc = database.getCollection<Document>("friend").findOne()!!
+
+            assertTrue(doc.containsKey("name"))
+            if (ObjectMappingConfiguration.serializeNull) {
+                assertTrue(doc.containsKey("coordinate"))
+            } else {
+                assertFalse(doc.containsKey("coordinate"))
+            }
         }
     }
 
