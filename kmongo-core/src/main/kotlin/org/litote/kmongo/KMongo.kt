@@ -22,8 +22,10 @@ import com.mongodb.MongoClientSettings
 import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
+import org.bson.UuidRepresentation
+import org.bson.codecs.configuration.CodecConfigurationException
 import org.bson.codecs.configuration.CodecRegistry
-import org.bson.internal.CodecRegistryHelper
+import org.bson.internal.OverridableUuidRepresentationCodecRegistry
 import org.litote.kmongo.service.ClassMappingType
 
 /**
@@ -68,12 +70,23 @@ object KMongo {
     fun createClient(settings: MongoClientSettings): MongoClient = MongoClients.create(
         MongoClientSettings.builder(settings).codecRegistry(
             configureRegistry(
-                CodecRegistryHelper.createRegistry(
+                createRegistry(
                     settings.codecRegistry, settings.uuidRepresentation
                 )
             )
         ).build()
     )
+
+    private fun createRegistry(codecRegistry: CodecRegistry, uuidRepresentation: UuidRepresentation): CodecRegistry =
+        if (uuidRepresentation !== UuidRepresentation.JAVA_LEGACY) {
+            OverridableUuidRepresentationCodecRegistry(codecRegistry, uuidRepresentation)
+        } else {
+            throw CodecConfigurationException(
+                "Changing the default UuidRepresentation requires a CodecRegistry that also "
+                        + "implements the CodecProvider interface"
+            )
+        }
+
 
     internal fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry =
         ClassMappingType.codecRegistry(codecRegistry)
