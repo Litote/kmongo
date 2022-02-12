@@ -23,4 +23,4 @@ markdown_extensions:
   - codehilite
   - toc:
       permalink: true
-copyright: 'Copyright &copy; 2016/2021 Litote'
+copyright: 'Copyright &copy; 2016/2022 Litote'
