@@ -56,8 +56,8 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
                 filterIdWriter(
                     obj,
                     idProperty,
-                    (if (filterNullProperties) KMongoConfiguration.currentFilterIdBsonMapperWithoutNullSerialization
-                    else KMongoConfiguration.currentFilterIdBsonMapperWithNullSerialization)
+                    (if (filterNullProperties) KMongoConfiguration.filterIdBsonMapperWithoutNullSerialization
+                    else KMongoConfiguration.filterIdBsonMapperWithNullSerialization)
                 )
                     .writeValueAsBytes(obj)
             }

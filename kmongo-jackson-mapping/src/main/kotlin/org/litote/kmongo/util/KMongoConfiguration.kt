@@ -80,22 +80,51 @@ object KMongoConfiguration {
             return currentFilterIdBsonMapper!!
         }
 
-    internal val bsonMapperWithoutNullSerialization: ObjectMapper by lazy(PUBLICATION) {
-        bsonMapper.copy().setSerializationInclusion(NON_NULL);
-    }
+    @Volatile
+    private var currentBsonMapperWithoutNullSerialization: ObjectMapper? = null
 
-    internal val currentFilterIdBsonMapperWithoutNullSerialization: ObjectMapper by lazy(PUBLICATION) {
-        filterIdBsonMapper.copy().setSerializationInclusion(NON_NULL);
-    }
+    @Volatile
+    private var currentFilterIdBsonMapperWithoutNullSerialization: ObjectMapper? = null
 
-    internal val bsonMapperWithNullSerialization: ObjectMapper by lazy(PUBLICATION) {
-        bsonMapper.copy().setSerializationInclusion(ALWAYS);
-    }
+    @Volatile
+    private var currentBsonMapperWithNullSerialization: ObjectMapper? = null
 
-    internal val currentFilterIdBsonMapperWithNullSerialization: ObjectMapper by lazy(PUBLICATION) {
-        filterIdBsonMapper.copy().setSerializationInclusion(ALWAYS);
-    }
+    @Volatile
+    private var currentFilterIdBsonMapperWithNullSerialization: ObjectMapper? = null
 
+    internal val bsonMapperWithoutNullSerialization: ObjectMapper
+        get() {
+            if (currentBsonMapperWithoutNullSerialization == null) {
+                currentBsonMapperWithoutNullSerialization = bsonMapper.copy().setSerializationInclusion(NON_NULL);
+            }
+            return currentBsonMapperWithoutNullSerialization!!
+        }
+
+    internal val filterIdBsonMapperWithoutNullSerialization: ObjectMapper
+        get() {
+            if (currentFilterIdBsonMapperWithoutNullSerialization == null) {
+                currentFilterIdBsonMapperWithoutNullSerialization =
+                        filterIdBsonMapper.copy().setSerializationInclusion(NON_NULL);
+            }
+            return currentFilterIdBsonMapperWithoutNullSerialization!!
+        }
+
+    internal val bsonMapperWithNullSerialization: ObjectMapper
+        get() {
+            if (currentBsonMapperWithNullSerialization == null) {
+                currentBsonMapperWithNullSerialization = bsonMapper.copy().setSerializationInclusion(ALWAYS);
+            }
+            return currentBsonMapperWithNullSerialization!!
+        }
+
+    internal val filterIdBsonMapperWithNullSerialization: ObjectMapper
+        get() {
+            if (currentFilterIdBsonMapperWithNullSerialization == null) {
+                currentFilterIdBsonMapperWithNullSerialization =
+                        filterIdBsonMapper.copy().setSerializationInclusion(ALWAYS);
+            }
+            return currentFilterIdBsonMapperWithNullSerialization!!
+        }
 
     /**
      * Register a jackson [Module] for the two bson mappers, [bsonMapper] and [bsonMapperCopy].
@@ -160,6 +189,10 @@ object KMongoConfiguration {
             notBsonObjectMapper = bsonMapperCopy
         }
         currentFilterIdBsonMapper = null
+        currentBsonMapperWithNullSerialization = null
+        currentBsonMapperWithoutNullSerialization = null
+        currentFilterIdBsonMapperWithNullSerialization = null
+        currentFilterIdBsonMapperWithoutNullSerialization = null
     }
 
 }

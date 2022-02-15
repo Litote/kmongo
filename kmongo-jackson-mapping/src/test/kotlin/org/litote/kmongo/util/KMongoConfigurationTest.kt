@@ -48,6 +48,12 @@ class KMongoConfigurationTest {
         assert(containsModule(KMongoConfiguration.bsonMapper, TestModule::class))
         assert(containsModule(KMongoConfiguration.bsonMapperCopy, TestModule::class))
         assert(containsModule(KMongoConfiguration.extendedJsonMapper, TestModule::class))
+        assert(containsModule(KMongoConfiguration.filterIdBsonMapper, TestModule::class))
+        assert(containsModule(KMongoConfiguration.bsonMapperWithNullSerialization, TestModule::class))
+        assert(containsModule(KMongoConfiguration.bsonMapperWithoutNullSerialization, TestModule::class))
+        assert(containsModule(KMongoConfiguration.filterIdBsonMapperWithoutNullSerialization, TestModule::class))
+        assert(containsModule(KMongoConfiguration.filterIdBsonMapperWithNullSerialization, TestModule::class))
+
     }
 
     @Test
@@ -58,12 +64,20 @@ class KMongoConfigurationTest {
         var codecProvider = KMongoConfiguration.jacksonCodecProvider
         assert(containsModule(codecProvider.bsonObjectMapper, Module1::class))
         assert(containsModule(codecProvider.notBsonObjectMapper, Module1::class))
+        assert(containsModule(KMongoConfiguration.bsonMapperWithNullSerialization, Module1::class))
+        assert(containsModule(KMongoConfiguration.bsonMapperWithoutNullSerialization, Module1::class))
+        assert(containsModule(KMongoConfiguration.filterIdBsonMapperWithoutNullSerialization, Module1::class))
+        assert(containsModule(KMongoConfiguration.filterIdBsonMapperWithNullSerialization, Module1::class))
 
         KMongoConfiguration.resetConfiguration()
 
         codecProvider = KMongoConfiguration.jacksonCodecProvider
         assertFalse(containsModule(codecProvider.bsonObjectMapper, Module1::class))
         assertFalse(containsModule(codecProvider.notBsonObjectMapper, Module1::class))
+        assertFalse(containsModule(KMongoConfiguration.bsonMapperWithNullSerialization, Module1::class))
+        assertFalse(containsModule(KMongoConfiguration.bsonMapperWithoutNullSerialization, Module1::class))
+        assertFalse(containsModule(KMongoConfiguration.filterIdBsonMapperWithoutNullSerialization, Module1::class))
+        assertFalse(containsModule(KMongoConfiguration.filterIdBsonMapperWithNullSerialization, Module1::class))
 
         KMongoConfiguration.resetConfiguration()
 
@@ -71,7 +85,15 @@ class KMongoConfigurationTest {
         codecProvider = KMongoConfiguration.jacksonCodecProvider
         assertFalse(containsModule(codecProvider.bsonObjectMapper, Module1::class))
         assertFalse(containsModule(codecProvider.notBsonObjectMapper, Module1::class))
+        assertFalse(containsModule(KMongoConfiguration.bsonMapperWithNullSerialization, Module1::class))
+        assertFalse(containsModule(KMongoConfiguration.bsonMapperWithoutNullSerialization, Module1::class))
+        assertFalse(containsModule(KMongoConfiguration.filterIdBsonMapperWithoutNullSerialization, Module1::class))
+        assertFalse(containsModule(KMongoConfiguration.filterIdBsonMapperWithNullSerialization, Module1::class))
         assert(containsModule(codecProvider.bsonObjectMapper, Module2::class))
         assert(containsModule(codecProvider.notBsonObjectMapper, Module2::class))
+        assert(containsModule(KMongoConfiguration.bsonMapperWithNullSerialization, Module2::class))
+        assert(containsModule(KMongoConfiguration.bsonMapperWithoutNullSerialization, Module2::class))
+        assert(containsModule(KMongoConfiguration.filterIdBsonMapperWithoutNullSerialization, Module2::class))
+        assert(containsModule(KMongoConfiguration.filterIdBsonMapperWithNullSerialization, Module2::class))
     }
 }
