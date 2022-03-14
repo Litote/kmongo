@@ -811,7 +811,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      *
      * @param indexes the list of indexes
      * @param createIndexOptions options to use when creating indexes
-     * @return a single element indicating when the operation has completed
+     * @return a list of elements indicating index creation operation completion
      * @mongodb.driver.manual reference/command/createIndexes Create indexes
      * @mongodb.server.release 2.6
      * @since 1.7
@@ -819,8 +819,8 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     suspend fun createIndexes(
         indexes: List<IndexModel>,
         createIndexOptions: CreateIndexOptions = CreateIndexOptions()
-    ): String =
-        collection.createIndexes(indexes, createIndexOptions).awaitSingle()
+    ): List<String> =
+        collection.createIndexes(indexes, createIndexOptions).toList()
 
     /**
      * Create multiple indexes.
@@ -828,7 +828,7 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
      * @param clientSession the client session with which to associate this operation
      * @param indexes the list of indexes
      * @param createIndexOptions options to use when creating indexes
-     * @return a publisher with a single element indicating when the operation has completed
+     * @return a list of elements indicating index creation operation completion
      * @mongodb.driver.manual reference/command/createIndexes Create indexes
      * @mongodb.server.release 3.6
      * @since 1.7
@@ -837,8 +837,8 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
         clientSession: ClientSession,
         indexes: List<IndexModel>,
         createIndexOptions: CreateIndexOptions = CreateIndexOptions()
-    ): String =
-        collection.createIndexes(clientSession, indexes, createIndexOptions).awaitSingle()
+    ): List<String> =
+        collection.createIndexes(clientSession, indexes, createIndexOptions).toList()
 
     /**
      * Get all the indexes in this collection.
