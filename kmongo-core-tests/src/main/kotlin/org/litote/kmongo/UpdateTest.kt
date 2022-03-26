@@ -70,6 +70,16 @@ class UpdateTest : AllCategoriesKMongoBaseTest<Friend>() {
     }
 
     @Test
+    fun canUpdateWithSetToByObjectId() {
+        val friend = Friend("Paul")
+        col.insertOne(friend)
+        col.updateOneById(friend._id!!, Friend::name setTo "John")
+        val r = col.findOne("{name:'John'}")
+        assertEquals("John", r!!.name)
+        assertEquals(friend._id, r._id)
+    }
+
+    @Test
     fun canUpsert() {
         col.updateOne("{}", "{$set:{name:'John'}}", UpdateOptions().upsert(true))
         val r = col.findOne("{name:'John'}")
