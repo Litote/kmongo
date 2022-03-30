@@ -20,6 +20,7 @@ import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
+import org.litote.kmongo.util.KMongoUtil
 
 /**
  * only used for test
@@ -32,9 +33,7 @@ internal class SyncMongoClientProviderService : MongoClientProviderService<Mongo
                 .builder()
                 .applyConnectionString(connectionString)
                 .codecRegistry(
-                    ClassMappingType.codecRegistry(
-                        MongoClientSettings.getDefaultCodecRegistry()
-                    )
+                    ClassMappingType.codecRegistry(KMongoUtil.defaultCodecRegistry)
                 )
                 .build()
         )

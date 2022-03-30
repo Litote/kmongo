@@ -27,6 +27,7 @@ import org.bson.codecs.configuration.CodecConfigurationException
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.internal.OverridableUuidRepresentationCodecRegistry
 import org.litote.kmongo.service.ClassMappingType
+import org.litote.kmongo.util.KMongoUtil
 
 /**
  * Main object used to create a [MongoClient](https://api.mongodb.com/java/current/com/mongodb/MongoClient.html) instance.
@@ -57,7 +58,11 @@ object KMongo {
      */
     fun createClient(connectionString: ConnectionString): MongoClient =
         createClient(
-            MongoClientSettings.builder().applyConnectionString(connectionString).build()
+            MongoClientSettings
+                .builder()
+                .codecRegistry(KMongoUtil.defaultCodecRegistry)
+                .applyConnectionString(connectionString)
+                .build()
         )
 
     /**

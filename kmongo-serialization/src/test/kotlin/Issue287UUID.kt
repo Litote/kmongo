@@ -27,7 +27,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import org.bson.BsonReader
 import org.bson.BsonWriter
-import org.bson.Document
 import org.bson.codecs.Codec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
@@ -37,7 +36,6 @@ import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.eq
 import org.litote.kmongo.findOne
 import org.litote.kmongo.serialization.registerSerializer
-import org.litote.kmongo.withDocumentClass
 import java.util.UUID
 import kotlin.test.assertNotNull
 

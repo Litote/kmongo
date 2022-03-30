@@ -16,13 +16,13 @@
 
 package org.litote.kmongo
 
-import com.mongodb.MongoClientSettings
 import org.bson.BsonBinaryReader
 import org.bson.Document
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.types.ObjectId
 import org.litote.kmongo.service.ClassMappingType
+import org.litote.kmongo.util.KMongoUtil
 import java.nio.ByteBuffer
 
 /**
@@ -54,8 +54,8 @@ object KMongoBenchmark {
         )
     }
 
-    val defaultCodecRegistry = MongoClientSettings.getDefaultCodecRegistry()
-    val kmongoCodecRegistry = ClassMappingType.codecRegistry(MongoClientSettings.getDefaultCodecRegistry())
+    val defaultCodecRegistry = KMongoUtil.defaultCodecRegistry
+    val kmongoCodecRegistry = ClassMappingType.codecRegistry(KMongoUtil.defaultCodecRegistry)
 
     inline fun <reified T : Any> decode(registry: CodecRegistry): T =
         registry

@@ -23,11 +23,9 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
-import org.litote.kmongo.withDocumentClass
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.test.assertEquals

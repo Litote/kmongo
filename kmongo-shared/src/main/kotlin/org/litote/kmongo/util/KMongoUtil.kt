@@ -16,7 +16,10 @@
 
 package org.litote.kmongo.util
 
-import com.mongodb.MongoClientSettings
+import com.mongodb.DBObjectCodecProvider
+import com.mongodb.DBRefCodecProvider
+import com.mongodb.DocumentToDBRefTransformer
+import com.mongodb.client.gridfs.codecs.GridFSFileCodecProvider
 import com.mongodb.client.model.BsonField
 import com.mongodb.client.model.DeleteManyModel
 import com.mongodb.client.model.DeleteOneModel
@@ -28,6 +31,7 @@ import com.mongodb.client.model.UpdateManyModel
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
+import com.mongodb.client.model.geojson.codecs.GeoJsonCodecProvider
 import org.bson.BsonBoolean
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
@@ -39,10 +43,19 @@ import org.bson.BsonString
 import org.bson.BsonValue
 import org.bson.Document
 import org.bson.codecs.BsonArrayCodec
+import org.bson.codecs.BsonCodecProvider
+import org.bson.codecs.BsonValueCodecProvider
 import org.bson.codecs.DecoderContext
+import org.bson.codecs.DocumentCodecProvider
 import org.bson.codecs.Encoder
 import org.bson.codecs.EncoderContext
+import org.bson.codecs.IterableCodecProvider
+import org.bson.codecs.JsonObjectCodecProvider
+import org.bson.codecs.MapCodecProvider
+import org.bson.codecs.ValueCodecProvider
+import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
+import org.bson.codecs.jsr310.Jsr310CodecProvider
 import org.bson.conversions.Bson
 import org.bson.json.JsonReader
 import org.bson.types.ObjectId
@@ -91,8 +104,25 @@ object KMongoUtil {
         ).map { it.toString() }
 
     private val internalDefaultRegistry: CodecRegistry by lazy(PUBLICATION) {
-        ClassMappingType.codecRegistry(
-            MongoClientSettings.getDefaultCodecRegistry()
+        ClassMappingType.codecRegistry(defaultCodecRegistry)
+    }
+
+    val defaultCodecRegistry: CodecRegistry by lazy(PUBLICATION) {
+        CodecRegistries.fromProviders(
+            listOf(
+                ValueCodecProvider(),
+                BsonValueCodecProvider(),
+                DBRefCodecProvider(),
+                DBObjectCodecProvider(),
+                DocumentCodecProvider(DocumentToDBRefTransformer()),
+                IterableCodecProvider(DocumentToDBRefTransformer()),
+                MapCodecProvider(DocumentToDBRefTransformer()),
+                GeoJsonCodecProvider(),
+                GridFSFileCodecProvider(),
+                Jsr310CodecProvider(),
+                JsonObjectCodecProvider(),
+                BsonCodecProvider()
+            )
         )
     }
 
@@ -147,7 +177,10 @@ object KMongoUtil {
             json.map { toBson(it) }
         }
 
-    fun filterIdToBson(obj: Any, filterNullProperties: Boolean = !ObjectMappingConfiguration.serializeNull): BsonDocument =
+    fun filterIdToBson(
+        obj: Any,
+        filterNullProperties: Boolean = !ObjectMappingConfiguration.serializeNull
+    ): BsonDocument =
         ClassMappingType.filterIdToBson(obj, filterNullProperties)
 
     fun formatJson(json: String): String {

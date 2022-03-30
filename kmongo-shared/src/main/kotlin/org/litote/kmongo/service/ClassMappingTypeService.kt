@@ -16,12 +16,12 @@
 
 package org.litote.kmongo.service
 
-import com.mongodb.MongoClientSettings
 import org.bson.BsonDocument
 import org.bson.codecs.Codec
 import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
+import org.litote.kmongo.util.KMongoUtil
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -83,7 +83,7 @@ interface ClassMappingTypeService {
         coreCodeRegistry
     )
 
-    fun coreCodecRegistry(baseCodecRegistry: CodecRegistry = MongoClientSettings.getDefaultCodecRegistry()): CodecRegistry
+    fun coreCodecRegistry(baseCodecRegistry: CodecRegistry = KMongoUtil.defaultCodecRegistry): CodecRegistry
 
     fun <T> getPath(property: KProperty<T>): String {
         //sanity check
