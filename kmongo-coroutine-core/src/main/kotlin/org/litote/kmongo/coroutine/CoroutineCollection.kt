@@ -1252,6 +1252,25 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     }
 
     /**
+     * Save the document.
+     * If the document has no id field, or if the document has a null id value, insert the document.
+     * Otherwise, call [replaceOneById] with upsert true.
+     *
+     * @param clientSession  the client session with which to associate this operation
+     * @param document the document to save
+     */
+    suspend fun save(clientSession: ClientSession, document: T): UpdateResult? {
+        val id = KMongoUtil.getIdValue(document)
+        return if (id != null) {
+            replaceOneById(clientSession, id, document, ReplaceOptions().upsert(true))
+        } else {
+            insertOne(clientSession, document)
+            null
+        }
+    }
+
+
+    /**
      * Replace a document in the collection according to the specified arguments.
      *
      * @param id          the object id
