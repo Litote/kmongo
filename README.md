@@ -19,7 +19,7 @@ Forum: [https://groups.google.com/forum/#!forum/kmongo](https://groups.google.co
 ### Native and Lightweight
 
 KMongo features are available via [Kotlin extensions](https://kotlinlang.org/docs/reference/extensions.html) -
-you use transparently [the core MongoDB java driver API](https://docs.mongodb.com/ecosystem/drivers/java/)
+you use transparently [the core MongoDB java driver API](https://www.mongodb.com/docs/drivers/java-drivers/)
 (both sync and reactive streams (ie async) drivers are supported)
 
 #### With complete reactive streams & async support
