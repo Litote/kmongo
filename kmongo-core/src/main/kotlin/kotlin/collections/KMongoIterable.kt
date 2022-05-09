@@ -105,7 +105,7 @@ private class MongoIndexingIterable<T>(
         }
     }
 
-    override fun first(): IndexedValue<T> = IndexedValue(0, iterable.first())
+    override fun first(): IndexedValue<T>? = iterable.first()?.let { IndexedValue(0, it) }
 
     override fun <A : MutableCollection<in IndexedValue<T>>> into(target: A): A {
         val l = mutableListOf<T>()
@@ -1075,14 +1075,14 @@ inline fun <S, T : S> MongoIterable<T>.reduceIndexed(crossinline operation: (ind
  * Returns the sum of all values produced by [selector] function applied to each element in the collection.
  */
 inline fun <T> MongoIterable<T>.sumBy(crossinline selector: (T) -> Int): Int {
-    return useCursor { it.sumBy(selector) }
+    return useCursor { it.sumOf(selector) }
 }
 
 /**
  * Returns the sum of all values produced by [selector] function applied to each element in the collection.
  */
 inline fun <T> MongoIterable<T>.sumByDouble(crossinline selector: (T) -> Double): Double {
-    return useCursor { it.sumByDouble(selector) }
+    return useCursor { it.sumOf(selector) }
 }
 
 /**

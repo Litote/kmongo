@@ -39,6 +39,10 @@
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-serialization-mapping</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-async-core</artifactId>
         </dependency>
         <dependency>
@@ -135,6 +139,12 @@
                             <lineSuffix>#L</lineSuffix>
                         </link>
                         <link>
+                            <path>${project.basedir}/../kmongo-serialization-mapping/src/main/kotlin</path>
+                            <url>https://github.com/Litote/kmongo/blob/master/kmongo-serialization-mapping/src/main/kotlin
+                            </url>
+                            <lineSuffix>#L</lineSuffix>
+                        </link>
+                        <link>
                             <path>${project.basedir}/../kmongo-core/src/main/kotlin</path>
                             <url>https://github.com/Litote/kmongo/blob/master/kmongo-core/src/main/kotlin
                             </url>
@@ -183,6 +193,7 @@
                         <dir>${project.basedir}/../kmongo-id/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-shared/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-jackson-mapping/src/main/kotlin</dir>
+                        <dir>${project.basedir}/../kmongo-serialization-mapping/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-core/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-async-shared/src/main/kotlin</dir>
                         <dir>${project.basedir}/../kmongo-async-core/src/main/kotlin</dir>

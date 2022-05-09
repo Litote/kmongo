@@ -23,8 +23,7 @@ import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.Id
-import org.litote.kmongo.MongoOperator
-import org.litote.kmongo.MongoOperator.*
+import org.litote.kmongo.MongoOperator.oid
 import org.litote.kmongo.eq
 import org.litote.kmongo.id.toId
 import org.litote.kmongo.json

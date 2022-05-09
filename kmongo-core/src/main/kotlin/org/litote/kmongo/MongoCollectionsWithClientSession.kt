@@ -774,7 +774,7 @@ fun <T> MongoCollection<T>.ensureUniqueIndex(
     clientSession: ClientSession,
     vararg properties: KProperty<*>,
     indexOptions: IndexOptions = IndexOptions()
-): String = ensureIndex(clientSession, properties = *properties, indexOptions = indexOptions.unique(true))
+): String = ensureIndex(clientSession, properties = properties, indexOptions = indexOptions.unique(true))
 
 /**
  * Create an index with the given keys and options.

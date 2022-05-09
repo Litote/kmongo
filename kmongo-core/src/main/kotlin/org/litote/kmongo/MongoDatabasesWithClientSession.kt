@@ -34,7 +34,7 @@ inline fun <reified TResult : Any> MongoDatabase.runCommand(
     command: String,
     readPreference: ReadPreference
 ): TResult =
-    runCommand(KMongoUtil.toBson(command), readPreference, TResult::class.java)
+    runCommand(clientSession, KMongoUtil.toBson(command), readPreference, TResult::class.java)
 
 /**
  * Executes the given command in the context of the current database with the given read preference.
@@ -44,4 +44,4 @@ inline fun <reified TResult : Any> MongoDatabase.runCommand(
  * @param <TResult>      the type of the class to use instead of {@code Document}.
  */
 inline fun <reified TResult : Any> MongoDatabase.runCommand(clientSession: ClientSession, command: String): TResult =
-    runCommand(command, readPreference)
+    runCommand(clientSession, command, readPreference)

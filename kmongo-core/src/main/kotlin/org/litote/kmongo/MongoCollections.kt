@@ -691,7 +691,7 @@ fun <T> MongoCollection<T>.ensureIndex(
 fun <T> MongoCollection<T>.ensureUniqueIndex(
     vararg properties: KProperty<*>,
     indexOptions: IndexOptions = IndexOptions()
-): String = ensureIndex(properties = *properties, indexOptions = indexOptions.unique(true))
+): String = ensureIndex(properties = properties, indexOptions = indexOptions.unique(true))
 
 /**
  * Create an index with the given keys and options.
