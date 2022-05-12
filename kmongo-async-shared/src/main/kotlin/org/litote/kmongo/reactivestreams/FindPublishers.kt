@@ -20,6 +20,7 @@ import com.mongodb.CursorType
 import com.mongodb.ExplainVerbosity
 import com.mongodb.client.model.Collation
 import com.mongodb.reactivestreams.client.FindPublisher
+import org.bson.BsonValue
 import org.bson.Document
 import org.bson.conversions.Bson
 import org.litote.kmongo.include
@@ -133,6 +134,11 @@ fun <I, O> FindPublisher<I>.map(mapper: (I?) -> O?): FindPublisher<O> =
         override fun subscribe(subscriber: Subscriber<in O>) {
             this@map.subscribe(mapper, subscriber)
         }
+
+        override fun comment(comment: BsonValue?): FindPublisher<O> = this@map.comment(comment).map(mapper)
+
+        override fun let(variables: Bson?): FindPublisher<O> = this@map.let(variables).map(mapper)
+
     }
 
 fun <I, O> Publisher<I>.map(mapper: (I?) -> O?): Publisher<O> =
