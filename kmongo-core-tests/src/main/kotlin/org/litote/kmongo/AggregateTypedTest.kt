@@ -120,27 +120,6 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
 
     @Test
     fun `can aggregate complex queries and deserialize in object`() {
-        val query = listOf(
-            match(
-                Article::tags contains "virus"
-            ),
-            project(
-                Article::title from Article::title,
-                Article::ok from cond(Article::ok, 1, 0),
-                Result::averageYear from year(Article::date)
-            ),
-            group(
-                Article::title,
-                Result::count sum Article::ok,
-                Result::averageYear avg Result::averageYear
-            ),
-            sort(
-                ascending(
-                    Result::title
-                )
-            )
-        )
-
         val r = col.aggregate<Result>(
             match(
                 Article::tags contains "virus"
@@ -172,6 +151,29 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
             Result("Zombie Panic", LocalDate.now().year.toDouble(), 1),
             r.last()
         )
+
+        val r2 = col.aggregate<Result>(
+            match(
+                Article::tags contains "virus"
+            ),
+            project(
+                Article::title from Article::title,
+                Article::ok from cond(Article::ok, 1, 0),
+                Result::averageYear from year(Article::date)
+            ),
+            group(
+                Article::title,
+                Result::count.count,
+                Result::averageYear avg Result::averageYear
+            ),
+            sort(
+                ascending(
+                    Result::title
+                )
+            )
+        )
+            .toList()
+        assertEquals(2, r2.size)
     }
 
     @Test

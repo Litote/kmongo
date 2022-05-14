@@ -18,6 +18,7 @@ package org.litote.kmongo
 
 import com.mongodb.client.model.Accumulators
 import com.mongodb.client.model.BsonField
+import org.bson.BsonDocument
 import kotlin.reflect.KProperty
 
 /**
@@ -31,6 +32,15 @@ import kotlin.reflect.KProperty
  */
 infix fun <T> KProperty<T>.sum(expression: T): BsonField =
     Accumulators.sum(path(), expression)
+
+/**
+ * Gets a field name for a $group operation representing the count of the values of the given expression when applied to all members of
+ * the group.
+ *
+ * @param expression the expression
+ * @return the field
+ */
+val KProperty<*>.count: BsonField get() = BsonField(path(), BsonDocument("\$count", BsonDocument()))
 
 /**
  * Gets a field name for a $group operation representing the average of the values of the given expression when applied to all
