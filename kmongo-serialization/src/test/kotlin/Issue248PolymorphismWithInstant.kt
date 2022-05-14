@@ -32,6 +32,7 @@ import org.litote.kmongo.newId
 import org.litote.kmongo.serialization.registerModule
 import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 
 enum class Action {
@@ -56,7 +57,7 @@ interface SchedulerJob {
 @Serializable
 data class UnmuteSchedulerJob(
     @Contextual @SerialName("_id") override val id: Id<SchedulerJob> = newId(),
-    @Contextual override val startTime: Instant = Instant.now(),
+    @Contextual override val startTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
     override val duration: Long = 10L,
     override val targetUserId: String = "id",
     override val guildId: String = "id",

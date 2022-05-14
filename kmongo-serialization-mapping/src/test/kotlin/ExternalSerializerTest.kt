@@ -33,6 +33,7 @@ import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.junit.Test
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 
 /**
@@ -129,6 +130,7 @@ class ExternalSerializerTest {
         registerSerializer(AdminRoleSerializer)
         registerSerializer(UserRoleSerializer)
         registerSerializer(NoneRoleSerializer)
+        val date = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)
         val user = User(
             "test",
             "test@test.com",
@@ -136,8 +138,8 @@ class ExternalSerializerTest {
             "TestLastName",
             "1234",
             Role.ADMIN,
-            LocalDateTime.now(),
-            LocalDateTime.now()
+            date,
+            date
         )
         val codec = SerializationCodec(User::class, configuration)
         val document = BsonDocument()
