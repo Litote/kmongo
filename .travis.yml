@@ -3,7 +3,7 @@ version: ~> 1.0
 language: java
 dist: focal
 jdk:
-  - openjdk8
+  - openjdk18
 branches:
   only:
     - master
