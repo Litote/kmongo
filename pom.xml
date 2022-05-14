@@ -111,7 +111,7 @@
         <plugin.dokka.version>0.10.1</plugin.dokka.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.8</plugin.nexus-staging.version>
-        <plugin.jacoco.version>0.8.7</plugin.jacoco.version>
+        <plugin.jacoco.version>0.8.8</plugin.jacoco.version>
         <plugin.exec.version>1.2.1</plugin.exec.version>
         <plugin.build-helper.version>1.8</plugin.build-helper.version>
         <plugin.shade.version>2.2</plugin.shade.version>
