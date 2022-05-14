@@ -17,7 +17,9 @@
 package org.litote.kmongo
 
 import org.bson.BsonDocument
+import org.bson.types.ObjectId
 import org.litote.kmongo.MongoOperator.lookup
+import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -26,7 +28,7 @@ import kotlin.test.assertEquals
  */
 class AggregatesTest {
 
-    class AggregateData(val s: String, val qty: Int)
+    class AggregateData(val s: String, val qty: Int, val date: LocalDate, val objectId: ObjectId)
 
     @Test
     fun testGte() {
@@ -50,5 +52,11 @@ class AggregatesTest {
     fun testVariable() {
         assertEquals("\$\$s", AggregateData::s.variable)
         assertEquals("\$\$s", "s".variable)
+    }
+
+    @Test
+    fun testYearWithTemporalAndObjectId() {
+        assertEquals(BsonDocument.parse("{\"\$year\":\"\$date\"}"), year(AggregateData::date).document)
+        assertEquals(BsonDocument.parse("{\"\$year\":\"\$objectId\"}"), year(AggregateData::objectId).document)
     }
 }

@@ -33,6 +33,7 @@ import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
+import org.bson.types.ObjectId
 import org.litote.kmongo.util.KMongoUtil.encodeValue
 import java.time.temporal.TemporalAccessor
 import kotlin.reflect.KProperty
@@ -454,6 +455,65 @@ fun second(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.second.
  */
 fun week(property: KProperty<TemporalAccessor?>): Bson = MongoOperator.week.from(property)
 
+/**
+ * Builds $dayOfYear expression for this property .
+ */
+@JvmName("dayOfYearObjectId")
+fun dayOfYear(property: KProperty<ObjectId?>): Bson = MongoOperator.dayOfYear.from(property)
+
+/**
+ * Builds $dayOfMonth expression for this property .
+ */
+@JvmName("dayOfMonthObjectId")
+fun dayOfMonth(property: KProperty<ObjectId?>): Bson = MongoOperator.dayOfMonth.from(property)
+
+/**
+ * Builds $dayOfWeek expression for this property .
+ */
+@JvmName("dayOfWeekObjectId")
+fun dayOfWeek(property: KProperty<ObjectId?>): Bson = MongoOperator.dayOfWeek.from(property)
+
+/**
+ * Builds $year expression for this property .
+ */
+@JvmName("yearObjectId")
+fun year(property: KProperty<ObjectId?>): Bson = MongoOperator.year.from(property)
+
+/**
+ * Builds $hour expression for this property .
+ */
+@JvmName("hourObjectId")
+fun hour(property: KProperty<ObjectId?>): Bson = MongoOperator.hour.from(property)
+
+/**
+ * Builds $millisecond expression for this property .
+ */
+@JvmName("millisecondObjectId")
+fun millisecond(property: KProperty<ObjectId?>): Bson = MongoOperator.millisecond.from(property)
+
+/**
+ * Builds $minute expression for this property .
+ */
+@JvmName("minuteObjectId")
+fun minute(property: KProperty<ObjectId?>): Bson = MongoOperator.minute.from(property)
+
+/**
+ * Builds $month expression for this property .
+ */
+@JvmName("monthObjectId")
+fun month(property: KProperty<ObjectId?>): Bson = MongoOperator.month.from(property)
+
+/**
+ * Builds $second expression for this property .
+ */
+@JvmName("secondObjectId")
+fun second(property: KProperty<ObjectId?>): Bson = MongoOperator.second.from(property)
+
+/**
+ * Builds $week expression for this property .
+ */
+@JvmName("weekObjectId")
+fun week(property: KProperty<ObjectId?>): Bson = MongoOperator.week.from(property)
 /**
  * Creates a $lookup pipeline stage, joining the current collection with the one specified in from using the given pipeline
  *
