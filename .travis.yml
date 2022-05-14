@@ -1,6 +1,7 @@
 ---
 version: ~> 1.0
 language: java
+dist: focal
 jdk:
   - openjdk8
 branches:
