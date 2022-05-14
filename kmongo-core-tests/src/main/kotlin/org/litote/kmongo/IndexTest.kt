@@ -37,7 +37,7 @@ class IndexTest : AllCategoriesKMongoBaseTest<Friend>() {
         //ensure
         assertEquals(
             50,
-            col.listIndexes().first { (it.getString("name") == "creationDate_1") }.getLong("expireAfterSeconds")
+            col.listIndexes().first { (it.getString("name") == "creationDate_1") }.getInteger("expireAfterSeconds")
         )
     }
 

@@ -26,7 +26,7 @@ import kotlin.test.assertTrue
 /**
  *
  */
-class CommandTest : AllCategoriesKMongoBaseTest<Friend>() {
+class CommandTest : AllCategoriesKMongoBaseTest<Friend>(oldestMongoTestVersion) {
 
     @Serializable
     class LocationResult(val results: List<Location>)
@@ -70,7 +70,7 @@ class CommandTest : AllCategoriesKMongoBaseTest<Friend>() {
     fun canRunAnEmptyResultCommand() {
         col.createIndex("{loc:'2d'}")
         val r = database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}")
-        assertTrue (r.results.isEmpty())
+        assertTrue(r.results.isEmpty())
     }
 
 }

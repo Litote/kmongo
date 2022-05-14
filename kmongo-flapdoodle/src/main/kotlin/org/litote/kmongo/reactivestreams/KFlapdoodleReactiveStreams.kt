@@ -16,27 +16,15 @@
 
 package org.litote.kmongo.reactivestreams
 
-import com.mongodb.ConnectionString
 import com.mongodb.reactivestreams.client.MongoClient
-import org.litote.kmongo.EmbeddedMongo
-import org.litote.kmongo.reactivestreams.KFlapdoodleReactiveStreams.mongoClient
-import org.litote.kmongo.service.MongoClientProvider
-
 /**
  * Async main KFlapoodle object - to access async [mongoClient].
  */
+@Deprecated("use ReactiveStreamsFlapdoodleRule")
 object KFlapdoodleReactiveStreams {
 
-    val mongoClient: MongoClient by lazy {
-        MongoClientProvider.createMongoClient<MongoClient>(
-            EmbeddedMongo.connectionString { host, command, callback ->
-                MongoClientProvider
-                    .createMongoClient<MongoClient>(ConnectionString("mongodb://$host"))
-                    .getDatabase("admin")
-                    .runCommand(command)
-                    .subscribe(SimpleSubscriber { callback.invoke(null, it) })
-            }
-        )
-    }
+    private val configuration: KFlapdoodleReactiveStreamsConfiguration by lazy { KFlapdoodleReactiveStreamsConfiguration() }
+
+    val mongoClient: MongoClient by lazy { configuration.mongoClient }
 
 }

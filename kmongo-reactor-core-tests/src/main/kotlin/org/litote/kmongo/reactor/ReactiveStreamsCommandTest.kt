@@ -20,13 +20,14 @@ import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.model.Friend
+import org.litote.kmongo.oldestMongoTestVersion
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
  *
  */
-class ReactiveStreamsCommandTest : KMongoReactiveStreamsReactorBaseTest<Friend>() {
+class ReactiveStreamsCommandTest : KMongoReactiveStreamsReactorBaseTest<Friend>(oldestMongoTestVersion) {
 
     @Serializable
     class LocationResult(val results: List<Location>)
@@ -44,7 +45,7 @@ class ReactiveStreamsCommandTest : KMongoReactiveStreamsReactorBaseTest<Friend>(
     @Test
     fun canRunACommand() {
         val document = database.runCommand<Document>("{ ping: 1 }").block()
-                ?: throw AssertionError("Document must not null!")
+            ?: throw AssertionError("Document must not null!")
         assertEquals(1.0, document["ok"])
     }
 
@@ -55,7 +56,7 @@ class ReactiveStreamsCommandTest : KMongoReactiveStreamsReactorBaseTest<Friend>(
         val friends = "friend"
 
         val document = database.runCommand<Document>("{ count: '$friends' }").block()
-                ?: throw AssertionError("Document must not null!")
+            ?: throw AssertionError("Document must not null!")
         assertEquals(1, document.get("n"))
     }
 

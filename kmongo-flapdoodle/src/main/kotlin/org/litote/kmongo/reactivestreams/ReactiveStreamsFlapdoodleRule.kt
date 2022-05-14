@@ -19,11 +19,14 @@ package org.litote.kmongo.reactivestreams
 import com.mongodb.reactivestreams.client.MongoClient
 import com.mongodb.reactivestreams.client.MongoCollection
 import com.mongodb.reactivestreams.client.MongoDatabase
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import org.bson.types.ObjectId
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
+import org.litote.kmongo.defaultMongoTestVersion
 import org.litote.kmongo.util.KMongoUtil
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
@@ -35,7 +38,8 @@ class ReactiveStreamsFlapdoodleRule<T : Any>(
     val defaultDocumentClass: KClass<T>,
     val generateRandomCollectionName: Boolean = false,
     val dbName: String = "test",
-    val wait:Boolean = false
+    val wait: Boolean = false,
+    val version: IFeatureAwareVersion = defaultMongoTestVersion
 ) : TestRule {
 
     companion object {
@@ -43,9 +47,13 @@ class ReactiveStreamsFlapdoodleRule<T : Any>(
         inline fun <reified T : Any> rule(generateRandomCollectionName: Boolean = false): ReactiveStreamsFlapdoodleRule<T> =
             ReactiveStreamsFlapdoodleRule(T::class, generateRandomCollectionName)
 
+        private val versionsMap = ConcurrentHashMap<IFeatureAwareVersion, KFlapdoodleReactiveStreamsConfiguration>()
     }
 
-    val mongoClient: MongoClient = KFlapdoodleReactiveStreams.mongoClient
+    private val configuration =
+        versionsMap.getOrPut(version) { KFlapdoodleReactiveStreamsConfiguration(version) }
+
+    val mongoClient: MongoClient = configuration.mongoClient
     val database: MongoDatabase by lazy {
         mongoClient.getDatabase(dbName)
     }
@@ -92,7 +100,7 @@ class ReactiveStreamsFlapdoodleRule<T : Any>(
                 try {
                     testContext = ReactiveStreamsTestContext()
                     base.evaluate()
-                    if(wait) {
+                    if (wait) {
                         testContext.waitToComplete()
                     }
                 } finally {

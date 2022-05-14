@@ -19,34 +19,22 @@ package org.litote.kmongo
 import com.mongodb.ConnectionString
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
-import org.litote.kmongo.KFlapdoodle.mongoClient
-import org.litote.kmongo.service.MongoClientProvider
 
 /**
  * Main KFlapoodle object - to access sync [mongoClient].
  */
+
+@Deprecated("use KFlapdoodleRule")
 object KFlapdoodle {
 
-    val mongoClient: MongoClient by lazy { newMongoClient() }
+    private val configuration: KFlapdoodleConfiguration by lazy { KFlapdoodleConfiguration() }
 
-    val connectionString: ConnectionString by lazy {
-        EmbeddedMongo.connectionString { host, command, callback ->
-            try {
-                callback(
-                    MongoClientProvider
-                        .createMongoClient<MongoClient>(ConnectionString("mongodb://$host"))
-                        .getDatabase("admin")
-                        .runCommand(command),
-                    null
-                )
-            } catch (e: Exception) {
-                callback(null, e)
-            }
-        }
-    }
+    val mongoClient: MongoClient by lazy { configuration.mongoClient }
 
-    fun newMongoClient(): MongoClient = MongoClientProvider.createMongoClient(connectionString)
+    val connectionString: ConnectionString by lazy { configuration.connectionString }
 
-    fun getDatabase(dbName: String = "test"): MongoDatabase = mongoClient.getDatabase(dbName)
+    fun newMongoClient(): MongoClient = configuration.newMongoClient()
+
+    fun getDatabase(dbName: String = "test"): MongoDatabase = configuration.getDatabase(dbName)
 
 }

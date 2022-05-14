@@ -16,12 +16,14 @@
 package org.litote.kmongo.rxjava2
 
 import com.mongodb.reactivestreams.client.MongoCollection
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import org.junit.Rule
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.SerializationMappingCategory
+import org.litote.kmongo.defaultMongoTestVersion
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 
@@ -29,12 +31,13 @@ import kotlin.reflect.KClass
  *
  */
 @Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
-open class KMongoRxBaseTest<T : Any> : KMongoRootTest() {
+open class KMongoRxBaseTest<T : Any>(mongoServerVersion: IFeatureAwareVersion = defaultMongoTestVersion) :
+    KMongoRootTest() {
 
     @Suppress("LeakingThis")
     @Rule
     @JvmField
-    val rule = RxFlapdoodleRule(getDefaultCollectionClass())
+    val rule = RxFlapdoodleRule(getDefaultCollectionClass(), version = mongoServerVersion)
 
     val col by lazy { rule.col }
 
@@ -43,7 +46,6 @@ open class KMongoRxBaseTest<T : Any> : KMongoRootTest() {
     inline fun <reified T : Any> getCollection(): MongoCollection<T> = rule.getCollection<T>()
 
     @Suppress("UNCHECKED_CAST")
-    open fun getDefaultCollectionClass(): KClass<T>
-            = Friend::class as KClass<T>
+    open fun getDefaultCollectionClass(): KClass<T> = Friend::class as KClass<T>
 
 }

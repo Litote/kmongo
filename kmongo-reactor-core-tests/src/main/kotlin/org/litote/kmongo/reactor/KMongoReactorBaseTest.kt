@@ -16,12 +16,14 @@
 package org.litote.kmongo.reactor
 
 import com.mongodb.reactor.client.ReactorMongoCollection
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import org.junit.Rule
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.NativeMappingCategory
 import org.litote.kmongo.SerializationMappingCategory
+import org.litote.kmongo.defaultMongoTestVersion
 import org.litote.kmongo.model.Friend
 import kotlin.reflect.KClass
 
@@ -29,12 +31,12 @@ import kotlin.reflect.KClass
  *
  */
 @Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
-open class KMongoReactorBaseTest<T : Any> : KMongoRootTest() {
+open class KMongoReactorBaseTest<T : Any>(mongoServerVersion: IFeatureAwareVersion = defaultMongoTestVersion) : KMongoRootTest() {
 
     @Suppress("LeakingThis")
     @Rule
     @JvmField
-    val rule = ReactorFlapdoodleRule(getDefaultCollectionClass())
+    val rule = ReactorFlapdoodleRule(getDefaultCollectionClass(), version = mongoServerVersion)
     val col by lazy { rule.col }
     val database by lazy { rule.database }
 

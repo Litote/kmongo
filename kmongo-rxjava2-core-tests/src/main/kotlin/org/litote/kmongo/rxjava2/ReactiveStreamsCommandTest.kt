@@ -20,13 +20,14 @@ import kotlinx.serialization.Serializable
 import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.model.Friend
+import org.litote.kmongo.oldestMongoTestVersion
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
  *
  */
-class ReactiveStreamsCommandTest : KMongoReactiveStreamsRxBaseTest<Friend>() {
+class ReactiveStreamsCommandTest : KMongoReactiveStreamsRxBaseTest<Friend>(oldestMongoTestVersion) {
 
     @Serializable
     class LocationResult(val results: List<Location>)

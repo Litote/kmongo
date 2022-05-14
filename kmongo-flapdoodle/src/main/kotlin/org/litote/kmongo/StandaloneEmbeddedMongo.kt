@@ -19,10 +19,9 @@ package org.litote.kmongo
 import com.mongodb.ConnectionString
 import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.IMongodConfig
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
+import de.flapdoodle.embed.mongo.config.MongodConfig
 import de.flapdoodle.embed.mongo.config.Net
-import de.flapdoodle.embed.mongo.distribution.Version.Main.PRODUCTION
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import de.flapdoodle.embed.process.runtime.Network
 import org.bson.BsonDocument
 import org.bson.Document
@@ -30,11 +29,11 @@ import org.bson.Document
 /**
  *
  */
-internal object StandaloneEmbeddedMongo {
+internal class StandaloneEmbeddedMongo(version: IFeatureAwareVersion) {
 
     var port = Network.getFreeServerPort()
-    var config: IMongodConfig = MongodConfigBuilder()
-        .version(PRODUCTION)
+    var config: MongodConfig = MongodConfig.builder()
+        .version(version)
         .net(Net(port, Network.localhostIsIPv6()))
         .build()
 
@@ -48,6 +47,13 @@ internal object StandaloneEmbeddedMongo {
         )
 
     private fun createInstance(): MongodProcess {
-        return MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(config).start()
+        return MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(config).let { executable ->
+            Runtime.getRuntime().addShutdownHook(object : Thread() {
+                override fun run() {
+                    executable.stop()
+                }
+            })
+            executable.start()
+        }
     }
 }

@@ -18,6 +18,7 @@ package org.litote.kmongo
 
 import com.mongodb.ConnectionString
 import de.flapdoodle.embed.mongo.MongodProcess
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import org.bson.BsonDocument
 import org.bson.Document
 
@@ -26,15 +27,15 @@ internal val MongodProcess.host get() = "127.0.0.1:${config.net().port}"
 /**
  * Flapdoodle wrapper.
  */
-internal object EmbeddedMongo {
+internal class EmbeddedMongo(private val version: IFeatureAwareVersion) {
 
     private val standalone = System.getProperty("kmongo.flapdoodle.replicaset") != "true"
 
     fun connectionString(commandExecutor: (String, BsonDocument, (Document?, Throwable?) -> Unit) -> Unit): ConnectionString =
         if (standalone) {
-            StandaloneEmbeddedMongo.connectionString(commandExecutor)
+            StandaloneEmbeddedMongo(version).connectionString(commandExecutor)
         } else {
-            ReplicaSetEmbeddedMongo.connectionString(commandExecutor)
+            ReplicaSetEmbeddedMongo(version).connectionString(commandExecutor)
         }
 
 

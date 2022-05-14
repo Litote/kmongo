@@ -20,14 +20,17 @@ import com.mongodb.reactor.client.ReactorMongoClient
 import com.mongodb.reactor.client.ReactorMongoCollection
 import com.mongodb.reactor.client.ReactorMongoDatabase
 import com.mongodb.reactor.client.toReactor
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import org.bson.types.ObjectId
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import org.litote.kmongo.reactivestreams.KFlapdoodleReactiveStreams
+import org.litote.kmongo.defaultMongoTestVersion
+import org.litote.kmongo.reactivestreams.KFlapdoodleReactiveStreamsConfiguration
 import org.litote.kmongo.util.KMongoUtil
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 /**
@@ -36,7 +39,8 @@ import kotlin.reflect.KClass
 class ReactorFlapdoodleRule<T : Any>(
     val defaultDocumentClass: KClass<T>,
     val generateRandomCollectionName: Boolean = false,
-    val dbName: String = "test"
+    val dbName: String = "test",
+    val version: IFeatureAwareVersion = defaultMongoTestVersion
 ) : TestRule {
 
     companion object {
@@ -44,9 +48,13 @@ class ReactorFlapdoodleRule<T : Any>(
         inline fun <reified T : Any> rule(generateRandomCollectionName: Boolean = false): ReactorFlapdoodleRule<T> =
             ReactorFlapdoodleRule(T::class, generateRandomCollectionName)
 
+        private val versionsMap = ConcurrentHashMap<IFeatureAwareVersion, KFlapdoodleReactiveStreamsConfiguration>()
+
     }
 
-    val mongoClient: ReactorMongoClient = KFlapdoodleReactiveStreams.mongoClient.toReactor()
+    private val configuration =
+        versionsMap.getOrPut(version) { KFlapdoodleReactiveStreamsConfiguration(version) }
+    val mongoClient: ReactorMongoClient = configuration.mongoClient.toReactor()
     val database: ReactorMongoDatabase by lazy {
         mongoClient.getDatabase(dbName)
     }

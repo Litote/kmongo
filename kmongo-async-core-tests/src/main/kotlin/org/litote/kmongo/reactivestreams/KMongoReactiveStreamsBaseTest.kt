@@ -16,11 +16,13 @@
 package org.litote.kmongo.reactivestreams
 
 import com.mongodb.reactivestreams.client.MongoCollection
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import org.junit.Rule
 import org.junit.experimental.categories.Category
 import org.litote.kmongo.JacksonMappingCategory
 import org.litote.kmongo.KMongoRootTest
 import org.litote.kmongo.NativeMappingCategory
+import org.litote.kmongo.defaultMongoTestVersion
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
@@ -28,12 +30,17 @@ import kotlin.reflect.KClass
  *
  */
 @Category(JacksonMappingCategory::class, NativeMappingCategory::class)
-open class KMongoReactiveStreamsBaseTest<T : Any> : KMongoRootTest() {
+open class KMongoReactiveStreamsBaseTest<T : Any>(mongoServerVersion: IFeatureAwareVersion = defaultMongoTestVersion) :
+    KMongoRootTest() {
 
     @Suppress("LeakingThis")
     @Rule
     @JvmField
-    val rule = ReactiveStreamsFlapdoodleRule(getDefaultCollectionClass(), wait = true)
+    val rule = ReactiveStreamsFlapdoodleRule(
+        defaultDocumentClass = getDefaultCollectionClass(),
+        wait = true,
+        version = mongoServerVersion
+    )
 
     val col by lazy { rule.col }
 

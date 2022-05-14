@@ -19,11 +19,11 @@ package org.litote.kmongo
 import com.mongodb.ConnectionString
 import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.IMongodConfig
-import de.flapdoodle.embed.mongo.config.MongoCmdOptionsBuilder
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
+import de.flapdoodle.embed.mongo.config.MongoCmdOptions
+import de.flapdoodle.embed.mongo.config.MongodConfig
 import de.flapdoodle.embed.mongo.config.Net
-import de.flapdoodle.embed.mongo.distribution.Version.Main.PRODUCTION
+import de.flapdoodle.embed.mongo.config.Storage
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import de.flapdoodle.embed.process.runtime.Network
 import org.bson.BsonArray
 import org.bson.BsonBoolean
@@ -35,38 +35,38 @@ import org.bson.Document
 /**
  *
  */
-internal object ReplicaSetEmbeddedMongo {
+internal class ReplicaSetEmbeddedMongo(version: IFeatureAwareVersion) {
 
     var ports = Network.getFreeServerPorts(Network.getLocalHost(), 3)
 
-    val rep1: IMongodConfig = MongodConfigBuilder()
-        .version(PRODUCTION)
+    val rep1: MongodConfig = MongodConfig.builder()
+        .version(version)
         .net(Net(ports[0], Network.localhostIsIPv6()))
-        .withLaunchArgument("--replSet", "kmongo")
+        .replication(Storage(null, "kmongo", 5000))
         .cmdOptions(
-            MongoCmdOptionsBuilder()
+            MongoCmdOptions.builder()
                 .useSmallFiles(true)
                 .useNoJournal(false)
                 .build()
         )
         .build()
-    val rep2: IMongodConfig = MongodConfigBuilder()
-        .version(PRODUCTION)
+    val rep2: MongodConfig = MongodConfig.builder()
+        .version(version)
         .net(Net(ports[1], Network.localhostIsIPv6()))
-        .withLaunchArgument("--replSet", "kmongo")
+        .replication(Storage(null, "kmongo", 5000))
         .cmdOptions(
-            MongoCmdOptionsBuilder()
+            MongoCmdOptions.builder()
                 .useSmallFiles(true)
                 .useNoJournal(false)
                 .build()
         )
         .build()
-    val rep3: IMongodConfig = MongodConfigBuilder()
-        .version(PRODUCTION)
+    val rep3: MongodConfig = MongodConfig.builder()
+        .version(version)
         .net(Net(ports[2], Network.localhostIsIPv6()))
-        .withLaunchArgument("--replSet", "kmongo")
+        .replication(Storage(null, "kmongo", 5000))
         .cmdOptions(
-            MongoCmdOptionsBuilder()
+            MongoCmdOptions.builder()
                 .useSmallFiles(true)
                 .useNoJournal(false)
                 .build()
@@ -128,9 +128,19 @@ internal object ReplicaSetEmbeddedMongo {
 
     private fun createInstance(): List<MongodProcess> =
         listOf(
-            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep1).start(),
-            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep2).start(),
-            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep3).start()
-        )
+            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep1),
+            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep2),
+            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep3)
+        ).run {
+            forEach { executable ->
+                Runtime.getRuntime().addShutdownHook(object : Thread() {
+                    override fun run() {
+                        executable.stop()
+                    }
+                })
+            }
+
+            map { executable -> executable.start() }
+        }
 
 }

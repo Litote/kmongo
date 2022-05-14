@@ -32,7 +32,7 @@ class StandaloneEmbeddedMongoTest {
     fun testStandalone() {
         val friend = Friend("bob")
         val mongoClient: MongoClient = MongoClientProvider.createMongoClient(
-            StandaloneEmbeddedMongo.connectionString { _, _, _ -> }
+            StandaloneEmbeddedMongo(defaultMongoTestVersion).connectionString { _, _, _ -> }
         )
         val col = mongoClient.getDatabase("test").getCollection("friend", Friend::class.java)
         col.insertOne(friend)

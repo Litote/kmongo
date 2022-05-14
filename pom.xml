@@ -95,7 +95,7 @@
         <kotlinx.metadata>0.4.2</kotlinx.metadata>
 
         <!-- test dependencies -->
-        <flapdoodle.version>2.2.0</flapdoodle.version>
+        <flapdoodle.version>3.4.5</flapdoodle.version>
         <sl4j.version>2.0.0-alpha7</sl4j.version>
         <junit.version>4.13.2</junit.version>
         <jmh.version>1.35</jmh.version>
@@ -552,7 +552,16 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>

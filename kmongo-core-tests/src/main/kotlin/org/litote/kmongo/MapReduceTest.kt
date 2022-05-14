@@ -17,7 +17,6 @@
 package org.litote.kmongo
 
 import kotlinx.serialization.Serializable
-import org.bson.Document
 import org.junit.Test
 import org.litote.kmongo.model.Friend
 import kotlin.test.assertEquals
@@ -25,10 +24,10 @@ import kotlin.test.assertEquals
 /**
  *
  */
-class MapReduceTest : AllCategoriesKMongoBaseTest<Friend>() {
+class MapReduceTest : AllCategoriesKMongoBaseTest<Friend>(oldestMongoTestVersion) {
 
     @Serializable
-    data class KeyValue(val _id:String, val value:Double)
+    data class KeyValue(val _id: String, val value: Double)
 
     @Test
     fun `mapReduce works as expected`() {

@@ -24,12 +24,13 @@ import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.mapReduce
 import org.litote.kmongo.model.Friend
+import org.litote.kmongo.oldestMongoTestVersion
 import kotlin.test.assertEquals
 
 /**
  *
  */
-class MapReduceWithSessionTest : AllCategoriesKMongoBaseTest<Friend>() {
+class MapReduceWithSessionTest : AllCategoriesKMongoBaseTest<Friend>(oldestMongoTestVersion) {
 
     lateinit var session: ClientSession
 

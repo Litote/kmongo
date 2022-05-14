@@ -16,12 +16,12 @@
 
 package org.litote.kmongo
 
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import org.junit.experimental.categories.Category
 
 /**
  *
  */
 @Category(JacksonMappingCategory::class, NativeMappingCategory::class, SerializationMappingCategory::class)
-open class AllCategoriesKMongoBaseTest<T : Any> : KMongoBaseTest<T>() {
-
-}
+open class AllCategoriesKMongoBaseTest<T : Any>(mongoServerVersion: IFeatureAwareVersion = defaultMongoTestVersion) :
+    KMongoBaseTest<T>(mongoServerVersion)

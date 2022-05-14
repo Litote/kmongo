@@ -167,14 +167,12 @@ class AggregateTest : AllCategoriesKMongoBaseTest<Article>() {
         val r = col.aggregate<Result>(
             "{$match:{tags:'virus'}}",
             "{$group:{_id:\"\$title\",friends:{$push:{name:\"\$author\"}}}}",
-            "{$sort:{title:-1}}"
+            "{$sort:{_id:1}}",
         )
             .toList()
         assertEquals(
             2, r.size
         )
-        assertEquals("Max Brooks", r[0].friends[0].name)
-        assertEquals("Kirsty Mckay", r[1].friends[0].name)
         assertEquals("World War Z", r[0].title)
         assertEquals("Zombie Panic", r[1].title)
     }

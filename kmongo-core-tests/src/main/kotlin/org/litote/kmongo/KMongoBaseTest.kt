@@ -17,6 +17,7 @@
 package org.litote.kmongo
 
 import com.mongodb.client.MongoCollection
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import org.junit.Rule
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
@@ -24,12 +25,13 @@ import kotlin.reflect.KClass
 /**
  *
  */
-abstract class KMongoBaseTest<T : Any> : KMongoRootTest() {
+abstract class KMongoBaseTest<T : Any>(mongoServerVersion: IFeatureAwareVersion = defaultMongoTestVersion) :
+    KMongoRootTest() {
 
     @Suppress("LeakingThis")
     @Rule
     @JvmField
-    val rule = KFlapdoodleRule(getDefaultCollectionClass())
+    val rule = KFlapdoodleRule(defaultDocumentClass = getDefaultCollectionClass(), version = mongoServerVersion)
 
     val col by lazy { rule.col }
 
