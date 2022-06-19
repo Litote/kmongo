@@ -20,6 +20,7 @@ import com.mongodb.client.model.Aggregates
 import com.mongodb.client.model.Projections
 import org.bson.conversions.Bson
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 
 /**
  * The projection of the property.
@@ -30,6 +31,11 @@ val <T> KProperty<T>.projection: String get() = path().projection
  * The projection of the property.
  */
 val String.projection: String get() = "\$$this"
+
+/**
+ * In order to write `$p.p2`
+ */
+infix fun <T0, T1> KProperty1<T0, T1?>.projectionWith(p2: String): String = "$projection.$p2"
 
 /**
  * Creates a projection of a property whose value is computed from the given expression.
@@ -55,7 +61,7 @@ infix fun String.from(expression: Any): Bson =
     Projections.computed(this, (expression as? KProperty<Any>)?.projection ?: expression)
 
 /**
- * Creates a projection that includes all of the given properties.
+ * Creates a projection that includes all given properties.
  *
  * @param properties the field names
  * @return the projection

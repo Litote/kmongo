@@ -31,10 +31,13 @@ import com.mongodb.client.model.Updates
 import com.mongodb.client.model.Variable
 import org.bson.BsonDocument
 import org.bson.BsonDocumentWriter
+import org.bson.BsonInt32
+import org.bson.BsonString
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 import org.litote.kmongo.util.KMongoUtil.encodeValue
+import java.time.ZoneId
 import java.time.temporal.TemporalAccessor
 import kotlin.reflect.KProperty
 
@@ -514,6 +517,7 @@ fun second(property: KProperty<ObjectId?>): Bson = MongoOperator.second.from(pro
  */
 @JvmName("weekObjectId")
 fun week(property: KProperty<ObjectId?>): Bson = MongoOperator.week.from(property)
+
 /**
  * Creates a $lookup pipeline stage, joining the current collection with the one specified in from using the given pipeline
  *
@@ -551,3 +555,50 @@ val KProperty<*>.variable: String get() = path().variable
  */
 val String.variable: String get() = "\$\$$this"
 
+/**
+ * $arrayElemAt aggregator operator support.
+ */
+fun KProperty<*>.arrayElemAt(index: Int = 0): Bson =
+    arrayElemAt(projection, index)
+
+/**
+ * $arrayElemAt aggregator operator support.
+ */
+fun arrayElemAt(path: String, index: Int = 0): Bson =
+    document(MongoOperator.arrayElemAt from listOf(BsonString(path), BsonInt32(index)))
+
+/**
+ * $ifNull aggregator operator support.
+ */
+fun KProperty<*>.ifNull(defaultValue: Any): Bson =
+    ifNull(projection, defaultValue)
+
+/**
+ * $ifNull aggregator operator support.
+ */
+fun ifNull(expression: Any, defaultValue: Any): Bson =
+    document(MongoOperator.ifNull from listOf(expression, defaultValue))
+
+/**
+ * $dateToString aggregator operator support.
+ */
+fun KProperty<TemporalAccessor?>.dateToString(
+    format: String? = "%Y-%m-%d",
+    zoneId: ZoneId? = null,
+    onNull: String? = null
+): Bson =
+    BsonDocument(
+        MongoOperator.dateToString.toString(),
+        BsonDocument().apply {
+            set("date", BsonString(projection))
+            if (format != null) {
+                set("format", BsonString(format))
+            }
+            if (zoneId != null) {
+                set("timezone", BsonString(zoneId.id))
+            }
+            if (onNull != null) {
+                set("onNull", BsonString(onNull))
+            }
+        }
+    )

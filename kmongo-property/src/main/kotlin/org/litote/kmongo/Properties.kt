@@ -56,9 +56,9 @@ val <T> KProperty1<out Any?, Iterable<T>?>.colProperty: KCollectionSimplePropert
     get() = KCollectionSimplePropertyPath(null, this)
 
 /**
-* In order to write array indexed expressions (like `accesses.0.timestamp`).
-*/
-fun <T> KProperty1<out Any?, Iterable<T>?>.pos(position: Int) : KPropertyPath<out Any?, T?> =
+ * In order to write array indexed expressions (like `accesses.0.timestamp`).
+ */
+fun <T> KProperty1<out Any?, Iterable<T>?>.pos(position: Int): KPropertyPath<out Any?, T?> =
     colProperty.pos(position)
 
 /**

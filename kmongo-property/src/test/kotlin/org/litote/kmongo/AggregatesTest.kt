@@ -18,8 +18,12 @@ package org.litote.kmongo
 
 import org.bson.BsonDocument
 import org.bson.types.ObjectId
+import org.litote.kmongo.MongoOperator.arrayElemAt
+import org.litote.kmongo.MongoOperator.dateToString
+import org.litote.kmongo.MongoOperator.ifNull
 import org.litote.kmongo.MongoOperator.lookup
 import java.time.LocalDate
+import java.time.ZoneId
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -44,6 +48,33 @@ class AggregatesTest {
         val bson = lookup(from = "f", resultProperty = AggregateData::s)
         assertEquals(
             BsonDocument.parse("""{"$lookup":{from:"f", pipeline:[], as:"s"}}"""),
+            bson.document
+        )
+    }
+
+    @Test
+    fun testDateToString() {
+        val bson = AggregateData::date.dateToString(zoneId = ZoneId.of("Europe/Paris"), onNull = "2012-12-02")
+        assertEquals(
+            BsonDocument.parse("""{"$dateToString":{"date": "${'$'}date", "format": "%Y-%m-%d", "timezone": "Europe/Paris", "onNull": "2012-12-02"}}"""),
+            bson.document
+        )
+    }
+
+    @Test
+    fun testIfNull() {
+        val bson = AggregateData::s.ifNull("a")
+        assertEquals(
+            BsonDocument.parse("""{"$ifNull":["${'$'}s", "a"]}"""),
+            bson.document
+        )
+    }
+
+    @Test
+    fun testArrayElemAt() {
+        val bson = AggregateData::s.arrayElemAt(0)
+        assertEquals(
+            BsonDocument.parse("""{"$arrayElemAt":["${'$'}s", 0]}"""),
             bson.document
         )
     }

@@ -28,11 +28,11 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.litote.kmongo.AggregateTypedTest.Article
-import org.litote.kmongo.MongoOperator.`in`
 import org.litote.kmongo.MongoOperator.and
 import org.litote.kmongo.MongoOperator.dateToString
 import org.litote.kmongo.MongoOperator.eq
 import org.litote.kmongo.MongoOperator.gte
+import org.litote.kmongo.MongoOperator.`in`
 import org.litote.kmongo.model.Friend
 import java.time.Instant
 import java.time.LocalDate
@@ -126,7 +126,7 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
             ),
             project(
                 Article::title from Article::title,
-                Article::ok from cond(Article::ok, 1, 0),  
+                Article::ok from cond(Article::ok, 1, 0),
                 Result::averageYear from year(Article::date)
             ),
             group(
@@ -369,5 +369,18 @@ class AggregateTypedTest : AllCategoriesKMongoBaseTest<Article>() {
             assertEquals(1, result2.toList().size)
         }
 
+    }
+
+    @Test
+    fun `typesafe lookup test`() {
+        assertEquals(
+            lookup("evaluationsAnswers", "userId", "questionId", "evaluator"),
+            lookup(
+                database.getCollection(),
+                EvaluationRequest::userId,
+                EvaluationsAnswers::questionId,
+                Answer::evaluator
+            )
+        )
     }
 }
