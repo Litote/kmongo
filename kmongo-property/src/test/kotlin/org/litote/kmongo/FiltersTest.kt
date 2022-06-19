@@ -25,7 +25,9 @@ import kotlin.test.assertEquals
  */
 class FiltersTest {
 
-    class T(val s: List<String>, val string: String)
+    class T(val s: List<String>, val string: String, val zz:List<Z>)
+
+    class Z(val a: String)
 
     @Test
     fun `all works with Iterable sub interface`() {
@@ -77,6 +79,12 @@ class FiltersTest {
         assertEquals(r1.document, r3.document)
         assertEquals(r1.document, r4.document)
 
+    }
+
+    @Test
+    fun `positional projection`() {
+        val p = T::zz.pos(0) / Z::a
+        assertEquals("zz.0.a", p.path())
     }
 
     data class Map1(val p1: Map<String, Map2>)

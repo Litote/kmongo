@@ -101,10 +101,21 @@ You can use [positional array operators](https://litote.org/kmongo/dokka/kmongo/
 
 ```kotlin        
 
+//Both are equivalent
+"accesses.0.timestamp""
+ 
+Container::accesses.pos(0) / Access::timestamp 
+
+```
+
+
+```kotlin   
+
 data class EvaluationAnswer(val answers:List<MyAnswer>)
 data class MyAnswer(val _id:String, val alreadyUsed: Boolean)
-
+ 
 //Both are equivalent
+
 col.updateMany( "{ \"answers._id\": { \$in: answerIds } }, { $set:{ \"answers.\$[].alreadyUsed\": true}}")
  
 col.updateMany(
@@ -117,6 +128,7 @@ col.updateMany(
 Cheat Sheet:
 
 ```
+.0.             = pos(0)
 $               = posOp
 $[]             = allPosOp
 $[<identifier>] = filteredPosOp 

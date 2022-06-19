@@ -113,7 +113,7 @@ open class KCollectionPropertyPath<T, R, MEMBER : KPropertyPath<T, R?>>(
 ) : KPropertyPath<T, Iterable<R>?>(previous, property) {
 
     /**
-     * To be overridden to returns the right type.
+     * To be overridden to return the right type.
      */
     @Suppress("UNCHECKED_CAST")
     open fun memberWithAdditionalPath(additionalPath: String): MEMBER =
@@ -136,6 +136,11 @@ open class KCollectionPropertyPath<T, R, MEMBER : KPropertyPath<T, R?>>(
      * [The filtered positional operator $[<identifier>]](https://docs.mongodb.com/manual/reference/operator/update/positional-filtered/)
      */
     fun filteredPosOp(identifier: String): MEMBER = memberWithAdditionalPath("\$[$identifier]")
+
+    /**
+     * In order to write array indexed expressions (like `accesses.0.timestamp`)
+     */
+    fun pos(position: Int): MEMBER = memberWithAdditionalPath(position.toString())
 }
 
 /**
