@@ -16,6 +16,7 @@
 
 package org.litote.kmongo.serialization
 
+import com.mongodb.client.model.Filters.eq
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
@@ -38,7 +39,7 @@ import org.bson.codecs.EncoderContext
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.Id
-import org.litote.kmongo.id.MongoProperty
+import org.litote.kmongo.json
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.newId
 import org.litote.kmongo.path
@@ -199,6 +200,26 @@ class SerializationCodecTest {
         assertEquals(c, newC)
     }
 
+    @InternalSerializationApi
+    @Test
+    @ExperimentalSerializationApi
+    fun `subtype filter is ok`() {
+        registerModule(
+            SerializersModule {
+                polymorphic(Message::class, StringMessage::class, StringMessage.serializer())
+                polymorphic(Message::class, IntMessage::class, IntMessage.serializer())
+            })
+
+        assertEquals(
+            "{\"___type\": \"org.litote.kmongo.serialization.SerializationCodecTest.StringMessage\"}",
+            eq(subtypePath, StringMessage::class.subtypeQualifier).json
+        )
+        assertEquals(
+            "{\"m.___type\": \"org.litote.kmongo.serialization.SerializationCodecTest.IntMessage\"}",
+            eq(Container::m.subtypePath, IntMessage::class.subtypeQualifier).json
+        )
+    }
+
     interface Message2
 
     @Serializable
@@ -314,7 +335,7 @@ class SerializationCodecTest {
     }
 
     @Serializable
-    data class SealedContainer(val v:SealedValue)
+    data class SealedContainer(val v: SealedValue)
 
     @Serializable
     sealed class SealedValue {
