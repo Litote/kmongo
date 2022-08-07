@@ -115,6 +115,25 @@ val id: Id<A> = ObjectId().toId()
 The Id type is optional, 
 you can use ```String```, ```org.bson.types.ObjectId``` of whatever you need as _id type.
 
+#### UUID
+
+In order to use UUID as identifier, you have to specify (as documented in mongo java driver):
+
+```kotlin 
+KMongo.createClient(
+    MongoClientSettings
+    .builder()
+    .uuidRepresentation(UuidRepresentation.STANDARD)
+    .applyConnectionString(ConnectionString(connection))
+    .build()
+)
+```
+     
+For *jackson*, you also need to use the
+[setUUIDRepresentation](http://litote.org/kmongo/dokka/kmongo/org.litote.kmongo.util/-k-mongo-jackson-feature/index.html)
+function.
+
+
 ## Date support
 
 KMongo provides built-in support for these "Date" classes:
