@@ -65,6 +65,11 @@
             <artifactId>mongodb-driver-sync</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.tschuchortdev</groupId>
+            <artifactId>kotlin-compile-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

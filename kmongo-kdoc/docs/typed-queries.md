@@ -33,7 +33,7 @@ col.aggregate<Article>(match(Article::tags contains "virus")) (...)
 
 ```
 
-### Nested properties
+### Nested properties and ```/``` operator
 
 To define nested properties, KMongo introduces the ```/``` operator.
 
@@ -46,6 +46,21 @@ class Coordinate(val lat: Int, val lng : Int)
 // the generated query is {"coor.lat":{$lt:0}}
 col.findOne(Friend::coor / Coordinate::lat lt 0)
 ``` 
+ 
+#### Unsafe nested properties and ```%``` operator
+
+Sometimes you would need to bypass typesafe checking when writing nested property path. 
+Then use the ```%``` operator - it has the same behaviour as ```/``` but without typesafe checks: 
+
+```kotlin
+sealed class Shape(val type: String) {
+    data class Circle(val radius: Int) : Shape("Circle")
+}
+
+data class Box(val shape: Shape)
+
+val bson = setValue(Box::shape % Shape.Circle::radius, 0)
+```
 
 ### Debugging Typed queries
 

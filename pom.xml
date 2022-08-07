@@ -101,6 +101,7 @@
         <jmh.version>1.35</jmh.version>
         <compiler-testing.version>0.19</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
+        <kotlin-compile-testing.version>1.4.9</kotlin-compile-testing.version>
 
         <!-- plugins -->
         <plugin.compiler.version>3.10.1</plugin.compiler.version>
@@ -507,6 +508,12 @@
                 <groupId>com.nhaarman.mockitokotlin2</groupId>
                 <artifactId>mockito-kotlin</artifactId>
                 <version>${mockito.kotlin.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.tschuchortdev</groupId>
+                <artifactId>kotlin-compile-testing</artifactId>
+                <version>${kotlin-compile-testing.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

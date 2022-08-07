@@ -16,10 +16,13 @@
 
 package org.litote.kmongo.issue
 
+import com.mongodb.assertions.Assertions.assertTrue
+import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.SourceFile
 import org.bson.BsonDocument
 import org.litote.kmongo.MongoOperator.set
-import org.litote.kmongo.div
 import org.litote.kmongo.document
+import org.litote.kmongo.rem
 import org.litote.kmongo.setValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -37,7 +40,8 @@ sealed class Shape(
 }
 
 data class Box(
-    val shape: Shape
+    val shape: Shape,
+    val color: String
 )
 
 /**
@@ -47,10 +51,40 @@ class Issue276SubclassTypedQueryTest {
 
     @Test
     fun subclassQuery() {
-        val bson2 = setValue(Box::shape / Shape.Circle::radius, 0)
+        val bson2 = setValue(Box::shape % Shape.Circle::radius, 0)
         assertEquals(
             BsonDocument.parse("""{"$set": {"shape.radius": 0}}"""),
             bson2.document
         )
+    }
+
+    @Test
+    fun checkDivDoesNotCompile() {
+        val kotlinSource = SourceFile.kotlin(
+            "Test.kt", """
+        import org.litote.kmongo.div
+        import org.litote.kmongo.eq
+
+        sealed class Shape(val type: String) {
+        data class Circle(val radius: Int) : Shape("Circle")
+        data class Square(val side: Int) : Shape("Square")
+        }
+
+        data class Box(
+                val shape: Shape,
+                val color: String
+            )
+
+        val bson = Box::color / Shape::type eq "Circle"
+    """
+        )
+        val result = KotlinCompilation().apply {
+            sources = listOf(kotlinSource)
+
+            inheritClassPath = true
+            messageOutputStream = System.out // see diagnostics in real time
+        }.compile()
+        assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
+        assertTrue(result.messages.contains("Type mismatch: inferred type is String but Shape was expected"))
     }
 }
