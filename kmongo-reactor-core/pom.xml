@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.litote.kmongo</groupId>
         <artifactId>kmongo-root</artifactId>
-        <version>4.6.2-SNAPSHOT</version>
+        <version>4.7.0</version>
     </parent>
 
     <artifactId>kmongo-reactor-core</artifactId>
