@@ -17,6 +17,7 @@ package org.litote.kmongo.reactivestreams
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
+import com.mongodb.MongoDriverInformation
 import com.mongodb.reactivestreams.client.MongoClient
 import com.mongodb.reactivestreams.client.MongoClients
 import org.bson.codecs.configuration.CodecRegistry
@@ -44,7 +45,8 @@ object KMongo {
         val codecRegistry = ClassMappingType.codecRegistry(settings.codecRegistry)
         return MongoClients.create(
             MongoClientSettings.builder(settings)
-                .codecRegistry(codecRegistry).build()
+                .codecRegistry(codecRegistry).build(),
+            MongoDriverInformation.builder().driverName("kmongo").driverPlatform(String.format("Kotlin/%s", KotlinVersion.CURRENT)).build()
         )
     }
 

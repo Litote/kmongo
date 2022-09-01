@@ -20,6 +20,7 @@ package org.litote.kmongo
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
+import com.mongodb.MongoDriverInformation
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import org.bson.UuidRepresentation
@@ -79,7 +80,8 @@ object KMongo {
                     settings.codecRegistry, settings.uuidRepresentation
                 )
             )
-        ).build()
+        ).build(),
+        MongoDriverInformation.builder().driverName("kmongo").driverPlatform(String.format("Kotlin/%s", KotlinVersion.CURRENT)).build()
     )
 
     private fun createRegistry(codecRegistry: CodecRegistry, uuidRepresentation: UuidRepresentation): CodecRegistry =
