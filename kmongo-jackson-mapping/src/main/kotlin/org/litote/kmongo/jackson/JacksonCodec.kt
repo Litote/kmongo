@@ -42,13 +42,13 @@ import org.bson.io.BasicOutputBuffer
 import org.bson.json.JsonReader
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.StringId
-import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.`object`
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.array
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.boolean
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.date
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.integer
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.map
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.number
+import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.`object`
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.objectId
 import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.string
 import org.litote.kmongo.json
@@ -72,9 +72,9 @@ import kotlin.reflect.jvm.javaField
  *
  */
 internal class JacksonCodec<T : Any>(
-    val bsonObjectMapper: ObjectMapper,
-    val notBsonObjectMapper: ObjectMapper,
-    val codecRegistry: CodecRegistry,
+    private val bsonObjectMapper: ObjectMapper,
+    private val notBsonObjectMapper: ObjectMapper,
+    codecRegistry: CodecRegistry,
     val type: Class<T>
 ) : Codec<T>, CollectibleCodec<T> {
 
@@ -190,13 +190,26 @@ internal class JacksonCodec<T : Any>(
 
                     string, integer, number, boolean, objectId, date -> {
                         val jsonReader = JsonReader(notBsonObjectMapper.writeValueAsString(value))
-                        when (visitor.jsonType) {
-                            number -> writer.writeDouble(jsonReader.readDouble())
-                            integer -> writer.writeInt64(jsonReader.readInt64())
-                            boolean -> writer.writeBoolean(jsonReader.readBoolean())
-                            objectId -> writer.writeObjectId(jsonReader.readObjectId())
-                            date -> writer.writeDateTime(jsonReader.readDateTime())
-                            else -> writer.writeString(jsonReader.readString())
+                        when (jsonReader.readBsonType()) {
+                            BsonType.STRING -> writer.writeString(jsonReader.readString())
+                            BsonType.DOUBLE -> writer.writeDouble(jsonReader.readDouble())
+                            BsonType.INT64 -> writer.writeInt64(jsonReader.readInt64())
+                            BsonType.INT32 -> writer.writeInt32(jsonReader.readInt32())
+                            BsonType.BOOLEAN -> writer.writeBoolean(jsonReader.readBoolean())
+                            BsonType.OBJECT_ID -> writer.writeObjectId(jsonReader.readObjectId())
+                            BsonType.DATE_TIME -> writer.writeDateTime(jsonReader.readDateTime())
+                            BsonType.BINARY -> writer.writeBinaryData(jsonReader.readBinaryData())
+                            BsonType.DECIMAL128 -> writer.writeDecimal128(jsonReader.readDecimal128())
+                            BsonType.TIMESTAMP -> writer.writeTimestamp(jsonReader.readTimestamp())
+                            BsonType.NULL -> writer.writeNull().also { jsonReader.readNull() }
+                            else -> when (visitor.jsonType) {
+                                number -> writer.writeDouble(jsonReader.readDouble())
+                                integer -> writer.writeInt64(jsonReader.readInt64())
+                                boolean -> writer.writeBoolean(jsonReader.readBoolean())
+                                objectId -> writer.writeObjectId(jsonReader.readObjectId())
+                                date -> writer.writeDateTime(jsonReader.readDateTime())
+                                else -> writer.writeString(jsonReader.readString())
+                            }
                         }
                     }
                 }
@@ -204,7 +217,6 @@ internal class JacksonCodec<T : Any>(
         } catch (e: IOException) {
             throw UncheckedIOException(e)
         }
-
     }
 
     override fun getEncoderClass(): Class<T> {
