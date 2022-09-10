@@ -72,16 +72,22 @@ interface ClassMappingTypeService {
     fun <T, R> getIdValue(idProperty: KProperty1<T, R>, instance: T): R?
 
     /**
-     * Returns a codec registry built with [baseCodecRegistry], and [coreCodeRegistry].
+     * Returns a codec registry built with [baseCodecRegistry].
      */
     fun codecRegistry(
+        baseCodecRegistry: CodecRegistry
+    ): CodecRegistry = codecRegistryWithCustomCodecs(baseCodecRegistry, coreCodecRegistry(baseCodecRegistry))
+
+    fun codecRegistryWithCustomCodecs(
         baseCodecRegistry: CodecRegistry,
-        coreCodeRegistry: CodecRegistry = coreCodecRegistry(baseCodecRegistry)
-    ): CodecRegistry = CodecRegistries.fromProviders(
-        baseCodecRegistry,
+        coreCodeRegistry: CodecRegistry
+    ): CodecRegistry  = CodecRegistries.fromProviders(
+        filterBaseCodecRegistry(baseCodecRegistry),
         CustomCodecProvider,
         coreCodeRegistry
     )
+
+    fun filterBaseCodecRegistry(baseCodecRegistry: CodecRegistry) : CodecRegistry = baseCodecRegistry
 
     fun coreCodecRegistry(baseCodecRegistry: CodecRegistry = KMongoUtil.defaultCodecRegistry): CodecRegistry
 

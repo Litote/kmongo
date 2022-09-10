@@ -127,6 +127,9 @@ internal object KMongoSerializationRepository {
         UUID::class to UUIDSerializer
     )
 
+    private fun getCustomSerializer(kClass: KClass<*>): KSerializer<*>? =
+        customSerializersMap[kClass] ?: serializersMap[kClass]
+
     @ExperimentalSerializationApi
     @InternalSerializationApi
     private fun <T : Any> getBaseSerializer(
@@ -142,12 +145,14 @@ internal object KMongoSerializationRepository {
                 getSerializer(obj.second),
                 getSerializer(obj.third)
             )
+
             is Array<*> -> ArraySerializer(
                 kClass as KClass<Any>,
                 obj.filterNotNull().let {
                     if (it.isEmpty()) String.serializer() else getSerializer(it.first())
                 } as KSerializer<Any>
             )
+
             else -> module.getContextual(kClass)
                 ?: findPolymorphic(kClass, obj)?.let {
                     PolymorphicSerializer(it)
@@ -179,7 +184,7 @@ internal object KMongoSerializationRepository {
         if (obj == null) {
             error("no serializer for null")
         } else {
-            (serializersMap[kClass]
+            (getCustomSerializer(kClass)
                 ?: getBaseSerializer(obj, kClass)
                 ?: kClass.serializer()) as? KSerializer<T>
                 ?: error("no serializer for $obj of class $kClass")
@@ -192,7 +197,7 @@ internal object KMongoSerializationRepository {
         if (obj == null) {
             error("no serializer for null")
         } else {
-            (serializersMap[obj.javaClass.kotlin]
+            (getCustomSerializer(obj.javaClass.kotlin)
                 ?: getBaseSerializer(obj)
                 ?: obj.javaClass.kotlin.serializer()) as? KSerializer<T>
                 ?: error("no serializer for $obj of class ${obj.javaClass.kotlin}")
@@ -202,7 +207,7 @@ internal object KMongoSerializationRepository {
     @InternalSerializationApi
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getSerializer(kClass: KClass<T>): KSerializer<T> =
-        (serializersMap[kClass]
+        (getCustomSerializer(kClass)
             ?: module.getContextual(kClass)
             ?: try {
                 kClass.serializer()

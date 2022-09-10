@@ -35,6 +35,14 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 
+private class BaseRegistryWithoutCustomSerializers(private val codecRegistry: CodecRegistry) : CodecRegistry {
+    override fun <T : Any> get(clazz: Class<T>): Codec<T>? =
+        if (customSerializersMap.containsKey(clazz.kotlin)) null else codecRegistry.get(clazz)
+
+    override fun <T : Any> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? =
+        if (customSerializersMap.containsKey(clazz.kotlin)) null else codecRegistry.get(clazz, registry)
+}
+
 /**
  * kotlinx serialization ClassMapping.
  */
@@ -91,29 +99,31 @@ class SerializationClassMappingTypeService : ClassMappingTypeService {
         idController.getIdValue(idProperty, instance)
 
     override fun coreCodecRegistry(baseCodecRegistry: CodecRegistry): CodecRegistry {
-
+        val withNonEncodeNull = SerializationCodecRegistry(configuration.copy(nonEncodeNull = true))
         codecRegistryWithNonEncodeNull =
-            codecRegistry(
-                baseCodecRegistry,
-                SerializationCodecRegistry(configuration.copy(nonEncodeNull = true))
+            codecRegistryWithCustomCodecs(
+                filterBaseCodecRegistry(baseCodecRegistry),
+                withNonEncodeNull
             )
-        codecRegistryWithEncodeNull = codecRegistry(
-            baseCodecRegistry,
-            SerializationCodecRegistry(configuration.copy(nonEncodeNull = false))
+        val withEncodeNull = SerializationCodecRegistry(configuration.copy(nonEncodeNull = false))
+        codecRegistryWithEncodeNull = codecRegistryWithCustomCodecs(
+            filterBaseCodecRegistry(baseCodecRegistry),
+            withEncodeNull
         )
         return object : CodecRegistry {
-            override fun <T : Any?> get(clazz: Class<T>): Codec<T>? =
-                if (ObjectMappingConfiguration.serializeNull)
-                    codecRegistryWithEncodeNull.get(clazz)
-                else codecRegistryWithNonEncodeNull.get(clazz)
+            override fun <T : Any> get(clazz: Class<T>): Codec<T> =
+                if (ObjectMappingConfiguration.serializeNull) withEncodeNull.get(clazz)
+                else withNonEncodeNull.get(clazz)
 
 
-            override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? =
-                if (ObjectMappingConfiguration.serializeNull)
-                    codecRegistryWithEncodeNull.get(clazz, registry)
-                else codecRegistryWithNonEncodeNull.get(clazz, registry)
+            override fun <T : Any> get(clazz: Class<T>, registry: CodecRegistry): Codec<T> =
+                if (ObjectMappingConfiguration.serializeNull) withEncodeNull.get(clazz, registry)
+                else withNonEncodeNull.get(clazz, registry)
         }
     }
+
+    override fun filterBaseCodecRegistry(baseCodecRegistry: CodecRegistry): CodecRegistry =
+        BaseRegistryWithoutCustomSerializers(baseCodecRegistry)
 
     override fun <T> calculatePath(property: KProperty<T>): String =
         property.findAnnotation<SerialName>()?.value

@@ -29,9 +29,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty
 import org.bson.json.JsonMode
 import org.bson.json.JsonWriter
 import org.bson.json.JsonWriterSettings
-import org.litote.kmongo.service.ClassMappingType
 import org.litote.kmongo.service.ClassMappingTypeService
-import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.io.StringWriter
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -121,11 +119,11 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
     }
 
     override fun coreCodecRegistry(baseCodecRegistry: CodecRegistry): CodecRegistry {
-        internalCodecRegistry = ClassMappingType.codecRegistry(
+        internalCodecRegistry = codecRegistryWithCustomCodecs(
             baseCodecRegistry,
             codecRegistry
         )
-        internalNullCodecRegistry = ClassMappingType.codecRegistry(
+        internalNullCodecRegistry = codecRegistryWithCustomCodecs(
             baseCodecRegistry,
             codecRegistryWithNullSerialization
         )
@@ -134,11 +132,11 @@ internal class PojoClassMappingTypeService : ClassMappingTypeService {
 
     override fun <T> calculatePath(property: KProperty<T>): String {
         val owner = property.javaField?.declaringClass
-                ?: try {
-                    property.javaGetter?.declaringClass
-                } catch (e: Exception) {
-                    null
-                }
+            ?: try {
+                property.javaGetter?.declaringClass
+            } catch (e: Exception) {
+                null
+            }
 
         return if (owner?.kotlin?.let { findIdProperty(it) }?.name == property.name)
             "_id"
