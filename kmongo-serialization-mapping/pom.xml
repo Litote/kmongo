@@ -55,6 +55,10 @@
             <artifactId>kotlinx-serialization-core-jvm</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-datetime-jvm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
         </dependency>

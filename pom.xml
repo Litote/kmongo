@@ -84,6 +84,7 @@
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.4.0</jackson-module-loader.version>
         <kotlinx-serialization.version>1.4.0</kotlinx-serialization.version>
+        <kotlinx-datetime.version>0.4.0</kotlinx-datetime.version>
         <kbson.version>0.4.5</kbson.version>
 
         <!-- annotations processor -->
@@ -146,6 +147,11 @@
                 <groupId>org.jetbrains.kotlinx</groupId>
                 <artifactId>kotlinx-serialization-core-jvm</artifactId>
                 <version>${kotlinx-serialization.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-datetime-jvm</artifactId>
+                <version>${kotlinx-datetime.version}</version>
             </dependency>
 
             <dependency>

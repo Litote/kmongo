@@ -61,6 +61,10 @@ import java.util.regex.Pattern
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.superclasses
+import kotlinx.datetime.Instant as KTXInstant
+import kotlinx.datetime.LocalDate as KTXLocalDate
+import kotlinx.datetime.LocalDateTime as KTXLocalDateTime
+import kotlinx.datetime.LocalTime as KTXLocalTime
 
 @PublishedApi
 internal val customSerializersMap: MutableMap<KClass<*>, KSerializer<*>> = ConcurrentHashMap()
@@ -116,6 +120,10 @@ internal object KMongoSerializationRepository {
         LocalDateTime::class to LocalDateTimeSerializer,
         LocalTime::class to LocalTimeSerializer,
         OffsetTime::class to OffsetTimeSerializer,
+        KTXInstant::class to KTXInstantSerializer,
+        KTXLocalDate::class to KTXLocalDateSerializer,
+        KTXLocalDateTime::class to KTXLocalDateTimeSerializer,
+        KTXLocalTime::class to KTXLocalTimeSerializer,
         BsonTimestamp::class to BsonTimestampSerializer,
         Locale::class to LocaleSerializer,
         Binary::class to BinarySerializer,
