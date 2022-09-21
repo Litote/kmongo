@@ -120,10 +120,6 @@ internal object KMongoSerializationRepository {
         LocalDateTime::class to LocalDateTimeSerializer,
         LocalTime::class to LocalTimeSerializer,
         OffsetTime::class to OffsetTimeSerializer,
-        KTXInstant::class to KTXInstantSerializer,
-        KTXLocalDate::class to KTXLocalDateSerializer,
-        KTXLocalDateTime::class to KTXLocalDateTimeSerializer,
-        KTXLocalTime::class to KTXLocalTimeSerializer,
         BsonTimestamp::class to BsonTimestampSerializer,
         Locale::class to LocaleSerializer,
         Binary::class to BinarySerializer,
@@ -133,7 +129,17 @@ internal object KMongoSerializationRepository {
         Pattern::class to PatternSerializer,
         Regex::class to RegexSerializer,
         UUID::class to UUIDSerializer
-    )
+    ) +
+    try {
+        Class.forName("kotlinx.datetime.Instant")
+        mapOf(
+            KTXInstant::class to KTXInstantSerializer,
+            KTXLocalDate::class to KTXLocalDateSerializer,
+            KTXLocalDateTime::class to KTXLocalDateTimeSerializer,
+            KTXLocalTime::class to KTXLocalTimeSerializer
+        )
+    }
+    catch(e:ClassNotFoundException) { emptyMap() }
 
     private fun getCustomSerializer(kClass: KClass<*>): KSerializer<*>? =
         customSerializersMap[kClass] ?: serializersMap[kClass]
