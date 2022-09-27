@@ -41,6 +41,7 @@ import de.undercouch.bson4jackson.BsonConstants
 import de.undercouch.bson4jackson.BsonGenerator
 import de.undercouch.bson4jackson.BsonParser
 import de.undercouch.bson4jackson.types.Decimal128
+import kotlinx.datetime.toLocalDateTime
 import org.bson.BsonBinarySubType
 import org.bson.BsonTimestamp
 import org.bson.UuidRepresentation
@@ -69,6 +70,10 @@ import org.litote.kmongo.jackson.ExtendedJsonModule.ObjectIdExtendedJsonSerializ
 import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetDateTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.OffsetTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.ExtendedJsonModule.ZonedDateTimeExtendedJsonSerializer
+import org.litote.kmongo.jackson.ExtendedJsonModule.KTXInstantExtendedJsonSerializer
+import org.litote.kmongo.jackson.ExtendedJsonModule.KTXLocalDateExtendedJsonSerializer
+import org.litote.kmongo.jackson.ExtendedJsonModule.KTXLocalDateTimeExtendedJsonSerializer
+import org.litote.kmongo.jackson.ExtendedJsonModule.KTXLocalTimeExtendedJsonSerializer
 import org.litote.kmongo.jackson.KMongoBsonFactory.Companion.createFromLegacyFormat
 import org.litote.kmongo.jackson.KMongoBsonFactory.KMongoBsonGenerator
 import org.litote.kmongo.projection
@@ -88,6 +93,11 @@ import java.util.TimeZone
 import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlinx.datetime.Instant as KTXInstant
+import kotlinx.datetime.LocalDate as KTXLocalDate
+import kotlinx.datetime.LocalDateTime as KTXLocalDateTime
+import kotlinx.datetime.LocalTime as KTXLocalTime
+import kotlinx.datetime.TimeZone as KTXTimeZone
 
 internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : SimpleModule() {
 
@@ -323,6 +333,26 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
             LocalDateTimeExtendedJsonSerializer.epochMillis(temporal)
     }
 
+    private object KTXInstantBsonSerializer : TemporalBsonSerializer<KTXInstant>() {
+        override fun epochMillis(temporal: KTXInstant): Long =
+            KTXInstantExtendedJsonSerializer.epochMillis(temporal)
+    }
+
+    private object KTXLocalDateBsonSerializer : TemporalBsonSerializer<KTXLocalDate>() {
+        override fun epochMillis(temporal: KTXLocalDate): Long =
+            KTXLocalDateExtendedJsonSerializer.epochMillis(temporal)
+    }
+
+    private object KTXLocalDateTimeBsonSerializer : TemporalBsonSerializer<KTXLocalDateTime>() {
+        override fun epochMillis(temporal: KTXLocalDateTime): Long =
+            KTXLocalDateTimeExtendedJsonSerializer.epochMillis(temporal)
+    }
+
+    private object KTXLocalTimeBsonSerializer : TemporalBsonSerializer<KTXLocalTime>() {
+        override fun epochMillis(temporal: KTXLocalTime): Long =
+            KTXLocalTimeExtendedJsonSerializer.epochMillis(temporal)
+    }
+
     private abstract class TemporalBsonDeserializer<T> : JsonDeserializer<T>() {
 
         override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): T {
@@ -380,6 +410,26 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
     private object InstantBsonDeserializer : TemporalBsonDeserializer<Instant>() {
 
         override fun toObject(date: Date): Instant = date.toInstant()
+    }
+
+    private object KTXInstantBsonDeserializer : TemporalBsonDeserializer<KTXInstant>() {
+
+        override fun toObject(date: Date): KTXInstant = KTXInstant.fromEpochMilliseconds(date.toInstant().toEpochMilli())
+    }
+
+    private object KTXLocalDateBsonDeserializer : TemporalBsonDeserializer<KTXLocalDate>() {
+
+        override fun toObject(date: Date): KTXLocalDate = KTXInstant.fromEpochMilliseconds(date.toInstant().toEpochMilli()).toLocalDateTime(KTXTimeZone.UTC).date
+    }
+
+    private object KTXLocalDateTimeBsonDeserializer : TemporalBsonDeserializer<KTXLocalDateTime>() {
+
+        override fun toObject(date: Date): KTXLocalDateTime = KTXInstant.fromEpochMilliseconds(date.toInstant().toEpochMilli()).toLocalDateTime(KTXTimeZone.UTC)
+    }
+
+    private object KTXLocalTimeBsonDeserializer : TemporalBsonDeserializer<KTXLocalTime>() {
+
+        override fun toObject(date: Date): KTXLocalTime = KTXInstant.fromEpochMilliseconds(date.toInstant().toEpochMilli()).toLocalDateTime(KTXTimeZone.UTC).time
     }
 
     private object IdBsonSerializer : JsonSerializer<Id<*>>() {
@@ -588,6 +638,21 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
         addDeserializer(Date::class.java, BsonDateDeserializer)
 
         addSerializer(KProperty::class.java, KPropertySerializer)
+
+        try {
+            Class.forName("kotlinx.datetime.Instant")
+
+            addSerializer(KTXInstant::class.java, KTXInstantBsonSerializer)
+            addSerializer(KTXLocalDate::class.java, KTXLocalDateBsonSerializer)
+            addSerializer(KTXLocalDateTime::class.java, KTXLocalDateTimeBsonSerializer)
+            addSerializer(KTXLocalTime::class.java, KTXLocalTimeBsonSerializer)
+
+            addDeserializer(KTXInstant::class.java, KTXInstantBsonDeserializer)
+            addDeserializer(KTXLocalDate::class.java, KTXLocalDateBsonDeserializer)
+            addDeserializer(KTXLocalDateTime::class.java, KTXLocalDateTimeBsonDeserializer)
+            addDeserializer(KTXLocalTime::class.java, KTXLocalTimeBsonDeserializer)
+        }
+        catch(e:ClassNotFoundException) { }
 
         if (uuidRepresentation != null) {
             addSerializer(UUID::class.java, UuidSerializer(uuidRepresentation))

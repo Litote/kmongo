@@ -67,6 +67,10 @@ import java.time.ZonedDateTime
 import java.util.Calendar
 import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.javaField
+import kotlinx.datetime.Instant as KTXInstant
+import kotlinx.datetime.LocalDate as KTXLocalDate
+import kotlinx.datetime.LocalDateTime as KTXLocalDateTime
+import kotlinx.datetime.LocalTime as KTXLocalTime
 
 /**
  *
@@ -95,7 +99,18 @@ internal class JacksonCodec<T : Any>(
                 LocalDateTime::class,
                 LocalTime::class,
                 OffsetTime::class
-            )
+            ) + try {
+                Class.forName("kotlinx.datetime.Instant")
+
+                setOf(
+                    KTXInstant::class,
+                    KTXLocalDate::class,
+                    KTXLocalDateTime::class,
+                    KTXLocalTime::class
+                )
+            } catch (e: ClassNotFoundException) {
+                emptySet<Any>()
+            }
 
         override fun expectNullFormat(type: JavaType?): JsonNullFormatVisitor? {
             return null
