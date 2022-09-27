@@ -73,6 +73,11 @@
             <artifactId>kmongo-shared-tests</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-datetime-jvm</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
 </project>

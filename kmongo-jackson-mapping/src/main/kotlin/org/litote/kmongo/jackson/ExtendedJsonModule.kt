@@ -19,6 +19,9 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import kotlinx.datetime.atDate
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toInstant
 import org.bson.BsonTimestamp
 import org.bson.types.Binary
 import org.bson.types.MaxKey
@@ -40,6 +43,11 @@ import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
 import java.util.regex.Pattern
+import kotlinx.datetime.Instant as KTXInstant
+import kotlinx.datetime.LocalDate as KTXLocalDate
+import kotlinx.datetime.LocalDateTime as KTXLocalDateTime
+import kotlinx.datetime.LocalTime as KTXLocalTime
+import kotlinx.datetime.TimeZone as KTXTimeZone
 
 internal class ExtendedJsonModule : SimpleModule() {
 
@@ -158,6 +166,29 @@ internal class ExtendedJsonModule : SimpleModule() {
             OffsetDateTimeExtendedJsonSerializer.epochMillis(temporal.atDate(LocalDate.ofEpochDay(0)))
     }
 
+    object KTXInstantExtendedJsonSerializer : TemporalExtendedJsonSerializer<KTXInstant>() {
+
+        override fun epochMillis(temporal: KTXInstant): Long = temporal.toEpochMilliseconds()
+    }
+
+    object KTXLocalDateExtendedJsonSerializer : TemporalExtendedJsonSerializer<KTXLocalDate>() {
+
+        override fun epochMillis(temporal: KTXLocalDate): Long =
+            KTXInstantExtendedJsonSerializer.epochMillis(temporal.atStartOfDayIn(KTXTimeZone.UTC))
+    }
+
+    object KTXLocalDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<KTXLocalDateTime>() {
+
+        override fun epochMillis(temporal: KTXLocalDateTime): Long =
+            KTXInstantExtendedJsonSerializer.epochMillis(temporal.toInstant(KTXTimeZone.UTC))
+    }
+
+    object KTXLocalTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<KTXLocalTime>() {
+
+        override fun epochMillis(temporal: KTXLocalTime): Long =
+            KTXInstantExtendedJsonSerializer.epochMillis(temporal.atDate(KTXLocalDate.fromEpochDays(0)).toInstant(KTXTimeZone.UTC))
+    }
+
     object IdSerializer : JsonSerializer<Id<*>>() {
 
         override fun serialize(id: Id<*>, generator: JsonGenerator, provider: SerializerProvider) {
@@ -215,6 +246,16 @@ internal class ExtendedJsonModule : SimpleModule() {
         addSerializer(LocalDateTime::class.java, LocalDateTimeExtendedJsonSerializer)
         addSerializer(LocalTime::class.java, LocalTimeExtendedJsonSerializer)
         addSerializer(OffsetTime::class.java, OffsetTimeExtendedJsonSerializer)
+
+        try {
+            Class.forName("kotlinx.datetime.Instant")
+
+            addSerializer(KTXInstant::class.java, KTXInstantExtendedJsonSerializer)
+            addSerializer(KTXLocalDate::class.java, KTXLocalDateExtendedJsonSerializer)
+            addSerializer(KTXLocalDateTime::class.java, KTXLocalDateTimeExtendedJsonSerializer)
+            addSerializer(KTXLocalTime::class.java, KTXLocalTimeExtendedJsonSerializer)
+        }
+        catch(e:ClassNotFoundException) { }
 
         addSerializer(Pattern::class.java, PatternSerializer)
         addSerializer(Regex::class.java, RegexSerializer)
