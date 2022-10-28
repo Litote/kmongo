@@ -62,7 +62,7 @@
                     </includes>
                 </configuration>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.jetbrains.dokka</groupId>
                 <artifactId>dokka-maven-plugin</artifactId>
                 <version>${plugin.dokka.version}</version>
@@ -98,7 +98,7 @@
                         </packageOptions>
                     </perPackageOptions>
                 </configuration>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 

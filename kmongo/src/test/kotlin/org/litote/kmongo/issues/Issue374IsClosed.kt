@@ -21,31 +21,26 @@ import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
 import kotlinx.serialization.Serializable
 import org.bson.Document
-import org.bson.codecs.pojo.annotations.BsonId
-import org.litote.kmongo.AllCategoriesKMongoBaseTest
-import org.litote.kmongo.Id
-import org.litote.kmongo.MongoOperator
-import org.litote.kmongo.findOneAndUpdate
-import org.litote.kmongo.json
-import kotlin.test.assertEquals
 import org.junit.Test
+import org.litote.kmongo.AllCategoriesKMongoBaseTest
 import org.litote.kmongo.findOne
 import org.litote.kmongo.save
 import org.litote.kmongo.withDocumentClass
 import kotlin.test.Ignore
+import kotlin.test.assertEquals
 
 @Serializable
-data class Test1(val isClosed:String = "a")
+data class Test1(val isClosed: String = "a")
 
 @Serializable
 data class Test2(
-    @get:JsonProperty("isClosed") @get:JvmName("funIsClosed") val isClosed:String = "a",
-    @get:JsonProperty("closed") val closed:String = "b"
+    @get:JsonProperty("isClosed") @get:JvmName("funIsClosed") val isClosed: String = "a",
+    @get:JsonProperty("closed") val closed: String = "b"
 )
 
 
-
-class MyFindOneAndUpdateOptions(private var myReturnDocument: ReturnDocument = ReturnDocument.AFTER) : FindOneAndUpdateOptions() {
+class MyFindOneAndUpdateOptions(private var myReturnDocument: ReturnDocument = ReturnDocument.AFTER) :
+    FindOneAndUpdateOptions() {
     override fun getReturnDocument(): ReturnDocument = myReturnDocument
 
     override fun returnDocument(returnDocument: ReturnDocument): FindOneAndUpdateOptions {
@@ -53,10 +48,11 @@ class MyFindOneAndUpdateOptions(private var myReturnDocument: ReturnDocument = R
         return this
     }
 }
+
 /**
  *
  */
-class Issue374IsClosed: AllCategoriesKMongoBaseTest<Test1>() {
+class Issue374IsClosed : AllCategoriesKMongoBaseTest<Test1>() {
 
     @Ignore
     @Test
