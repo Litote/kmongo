@@ -21,8 +21,7 @@ import com.mongodb.client.model.ReturnDocument
 import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.litote.kmongo.AllCategoriesKMongoBaseTest
-import org.litote.kmongo.MongoOperator
-import org.litote.kmongo.MongoOperator.*
+import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.findOneAndUpdate
 import org.litote.kmongo.json
 import kotlin.test.assertEquals
