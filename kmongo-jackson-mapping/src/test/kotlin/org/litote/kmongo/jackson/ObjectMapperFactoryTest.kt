@@ -16,9 +16,11 @@
 
 package org.litote.kmongo.jackson
 
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.Test
 import org.litote.kmongo.util.KMongoConfiguration
+import org.litote.kmongo.util.KotlinModuleConfiguration
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -29,6 +31,7 @@ class ObjectMapperFactoryTest {
 
     data class T(val set:Set<String>, val mutableSet: MutableSet<String>)
     data class M(val map:Map<String, Boolean>, val mutableMap: MutableMap<String, Boolean>)
+    object Singleton
 
     @Test
     fun `Set is deserialized as LinkedHashSet`() {
@@ -44,5 +47,19 @@ class ObjectMapperFactoryTest {
         assertEquals(mapOf("b" to true,"a" to false), m.map)
         assertTrue { m.map is LinkedHashMap }
         assertTrue { m.mutableMap is LinkedHashMap }
+    }
+
+    @Test
+    fun `Deserialized object is the same instance as serialized object`() {
+        try {
+            KotlinModuleConfiguration.kotlinModuleInitializer = { enable(KotlinFeature.SingletonSupport) }
+            KMongoConfiguration.resetConfiguration()
+            val m = KMongoConfiguration.extendedJsonMapper.writeValueAsString(Singleton)
+            val deserializedSingleton = KMongoConfiguration.extendedJsonMapper.readValue<Singleton>(m)
+            assertTrue { Singleton === deserializedSingleton }
+        } finally {
+            KotlinModuleConfiguration.kotlinModuleInitializer = { }
+            KMongoConfiguration.resetConfiguration()
+        }
     }
 }
