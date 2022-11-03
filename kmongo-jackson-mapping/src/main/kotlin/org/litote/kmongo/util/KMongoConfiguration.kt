@@ -20,10 +20,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.bson.UuidRepresentation
 import org.litote.kmongo.jackson.JacksonCodecProvider
 import org.litote.kmongo.jackson.ObjectMapperFactory
-import kotlin.LazyThreadSafetyMode.PUBLICATION
+import org.litote.kmongo.util.KotlinModuleConfiguration.kotlinModuleInitializer
 
 /**
  * Configure the jackson mapper engine.
@@ -39,6 +40,19 @@ object KMongoJacksonFeature {
         KMongoConfiguration.bsonMapper = ObjectMapperFactory.createBsonObjectMapper(uuidRepresentation)
         KMongoConfiguration.bsonMapperCopy = ObjectMapperFactory.createBsonObjectMapperCopy(uuidRepresentation)
     }
+}
+
+/**
+ * Configure the [KotlinModule] used by jackson mapper engine.
+ *
+ * Call the methods of this object *before* any call to [KMongoConfiguration] methods.
+ */
+object KotlinModuleConfiguration {
+
+    /**
+     * Function to customize [KotlinModule] used by KMongo.
+     */
+    var kotlinModuleInitializer: KotlinModule.Builder.() -> Unit = { }
 }
 
 /**

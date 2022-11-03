@@ -5,6 +5,22 @@ Query results are automatically mapped to objects.
 Look at the [Quick Start related paragraph](https://litote.org/kmongo/quick-start/#object-mapping-engine)
 in order to know how to select the object mapping engine.
 
+## Configure ```KotlinModule```
+
+The ```ObjectMapper``` used by KMongo uses a [jackson's KotlinModule](https://github.com/FasterXML/jackson-module-kotlin). 
+The module is created with default ```KotlinFeature```s. 
+To change configuration of the module, use ```KotlinModuleConfiguration``` object:
+
+```kotlin
+KotlinModuleConfiguration.kotlinModuleInitializer = { 
+    // Configure `KotlinModule` using its `Builder` (which is referenced as `this`):
+    enable(KotlinFeature.SingletonSupport) 
+    enable(KotlinFeature.StrictNullChecks)
+    ...
+}
+KMongoConfiguration.resetConfiguration()
+```
+
 ## Set your _id
 
 To manage Mongo ```_id```, a class must have one ```_id``` property

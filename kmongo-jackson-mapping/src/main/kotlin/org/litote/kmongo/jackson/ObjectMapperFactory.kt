@@ -28,13 +28,15 @@ import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.mongodb.BasicDBObject
 import com.mongodb.DBObject
 import com.mongodb.DBRef
 import org.bson.UuidRepresentation
 import org.bson.types.ObjectId
 import org.litote.jackson.registerModulesFromServiceLoader
+import org.litote.kmongo.util.KotlinModuleConfiguration
 import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -49,7 +51,7 @@ internal object ObjectMapperFactory {
 
     fun createExtendedJsonObjectMapper(): ObjectMapper {
         return ObjectMapper()
-            .registerKotlinModule()
+            .registerModule(kotlinModule(KotlinModuleConfiguration.kotlinModuleInitializer))
             .registerModule(SetMappingModule())
             .registerModule(ExtendedJsonModule())
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
@@ -67,7 +69,7 @@ internal object ObjectMapperFactory {
 
     private fun configureBson(mapper: ObjectMapper, uuidRepresentation: UuidRepresentation?): ObjectMapper {
         return mapper.registerModule(de.undercouch.bson4jackson.BsonModule())
-            .registerKotlinModule()
+            .registerModule(kotlinModule(KotlinModuleConfiguration.kotlinModuleInitializer))
             .registerModule(CustomJacksonModule)
             .registerModule(SetMappingModule())
             .registerModule(BsonModule(uuidRepresentation))
@@ -81,7 +83,6 @@ internal object ObjectMapperFactory {
     fun createFilterIdObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
         return objectMapper.copy().registerModule(FilterIdModule())
     }
-
 }
 
 private object CustomJacksonModule : SimpleModule() {
