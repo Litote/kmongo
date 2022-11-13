@@ -82,7 +82,7 @@ internal class JacksonClassMappingTypeService : ClassMappingTypeService {
 
                 override fun findPropertyFilter(filterId: Any, valueToFilter: Any): PropertyFilter? {
                     return if (valueToFilter === obj) {
-                        SerializeExceptFilter(setOf(idProperty.name))
+                        SerializeExceptFilter(setOf("_id", idProperty.name))
                     } else SimpleBeanPropertyFilter.serializeAll()
                 }
             }
