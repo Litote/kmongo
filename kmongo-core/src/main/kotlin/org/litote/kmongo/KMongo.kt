@@ -23,10 +23,7 @@ import com.mongodb.MongoClientSettings.getDefaultCodecRegistry
 import com.mongodb.MongoDriverInformation
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
-import org.bson.UuidRepresentation
-import org.bson.codecs.configuration.CodecConfigurationException
 import org.bson.codecs.configuration.CodecRegistry
-import org.bson.internal.OverridableUuidRepresentationCodecRegistry
 import org.litote.kmongo.service.ClassMappingType
 import org.litote.kmongo.util.KMongoUtil
 
@@ -75,24 +72,11 @@ object KMongo {
      */
     fun createClient(settings: MongoClientSettings): MongoClient = MongoClients.create(
         MongoClientSettings.builder(settings).codecRegistry(
-            configureRegistry(
-                createRegistry(
-                    settings.codecRegistry, settings.uuidRepresentation
-                )
-            )
+            configureRegistry(settings.codecRegistry)
         ).build(),
-        MongoDriverInformation.builder().driverName("kmongo").driverPlatform(String.format("Kotlin/%s", KotlinVersion.CURRENT)).build()
+        MongoDriverInformation.builder().driverName("kmongo")
+            .driverPlatform(String.format("Kotlin/%s", KotlinVersion.CURRENT)).build()
     )
-
-    private fun createRegistry(codecRegistry: CodecRegistry, uuidRepresentation: UuidRepresentation): CodecRegistry =
-        if (uuidRepresentation !== UuidRepresentation.JAVA_LEGACY) {
-            OverridableUuidRepresentationCodecRegistry(codecRegistry, uuidRepresentation)
-        } else {
-            throw CodecConfigurationException(
-                "Changing the default UuidRepresentation requires a CodecRegistry that also "
-                        + "implements the CodecProvider interface"
-            )
-        }
 
 
     internal fun configureRegistry(codecRegistry: CodecRegistry = getDefaultCodecRegistry()): CodecRegistry =
