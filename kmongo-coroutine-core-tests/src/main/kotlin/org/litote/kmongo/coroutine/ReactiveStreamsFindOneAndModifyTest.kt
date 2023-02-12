@@ -24,6 +24,7 @@ import org.bson.Document
 import org.bson.types.ObjectId
 import org.junit.Test
 import org.litote.kmongo.MongoOperator
+import org.litote.kmongo.eq
 import org.litote.kmongo.json
 import org.litote.kmongo.model.ExposableFriend
 import org.litote.kmongo.model.Friend
@@ -51,6 +52,28 @@ class ReactiveStreamsFindOneAndModifyTest : KMongoReactiveStreamsCoroutineBaseTe
             col.insertOne(it, Friend("John", "22 Wall Street Avenue"))
             col.findOneAndUpdate(it, "{name:'John'}", "{${MongoOperator.set}: {address: 'A better place'}}")
                     ?: throw AssertionError("Value cannot null!")
+            val savedFriend = col.findOne(it, "{name:'John'}") ?: throw AssertionError("Value cannot null!")
+            assertEquals("John", savedFriend.name)
+            assertEquals("A better place", savedFriend.address)
+        }
+    }
+
+    @Test
+    fun `can find and update with kotlin class`() = runBlocking {
+        col.insertOne(Friend("John", "22 Wall Street Avenue"))
+        col.findOneAndUpdate(Friend::name eq "John", Friend("John", "A better place"))
+            ?: throw AssertionError("Value cannot null!")
+        val savedFriend = col.findOne("{name:'John'}") ?: throw AssertionError("Value cannot null!")
+        assertEquals("John", savedFriend.name)
+        assertEquals("A better place", savedFriend.address)
+    }
+
+    @Test
+    fun `can find and update with kotlin class in ClientSession`() = runBlocking {
+        mongoClient.startSession().use {
+            col.insertOne(it, Friend("John", "22 Wall Street Avenue"))
+            col.findOneAndUpdate(it, Friend::name eq "John", Friend("John", "A better place"))
+                ?: throw AssertionError("Value cannot null!")
             val savedFriend = col.findOne(it, "{name:'John'}") ?: throw AssertionError("Value cannot null!")
             assertEquals("John", savedFriend.name)
             assertEquals("A better place", savedFriend.address)

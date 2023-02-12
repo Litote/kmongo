@@ -765,6 +765,42 @@ class CoroutineCollection<T : Any>(val collection: MongoCollection<T>) {
     ): T? = collection.findOneAndUpdate(clientSession, filter, update, options).awaitFirstOrNull()
 
     /**
+     * Atomically find a document and update it.
+     *
+     * @param filter  a document describing the query filter, which may not be null.
+     * @param update  a document describing the update, which may not be null. The update to apply must include only update operators.
+     * @param options the options to apply to the operation
+     * @return the document that was updated.  Depending on the value of the `returnOriginal`
+     * property, this will either be the document as it was before the update or as it is after the update.  If no documents matched the
+     * query filter, then null will be returned
+     */
+    suspend fun findOneAndUpdate(
+        filter: Bson,
+        update: T,
+        options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+    ): T? = collection.findOneAndUpdate(filter, toBsonModifier(update), options).awaitFirstOrNull()
+
+    /**
+     * Atomically find a document and update it.
+     *
+     * @param clientSession the client session with which to associate this operation
+     * @param filter  a document describing the query filter, which may not be null.
+     * @param update  a document describing the update, which may not be null. The update to apply must include only update operators.
+     * @param options the options to apply to the operation
+     * @return a publisher with a single element the document that was updated.  Depending on the value of the `returnOriginal`
+     * property, this will either be the document as it was before the update or as it is after the update.  If no documents matched the
+     * query filter, then null will be returned
+     * @mongodb.server.release 3.6
+     * @since 1.7
+     */
+    suspend fun findOneAndUpdate(
+        clientSession: ClientSession,
+        filter: Bson,
+        update: T,
+        options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+    ): T? = collection.findOneAndUpdate(clientSession, filter, toBsonModifier(update), options).awaitFirstOrNull()
+
+    /**
      * Drops this collection from the Database.
      *
      * @mongodb.driver.manual reference/command/drop/ Drop Collection
