@@ -266,7 +266,7 @@ class SerializationCodecTest {
         }
         assertEquals(
             "Serializer for class 'NotSerializableClass' is not found.\n" +
-                    "Mark the class as @Serializable or provide the serializer explicitly.",
+                    "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.\n",
             t.message
         )
     }
@@ -287,7 +287,7 @@ class SerializationCodecTest {
         }
         assertEquals(
             "Serializer for class 'NotSerializableClass' is not found.\n" +
-                    "Mark the class as @Serializable or provide the serializer explicitly.",
+                    "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.\n",
             t.message
         )
     }
