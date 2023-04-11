@@ -37,10 +37,10 @@ import kotlin.reflect.full.hasAnnotation
 
 private class BaseRegistryWithoutCustomSerializers(private val codecRegistry: CodecRegistry) : CodecRegistry {
     override fun <T : Any> get(clazz: Class<T>): Codec<T>? =
-        if (customSerializersMap.containsKey(clazz.kotlin)) null else codecRegistry.get(clazz)
+        if (clazz.isEnum || customSerializersMap.containsKey(clazz.kotlin)) null else codecRegistry.get(clazz)
 
     override fun <T : Any> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? =
-        if (customSerializersMap.containsKey(clazz.kotlin)) null else codecRegistry.get(clazz, registry)
+        if (clazz.isEnum || customSerializersMap.containsKey(clazz.kotlin)) null else codecRegistry.get(clazz, registry)
 }
 
 /**
