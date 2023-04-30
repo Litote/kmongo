@@ -41,6 +41,7 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.StringId
 import org.litote.kmongo.id.WrappedObjectId
+import org.litote.kmongo.util.KotlinxDatetimeLoader
 import org.litote.kmongo.util.ObjectMappingConfiguration
 import java.math.BigDecimal
 import java.time.Instant
@@ -129,17 +130,16 @@ internal object KMongoSerializationRepository {
         Pattern::class to PatternSerializer,
         Regex::class to RegexSerializer,
         UUID::class to UUIDSerializer
-    ) +
-    try {
-        Class.forName("kotlinx.datetime.Instant")
+    ) + KotlinxDatetimeLoader.loadKotlinxDateTime({
         mapOf(
             KTXInstant::class to KTXInstantSerializer,
             KTXLocalDate::class to KTXLocalDateSerializer,
             KTXLocalDateTime::class to KTXLocalDateTimeSerializer,
             KTXLocalTime::class to KTXLocalTimeSerializer
         )
-    }
-    catch(e:ClassNotFoundException) { emptyMap() }
+    }, { mapOf() })
+
+
 
     private fun getCustomSerializer(kClass: KClass<*>): KSerializer<*>? =
         customSerializersMap[kClass] ?: serializersMap[kClass]
