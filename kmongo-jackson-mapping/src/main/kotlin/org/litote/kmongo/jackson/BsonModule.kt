@@ -77,6 +77,7 @@ import org.litote.kmongo.jackson.ExtendedJsonModule.KTXLocalTimeExtendedJsonSeri
 import org.litote.kmongo.jackson.KMongoBsonFactory.Companion.createFromLegacyFormat
 import org.litote.kmongo.jackson.KMongoBsonFactory.KMongoBsonGenerator
 import org.litote.kmongo.projection
+import org.litote.kmongo.util.KotlinxDatetimeLoader
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -639,9 +640,7 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
 
         addSerializer(KProperty::class.java, KPropertySerializer)
 
-        try {
-            Class.forName("kotlinx.datetime.Instant")
-
+        KotlinxDatetimeLoader.loadKotlinxDateTime({
             addSerializer(KTXInstant::class.java, KTXInstantBsonSerializer)
             addSerializer(KTXLocalDate::class.java, KTXLocalDateBsonSerializer)
             addSerializer(KTXLocalDateTime::class.java, KTXLocalDateTimeBsonSerializer)
@@ -651,8 +650,7 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
             addDeserializer(KTXLocalDate::class.java, KTXLocalDateBsonDeserializer)
             addDeserializer(KTXLocalDateTime::class.java, KTXLocalDateTimeBsonDeserializer)
             addDeserializer(KTXLocalTime::class.java, KTXLocalTimeBsonDeserializer)
-        }
-        catch(e:ClassNotFoundException) { }
+        }, {})
 
         if (uuidRepresentation != null) {
             addSerializer(UUID::class.java, UuidSerializer(uuidRepresentation))

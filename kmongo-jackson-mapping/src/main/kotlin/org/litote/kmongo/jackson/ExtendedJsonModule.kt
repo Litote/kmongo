@@ -30,6 +30,7 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.Id
 import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.jackson.IdKeySerializer
+import org.litote.kmongo.util.KotlinxDatetimeLoader
 import org.litote.kmongo.util.PatternUtil
 import java.math.BigDecimal
 import java.time.Instant
@@ -247,15 +248,12 @@ internal class ExtendedJsonModule : SimpleModule() {
         addSerializer(LocalTime::class.java, LocalTimeExtendedJsonSerializer)
         addSerializer(OffsetTime::class.java, OffsetTimeExtendedJsonSerializer)
 
-        try {
-            Class.forName("kotlinx.datetime.Instant")
-
+        KotlinxDatetimeLoader.loadKotlinxDateTime({
             addSerializer(KTXInstant::class.java, KTXInstantExtendedJsonSerializer)
             addSerializer(KTXLocalDate::class.java, KTXLocalDateExtendedJsonSerializer)
             addSerializer(KTXLocalDateTime::class.java, KTXLocalDateTimeExtendedJsonSerializer)
             addSerializer(KTXLocalTime::class.java, KTXLocalTimeExtendedJsonSerializer)
-        }
-        catch(e:ClassNotFoundException) { }
+        }, {})
 
         addSerializer(Pattern::class.java, PatternSerializer)
         addSerializer(Regex::class.java, RegexSerializer)

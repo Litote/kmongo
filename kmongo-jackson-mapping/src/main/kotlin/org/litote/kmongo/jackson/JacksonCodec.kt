@@ -54,6 +54,7 @@ import org.litote.kmongo.jackson.JacksonCodec.VisitorWrapper.JsonType.string
 import org.litote.kmongo.json
 import org.litote.kmongo.util.KMongoUtil
 import org.litote.kmongo.util.KMongoUtil.generateNewIdForIdClass
+import org.litote.kmongo.util.KotlinxDatetimeLoader
 import org.litote.kmongo.util.MongoIdUtil
 import java.io.IOException
 import java.io.UncheckedIOException
@@ -99,18 +100,14 @@ internal class JacksonCodec<T : Any>(
                 LocalDateTime::class,
                 LocalTime::class,
                 OffsetTime::class
-            ) + try {
-                Class.forName("kotlinx.datetime.Instant")
-
+            ) + KotlinxDatetimeLoader.loadKotlinxDateTime({
                 setOf(
                     KTXInstant::class,
                     KTXLocalDate::class,
                     KTXLocalDateTime::class,
                     KTXLocalTime::class
                 )
-            } catch (e: ClassNotFoundException) {
-                emptySet<Any>()
-            }
+            }, { setOf<Any>() })
 
         override fun expectNullFormat(type: JavaType?): JsonNullFormatVisitor? {
             return null
