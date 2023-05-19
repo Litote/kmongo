@@ -73,17 +73,17 @@
         <kotlin.version>1.8.20</kotlin.version>
         <mongo.version>4.9.1</mongo.version>
         <mongo.base.version>4.9</mongo.base.version>
-        <coroutine.version>1.6.4</coroutine.version>
+        <coroutine.version>1.7.1</coroutine.version>
         <rxjava.version>2.2.21</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
-        <reactor.version>2022.0.5</reactor.version>
+        <reactor.version>2022.0.7</reactor.version>
         <mongo.reactor.adapter.version>0.3.2</mongo.reactor.adapter.version>
-        <jackson.version>2.14.2</jackson.version>
-        <jackson-module.version>2.14.2</jackson-module.version>
+        <jackson.version>2.15.1</jackson.version>
+        <jackson-module.version>2.15.1</jackson-module.version>
         <bson4jackson.version>2.13.1</bson4jackson.version>
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.4.0</jackson-module-loader.version>
-        <kotlinx-serialization.version>1.5.0</kotlinx-serialization.version>
+        <kotlinx-serialization.version>1.5.1</kotlinx-serialization.version>
         <kotlinx-datetime.version>0.4.0</kotlinx-datetime.version>
         <kbson.version>0.5.0</kbson.version>
 
@@ -109,7 +109,7 @@
         <plugin.release.version>3.0.0-M1</plugin.release.version>
         <plugin.jar.version>3.3.0</plugin.jar.version>
         <plugin.dokka.version>0.10.1</plugin.dokka.version>
-        <plugin.gpg.version>1.6</plugin.gpg.version>
+        <plugin.gpg.version>3.0.1</plugin.gpg.version>
         <plugin.nexus-staging.version>1.6.13</plugin.nexus-staging.version>
         <plugin.jacoco.version>0.8.9</plugin.jacoco.version>
         <plugin.exec.version>1.2.1</plugin.exec.version>
