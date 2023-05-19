@@ -75,7 +75,7 @@ open class KPropertyPath<T, R>(
         private fun notImplemented(): Nothing = error("not implemented")
 
         private class CustomProperty<T, R>(val previous: KPropertyPath<*, T>, path: String) : KProperty1<T, R> {
-            override val annotations: List<Annotation> get() = previous.annotations
+            override val annotations: List<Annotation> get() = emptyList()
 
             override val getter: KProperty1.Getter<T, R> get() = notImplemented()
             override val isAbstract: Boolean get() = previous.isAbstract
