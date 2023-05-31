@@ -31,7 +31,7 @@ import org.litote.kmongo.id.IdTransformer
 import org.litote.kmongo.id.StringId
 import org.litote.kmongo.id.WrappedObjectId
 import org.litote.kmongo.projection
-import java.util.Locale
+import java.util.*
 import kotlin.reflect.KProperty
 
 /**
@@ -103,14 +103,14 @@ internal object UtilClassesCodecProvider : CodecProvider {
         }
     }
 
-    private val codecsMap: Map<Class<*>, Codec<*>> = listOf(LocaleCodec, IdCodec)
-        .map { it.encoderClass to it }
-        .toMap() +
-            mapOf(
-                StringId::class.java to IdCodec,
-                WrappedObjectId::class.java to IdCodec,
-                Regex::class.java to RegexCodec
-            )
+    private val codecsMap: Map<Class<*>, Codec<*>> =
+        listOf(LocaleCodec, IdCodec)
+            .associateBy { it.encoderClass } +
+                mapOf(
+                    StringId::class.java to IdCodec,
+                    WrappedObjectId::class.java to IdCodec,
+                    Regex::class.java to RegexCodec
+                )
 
     override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? {
         @Suppress("UNCHECKED_CAST")
