@@ -1,27 +1,29 @@
 # <span style="color:red">Deprecation notice</span>
 
-KMongo was created in *2016*, when there was no official MongoDb kotlin driver.
+KMongo was created in *2016*, when there was no official MongoDB Kotlin driver.
 
-On *June 28, 2023*, a kotlin driver, whose development I was able to follow, was [made available by MongoDb](https://www.mongodb.com/developer/languages/kotlin/).
+On *June 28, 2023*, a Kotlin driver, whose development I was able to follow, was [made available by MongoDb](https://www.mongodb.com/docs/drivers/kotlin/coroutine/current/).
 
 KMongo is therefore officially deprecated in favor of this driver. What does this mean concretely?
 
-- If you are starting a new project, use the official kotlin driver. You will get support from the MongoDb team.
+- If you are starting a new project, use the official Kotlin driver. You will get support from the MongoDB team.
 
 - If you have an existing project using KMongo, there's no rush to switch to the official driver: I'll maintain KMongo for several more years for my own projects.
   But no more evolutions will be added.
-  You will therefore have to plan a migration from KMongo to the MongoDb driver within a few months/years.
+  You will therefore have to plan a migration from KMongo to the MongoDB Kotlin driver within a few months/years.
 
-## How to switch from KMongo to kotlin mongo driver ?
+## How to switch from KMongo to the MongoDB Kotlin driver ?
 
-- The MongoDb kotlin driver supports "native" object mapping and also kotlinx-serialization.
+You can read the [official migration guide](https://www.mongodb.com/docs/drivers/kotlin/coroutine/current/migrate-kmongo/) in the MongoDB Kotlin documentation to learn how to migrate to the MongoDB Kotlin driver.
+
+- The MognoDB Kotlin driver supports "native" object mapping and also kotlinx-serialization.
   If you use one of these two mappings in KMongo, the transition will therefore be relatively simple.
   If you use jackson mapping, there will be a little more effort.
 
-- The kotlin MongoDb driver has a synchronous version and a coroutine version. 
+- The MongoDB Kotlin driver has a synchronous version and a coroutine version. 
 If you are using one of these versions in KMongo, you should have no problem.
 
-- The missing feature currently with the official kotlin driver is the construction of queries which is a [little less intuitive](https://docs-mongodbcom-staging.corp.mongodb.com/kotlin/docsworker-xlarge/docsp-29260-migrate/migrate-kmongo/).
+- The missing feature currently with the official kotlin driver is the construction of queries which is a [little less intuitive](https://www.mongodb.com/docs/drivers/kotlin/coroutine/current/migrate-kmongo/#construct-queries).
 
 However, you can still use KMongo's query system coupled with the official driver. 
 As I migrate my own projects, I plan to release an isolated utility library
