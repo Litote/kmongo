@@ -29,7 +29,7 @@ However, you can still use KMongo's query system coupled with the official drive
 As I migrate my own projects, I plan to release an isolated utility library
 that will simplify the transition from KMongo query system to the new kotlin driver.
 
-Many thanks to the MongoDB team who are now giving kotlin the support it deserves!
+Many thanks to the MongoDB team for giving kotlin the support it deserves!
 
 # ![KMongo logo](assets/images/kmongo.png) **KMongo** - a Kotlin toolkit for Mongo  
 
