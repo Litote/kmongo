@@ -488,19 +488,18 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
     }
 
     private object BigDecimalBsonDeserializer : JsonDeserializer<BigDecimal>() {
-
+        
         override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): BigDecimal {
             return if (jp.currentToken == VALUE_NUMBER_FLOAT) {
-                BigDecimal(jp.doubleValue)
+                jp.doubleValue.toBigDecimal()
             } else {
-                val v = jp.embeddedObject
-                when (v) {
-                    is Int -> BigDecimal(v)
-                    is Long -> BigDecimal(v)
-                    is Float -> BigDecimal(v.toDouble())
-                    is Double -> BigDecimal(v)
+                when (val v = jp.embeddedObject) {
+                    is Int -> v.toBigDecimal()
+                    is Long -> v.toBigDecimal()
+                    is Float -> v.toBigDecimal()
+                    is Double -> v.toBigDecimal()
                     is Decimal128 -> v.bigDecimalValue()
-                    is String -> BigDecimal(v)
+                    is String -> v.toBigDecimal()
                     else -> throw ClassCastException(
                         v.javaClass.name + " cannot be cast to " + BigDecimal::class.java.name + ": " + v
                     )
