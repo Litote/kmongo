@@ -346,7 +346,7 @@ internal object UUIDSerializer : KSerializer<UUID> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("UuidSerializer")
 
     override fun deserialize(decoder: Decoder): UUID =
-        (decoder as BsonFlexibleDecoder).reader.readBinaryData().asUuid()
+        (decoder as FlexibleDecoder).reader.readBinaryData().asUuid()
 
     override fun serialize(encoder: Encoder, value: UUID) {
         (encoder as BsonEncoder).encodeUUID(value)
