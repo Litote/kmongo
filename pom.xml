@@ -70,21 +70,21 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>1.8.20</kotlin.version>
-        <mongo.version>4.10.2</mongo.version>
-        <mongo.base.version>4.10</mongo.base.version>
-        <coroutine.version>1.7.2</coroutine.version>
+        <kotlin.version>1.9.20</kotlin.version>
+        <mongo.version>4.11.0</mongo.version>
+        <mongo.base.version>4.11</mongo.base.version>
+        <coroutine.version>1.7.3</coroutine.version>
         <rxjava.version>2.2.21</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
-        <reactor.version>2022.0.9</reactor.version>
+        <reactor.version>2022.0.12</reactor.version>
         <mongo.reactor.adapter.version>0.3.2</mongo.reactor.adapter.version>
-        <jackson.version>2.15.2</jackson.version>
-        <jackson-module.version>2.15.2</jackson-module.version>
-        <bson4jackson.version>2.13.1</bson4jackson.version>
+        <jackson.version>2.15.3</jackson.version>
+        <jackson-module.version>2.15.3</jackson-module.version>
+        <bson4jackson.version>2.15.0</bson4jackson.version>
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.4.0</jackson-module-loader.version>
-        <kotlinx-serialization.version>1.5.1</kotlinx-serialization.version>
-        <kotlinx-datetime.version>0.4.0</kotlinx-datetime.version>
+        <kotlinx-serialization.version>1.6.0</kotlinx-serialization.version>
+        <kotlinx-datetime.version>0.4.1</kotlinx-datetime.version>
         <kbson.version>0.5.0</kbson.version>
 
         <!-- annotations processor -->
@@ -95,9 +95,9 @@
 
         <!-- test dependencies -->
         <flapdoodle.version>3.5.4</flapdoodle.version>
-        <sl4j.version>2.0.7</sl4j.version>
+        <sl4j.version>2.0.9</sl4j.version>
         <junit.version>4.13.2</junit.version>
-        <jmh.version>1.36</jmh.version>
+        <jmh.version>1.37</jmh.version>
         <compiler-testing.version>0.21.0</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
         <kotlin-compile-testing.version>1.5.0</kotlin-compile-testing.version>
