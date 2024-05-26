@@ -17,12 +17,10 @@
 package org.litote.kmongo
 
 import com.mongodb.ConnectionString
-import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import org.bson.BsonDocument
 import org.bson.Document
 
-internal val MongodProcess.host get() = "127.0.0.1:${config.net().port}"
 
 /**
  * Flapdoodle wrapper.

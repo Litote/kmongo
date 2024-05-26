@@ -17,14 +17,15 @@
 package org.litote.kmongo
 
 import com.mongodb.ConnectionString
-import de.flapdoodle.embed.mongo.MongodProcess
-import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.MongoCmdOptions
-import de.flapdoodle.embed.mongo.config.MongodConfig
+import de.flapdoodle.embed.mongo.commands.MongodArguments
 import de.flapdoodle.embed.mongo.config.Net
 import de.flapdoodle.embed.mongo.config.Storage
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
+import de.flapdoodle.embed.mongo.transitions.Mongod
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
 import de.flapdoodle.embed.process.runtime.Network
+import de.flapdoodle.reverse.TransitionWalker
+import de.flapdoodle.reverse.transitions.Start
 import org.bson.BsonArray
 import org.bson.BsonBoolean
 import org.bson.BsonDocument
@@ -35,51 +36,17 @@ import org.bson.Document
 /**
  *
  */
-internal class ReplicaSetEmbeddedMongo(version: IFeatureAwareVersion) {
+internal class ReplicaSetEmbeddedMongo(private val version: IFeatureAwareVersion) {
 
-    var ports = Network.getFreeServerPorts(Network.getLocalHost(), 3)
+    private val ports = Network.getFreeServerPorts(Network.getLocalHost(), 3)
+    private val storage = Storage.of("kmongo", 5000)
 
-    val rep1: MongodConfig = MongodConfig.builder()
-        .version(version)
-        .net(Net(ports[0], Network.localhostIsIPv6()))
-        .replication(Storage(null, "kmongo", 5000))
-        .cmdOptions(
-            MongoCmdOptions.builder()
-                .useSmallFiles(true)
-                .useNoJournal(false)
-                .build()
-        )
-        .build()
-    val rep2: MongodConfig = MongodConfig.builder()
-        .version(version)
-        .net(Net(ports[1], Network.localhostIsIPv6()))
-        .replication(Storage(null, "kmongo", 5000))
-        .cmdOptions(
-            MongoCmdOptions.builder()
-                .useSmallFiles(true)
-                .useNoJournal(false)
-                .build()
-        )
-        .build()
-    val rep3: MongodConfig = MongodConfig.builder()
-        .version(version)
-        .net(Net(ports[2], Network.localhostIsIPv6()))
-        .replication(Storage(null, "kmongo", 5000))
-        .cmdOptions(
-            MongoCmdOptions.builder()
-                .useSmallFiles(true)
-                .useNoJournal(false)
-                .build()
-        )
-        .build()
-
-
-    private val mongodProcesses: List<MongodProcess> by lazy {
+    private val mongodProcesses: List<TransitionWalker.ReachedState<RunningMongodProcess>> by lazy {
         createInstance()
     }
 
     fun connectionString(commandExecutor: (String, BsonDocument, (Document?, Throwable?) -> Unit) -> Unit): ConnectionString {
-        val host = mongodProcesses[0].host
+        val host = mongodProcesses[0].current().serverAddress.toString()
         val conf = BsonDocument("_id", BsonString("kmongo"))
             .apply {
                 put("protocolVersion", BsonInt32(1))
@@ -89,7 +56,7 @@ internal class ReplicaSetEmbeddedMongo(version: IFeatureAwareVersion) {
                     BsonArray(
                         mongodProcesses.mapIndexed { i, p ->
                             val s = BsonDocument("_id", BsonInt32(i))
-                            s.put("host", BsonString(p.host))
+                            s.put("host", BsonString(p.current().serverAddress.toString()))
                             s
                         })
                 )
@@ -121,26 +88,31 @@ internal class ReplicaSetEmbeddedMongo(version: IFeatureAwareVersion) {
 
         return mongodProcesses.run {
             ConnectionString(
-                "mongodb://${first().host},${get(1).host},${get(2).host}/?replicaSet=kmongo&uuidRepresentation=standard"
+                "mongodb://${first().current().serverAddress},${get(1).current().serverAddress},${get(2).current().serverAddress}/?replicaSet=kmongo&uuidRepresentation=standard"
             )
         }
     }
 
-    private fun createInstance(): List<MongodProcess> =
-        listOf(
-            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep1),
-            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep2),
-            MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(rep3)
-        ).run {
-            forEach { executable ->
-                Runtime.getRuntime().addShutdownHook(object : Thread() {
-                    override fun run() {
-                        executable.stop()
-                    }
-                })
-            }
-
-            map { executable -> executable.start() }
+    private fun createInstance(): List<TransitionWalker.ReachedState<RunningMongodProcess>> =
+        ports.map {
+            val immutableMongodArguments =
+                MongodArguments.defaults().withUseSmallFiles(true).withUseNoJournal(false).withReplication(storage)
+            Mongod.instance()
+                .withMongodArguments(Start.to(MongodArguments::class.java).initializedWith(immutableMongodArguments))
+                .configLogs()
+                .withNet(
+                    Start.to(Net::class.java).initializedWith(
+                        Net.builder().bindIp("127.0.0.1").port(it).isIpv6(Network.localhostIsIPv6()).build()
+                    )
+                )
+                .start(version)
+                .apply {
+                    Runtime.getRuntime().addShutdownHook(object : Thread() {
+                        override fun run() {
+                            close()
+                        }
+                    })
+                }
         }
 
 }

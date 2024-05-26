@@ -46,13 +46,6 @@ class CoroutineFindPublisherTest {
     }
 
     @Test
-    fun oplogReplay() {
-        whenever(publisher.oplogReplay(true)).thenReturn(publisher)
-        coroutine.oplogReplay(true)
-        verify(publisher).oplogReplay(true)
-    }
-
-    @Test
     fun partial() {
         whenever(publisher.partial(true)).thenReturn(publisher)
         coroutine.partial(true)

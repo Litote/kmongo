@@ -85,7 +85,7 @@ internal class KMongoPojoCodecProvider(serialization: PropertySerialization<Any>
     override fun <T : Any?> get(clazz: Class<T>, registry: CodecRegistry): Codec<T>? {
         return if (clazz.isEnum) {
             @Suppress("UPPER_BOUND_VIOLATED", "UNCHECKED_CAST")
-            EnumCodec(clazz as Class<Enum<in Enum<*>>>) as Codec<T>
+            EnumCodec.newCodec(clazz as Class<Any>) as Codec<T>
         } else {
             pojoCodecProvider.get(clazz, registry)?.let {
                 KMongoPojoCodec(it as PojoCodec<T>)

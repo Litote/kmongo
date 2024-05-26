@@ -27,6 +27,11 @@ import org.bson.codecs.EncoderContext
  */
 internal class EnumCodec<T : Enum<T>>(private val clazz: Class<T>) : Codec<T> {
 
+    companion object {
+        @Suppress("UPPER_BOUND_VIOLATED", "UNCHECKED_CAST")
+        fun newCodec(clazz: Class<Any>) : EnumCodec<*> = EnumCodec(clazz as Class<out Enum<*>>)
+    }
+
     override fun encode(writer: BsonWriter, value: T, encoderContext: EncoderContext) {
         writer.writeString(value.name)
     }

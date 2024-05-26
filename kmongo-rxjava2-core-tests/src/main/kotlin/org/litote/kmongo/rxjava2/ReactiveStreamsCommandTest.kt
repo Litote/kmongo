@@ -22,6 +22,7 @@ import org.junit.Test
 import org.litote.kmongo.model.Friend
 import org.litote.kmongo.oldestMongoTestVersion
 import kotlin.test.assertEquals
+import org.litote.kmongo.insertOne
 import kotlin.test.assertTrue
 
 /**
@@ -58,31 +59,6 @@ class ReactiveStreamsCommandTest : KMongoReactiveStreamsRxBaseTest<Friend>(oldes
         val document = database.runCommand<Document>("{ count: '$friends' }").blockingGet()
                 ?: throw AssertionError("Document must not null!")
         assertEquals(1, document.get("n"))
-    }
-
-    @Test
-    fun canRunAGeoNearCommand() {
-        col.createIndex("{loc:'2d'}").blockingGet()
-        col.insertOne("{loc:{lat:48.690833,lng:9.140556}, name:'Paris'}").blockingAwait()
-        val document = database.runCommand<LocationResult>(
-            "{ geoNear : 'friend', near : [48.690,9.140], spherical: true}"
-        ).blockingGet() ?: throw AssertionError("Document must not null!")
-
-        val locations = document.results
-        assertEquals(1, locations.size)
-        assertEquals(1.732642945641585E-5, locations.first().dis)
-        assertEquals("Paris", locations.first().name)
-    }
-
-    @Test
-    fun canRunAnEmptyResultCommand() {
-        col.createIndex("{loc:'2d'}").blockingGet()
-
-        val document = database.runCommand<LocationResult>(
-            "{ geoNear : 'friend', near : [48.690,9.140], spherical: true}"
-        ).blockingGet() ?: throw AssertionError("Document must not null!")
-
-        assertTrue(document.results.isEmpty())
     }
 
 }

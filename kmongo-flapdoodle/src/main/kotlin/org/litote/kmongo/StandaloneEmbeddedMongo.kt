@@ -17,43 +17,48 @@
 package org.litote.kmongo
 
 import com.mongodb.ConnectionString
-import de.flapdoodle.embed.mongo.MongodProcess
-import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.MongodConfig
+import de.flapdoodle.embed.mongo.commands.MongodArguments
 import de.flapdoodle.embed.mongo.config.Net
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
+import de.flapdoodle.embed.mongo.transitions.Mongod
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
 import de.flapdoodle.embed.process.runtime.Network
+import de.flapdoodle.reverse.TransitionWalker
+import de.flapdoodle.reverse.transitions.Start
 import org.bson.BsonDocument
 import org.bson.Document
+
 
 /**
  *
  */
-internal class StandaloneEmbeddedMongo(version: IFeatureAwareVersion) {
+internal class StandaloneEmbeddedMongo(private val version: IFeatureAwareVersion) {
 
-    var port = Network.getFreeServerPort()
-    var config: MongodConfig = MongodConfig.builder()
-        .version(version)
-        .net(Net(port, Network.localhostIsIPv6()))
-        .build()
+    private val port = Network.getFreeServerPort()
+    private val immutableNet = Net.builder().bindIp("127.0.0.1").port(port).isIpv6(Network.localhostIsIPv6()).build()
 
-    val mongodProcess: MongodProcess by lazy {
+    val mongodProcess: TransitionWalker.ReachedState<RunningMongodProcess> by lazy {
         createInstance()
     }
 
     fun connectionString(commandExecutor: (String, BsonDocument, (Document?, Throwable?) -> Unit) -> Unit): ConnectionString =
         ConnectionString(
-            "mongodb://${mongodProcess.host}"
+            "mongodb://${mongodProcess.current().serverAddress}"
         )
 
-    private fun createInstance(): MongodProcess {
-        return MongodStarter.getInstance(EmbeddedMongoLog.embeddedConfig).prepare(config).let { executable ->
-            Runtime.getRuntime().addShutdownHook(object : Thread() {
-                override fun run() {
-                    executable.stop()
-                }
-            })
-            executable.start()
-        }
+    private fun createInstance(): TransitionWalker.ReachedState<RunningMongodProcess> {
+        val immutableMongodArguments = MongodArguments.defaults()
+        return Mongod.instance()
+            .withMongodArguments(Start.to(MongodArguments::class.java).initializedWith(immutableMongodArguments))
+            .withNet(Start.to(Net::class.java).initializedWith(immutableNet))
+            .configLogs()
+            .start(version)
+            .apply {
+                Runtime.getRuntime().addShutdownHook(object : Thread() {
+                    override fun run() {
+                        close()
+                    }
+                })
+            }
     }
 }

@@ -144,15 +144,6 @@ class CoroutineFindPublisher<T : Any>(override val publisher: FindPublisher<T>) 
         publisher.noCursorTimeout(noCursorTimeout).coroutine
 
     /**
-     * Users should not set this under normal circumstances.
-     *
-     * @param oplogReplay if oplog replay is enabled
-     * @return this
-     */
-    fun oplogReplay(oplogReplay: Boolean): CoroutineFindPublisher<T> =
-        publisher.oplogReplay(oplogReplay).coroutine
-
-    /**
      * Get partial results from a sharded cluster if one or more shards are unreachable (instead of throwing an error).
      *
      * @param partial if partial results for sharded clusters is enabled

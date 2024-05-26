@@ -55,22 +55,4 @@ class CommandTest : AllCategoriesKMongoBaseTest<Friend>(oldestMongoTestVersion) 
         assertEquals(1, r.get("n"))
     }
 
-    @Test
-    fun canRunAGeoNearCommand() {
-        col.createIndex("{loc:'2d'}")
-        col.insertOne("{loc:{lat:48.690833,lng:9.140556}, name:'Paris'}")
-        val r = database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}")
-        val locations = r.results
-        assertEquals(1, locations.size)
-        assertEquals(1.732642945641585E-5, locations.first().dis)
-        assertEquals("Paris", locations.first().name)
-    }
-
-    @Test
-    fun canRunAnEmptyResultCommand() {
-        col.createIndex("{loc:'2d'}")
-        val r = database.runCommand<LocationResult>("{ geoNear : 'friend', near : [48.690,9.140], spherical: true}")
-        assertTrue(r.results.isEmpty())
-    }
-
 }

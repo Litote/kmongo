@@ -16,27 +16,21 @@
 
 package org.litote.kmongo
 
-import de.flapdoodle.embed.mongo.packageresolver.Command
-import de.flapdoodle.embed.mongo.config.Defaults
-import de.flapdoodle.embed.process.config.process.ProcessOutput
+import de.flapdoodle.embed.mongo.transitions.ImmutableMongod
+import de.flapdoodle.embed.process.io.ProcessOutput
 import de.flapdoodle.embed.process.io.Processors
+import de.flapdoodle.reverse.transitions.Start
 
-/**
- *
- */
-internal object EmbeddedMongoLog {
-
-    val embeddedConfig = Defaults.runtimeConfigFor(Command.MongoD)
-        .processOutput(
-            if (System.getProperty("kmongo.flapdoddle.log") == "true") {
-                ProcessOutput.builder().build()
-            } else {
-                ProcessOutput.builder()
-                    .output(Processors.silent())
-                    .error(Processors.silent())
-                    .commands(Processors.silent())
-                    .build()
-            }
-        )
-        .build()
-}
+fun ImmutableMongod.configLogs() = withProcessOutput(
+    Start.to(ProcessOutput::class.java).initializedWith(
+        if (System.getProperty("kmongo.flapdoddle.log") == "true") {
+            ProcessOutput.builder().build()
+        } else {
+            ProcessOutput.builder()
+                .output(Processors.silent())
+                .error(Processors.silent())
+                .commands(Processors.silent())
+                .build()
+        }
+    )
+)

@@ -93,8 +93,6 @@ fun <I, O> FindPublisher<I>.map(mapper: (I?) -> O?): FindPublisher<O> =
         override fun noCursorTimeout(noCursorTimeout: Boolean): FindPublisher<O> =
             this@map.noCursorTimeout(noCursorTimeout).map(mapper)
 
-        override fun oplogReplay(oplogReplay: Boolean): FindPublisher<O> = this@map.oplogReplay(oplogReplay).map(mapper)
-
         override fun partial(partial: Boolean): FindPublisher<O> = this@map.partial(partial).map(mapper)
 
         override fun cursorType(cursorType: CursorType): FindPublisher<O> = this@map.cursorType(cursorType).map(mapper)

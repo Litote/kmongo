@@ -26,12 +26,12 @@ import org.litote.kmongo.service.MongoClientProvider
 /**
  * The default mongo version used for tests.
  */
-val defaultMongoTestVersion : IFeatureAwareVersion = Version.Main.V5_0
+val defaultMongoTestVersion : IFeatureAwareVersion = Version.Main.V7_0
 
 /**
  * The oldest mongo version supported for tests.
  */
-val oldestMongoTestVersion : IFeatureAwareVersion = Version.Main.V3_6
+val oldestMongoTestVersion : IFeatureAwareVersion = Version.Main.V6_0
 
 internal class KFlapdoodleConfiguration(version: IFeatureAwareVersion = defaultMongoTestVersion) {
 

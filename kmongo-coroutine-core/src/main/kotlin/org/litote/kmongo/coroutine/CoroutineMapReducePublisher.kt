@@ -145,28 +145,6 @@ class CoroutineMapReducePublisher<T: Any>(override val publisher: MapReducePubli
         publisher.databaseName(databaseName).coroutine
 
     /**
-     * Sets if the output database is sharded
-     *
-     * @param sharded if the output database is sharded
-     * @return this
-     * @mongodb.driver.manual reference/command/mapReduce/#output-to-a-collection-with-an-action output with an action
-     */
-    fun sharded(sharded: Boolean): CoroutineMapReducePublisher<T> =
-        publisher.sharded(sharded).coroutine
-
-    /**
-     * Sets if the post-processing step will prevent MongoDB from locking the database.
-     *
-     * Valid only with the `MapReduceAction.MERGE` or `MapReduceAction.REDUCE` actions.
-     *
-     * @param nonAtomic if the post-processing step will prevent MongoDB from locking the database.
-     * @return this
-     * @mongodb.driver.manual reference/command/mapReduce/#output-to-a-collection-with-an-action output with an action
-     */
-    fun nonAtomic(nonAtomic: Boolean): CoroutineMapReducePublisher<T> =
-        publisher.nonAtomic(nonAtomic).coroutine
-
-    /**
      * Sets the bypass document level validation flag.
      *
      *

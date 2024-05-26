@@ -117,8 +117,7 @@ internal class BsonModule(uuidRepresentation: UuidRepresentation? = null) : Simp
         ): de.undercouch.bson4jackson.types.ObjectId {
             if (jp is BsonParser) {
                 if (jp.currentToken != JsonToken.VALUE_EMBEDDED_OBJECT || jp.currentBsonType != BsonConstants.TYPE_OBJECTID) {
-                    @Suppress("DEPRECATION")
-                    throw ctxt.mappingException(de.undercouch.bson4jackson.types.ObjectId::class.java)
+                    throw ctxt.instantiationException(de.undercouch.bson4jackson.types.ObjectId::class.java, "not object id")
                 }
                 return jp.embeddedObject as de.undercouch.bson4jackson.types.ObjectId
             } else {

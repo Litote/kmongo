@@ -45,7 +45,7 @@ class KTXDateTest : AllCategoriesKMongoBaseTest<KTXDateValue>() {
 
     @Test
     fun testGMT1InsertAndLoad() {
-        val offset = FixedOffsetTimeZone(UtcOffset.parse("+01"))
+        val offset = FixedOffsetTimeZone(UtcOffset(1))
         val value = KTXDateValue(offset)
         col.insertOne(value)
         val loadedValue = col.findOne()!!

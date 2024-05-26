@@ -57,29 +57,4 @@ class CommandTest : KMongoReactorBaseTest<Friend>(oldestMongoTestVersion) {
         assertEquals(1, document["n"])
     }
 
-    @Test
-    fun canRunAGeoNearCommand() {
-        col.createIndex("{loc:'2d'}").block()
-        col.insertOne("{loc:{lat:48.690833,lng:9.140556}, name:'Paris'}").block()
-        val document = database.runCommand<LocationResult>(
-                "{ geoNear : 'friend', near : [48.690,9.140], spherical: true}"
-        ).block() ?: throw AssertionError("Document must not null!")
-
-        val locations = document.results
-        assertEquals(1, locations.size)
-        assertEquals(1.732642945641585E-5, locations.first().dis)
-        assertEquals("Paris", locations.first().name)
-    }
-
-    @Test
-    fun canRunAnEmptyResultCommand() {
-        col.createIndex("{loc:'2d'}").block()
-
-        val document = database.runCommand<LocationResult>(
-                "{ geoNear : 'friend', near : [48.690,9.140], spherical: true}"
-        ).block() ?: throw AssertionError("Document must not null!")
-
-        assertTrue(document.results.isEmpty())
-    }
-
 }

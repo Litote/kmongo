@@ -74,20 +74,6 @@ class CoroutineMapReducePublisherTest {
     }
 
     @Test
-    fun sharded() {
-        whenever(publisher.sharded(true)).thenReturn(publisher)
-        coroutine.sharded(true)
-        verify(publisher).sharded(true)
-    }
-
-    @Test
-    fun nonAtomic() {
-        whenever(publisher.nonAtomic(true)).thenReturn(publisher)
-        coroutine.nonAtomic(true)
-        verify(publisher).nonAtomic(true)
-    }
-
-    @Test
     fun bypassDocumentValidation() {
         whenever(publisher.bypassDocumentValidation(true)).thenReturn(publisher)
         coroutine.bypassDocumentValidation(true)
