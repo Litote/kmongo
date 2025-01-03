@@ -20,6 +20,7 @@ import com.mongodb.assertions.Assertions.assertTrue
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import org.bson.BsonDocument
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.document
 import org.litote.kmongo.rem
@@ -58,6 +59,7 @@ class Issue276SubclassTypedQueryTest {
         )
     }
 
+    @OptIn(ExperimentalCompilerApi::class)
     @Test
     fun checkDivDoesNotCompile() {
         val kotlinSource = SourceFile.kotlin(
@@ -85,6 +87,6 @@ class Issue276SubclassTypedQueryTest {
             messageOutputStream = System.out // see diagnostics in real time
         }.compile()
         assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
-        assertTrue(result.messages.contains("Type mismatch: inferred type is String but Shape was expected"))
+        assertTrue(result.messages.contains("Cannot infer type for this parameter. Please specify it explicitly"))
     }
 }

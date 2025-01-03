@@ -70,21 +70,21 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>2.0.0</kotlin.version>
-        <mongo.version>5.1.0</mongo.version>
-        <mongo.base.version>5.1</mongo.base.version>
-        <coroutine.version>1.8.1</coroutine.version>
+        <kotlin.version>2.1.0</kotlin.version>
+        <mongo.version>5.2.1</mongo.version>
+        <mongo.base.version>5.2</mongo.base.version>
+        <coroutine.version>1.10.1</coroutine.version>
         <rxjava.version>2.2.21</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
-        <reactor.version>2023.0.6</reactor.version>
+        <reactor.version>2024.0.1</reactor.version>
         <mongo.reactor.adapter.version>0.3.2</mongo.reactor.adapter.version>
-        <jackson.version>2.17.1</jackson.version>
-        <jackson-module.version>2.17.1</jackson-module.version>
+        <jackson.version>2.18.2</jackson.version>
+        <jackson-module.version>2.18.2</jackson-module.version>
         <bson4jackson.version>2.15.1</bson4jackson.version>
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.4.0</jackson-module-loader.version>
-        <kotlinx-serialization.version>1.6.3</kotlinx-serialization.version>
-        <kotlinx-datetime.version>0.6.0</kotlinx-datetime.version>
+        <kotlinx-serialization.version>1.7.3</kotlinx-serialization.version>
+        <kotlinx-datetime.version>0.6.1</kotlinx-datetime.version>
         <kbson.version>0.5.0</kbson.version>
 
         <!-- annotations processor -->
@@ -94,13 +94,13 @@
         <kotlinx.metadata>0.9.0</kotlinx.metadata>
 
         <!-- test dependencies -->
-        <flapdoodle.version>4.13.1</flapdoodle.version>
+        <flapdoodle.version>4.18.1</flapdoodle.version>
         <sl4j.version>2.0.13</sl4j.version>
         <junit.version>4.13.2</junit.version>
         <jmh.version>1.37</jmh.version>
         <compiler-testing.version>0.21.0</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
-        <kotlin-compile-testing.version>1.5.0</kotlin-compile-testing.version>
+        <kotlin-compile-testing.version>0.7.0</kotlin-compile-testing.version>
 
         <!-- plugins -->
         <plugin.compiler.version>3.11.0</plugin.compiler.version>
@@ -136,6 +136,21 @@
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-reflect</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-compiler-embeddable</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-annotation-processing-embeddable</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib-jdk8</artifactId>
                 <version>${kotlin.version}</version>
             </dependency>
             <dependency>
@@ -515,8 +530,8 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.github.tschuchortdev</groupId>
-                <artifactId>kotlin-compile-testing</artifactId>
+                <groupId>dev.zacsweers.kctfork</groupId>
+                <artifactId>core</artifactId>
                 <version>${kotlin-compile-testing.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -549,6 +564,18 @@
                         <systemPropertyVariables>
                             <kmongo.flapdoodle.replicaset>true</kmongo.flapdoodle.replicaset>
                         </systemPropertyVariables>
+                        <argLine>
+                            --add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+                            --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
+                            --add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED
+                            --add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+                            --add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED
+                            --add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
+                            --add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+                            --add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED
+                            --add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+                            --add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+                        </argLine>
                     </configuration>
                 </plugin>
                 <plugin>

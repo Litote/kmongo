@@ -18,6 +18,7 @@ package org.litote.kmongo.reactivestreams
 
 import com.mongodb.CursorType
 import com.mongodb.ExplainVerbosity
+import com.mongodb.client.cursor.TimeoutMode
 import com.mongodb.client.model.Collation
 import com.mongodb.reactivestreams.client.FindPublisher
 import org.bson.BsonValue
@@ -71,6 +72,8 @@ fun <T> FindPublisher<T>.sort(sort: String): FindPublisher<T> = sort(KMongoUtil.
 @Suppress("UNCHECKED_CAST")
 fun <I, O> FindPublisher<I>.map(mapper: (I?) -> O?): FindPublisher<O> =
     object : FindPublisher<O> {
+
+        override fun timeoutMode(p0: TimeoutMode): FindPublisher<O> = this@map.timeoutMode(p0).map(mapper)
 
         override fun first(): Publisher<O> = this@map.first().map(mapper)
 

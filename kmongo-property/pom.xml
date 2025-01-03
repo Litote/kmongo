@@ -66,8 +66,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.tschuchortdev</groupId>
-            <artifactId>kotlin-compile-testing</artifactId>
+            <groupId>dev.zacsweers.kctfork</groupId>
+            <artifactId>core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
