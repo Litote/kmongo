@@ -121,6 +121,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
     </properties>
 
     <dependencies>
