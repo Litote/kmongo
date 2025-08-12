@@ -113,6 +113,13 @@
                             <sourceDirs>
                                 <sourceDir>src/test/kotlin</sourceDir>
                             </sourceDirs>
+                            <annotationProcessorPaths>
+                                <annotationProcessorPath>
+                                    <groupId>org.litote.kmongo</groupId>
+                                    <artifactId>kmongo-annotation-processor</artifactId>
+                                    <version>${project.version}</version>
+                                </annotationProcessorPath>
+                            </annotationProcessorPaths>
                         </configuration>
                     </execution>
                 </executions>

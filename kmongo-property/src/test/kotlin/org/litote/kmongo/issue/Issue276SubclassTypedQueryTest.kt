@@ -87,6 +87,6 @@ class Issue276SubclassTypedQueryTest {
             messageOutputStream = System.out // see diagnostics in real time
         }.compile()
         assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
-        assertTrue(result.messages.contains("Cannot infer type for this parameter. Please specify it explicitly"))
+        assertTrue(result.messages.contains("Cannot infer type for this parameter. Specify it explicitly."))
     }
 }

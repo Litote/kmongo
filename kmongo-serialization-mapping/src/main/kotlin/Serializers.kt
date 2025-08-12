@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalTime::class)
+
 package org.litote.kmongo.serialization
 
 import com.github.jershell.kbson.BsonEncoder
@@ -60,6 +62,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import kotlin.reflect.KProperty
+import kotlin.time.ExperimentalTime
 import kotlinx.datetime.Instant as KTXInstant
 import kotlinx.datetime.LocalDate as KTXLocalDate
 import kotlinx.datetime.LocalDateTime as KTXLocalDateTime
@@ -229,11 +232,19 @@ object KTXInstantSerializer : TemporalExtendedJsonSerializer<KTXInstant>() {
     override fun instantiate(date: Long): KTXInstant = KTXInstant.fromEpochMilliseconds(date)
 }
 
+object KTXInstantSerializer2 : TemporalExtendedJsonSerializer<kotlin.time.Instant>() {
+
+    override fun epochMillis(temporal: kotlin.time.Instant): Long = temporal.toEpochMilliseconds()
+
+    override fun instantiate(date: Long): kotlin.time.Instant = kotlin.time.Instant.fromEpochMilliseconds(date)
+}
+
+
 //@Serializer(forClass = KTXLocalDate::class)
 object KTXLocalDateSerializer : TemporalExtendedJsonSerializer<KTXLocalDate>() {
 
     override fun epochMillis(temporal: KTXLocalDate): Long =
-        KTXInstantSerializer.epochMillis(temporal.atStartOfDayIn(KTXTimeZone.UTC))
+        KTXInstantSerializer2.epochMillis(temporal.atStartOfDayIn(KTXTimeZone.UTC))
 
     override fun instantiate(date: Long): KTXLocalDate =
         KTXInstantSerializer.instantiate(date).toLocalDateTime(KTXTimeZone.UTC).date
@@ -243,7 +254,7 @@ object KTXLocalDateSerializer : TemporalExtendedJsonSerializer<KTXLocalDate>() {
 object KTXLocalDateTimeSerializer : TemporalExtendedJsonSerializer<KTXLocalDateTime>() {
 
     override fun epochMillis(temporal: KTXLocalDateTime): Long =
-        KTXInstantSerializer.epochMillis(temporal.toInstant(KTXTimeZone.UTC))
+        KTXInstantSerializer2.epochMillis(temporal.toInstant(KTXTimeZone.UTC))
 
     override fun instantiate(date: Long): KTXLocalDateTime =
         KTXInstantSerializer.instantiate(date).toLocalDateTime(KTXTimeZone.UTC)
@@ -253,7 +264,7 @@ object KTXLocalDateTimeSerializer : TemporalExtendedJsonSerializer<KTXLocalDateT
 object KTXLocalTimeSerializer : TemporalExtendedJsonSerializer<KTXLocalTime>() {
 
     override fun epochMillis(temporal: KTXLocalTime): Long =
-        KTXInstantSerializer.epochMillis(temporal.atDate(KTXLocalDate.fromEpochDays(0)).toInstant(KTXTimeZone.UTC))
+        KTXInstantSerializer2.epochMillis(temporal.atDate(KTXLocalDate.fromEpochDays(0)).toInstant(KTXTimeZone.UTC))
 
     override fun instantiate(date: Long): KTXLocalTime =
         KTXInstantSerializer.instantiate(date).toLocalDateTime(KTXTimeZone.UTC).time

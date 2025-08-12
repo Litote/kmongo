@@ -70,21 +70,21 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>2.1.0</kotlin.version>
-        <mongo.version>5.2.1</mongo.version>
-        <mongo.base.version>5.2</mongo.base.version>
-        <coroutine.version>1.10.1</coroutine.version>
+        <kotlin.version>2.2.0</kotlin.version>
+        <mongo.version>5.5.1</mongo.version>
+        <mongo.base.version>5.5</mongo.base.version>
+        <coroutine.version>1.10.2</coroutine.version>
         <rxjava.version>2.2.21</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
-        <reactor.version>2024.0.1</reactor.version>
+        <reactor.version>2024.0.8</reactor.version>
         <mongo.reactor.adapter.version>0.3.2</mongo.reactor.adapter.version>
-        <jackson.version>2.18.2</jackson.version>
-        <jackson-module.version>2.18.2</jackson-module.version>
-        <bson4jackson.version>2.15.1</bson4jackson.version>
+        <jackson.version>2.19.2</jackson.version>
+        <jackson-module.version>2.19.2</jackson-module.version>
+        <bson4jackson.version>2.18.0</bson4jackson.version>
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.4.0</jackson-module-loader.version>
-        <kotlinx-serialization.version>1.7.3</kotlinx-serialization.version>
-        <kotlinx-datetime.version>0.6.1</kotlinx-datetime.version>
+        <kotlinx-serialization.version>1.9.0</kotlinx-serialization.version>
+        <kotlinx-datetime.version>0.7.1-0.6.x-compat</kotlinx-datetime.version>
         <kbson.version>0.5.0</kbson.version>
 
         <!-- annotations processor -->
@@ -94,24 +94,24 @@
         <kotlinx.metadata>0.9.0</kotlinx.metadata>
 
         <!-- test dependencies -->
-        <flapdoodle.version>4.18.1</flapdoodle.version>
-        <sl4j.version>2.0.13</sl4j.version>
+        <flapdoodle.version>4.21.0</flapdoodle.version>
+        <sl4j.version>2.0.17</sl4j.version>
         <junit.version>4.13.2</junit.version>
         <jmh.version>1.37</jmh.version>
         <compiler-testing.version>0.21.0</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
-        <kotlin-compile-testing.version>0.7.0</kotlin-compile-testing.version>
+        <kotlin-compile-testing.version>0.8.0</kotlin-compile-testing.version>
 
         <!-- plugins -->
-        <plugin.compiler.version>3.11.0</plugin.compiler.version>
+        <plugin.compiler.version>3.14.0</plugin.compiler.version>
         <plugin.surefire.version>3.0.0-M4</plugin.surefire.version>
-        <plugin.source.version>3.2.1</plugin.source.version>
-        <plugin.release.version>3.0.0-M1</plugin.release.version>
-        <plugin.jar.version>3.3.0</plugin.jar.version>
-        <plugin.dokka.version>0.10.1</plugin.dokka.version>
-        <plugin.gpg.version>3.0.1</plugin.gpg.version>
-        <plugin.nexus-staging.version>1.6.13</plugin.nexus-staging.version>
-        <plugin.jacoco.version>0.8.9</plugin.jacoco.version>
+        <plugin.source.version>3.3.1</plugin.source.version>
+        <plugin.release.version>3.1.1</plugin.release.version>
+        <plugin.jar.version>3.4.2</plugin.jar.version>
+        <plugin.dokka.version>2.0.0</plugin.dokka.version>
+        <plugin.gpg.version>3.2.8</plugin.gpg.version>
+        <plugin.publishing-maven.version>0.8.0</plugin.publishing-maven.version>
+        <plugin.jacoco.version>0.8.13</plugin.jacoco.version>
         <plugin.exec.version>1.2.1</plugin.exec.version>
         <plugin.build-helper.version>1.8</plugin.build-helper.version>
         <plugin.shade.version>2.2</plugin.shade.version>
@@ -121,7 +121,8 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
-        <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
+
+        <maven.version.ignore>(?i).*-(alpha|beta|m|rc)([-.]?\d+)?</maven.version.ignore>
     </properties>
 
     <dependencies>
@@ -558,7 +559,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${plugin.surefire.version}</version>
                     <configuration>
-                        <forkMode>once</forkMode>
                         <useSystemClassLoader>false</useSystemClassLoader>
                         <useManifestOnlyJar>false</useManifestOnlyJar>
                         <failIfNoTests>false</failIfNoTests>
@@ -682,14 +682,13 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>${plugin.nexus-staging.version}</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>${plugin.publishing-maven.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <publishingServerId>ossrh</publishingServerId>
+                    <autoPublish>true</autoPublish>
                 </configuration>
             </plugin>
             <plugin>
@@ -767,17 +766,6 @@
             <comments />
         </license>
     </licenses>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <profiles>
         <profile>

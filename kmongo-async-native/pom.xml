@@ -91,7 +91,6 @@
                     </sourceDirectories>
                     <perPackageOptions>
                         <packageOptions>
-                            <prefix>kotlin</prefix>
                             <skipDeprecated>false</skipDeprecated>
                             <reportUndocumented>true</reportUndocumented>
                             <includeNonPublic>false</includeNonPublic>

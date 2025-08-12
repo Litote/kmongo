@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalTime::class)
+
 package org.litote.kmongo.jackson
 
 import com.fasterxml.jackson.core.JsonGenerator
@@ -44,6 +46,7 @@ import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
 import java.util.regex.Pattern
+import kotlin.time.ExperimentalTime
 import kotlinx.datetime.Instant as KTXInstant
 import kotlinx.datetime.LocalDate as KTXLocalDate
 import kotlinx.datetime.LocalDateTime as KTXLocalDateTime
@@ -172,22 +175,27 @@ internal class ExtendedJsonModule : SimpleModule() {
         override fun epochMillis(temporal: KTXInstant): Long = temporal.toEpochMilliseconds()
     }
 
+    object KTXInstantExtendedJsonSerializer2 : TemporalExtendedJsonSerializer<kotlin.time.Instant>() {
+
+        override fun epochMillis(temporal: kotlin.time.Instant): Long = temporal.toEpochMilliseconds()
+    }
+
     object KTXLocalDateExtendedJsonSerializer : TemporalExtendedJsonSerializer<KTXLocalDate>() {
 
         override fun epochMillis(temporal: KTXLocalDate): Long =
-            KTXInstantExtendedJsonSerializer.epochMillis(temporal.atStartOfDayIn(KTXTimeZone.UTC))
+            KTXInstantExtendedJsonSerializer2.epochMillis(temporal.atStartOfDayIn(KTXTimeZone.UTC))
     }
 
     object KTXLocalDateTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<KTXLocalDateTime>() {
 
         override fun epochMillis(temporal: KTXLocalDateTime): Long =
-            KTXInstantExtendedJsonSerializer.epochMillis(temporal.toInstant(KTXTimeZone.UTC))
+            KTXInstantExtendedJsonSerializer2.epochMillis(temporal.toInstant(KTXTimeZone.UTC))
     }
 
     object KTXLocalTimeExtendedJsonSerializer : TemporalExtendedJsonSerializer<KTXLocalTime>() {
 
         override fun epochMillis(temporal: KTXLocalTime): Long =
-            KTXInstantExtendedJsonSerializer.epochMillis(temporal.atDate(KTXLocalDate.fromEpochDays(0)).toInstant(KTXTimeZone.UTC))
+            KTXInstantExtendedJsonSerializer2.epochMillis(temporal.atDate(KTXLocalDate.fromEpochDays(0)).toInstant(KTXTimeZone.UTC))
     }
 
     object IdSerializer : JsonSerializer<Id<*>>() {
