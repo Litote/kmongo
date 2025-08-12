@@ -92,6 +92,7 @@
         <kjackson-data.version>0.4.0</kjackson-data.version>
         <kjackson-generator.version>0.4.0</kjackson-generator.version>
         <kotlinx.metadata>0.9.0</kotlinx.metadata>
+        <kotlinpoet.version>2.2.0</kotlinpoet.version>
 
         <!-- test dependencies -->
         <flapdoodle.version>4.21.0</flapdoodle.version>
@@ -174,6 +175,7 @@
             <dependency>
                 <groupId>com.squareup</groupId>
                 <artifactId>kotlinpoet</artifactId>
+                <version>${kotlinpoet.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jetbrains.kotlin</groupId>
