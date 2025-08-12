@@ -19,7 +19,7 @@
 
     <groupId>org.litote.kmongo</groupId>
     <artifactId>kmongo-root</artifactId>
-    <version>5.5.1</version>
+    <version>5.5.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>KMongo root project</name>
     <description>Mongo client for Kotlin</description>
@@ -744,7 +744,7 @@
         <connection>scm:git:git@github.com:Litote/kmongo.git</connection>
         <developerConnection>scm:git:git@github.com:Litote/kmongo.git</developerConnection>
         <url>git@github.com:Litote/kmongo.git</url>
-        <tag>kmongo-5.5.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <inceptionYear>2016</inceptionYear>
