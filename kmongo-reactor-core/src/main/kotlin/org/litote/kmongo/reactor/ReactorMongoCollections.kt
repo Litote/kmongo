@@ -1000,7 +1000,7 @@ fun <T : Any> ReactorMongoCollection<T>.findOneAndDelete(
  * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
  * returned
  */
-fun <T> ReactorMongoCollection<T>.findOneAndReplace(
+fun <T : Any> ReactorMongoCollection<T>.findOneAndReplace(
     filter: String,
     replacement: T,
     options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
@@ -1020,7 +1020,7 @@ fun <T> ReactorMongoCollection<T>.findOneAndReplace(
  * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
  * returned
  */
-fun <T> ReactorMongoCollection<T>.findOneAndReplace(
+fun <T : Any> ReactorMongoCollection<T>.findOneAndReplace(
     clientSession: ClientSession,
     filter: String,
     replacement: T,

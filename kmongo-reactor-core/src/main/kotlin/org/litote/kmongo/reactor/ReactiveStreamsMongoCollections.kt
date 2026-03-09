@@ -992,7 +992,7 @@ fun <T : Any> MongoCollection<T>.findOneAndDelete(
  * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
  * returned
  */
-fun <T> MongoCollection<T>.findOneAndReplace(
+fun <T : Any> MongoCollection<T>.findOneAndReplace(
     filter: String,
     replacement: T,
     options: FindOneAndReplaceOptions = FindOneAndReplaceOptions()
@@ -1012,7 +1012,7 @@ fun <T> MongoCollection<T>.findOneAndReplace(
  * document as it was before the update or as it is after the update.  If no documents matched the query filter, then null will be
  * returned
  */
-fun <T> MongoCollection<T>.findOneAndReplace(
+fun <T : Any> MongoCollection<T>.findOneAndReplace(
     clientSession: ClientSession,
     filter: String,
     replacement: T,

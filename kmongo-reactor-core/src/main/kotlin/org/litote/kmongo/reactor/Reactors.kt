@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono
  * @param callback lambda that will be supplied to wrapped SingleResultCallback<T>
  * @param <T>            the default target type of the collection to return
  */
-inline fun <T> monoResult(crossinline callback: (SingleResultCallback<T>) -> Unit): Mono<T> {
+inline fun <T : Any> monoResult(crossinline callback: (SingleResultCallback<T>) -> Unit): Mono<T> {
     return Mono.create { sink ->
         callback { result: T?, throwable: Throwable? ->
             when {

@@ -31,4 +31,4 @@ fun Publisher<*>.blockLast(): Any? = toFlux().blockLast()
  * Waits in a blocking fashion until the current Single signals a success value, null (which is returned) or an exception (which is propagated).
  * @return the success value or null
  */
-fun <T> Publisher<T>.block(): T? = toMono().block()
+fun <T : Any> Publisher<T>.block(): T? = toMono().block()
