@@ -3,7 +3,7 @@
 <span style="color:red">Look at the [Deprecation notice](https://litote.org/kmongo)</span>
 
 [![Gitter](https://badges.gitter.im/kmongoo/Lobby.svg)](https://gitter.im/kmongoo/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
- [![Maven Central](https://img.shields.io/maven-central/v/org.litote.kmongo/kmongo)](https://maven-badges.herokuapp.com/maven-central/org.litote.kmongo/kmongo)
+ [![Maven Central](https://img.shields.io/maven-central/v/org.litote.kmongo/kmongo)](https://central.sonatype.com/artifact/org.litote.kmongo/kmongo)
  [![Apache2 license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
  [![Build Status](https://api.travis-ci.com/Litote/kmongo.png)](https://app.travis-ci.com/github/Litote/kmongo)
  [![codecov](https://codecov.io/gh/Litote/kmongo/branch/master/graph/badge.svg)](https://codecov.io/gh/Litote/kmongo)
