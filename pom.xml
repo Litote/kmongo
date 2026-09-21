@@ -70,21 +70,21 @@
 
     <properties>
         <!-- dependencies -->
-        <kotlin.version>2.3.10</kotlin.version>
-        <mongo.version>5.6.4</mongo.version>
-        <mongo.base.version>5.6</mongo.base.version>
-        <coroutine.version>1.10.2</coroutine.version>
+        <kotlin.version>2.4.20</kotlin.version>
+        <mongo.version>5.12.0</mongo.version>
+        <mongo.base.version>5.12</mongo.base.version>
+        <coroutine.version>1.11.0</coroutine.version>
         <rxjava.version>2.2.21</rxjava.version>
         <rxkotlin.version>2.4.0</rxkotlin.version>
-        <reactor.version>2025.0.3</reactor.version>
+        <reactor.version>2025.0.7</reactor.version>
         <mongo.reactor.adapter.version>0.3.2</mongo.reactor.adapter.version>
-        <jackson.version>2.21.1</jackson.version>
-        <jackson-module.version>2.21.1</jackson-module.version>
+        <jackson.version>2.22.2</jackson.version>
+        <jackson-module.version>2.22.2</jackson-module.version>
         <bson4jackson.version>2.18.0</bson4jackson.version>
         <kreflect.version>1.0.0</kreflect.version>
         <jackson-module-loader.version>0.4.0</jackson-module-loader.version>
-        <kotlinx-serialization.version>1.10.0</kotlinx-serialization.version>
-        <kotlinx-datetime.version>0.7.1-0.6.x-compat</kotlinx-datetime.version>
+        <kotlinx-serialization.version>1.11.0</kotlinx-serialization.version>
+        <kotlinx-datetime.version>0.8.0-0.6.x-compat</kotlinx-datetime.version>
         <kbson.version>0.5.0</kbson.version>
 
         <!-- annotations processor -->
@@ -95,24 +95,24 @@
         <kotlinpoet.version>1.0.1</kotlinpoet.version>
 
         <!-- test dependencies -->
-        <flapdoodle.version>4.24.0</flapdoodle.version>
-        <sl4j.version>2.0.17</sl4j.version>
+        <flapdoodle.version>4.33.0</flapdoodle.version>
+        <sl4j.version>2.0.19</sl4j.version>
         <junit.version>4.13.2</junit.version>
         <jmh.version>1.37</jmh.version>
         <compiler-testing.version>0.23.0</compiler-testing.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
-        <kotlin-compile-testing.version>0.12.1</kotlin-compile-testing.version>
+        <kotlin-compile-testing.version>0.14.0</kotlin-compile-testing.version>
 
         <!-- plugins -->
-        <plugin.compiler.version>3.15.0</plugin.compiler.version>
-        <plugin.surefire.version>3.0.0-M4</plugin.surefire.version>
+        <plugin.compiler.version>3.16.0</plugin.compiler.version>
+        <plugin.surefire.version>3.6.0</plugin.surefire.version>
         <plugin.source.version>3.4.0</plugin.source.version>
         <plugin.release.version>3.3.1</plugin.release.version>
-        <plugin.jar.version>3.5.0</plugin.jar.version>
-        <plugin.dokka.version>2.1.0</plugin.dokka.version>
+        <plugin.jar.version>3.5.1</plugin.jar.version>
+        <plugin.dokka.version>2.2.0</plugin.dokka.version>
         <plugin.gpg.version>3.2.8</plugin.gpg.version>
-        <plugin.publishing-maven.version>0.10.0</plugin.publishing-maven.version>
-        <plugin.jacoco.version>0.8.14</plugin.jacoco.version>
+        <plugin.publishing-maven.version>0.11.0</plugin.publishing-maven.version>
+        <plugin.jacoco.version>0.8.15</plugin.jacoco.version>
         <plugin.exec.version>1.2.1</plugin.exec.version>
         <plugin.build-helper.version>1.8</plugin.build-helper.version>
         <plugin.shade.version>2.2</plugin.shade.version>
